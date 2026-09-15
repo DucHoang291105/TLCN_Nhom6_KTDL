@@ -1,0 +1,10 @@
+sources:
+  historical:
+    - chotot
+    - mogi
+    - alonhadat
+    - luachonnhadat
+    - muaban
+    - homedy
+  snapshots:
+    - batdongsan

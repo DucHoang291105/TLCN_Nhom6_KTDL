@@ -1,0 +1,10 @@
+# Chưa khóa phiên bản ở giai đoạn khởi tạo.
+# Dự kiến sẽ dùng:
+# pyspark
+# pandas
+# pyarrow
+# psycopg
+# sqlalchemy
+# dash
+# plotly
+# dash-leaflet

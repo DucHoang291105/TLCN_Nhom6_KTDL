@@ -1,0 +1,120 @@
+TLCN_BDS_Lakehouse/
+├── .env.example
+├── .gitignore
+├── README.md
+├── docker-compose.yml
+├── requirements.txt
+└── outputs/
+    └── figures/
+        ├── .gitkeep
+    └── validation/
+        ├── .gitkeep
+    └── profiling/
+        ├── .gitkeep
+└── dashboard/
+    ├── app.py
+    └── components/
+        ├── __init__.py
+    └── assets/
+        ├── .gitkeep
+    └── pages/
+        ├── __init__.py
+        ├── data_quality.py
+        ├── map.py
+        ├── overview.py
+        ├── price_benchmark.py
+        ├── repricing.py
+└── src/
+    ├── __init__.py
+    └── bronze/
+        ├── __init__.py
+        ├── ingest_bronze.py
+    └── gold/
+        ├── __init__.py
+        ├── build_data_quality.py
+        ├── build_market_overview.py
+        ├── build_price_benchmark.py
+        ├── build_repricing.py
+    └── ingestion/
+        ├── __init__.py
+        └── batdongsan/
+            ├── __init__.py
+        └── historical/
+            ├── __init__.py
+    └── common/
+        ├── __init__.py
+        ├── spark_session.py
+        ├── utils.py
+    └── silver/
+        ├── __init__.py
+        ├── build_listing_core.py
+        ├── build_listing_feature.py
+        ├── build_listing_history.py
+        ├── build_location.py
+└── sql/
+    └── marts/
+        ├── .gitkeep
+    └── dwh/
+        ├── .gitkeep
+└── notebooks/
+    └── experiments/
+        ├── .gitkeep
+    └── profiling/
+        ├── .gitkeep
+└── dags/
+    ├── lakehouse_pipeline.py
+└── docker/
+    └── dashboard/
+        ├── .gitkeep
+    └── airflow/
+        ├── .gitkeep
+    └── spark/
+        ├── .gitkeep
+└── docs/
+    └── architecture/
+        ├── data_flow.md
+        ├── lakehouse_architecture.md
+    └── business/
+        ├── dashboard_questions.md
+        ├── problem_definition.md
+        ├── target_users.md
+    └── data/
+        ├── canonical_listing_schema.md
+        ├── data_quality_rules.md
+        ├── data_source_inventory.md
+        ├── source_to_canonical_mapping.csv
+└── tests/
+    ├── __init__.py
+    └── gold/
+        ├── .gitkeep
+    └── ingestion/
+        ├── .gitkeep
+    └── silver/
+        ├── .gitkeep
+└── config/
+    ├── sources.yaml
+    └── airflow/
+        ├── .gitkeep
+    └── spark/
+        ├── .gitkeep
+└── data/
+    └── incoming/
+        └── historical/
+            └── alonhadat/
+                ├── README.md
+            └── mogi/
+                ├── README.md
+            └── chotot/
+                ├── README.md
+            └── luachonnhadat/
+                ├── README.md
+            └── muaban/
+                ├── README.md
+            └── homedy/
+                ├── README.md
+        └── snapshots/
+            └── batdongsan/
+                ├── README.md
+    └── reference/
+        └── gis/
+            ├── .gitkeep

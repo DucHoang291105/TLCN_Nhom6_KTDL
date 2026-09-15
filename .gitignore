@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local data - không commit dữ liệu lớn
+data/incoming/**
+!data/incoming/**/.gitkeep
+!data/incoming/**/README.md
+
+# Runtime / outputs
+outputs/**
+!outputs/**/.gitkeep
+
+# Logs
+*.log
+
+# Spark / Airflow temp
+spark-warehouse/
+airflow/logs/
