@@ -388,13 +388,8 @@ dq_reason = INVALID_PUBLISHED_AT
 - [x] Test Spark -> MinIO
 - [x] Test Iceberg
 - [x] Dọn dữ liệu test
-- [ ] Chạy `verify_bronze.py`
-- [ ] Commit milestone Week 5
-
-Hiện tại Bronze historical gần hoàn thành.
-
-## 12. Kế hoạch tiếp theo
-
+- [x] Chạy `verify_bronze.py`
+- [x] Commit milestone Week 5
 ### Tuần 6 - Silver Core + Data Quality
 
 ```text
