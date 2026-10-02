@@ -1,6 +1,11 @@
-﻿services:
+name: tlcn_bds_lakehouse
 
+x-common-restart: &common-restart
+  restart: unless-stopped
+
+services:
   minio:
+    <<: *common-restart
     image: quay.io/minio/minio:latest
     container_name: tlcn_minio
     command: server /data --console-address ":9001"
@@ -12,10 +17,88 @@
       - "9001:9001"
     volumes:
       - minio_data:/data
-    networks:
-      - tlcn_network
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [tlcn_network]
+
+  minio-init:
+    image: quay.io/minio/minio:latest
+    container_name: tlcn_minio_init
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    entrypoint: >-
+      /bin/sh -c "
+      mc alias set local http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD;
+      mc mb --ignore-existing local/lakehouse-bronze;
+      mc mb --ignore-existing local/lakehouse-silver;
+      mc mb --ignore-existing local/lakehouse-gold;
+      mc mb --ignore-existing local/warehouse;
+      exit 0;
+      "
+    restart: "no"
+    networks: [tlcn_network]
+
+  postgres:
+    <<: *common-restart
+    image: postgres:16-alpine
+    container_name: tlcn_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    mem_limit: 512m
+    networks: [tlcn_network]
+
+  iceberg-rest:
+    <<: *common-restart
+    image: apache/iceberg-rest-fixture:1.10.0
+    container_name: tlcn_iceberg_rest
+    # The fixture image normally runs as an unprivileged user, while a newly
+    # created named volume is owned by root.  Running this local-only catalog
+    # as root lets SQLite create its durable catalog file in that volume.
+    user: "0:0"
+    depends_on:
+      minio:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    environment:
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+      AWS_REGION: us-east-1
+      CATALOG_CATALOG__IMPL: org.apache.iceberg.jdbc.JdbcCatalog
+      CATALOG_URI: jdbc:sqlite:/catalog/iceberg_catalog.db
+      CATALOG_JDBC_USER: user
+      CATALOG_JDBC_PASSWORD: password
+      CATALOG_WAREHOUSE: s3://warehouse/
+      CATALOG_IO__IMPL: org.apache.iceberg.aws.s3.S3FileIO
+      CATALOG_S3_ENDPOINT: http://minio:9000
+    ports:
+      - "8181:8181"
+    volumes:
+      - iceberg_catalog:/catalog
+    mem_limit: 768m
+    networks: [tlcn_network]
 
   spark-master:
+    <<: *common-restart
     image: apache/spark:3.5.9-scala2.12-java17-python3-r-ubuntu
     container_name: tlcn_spark_master
     command:
@@ -30,14 +113,15 @@
       - "8080:8080"
     volumes:
       - ./:/opt/project
-    networks:
-      - tlcn_network
+      - spark_ivy:/home/spark/.ivy2
+    mem_limit: 1g
+    networks: [tlcn_network]
 
   spark-worker:
+    <<: *common-restart
     image: apache/spark:3.5.9-scala2.12-java17-python3-r-ubuntu
     container_name: tlcn_spark_worker
-    depends_on:
-      - spark-master
+    depends_on: [spark-master]
     command:
       - /opt/spark/bin/spark-class
       - org.apache.spark.deploy.worker.Worker
@@ -52,11 +136,239 @@
       - "8081:8081"
     volumes:
       - ./:/opt/project
-    networks:
-      - tlcn_network
+      - spark_ivy:/home/spark/.ivy2
+    mem_limit: 2304m
+    networks: [tlcn_network]
+
+  trino:
+    <<: *common-restart
+    image: trinodb/trino:483
+    container_name: tlcn_trino
+    profiles: [query, full]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      iceberg-rest:
+        condition: service_healthy
+    ports:
+      - "8090:8080"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./docker/trino/catalog:/etc/trino/catalog:ro
+      - trino_data:/data/trino
+    mem_limit: 2g
+    networks: [tlcn_network]
+
+  fastapi:
+    <<: *common-restart
+    build:
+      context: ./docker/fastapi
+    image: tlcn-fastapi:1.0
+    container_name: tlcn_fastapi
+    profiles: [application, full]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_DSN: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      TRINO_URL: http://trino:8080
+    ports:
+      - "8000:8000"
+    mem_limit: 384m
+    networks: [tlcn_network]
+
+  web-ui:
+    <<: *common-restart
+    image: nginx:1.28-alpine
+    container_name: tlcn_web_ui
+    profiles: [application, full]
+    ports:
+      - "3000:80"
+    volumes:
+      - ./docker/web:/usr/share/nginx/html:ro
+    mem_limit: 128m
+    networks: [tlcn_network]
+
+  airflow:
+    <<: *common-restart
+    image: lakehouse-airflow:3.3.1-python3.10
+    container_name: tlcn_airflow
+    profiles: [orchestration, full]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: standalone
+    environment:
+      AIRFLOW_HOME: /opt/airflow
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/airflow
+      AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_JWT_SECRET}
+      AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY}
+    ports:
+      - "8082:8080"
+    volumes:
+      - airflow_home:/opt/airflow
+      - ./dags:/opt/airflow/dags
+      - ./src:/opt/project/src:ro
+      - ./config:/opt/project/config:ro
+    mem_limit: 2g
+    networks: [tlcn_network]
+
+  superset-init:
+    build:
+      context: ./docker/superset
+    image: tlcn-superset:6.0.0
+    container_name: tlcn_superset_init
+    profiles: [dashboard, full]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment: &superset-environment
+      SUPERSET_CONFIG_PATH: /app/pythonpath/superset_config.py
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY}
+      SUPERSET_DATABASE_URI: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/superset
+      SUPERSET_ADMIN_USERNAME: ${SUPERSET_ADMIN_USERNAME}
+      SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD}
+      SUPERSET_ADMIN_EMAIL: ${SUPERSET_ADMIN_EMAIL}
+    volumes:
+      - superset_home:/app/superset_home
+      - ./docker/superset/superset_config.py:/app/pythonpath/superset_config.py:ro
+    command:
+      - /bin/sh
+      - -c
+      - >-
+        superset db upgrade &&
+        (superset fab create-admin
+        --username "$$SUPERSET_ADMIN_USERNAME"
+        --firstname TLCN --lastname Admin
+        --email "$$SUPERSET_ADMIN_EMAIL"
+        --password "$$SUPERSET_ADMIN_PASSWORD" || true) &&
+        superset init
+    restart: "no"
+    networks: [tlcn_network]
+
+  superset:
+    <<: *common-restart
+    image: tlcn-superset:6.0.0
+    container_name: tlcn_superset
+    profiles: [dashboard, full]
+    depends_on:
+      superset-init:
+        condition: service_completed_successfully
+    environment: *superset-environment
+    ports:
+      - "8088:8088"
+    volumes:
+      - superset_home:/app/superset_home
+      - ./docker/superset/superset_config.py:/app/pythonpath/superset_config.py:ro
+    command: ["/app/docker/entrypoints/run-server.sh"]
+    mem_limit: 1536m
+    networks: [tlcn_network]
+
+  hadoop-init:
+    image: ghcr.io/apache/hadoop:3.4.2
+    container_name: tlcn_hadoop_init
+    profiles: [hadoop, full]
+    user: "0:0"
+    volumes:
+      - hadoop_namenode:/data/name
+      - ./docker/hadoop:/opt/hadoop/etc/hadoop:ro
+    command:
+      - /bin/bash
+      - -c
+      - >-
+        if [ ! -d /data/name/current ]; then
+          hdfs namenode -format -force -nonInteractive;
+        else
+          echo 'HDFS NameNode already formatted';
+        fi
+    restart: "no"
+    networks: [tlcn_network]
+
+  namenode:
+    <<: *common-restart
+    image: ghcr.io/apache/hadoop:3.4.2
+    container_name: tlcn_namenode
+    profiles: [hadoop, full]
+    user: "0:0"
+    depends_on:
+      hadoop-init:
+        condition: service_completed_successfully
+    volumes:
+      - hadoop_namenode:/data/name
+      - ./docker/hadoop:/opt/hadoop/etc/hadoop:ro
+    command: [hdfs, namenode]
+    ports:
+      - "8020:8020"
+      - "9870:9870"
+    mem_limit: 1g
+    networks: [tlcn_network]
+
+  datanode:
+    <<: *common-restart
+    image: ghcr.io/apache/hadoop:3.4.2
+    container_name: tlcn_datanode
+    profiles: [hadoop, full]
+    user: "0:0"
+    depends_on: [namenode]
+    volumes:
+      - hadoop_datanode:/data/data
+      - ./docker/hadoop:/opt/hadoop/etc/hadoop:ro
+    command: [hdfs, datanode]
+    ports:
+      - "9864:9864"
+    mem_limit: 768m
+    networks: [tlcn_network]
+
+  resourcemanager:
+    <<: *common-restart
+    image: ghcr.io/apache/hadoop:3.4.2
+    container_name: tlcn_resourcemanager
+    profiles: [hadoop, full]
+    user: "0:0"
+    volumes:
+      - ./docker/hadoop:/opt/hadoop/etc/hadoop:ro
+    command: [yarn, resourcemanager]
+    ports:
+      - "8032:8032"
+      - "8089:8088"
+    mem_limit: 768m
+    networks: [tlcn_network]
+
+  nodemanager:
+    <<: *common-restart
+    image: ghcr.io/apache/hadoop:3.4.2
+    container_name: tlcn_nodemanager
+    profiles: [hadoop, full]
+    user: "0:0"
+    depends_on: [resourcemanager]
+    volumes:
+      - hadoop_yarn_local:/data/yarn/local
+      - hadoop_yarn_logs:/data/yarn/logs
+      - ./docker/hadoop:/opt/hadoop/etc/hadoop:ro
+    command: [yarn, nodemanager]
+    ports:
+      - "8042:8042"
+    mem_limit: 1g
+    networks: [tlcn_network]
 
 volumes:
   minio_data:
+  postgres_data:
+  iceberg_catalog:
+  spark_ivy:
+  trino_data:
+  airflow_home:
+  superset_home:
+  hadoop_namenode:
+  hadoop_datanode:
+  hadoop_yarn_local:
+  hadoop_yarn_logs:
 
 networks:
   tlcn_network:

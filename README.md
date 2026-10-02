@@ -1,516 +1,125 @@
-# TLCN_Nhom6_KTDL
+# TLCN Nhóm 6 – Data Lakehouse bất động sản
 
-## Đề tài
+Đề tài xây dựng Data Lakehouse phục vụ thu thập, lưu trữ, xử lý và phân tích dữ liệu thị trường bất động sản Việt Nam.
 
-**Xây dựng Data Lakehouse phục vụ phân tích dữ liệu thị trường bất động sản tại Việt Nam**
+## Kiến trúc công nghệ
 
-Nhóm 6:
+Môi trường local được đóng gói bằng Docker Compose và gồm:
 
-- 23133024 - Võ Đức Hoàng
-- 23133029 - Vương Đức Huy
-- 23133040 - Nguyễn Lê Hoàng Kiệt
+- Thu thập dữ liệu: Python, Requests, BeautifulSoup và crawler theo từng nguồn.
+- Data Lake: MinIO với các vùng `lakehouse-bronze`, `lakehouse-silver`, `lakehouse-gold`.
+- Xử lý dữ liệu: Apache Spark 3.5.9 và Spark MLlib.
+- Table format/catalog: Apache Iceberg REST Catalog.
+- Truy vấn hợp nhất: Trino 483 kết nối Iceberg và PostgreSQL.
+- Điều phối pipeline: Apache Airflow 3.3.1.
+- Data Warehouse và metadata database: PostgreSQL 16.
+- API: FastAPI.
+- Dashboard: Apache Superset 6.0.0.
+- Giao diện web: Nginx Web UI.
+- Hệ sinh thái Hadoop: HDFS và YARN 3.4.2.
 
-## 1. Mục tiêu
-
-Project xây dựng một Data Lakehouse cho dữ liệu bất động sản đa nguồn.
-
-Luồng xử lý dự kiến:
-
-```text
-Historical Data + Snapshot Data
-            ↓
-          Bronze
-            ↓
-          Silver
-            ↓
-           Gold
-            ↓
-   PostgreSQL / PostGIS
-            ↓
-        Dashboard
-```
-
-Người dùng hướng đến là nhân viên phân tích thị trường, môi giới hoặc bộ phận kinh doanh bất động sản.
-
-Dashboard sau này cần hỗ trợ các câu hỏi như:
-
-- Mặt bằng giá chào bán tại một khu vực hiện đang ở mức nào?
-- Một listing đang thấp, nằm trong vùng phổ biến hay cao hơn nhóm tương đồng?
-- Khu vực hoặc loại bất động sản nào có nhiều tin điều chỉnh giá?
-- Lịch sử giá của một listing thay đổi như thế nào theo các lần quan sát?
-- Dữ liệu hiện tại có vấn đề gì về chất lượng hoặc độ đầy đủ?
-
-> Giá trong hệ thống là **giá đăng / giá chào bán**, không phải giá giao dịch thực tế.
-
-## 2. Nguồn dữ liệu hiện tại
-
-Historical data hiện có 6 nguồn:
-
-| Nguồn | Số dòng |
-|---|---:|
-| Alonhadat | 1,278 |
-| Chợ Tốt | 8,152 |
-| Homedy | 566 |
-| Lựa Chọn Nhà Đất | 883 |
-| Mogi | 19,075 |
-| Muaban | 363 |
-| **Tổng** | **30,317** |
-
-Dữ liệu historical được đặt tại:
+## Cấu trúc chính
 
 ```text
-data/incoming/historical/
-├── alonhadat/
-├── chotot/
-├── homedy/
-├── luachonnhadat/
-├── mogi/
-└── muaban/
+config/                     Cấu hình pipeline
+data/incoming/snapshots/    Snapshot raw được chọn để tái hiện và kiểm thử
+docker/                     Cấu hình image và dịch vụ
+src/ingestion/              Crawler theo nguồn
+src/bronze/                 Nạp dữ liệu Bronze
+src/silver/                 Chuẩn hóa Silver
+src/gold/                   Tổng hợp Gold
+scripts/                    Script vận hành Docker và Spark
+dags/                       Airflow DAG
+docker-compose.yml          Khai báo toàn bộ nền tảng
 ```
 
-Dữ liệu snapshot mới sau này sẽ đặt tại:
+## Dữ liệu snapshot có trong repository
 
-```text
-data/incoming/snapshots/batdongsan/
+Các CSV snapshot được quản lý bằng Git LFS để repository không chứa trực tiếp các blob dữ liệu lớn:
+
+| Nguồn | Ngày snapshot | Số dòng |
+|---|---:|---:|
+| Batdongsan | 2026-09-22 | 20.000 |
+| Batdongsan | 2026-09-25 | 14.000 |
+| Batdongsan | 2026-09-29 | 4.000 |
+| Batdongsan | 2026-10-02 | 4.000 |
+| Guland | 2026-09-22 | 3.862.228 |
+| Guland | 2026-09-25 | 2.724.496 |
+| Nhadatvui | 2026-09-22 | 16.860 |
+| Nhadatvui | 2026-09-25 | 10.800 |
+
+Khi clone repository trên máy mới, cần cài Git LFS và chạy `git lfs pull` để tải nội dung thật của các CSV.
+
+## Chuẩn bị lần đầu
+
+Yêu cầu duy nhất trên máy host là Docker Desktop. Sao chép file môi trường:
+
+```powershell
+Copy-Item .env.example .env
 ```
 
-Bộ dữ liệu 3.5 triệu dòng trước đây **không còn nằm trong pipeline chính**.
+Sau đó thay các mật khẩu mẫu trong `.env`. File `.env` đã được ignore và không được commit.
 
-## 3. Công nghệ hiện tại
+## Khởi động nền tảng
 
-- Docker Compose
-- Apache Spark 3.5.9
-- Hadoop 3.3.4 / S3A
-- MinIO
-- Apache Iceberg 1.11.0
-- Python / PySpark
-
-Dự kiến thêm sau:
-
-- PostgreSQL
-- PostGIS
-- Apache Airflow
-- Python Dash / Plotly / Leaflet
-
-## 4. Cấu trúc project
-
-```text
-TLCN_BDS_Lakehouse/
-│
-├── config/
-├── data/
-│   ├── incoming/
-│   └── reference/
-├── docs/
-│   ├── business/
-│   ├── data/
-│   └── architecture/
-├── src/
-│   ├── ingestion/
-│   ├── bronze/
-│   ├── silver/
-│   ├── gold/
-│   └── common/
-├── tests/
-│   └── smoke/
-├── scripts/
-├── dags/
-├── sql/
-├── dashboard/
-├── docker/
-├── notebooks/
-├── outputs/
-├── docker-compose.yml
-├── .env
-├── .env.example
-├── .gitignore
-└── README.md
-```
-
-## 5. Chạy Docker
-
-Mở PowerShell:
+Máy 16 GB RAM không nên chạy toàn bộ dịch vụ đồng thời. Hãy chạy core và chỉ bật profile đang cần:
 
 ```powershell
 cd "D:\Code\TLCN_BDS_Lakehouse"
+
+# MinIO + Spark + Iceberg REST + PostgreSQL
+.\scripts\start_platform.ps1 core
+
+# Các nhóm chức năng tùy chọn
+.\scripts\start_platform.ps1 query
+.\scripts\start_platform.ps1 application
+.\scripts\start_platform.ps1 orchestration
+.\scripts\start_platform.ps1 dashboard
+.\scripts\start_platform.ps1 hadoop
 ```
 
-Khởi động:
+Kiểm tra và dừng dịch vụ:
 
 ```powershell
-docker compose up -d
+.\scripts\status_platform.ps1
+.\scripts\stop_platform.ps1
+.\scripts\stop_platform.ps1 -All
 ```
 
-Kiểm tra:
+Image và dependency được lưu local. Dữ liệu được giữ trong Docker named volumes, vì vậy có thể tắt/mở Docker Desktop rồi dùng tiếp mà không cài lại. Không chạy `docker compose down -v` nếu muốn giữ dữ liệu.
 
-```powershell
-docker compose ps
-```
+## Địa chỉ dịch vụ
 
-Hiện tại cần có:
+| Dịch vụ | Địa chỉ |
+|---|---|
+| MinIO Console | http://localhost:9001 |
+| Spark Master | http://localhost:8080 |
+| Spark Worker | http://localhost:8081 |
+| Iceberg REST | http://localhost:8181/v1/config |
+| PostgreSQL | `localhost:5433` |
+| Trino | http://localhost:8090 |
+| Airflow | http://localhost:8082 |
+| Superset | http://localhost:8088 |
+| FastAPI Swagger | http://localhost:8000/docs |
+| Web UI | http://localhost:3000 |
+| HDFS NameNode | http://localhost:9870 |
+| YARN ResourceManager | http://localhost:8089 |
 
-```text
-tlcn_minio
-tlcn_spark_master
-tlcn_spark_worker
-```
+Thông tin đăng nhập local được cấu hình trong `.env`.
 
-Dừng hệ thống:
-
-```powershell
-docker compose down
-```
-
-Xem log:
-
-```powershell
-docker logs tlcn_minio --tail 50
-docker logs tlcn_spark_master --tail 50
-docker logs tlcn_spark_worker --tail 50
-```
-
-## 6. Các trang quản trị
-
-### MinIO Console
-
-```text
-http://localhost:9001
-```
-
-Đăng nhập:
-
-```text
-Username: admin
-Password: 12345678
-```
-
-Các bucket:
-
-```text
-lakehouse-bronze
-lakehouse-silver
-lakehouse-gold
-```
-
-### Spark Master
-
-```text
-http://localhost:8080
-```
-
-Dùng để xem Spark Master, worker, số core, memory và application.
-
-### Spark Worker
-
-```text
-http://localhost:8081
-```
-
-## 7. Chạy Spark job
-
-Script hỗ trợ:
-
-```text
-scripts/run_spark.ps1
-```
-
-Cách chạy:
-
-```powershell
-.\scripts\run_spark.ps1 "duong_dan_file_python"
-```
-
-Ví dụ:
+## Chạy Spark job
 
 ```powershell
 .\scripts\run_spark.ps1 "src\bronze\ingest_bronze.py"
 ```
 
-Hoặc:
+Theo dõi Spark job tại http://localhost:8080 và kiểm tra dữ liệu đầu ra tại MinIO Console.
+
+## Kiểm tra nhanh Docker Compose
 
 ```powershell
-.\scripts\run_spark.ps1 "src\bronze\verify_bronze.py"
+docker compose --profile full config --quiet
+docker compose ps
 ```
 
-Các package Spark hiện dùng:
-
-- `org.apache.hadoop:hadoop-aws:3.3.4`
-- `org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.11.0`
-
-## 8. Bronze Layer
-
-Bronze lưu dữ liệu gần với nguồn nhất.
-
-Đường dẫn:
-
-```text
-s3a://lakehouse-bronze/real_estate/historical/
-```
-
-Cấu trúc:
-
-```text
-real_estate/
-└── historical/
-    ├── alonhadat/
-    │   └── batch_id=historical_backfill_v1/
-    ├── chotot/
-    │   └── batch_id=historical_backfill_v1/
-    ├── homedy/
-    │   └── batch_id=historical_backfill_v1/
-    ├── luachonnhadat/
-    │   └── batch_id=historical_backfill_v1/
-    ├── mogi/
-    │   └── batch_id=historical_backfill_v1/
-    └── muaban/
-        └── batch_id=historical_backfill_v1/
-```
-
-Metadata được bổ sung:
-
-```text
-_source_name
-_source_file
-_batch_id
-_ingestion_mode
-_ingested_at
-```
-
-Batch đầu tiên:
-
-```text
-historical_backfill_v1
-```
-
-Kết quả:
-
-```text
-Input : 30,317 rows
-Output: 30,317 rows
-Status: SUCCESS
-```
-
-Bronze chưa xử lý Data Quality nghiệp vụ sâu. Các lỗi như ngày đăng sai, price/area không hợp lệ, chuẩn hóa loại bất động sản... sẽ xử lý tại Silver.
-
-## 9. Iceberg
-
-Iceberg đã được test thành công với Spark và MinIO.
-
-Stack hiện tại:
-
-```text
-Spark 3.5.9
-Hadoop 3.3.4
-Iceberg 1.11.0
-MinIO
-```
-
-Iceberg sẽ được dùng chính ở Silver và Gold.
-
-## 10. Data Quality
-
-Rule nằm tại:
-
-```text
-docs/data/data_quality_rules.md
-```
-
-Các nhóm kiểm tra chính:
-
-- source / source_id
-- title
-- price
-- area
-- duplicate
-- ngày đăng
-- location
-- property type
-- price_per_m2
-
-Ví dụ đã phát hiện:
-
-```text
-source_id: muaban_70944165
-posted_at: 2030-10-15
-scraped_at: 2026-06-03
-```
-
-Bronze giữ nguyên dữ liệu nguồn.
-
-Silver sẽ xử lý theo hướng:
-
-```text
-published_at = NULL
-dq_status = WARN
-dq_reason = INVALID_PUBLISHED_AT
-```
-
-## 11. Tiến độ hiện tại - Tuần 5/13
-
-### Tuần 1 - Khảo sát dữ liệu
-
-- [x] Kiểm kê dữ liệu
-- [x] Profiling
-- [x] Kiểm tra schema
-- [x] Kiểm tra null
-- [x] Kiểm tra duplicate
-- [x] Kiểm tra date range
-
-### Tuần 2 - Data Dictionary và Data Quality
-
-- [x] Data Source Inventory
-- [x] Canonical Listing Schema
-- [x] Data Quality Rules
-
-### Tuần 3 - Chốt bài toán
-
-- [x] Xác định người dùng
-- [x] Xác định mục tiêu dashboard
-- [x] Xác định các câu hỏi cần trả lời
-- [x] Chốt hướng multi-source data
-
-### Tuần 4 - Hạ tầng
-
-- [x] Docker Compose
-- [x] MinIO
-- [x] Spark Master
-- [x] Spark Worker
-- [x] Spark kết nối MinIO qua S3A
-- [x] Kiểm tra Hadoop version
-
-### Tuần 5 - Bronze Layer
-
-- [x] Nạp 6 nguồn historical
-- [x] Gắn metadata
-- [x] Lưu Parquet trên MinIO
-- [x] Verify input/output khi ingest
-- [x] Đủ 30,317 records
-- [x] Test Spark -> MinIO
-- [x] Test Iceberg
-- [x] Dọn dữ liệu test
-- [x] Chạy `verify_bronze.py`
-- [x] Commit milestone Week 5
-### Tuần 6 - Silver Core + Data Quality
-
-```text
-Bronze
-  ↓
-Union 6 sources
-  ↓
-Canonical Schema
-  ↓
-Cast Data Type
-  ↓
-Data Quality Rules
-  ↓
-Normalize Transaction Type
-  ↓
-Normalize Property Type
-  ↓
-Date Validation
-  ↓
-Duplicate Handling
-  ↓
-PASS / WARN / REJECT
-  ↓
-Silver Iceberg Table
-```
-
-Bảng dự kiến:
-
-```text
-listing_core
-listing_rejects
-```
-
-### Tuần 7
-
-- Location normalization
-- Feature extraction
-- GIS / coordinate handling
-
-### Tuần 8
-
-- Snapshot ingestion
-- Listing history
-- Price history
-
-### Tuần 9
-
-- Gold Layer
-- Market overview
-- Price benchmark
-- Repricing summary
-- Data Quality summary
-
-### Tuần 10
-
-- PostgreSQL / PostGIS
-- Data Warehouse
-- Fact / Dimension
-
-### Tuần 11
-
-- Dashboard Python
-- Map
-- Price Benchmark
-- Repricing
-- Data Quality
-
-### Tuần 12
-
-- Tích hợp toàn bộ pipeline
-
-### Tuần 13
-
-- Kiểm thử
-- Hoàn thiện báo cáo
-- Slide
-- Demo
-
-## 13. Git
-
-Không commit:
-
-```text
-.env
-data/incoming/**
-outputs/**
-```
-
-Trước khi commit:
-
-```powershell
-git status
-```
-
-Sau đó:
-
-```powershell
-git add .
-git commit -m "Complete Week 5 Bronze ingestion and validation"
-git push
-```
-
-## 14. Trạng thái hệ thống hiện tại
-
-```text
-Historical Data       ✓
-Profiling             ✓
-Canonical Schema      ✓
-Data Quality Rules    ✓
-Docker                ✓
-MinIO                 ✓
-Spark Master/Worker   ✓
-Spark -> MinIO        ✓
-Bronze Ingestion      ✓
-Bronze Validation     gần xong
-Iceberg Test          ✓
-
-Silver                chưa bắt đầu
-Gold                  chưa bắt đầu
-Data Warehouse        chưa bắt đầu
-Dashboard             chưa bắt đầu
-```
-
-Project hiện đang ở **Tuần 5/13 - hoàn thiện Bronze Layer**.
+Các container dài hạn dùng `restart: unless-stopped`. Những profile nặng như Airflow, Superset, Trino và Hadoop chỉ nên bật khi sử dụng.

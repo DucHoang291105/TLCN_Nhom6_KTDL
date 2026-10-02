@@ -19,6 +19,20 @@ Thumbs.db
 data/incoming/**
 !data/incoming/**/.gitkeep
 !data/incoming/**/README.md
+!data/incoming/snapshots/
+!data/incoming/snapshots/batdongsan/
+!data/incoming/snapshots/batdongsan/20260929/
+!data/incoming/snapshots/batdongsan/20260929/batdongsan_raw.csv
+!data/incoming/snapshots/batdongsan/20261002/
+!data/incoming/snapshots/batdongsan/20261002/batdongsan_raw.csv
+!data/incoming/snapshots/nhadatvui/
+!data/incoming/snapshots/nhadatvui/20260922/
+!data/incoming/snapshots/nhadatvui/20260922/nhadatvui_raw.csv
+!data/incoming/snapshots/nhadatvui/20260925/
+!data/incoming/snapshots/nhadatvui/20260925/nhadatvui_raw.csv
+
+# Internal reports supplied outside the repository
+KTDL_*.pdf
 
 # Runtime / outputs
 outputs/**

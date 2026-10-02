@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TLCN Lakehouse Services</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 900px; margin: 48px auto; padding: 0 24px; color: #172033; }
+    h1 { margin-bottom: 8px; } p { color: #4b5563; }
+    ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; padding: 0; }
+    li { list-style: none; border: 1px solid #dbe3ef; border-radius: 10px; padding: 18px; background: #f8fafc; }
+    a { color: #0758a8; font-weight: 650; text-decoration: none; }
+    small { display: block; margin-top: 8px; color: #64748b; }
+  </style>
+</head>
+<body>
+  <h1>TLCN Real Estate Lakehouse</h1>
+  <p>Trang truy cập nhanh các dịch vụ local của Nhóm 6.</p>
+  <ul>
+    <li><a href="http://localhost:9001">MinIO Console</a><small>Object storage Bronze, Silver, Gold</small></li>
+    <li><a href="http://localhost:8080">Spark Master</a><small>Cluster và Spark applications</small></li>
+    <li><a href="http://localhost:8090">Trino</a><small>Interactive SQL query engine</small></li>
+    <li><a href="http://localhost:8082">Airflow</a><small>Pipeline orchestration</small></li>
+    <li><a href="http://localhost:8088">Superset</a><small>Dashboard và trực quan hóa</small></li>
+    <li><a href="http://localhost:8000/docs">FastAPI Docs</a><small>API cho ứng dụng và dashboard</small></li>
+    <li><a href="http://localhost:9870">HDFS NameNode</a><small>HDFS administration</small></li>
+    <li><a href="http://localhost:8089">YARN ResourceManager</a><small>Cluster resource management</small></li>
+  </ul>
+</body>
+</html>
