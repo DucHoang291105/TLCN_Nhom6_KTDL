@@ -21,7 +21,4 @@ foreach ($job in $jobs) {
 python -m pytest -q
 if ($LASTEXITCODE -ne 0) { throw "Unit tests failed" }
 
-python "$PSScriptRoot\create_silver_report_evidence.py"
-if ($LASTEXITCODE -ne 0) { throw "Evidence generation failed" }
-
 Write-Host "`nSILVER PIPELINE PASS" -ForegroundColor Green

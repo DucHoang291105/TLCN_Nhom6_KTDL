@@ -140,14 +140,6 @@ Hoặc chạy từng bước:
 python -m pytest -q
 ```
 
-Sinh lại ảnh PNG từ các JSON kiểm chứng để chèn vào báo cáo:
-
-```powershell
-python scripts\create_silver_report_evidence.py
-```
-
-Ảnh được tạo cục bộ trong `docs/report_evidence/`; số liệu gốc được quản lý tại `docs/validation/`.
-
 ## Cấu trúc quan trọng
 
 ```text
