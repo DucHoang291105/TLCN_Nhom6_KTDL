@@ -1,180 +1,172 @@
-# TLCN Nhóm 6 – Data Lakehouse bất động sản
+# TLCN Nhóm 6 - Data Lakehouse bất động sản Việt Nam
 
-Đề tài xây dựng Data Lakehouse phục vụ thu thập, lưu trữ, xử lý và phân tích dữ liệu thị trường bất động sản Việt Nam.
+Đề tài: **Xây dựng Data Lakehouse phục vụ phân tích dữ liệu thị trường bất động sản tại Việt Nam**.
 
-## Kiến trúc công nghệ
+Thành viên:
 
-Môi trường local được đóng gói bằng Docker Compose và gồm:
+- 23133024 - Võ Đức Hoàng
+- 23133029 - Vương Đức Huy
+- 23133040 - Nguyễn Lê Hoàng Kiệt
 
-- Thu thập dữ liệu: Python, Requests, BeautifulSoup và crawler theo từng nguồn.
-- Data Lake: MinIO với các vùng `lakehouse-bronze`, `lakehouse-silver`, `lakehouse-gold`.
-- Xử lý dữ liệu: Apache Spark 3.5.9 và Spark MLlib.
-- Table format/catalog: Apache Iceberg REST Catalog.
-- Truy vấn hợp nhất: Trino 483 kết nối Iceberg và PostgreSQL.
-- Điều phối pipeline: Apache Airflow 3.3.1.
-- Data Warehouse và metadata database: PostgreSQL 16.
-- API: FastAPI.
-- Dashboard: Apache Superset 6.0.0.
-- Giao diện web: Nginx Web UI.
-- Hệ sinh thái Hadoop: HDFS và YARN 3.4.2.
+Repository hiện phản ánh tiến độ đến **tuần 5: hoàn thiện Silver Data Foundation**. Silver đã được kiểm chứng end-to-end và đủ điều kiện để nhóm chuyển sang thiết kế Gold ở tuần 6.
 
-## Cấu trúc chính
+## Kiến trúc hiện tại
 
 ```text
-config/                     Cấu hình pipeline
-data/incoming/snapshots/    Snapshot raw được chọn để tái hiện và kiểm thử
-docker/                     Cấu hình image và dịch vụ
-src/ingestion/              Crawler theo nguồn
-src/bronze/                 Nạp dữ liệu Bronze
-src/silver/                 Chuẩn hóa Silver
-src/gold/                   Tổng hợp Gold
-scripts/                    Script vận hành Docker và Spark
-dags/                       Airflow DAG
-docker-compose.yml          Khai báo toàn bộ nền tảng
+6 nguồn historical ─┐
+                    ├─> Bronze: MinIO + Parquet
+3 nguồn crawl ──────┘            │
+                                 ↓
+                     Spark normalize + DQ + dedup
+                                 │
+                                 ↓
+                     Silver: Apache Iceberg
+                     ├── listing_observation
+                     ├── listing_dq_quarantine
+                     ├── crawl_current_27
+                     ├── historical_current_27
+                     ├── silver_listings_current_27
+                     ├── listing_history
+                     └── listing_location
+                                 │
+                                 ↓
+                     Gold / DWH / Dashboard
+                     (giai đoạn tiếp theo)
 ```
 
-## Dữ liệu snapshot có trong repository
+Silver hợp nhất đủ 9 nguồn:
 
-Các CSV snapshot được quản lý bằng Git LFS để repository không chứa trực tiếp các blob dữ liệu lớn:
+- Crawl: `batdongsan`, `guland`, `nhadatvui`.
+- Historical: `chotot`, `mogi`, `alonhadat`, `luachonnhadat`, `muaban`, `homedy`.
 
-| Nguồn | Ngày snapshot | Số dòng |
+Silver chỉ đọc Bronze Parquet trên MinIO, không đọc tắt CSV crawler. Bảng downstream chính là `lakehouse.silver.silver_listings_current_27`; hai bảng crawl/historical current được giữ để kiểm chứng lineage.
+
+## Kết quả tuần 5
+
+### Bronze State Audit
+
+| Nhánh dữ liệu | Số nguồn | Số bản ghi |
 |---|---:|---:|
-| Batdongsan | 2026-09-22 | 20.000 |
-| Batdongsan | 2026-09-25 | 14.000 |
-| Batdongsan | 2026-09-29 | 4.000 |
-| Batdongsan | 2026-10-02 | 4.000 |
-| Guland | 2026-09-22 | 3.862.228 |
-| Guland | 2026-09-25 | 2.724.496 |
-| Nhadatvui | 2026-09-22 | 16.860 |
-| Nhadatvui | 2026-09-25 | 10.800 |
+| Historical | 6 | 30.317 |
+| Snapshot crawl | 3 | 138.824 |
+| Tổng cộng | 9 | 169.141 |
 
-Khi clone repository trên máy mới, cần cài Git LFS và chạy `git lfs pull` để tải nội dung thật của các CSV.
+Các count trên là trạng thái được đọc trực tiếp từ MinIO khi chạy audit. File dữ liệu trong Git LFS có thể chứa thêm snapshot cục bộ chưa được ingest; không được dùng số lượng file Git thay cho trạng thái Bronze.
 
-## Chuẩn bị lần đầu
+### Data Quality và dedup
 
-Yêu cầu duy nhất trên máy host là Docker Desktop. Sao chép file môi trường:
+| Chỉ số | Số dòng |
+|---|---:|
+| Normalized | 169.141 |
+| Accepted trước dedup | 168.477 |
+| Duplicate bị loại | 3.688 |
+| Listing observation | 164.789 |
+| Quarantine | 664 |
+| PASS | 98.670 |
+| WARN | 66.119 |
+| REJECT | 664 |
+
+WARN được giữ lại kèm lý do để tránh làm mất dữ liệu thật. Chỉ lỗi định danh nghiêm trọng mới được đưa vào quarantine.
+
+### Các bảng Silver Iceberg
+
+| Bảng | Số dòng | Vai trò |
+|---|---:|---|
+| `listing_observation` | 164.789 | Observation hợp lệ sau dedup theo batch |
+| `listing_dq_quarantine` | 664 | Record không đạt điều kiện tối thiểu |
+| `crawl_current_27` | 89.555 | Current của 3 nguồn crawl |
+| `historical_current_27` | 30.317 | Current của 6 nguồn historical |
+| `silver_listings_current_27` | 119.872 | Final current đủ 9 nguồn, đúng 27 cột |
+| `listing_history` | 126.458 | Phiên bản khi business `record_hash` thay đổi |
+| `listing_location` | 119.872 | Một dòng location cho mỗi `source_id` current |
+
+History có 6.586 phiên bản thay đổi bổ sung và không có hai version liên tiếp trùng `record_hash`. Location bao phủ đủ final current; 99.510 dòng WARN chủ yếu do dữ liệu nguồn thiếu tọa độ hoặc cần fallback vị trí, không phải lỗi thực thi pipeline.
+
+### Kiểm chứng
+
+- Iceberg smoke test Spark → REST Catalog → MinIO: **PASS**.
+- Final verification: **12/12 PASS**.
+- Nguồn trong final current: **9/9**.
+- Final current: đúng **27 cột canonical**, `source_id` không NULL và không trùng.
+- Unit tests: **20/20 PASS**.
+- Full deterministic rebuild: chạy lại cùng input không làm tăng row count.
+
+Kết quả máy đọc được nằm trong [`docs/validation`](docs/validation/).
+
+## Công nghệ
+
+- MinIO, Apache Spark 3.5.9, Apache Iceberg REST Catalog.
+- Trino, PostgreSQL 16, Apache Airflow, Apache Superset.
+- FastAPI, Docker Compose và Git LFS.
+
+## Khởi động môi trường
+
+Yêu cầu: Docker Desktop, Python 3.10+ và Git LFS.
 
 ```powershell
+git lfs pull
 Copy-Item .env.example .env
+docker compose up -d minio minio-init iceberg-rest spark-master spark-worker
+docker compose ps
 ```
 
-Sau đó thay các mật khẩu mẫu trong `.env`. File `.env` đã được ignore và không được commit.
-
-## Khởi động nền tảng
-
-Máy 16 GB RAM không nên chạy toàn bộ dịch vụ đồng thời. Hãy chạy core và chỉ bật profile đang cần:
-
-```powershell
-cd "D:\Code\TLCN_BDS_Lakehouse"
-
-# MinIO + Spark + Iceberg REST + PostgreSQL
-.\scripts\start_platform.ps1 core
-
-# Các nhóm chức năng tùy chọn
-.\scripts\start_platform.ps1 query
-.\scripts\start_platform.ps1 application
-.\scripts\start_platform.ps1 orchestration
-.\scripts\start_platform.ps1 dashboard
-.\scripts\start_platform.ps1 hadoop
-```
-
-Kiểm tra và dừng dịch vụ:
-
-```powershell
-.\scripts\status_platform.ps1
-.\scripts\stop_platform.ps1
-.\scripts\stop_platform.ps1 -All
-```
-
-Image và dependency được lưu local. Dữ liệu được giữ trong Docker named volumes, vì vậy có thể tắt/mở Docker Desktop rồi dùng tiếp mà không cài lại. Không chạy `docker compose down -v` nếu muốn giữ dữ liệu.
-
-## Địa chỉ dịch vụ
-
-| Dịch vụ | Địa chỉ |
+| Dịch vụ | URL |
 |---|---|
 | MinIO Console | http://localhost:9001 |
 | Spark Master | http://localhost:8080 |
 | Spark Worker | http://localhost:8081 |
 | Iceberg REST | http://localhost:8181/v1/config |
-| PostgreSQL | `localhost:5433` |
-| Trino | http://localhost:8090 |
-| Airflow | http://localhost:8082 |
-| Superset | http://localhost:8088 |
-| FastAPI Swagger | http://localhost:8000/docs |
-| Web UI | http://localhost:3000 |
-| HDFS NameNode | http://localhost:9870 |
-| YARN ResourceManager | http://localhost:8089 |
 
-Thông tin đăng nhập local được cấu hình trong `.env`.
+Không chạy `docker compose down -v` nếu muốn giữ dữ liệu trong Docker named volumes.
 
-## Chạy Spark job
+## Chạy Silver
+
+Chạy tự động toàn bộ pipeline và dừng ngay khi một bước lỗi:
 
 ```powershell
-.\scripts\run_spark.ps1 "src\bronze\ingest_bronze.py"
+python -m pip install -r requirements-dev.txt
+.\scripts\run_silver_pipeline.ps1
 ```
 
-Theo dõi Spark job tại http://localhost:8080 và kiểm tra dữ liệu đầu ra tại MinIO Console.
-
-## Kiểm tra nhanh Docker Compose
+Hoặc chạy từng bước:
 
 ```powershell
-docker compose --profile full config --quiet
-docker compose ps
-```
-
-## Chạy Silver Core local
-
-Có thể chuẩn hóa và kiểm tra snapshot của cả ba nguồn mà không cần Docker:
-
-```powershell
-python -m src.silver.build_listing_core --build-local-silver
-```
-
-Job tự tìm các file theo cấu trúc `data/incoming/snapshots/<source>/YYYYMMDD/*_raw.csv`, bỏ qua file Git LFS pointer chưa tải, chuẩn hóa schema, loại duplicate trong cùng batch và ghi:
-
-- `outputs/silver/listing_observation.csv`: một listing của một nguồn trong một batch, gồm 27 cột nghiệp vụ và metadata DQ/lineage.
-- `outputs/silver/listings_current_27.csv`: phiên bản mới nhất theo `source_id`, đúng 27 cột canonical.
-- `outputs/silver/listing_dq_quarantine.csv`: các record REJECT.
-- `outputs/silver/build_summary.json`: số dòng đầu vào, duplicate, PASS/WARN/REJECT và các file bị bỏ qua.
-
-Khi crawl thêm batch mới đúng cấu trúc, chạy lại cùng lệnh. Các file đầu ra được ghi nguyên tử để hạn chế kết quả dở dang nếu job lỗi giữa chừng. Đây là runner local để kiểm chứng logic; bước triển khai lakehouse sẽ dùng cùng Data Contract và quy tắc dedup khi ghi Iceberg bằng Spark.
-
-> Lưu ý: runner local đọc trực tiếp `data/incoming/snapshots`, vì vậy không thay thế pipeline Bronze → Silver chính thức bên dưới.
-
-## Chạy pipeline Bronze → Silver chính thức
-
-Pipeline chính thức không đọc CSV crawler từ Silver. Thứ tự chạy là:
-
-```powershell
-# 1. Khởi động MinIO và Spark
-.\scripts\start_platform.ps1 core
-
-# 2. Nạp CSV crawler vào Bronze Parquet trên MinIO
-.\scripts\run_spark.ps1 "src\bronze\ingest_snapshots_bronze.py"
-
-# 3. Đọc Bronze Parquet và xây Silver Core trên MinIO
+.\scripts\run_spark.ps1 "src\bronze\audit_bronze_state.py"
+.\scripts\run_spark.ps1 "src\silver\iceberg_smoke_check.py"
 .\scripts\run_spark.ps1 "src\silver\build_listing_core_spark.py"
-
-# 4. Xây Silver Location toàn Việt Nam từ Silver Core
+.\scripts\run_spark.ps1 "src\silver\build_listing_history.py"
 .\scripts\run_spark.ps1 "src\silver\build_location.py"
+.\scripts\run_spark.ps1 "src\silver\verify_silver.py"
+python -m pytest -q
 ```
 
-Đường đi dữ liệu:
+Sinh lại ảnh PNG từ các JSON kiểm chứng để chèn vào báo cáo:
+
+```powershell
+python scripts\create_silver_report_evidence.py
+```
+
+Ảnh được tạo cục bộ trong `docs/report_evidence/`; số liệu gốc được quản lý tại `docs/validation/`.
+
+## Cấu trúc quan trọng
 
 ```text
-data/incoming/snapshots
-  -> s3a://lakehouse-bronze/real_estate/snapshots
-  -> s3a://lakehouse-silver/real_estate/core/listing_observation
-  -> s3a://lakehouse-silver/real_estate/core/listings_current_27
-  -> s3a://lakehouse-silver/real_estate/core/listing_dq_quarantine
-  -> s3a://lakehouse-silver/real_estate/location/listing_location
+config/sources.yaml                 Danh mục 6 historical + 3 crawl
+src/bronze/                         Ingest, audit và verify Bronze
+src/common/spark_session.py         Cấu hình Spark, MinIO và Iceberg dùng chung
+src/silver/build_listing_core.py    Transformer và quy tắc chuẩn hóa thuần Python
+src/silver/build_listing_core_spark.py
+                                     Xây Silver Foundation 9 nguồn
+src/silver/build_listing_history.py  Xây history theo thay đổi record_hash
+src/silver/build_location.py         Location enrichment
+src/silver/verify_silver.py          Kiểm chứng trực tiếp bảng Iceberg
+tests/unit/                           Unit tests Silver
+docs/data/                            Data Contract và Data Quality Rules
+docs/validation/                      Bằng chứng audit/test/verification
 ```
 
-Silver Core chỉ đọc Parquet trong bucket Bronze. Silver Location tiếp tục đọc
-`listings_current_27` từ Silver Core, chuẩn hóa theo danh mục 34 tỉnh/thành và
-tính khoảng cách đến tâm tham chiếu của đúng tỉnh/thành đó. Các job không đọc
-thẳng CSV crawler. Báo cáo kiểm tra read-back được ghi tại
-`outputs/validation/silver_core_spark_summary.json` và
-`outputs/validation/silver_location_summary.json`.
+## Phạm vi và bước tiếp theo
 
-Các container dài hạn dùng `restart: unless-stopped`. Những profile nặng như Airflow, Superset, Trino và Hadoop chỉ nên bật khi sử dụng.
+Silver Data Foundation đã hoàn thành theo phạm vi tuần 5. Các phần mở rộng chưa phải tiêu chí hoàn thành hiện tại gồm `silver_listing_feature`, GIS point-in-polygon, Location Master tới mã huyện/xã và incremental `MERGE INTO`.
+
+Tuần 6 tập trung thiết kế Gold: market overview, price benchmark, repricing từ history, Data Quality KPI và chuẩn bị truy vấn qua Trino/PostgreSQL cho dashboard.

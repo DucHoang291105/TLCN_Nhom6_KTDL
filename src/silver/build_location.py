@@ -366,35 +366,15 @@ def transform_partition(rows: Iterator[Any]) -> Iterator[tuple[Any, ...]]:
 
 
 def main() -> None:
-    from pyspark.sql import SparkSession
     from pyspark.sql import functions as F
     from pyspark.sql import types as T
     from pyspark.storagelevel import StorageLevel
 
-    minio_user = os.getenv("MINIO_ROOT_USER")
-    minio_password = os.getenv("MINIO_ROOT_PASSWORD")
-    if not minio_user or not minio_password:
-        raise RuntimeError("Missing MINIO_ROOT_USER or MINIO_ROOT_PASSWORD")
+    from src.common.spark_session import build_spark_session, ensure_silver_namespace
 
-    spark = (
-        SparkSession.builder.appName("SilverListingLocationNationwide")
-        .config("spark.executorEnv.PYTHONPATH", str(PROJECT_ROOT))
-        .config("spark.sql.shuffle.partitions", str(OUTPUT_PARTITIONS))
-        .getOrCreate()
-    )
-    spark.sparkContext.setLogLevel("WARN")
-    spark.conf.set("spark.sql.session.timeZone", "Asia/Ho_Chi_Minh")
-    hadoop_conf = spark.sparkContext._jsc.hadoopConfiguration()
-    for key, value in {
-        "fs.s3a.endpoint": MINIO_ENDPOINT,
-        "fs.s3a.access.key": minio_user,
-        "fs.s3a.secret.key": minio_password,
-        "fs.s3a.path.style.access": "true",
-        "fs.s3a.connection.ssl.enabled": "false",
-        "fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
-        "fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider",
-    }.items():
-        hadoop_conf.set(key, value)
+    spark = build_spark_session("SilverListingLocationNationwide")
+    spark.conf.set("spark.sql.shuffle.partitions", str(OUTPUT_PARTITIONS))
+    namespace = ensure_silver_namespace(spark)
 
     string_fields = set(LOCATION_COLUMNS) - {
         "lat", "lon", "has_coord", "center_lat", "center_lon",
@@ -419,11 +399,11 @@ def main() -> None:
         schema_fields.append(T.StructField(column, data_type, column not in non_nullable))
     schema = T.StructType(schema_fields)
 
-    input_path = f"{SILVER_CORE_ROOT}/listings_current_27"
-    output_path = f"{SILVER_LOCATION_ROOT}/listing_location"
+    input_path = f"{namespace}.silver_listings_current_27"
+    output_path = f"{namespace}.listing_location"
     started_at = datetime.now(timezone.utc)
     try:
-        core = spark.read.parquet(input_path)
+        core = spark.table(input_path)
     except Exception as exc:
         raise RuntimeError(
             f"Cannot read Silver Core: {input_path}. Run build_listing_core_spark.py first."
@@ -436,6 +416,9 @@ def main() -> None:
     missing = sorted(required - set(core.columns))
     if missing:
         raise RuntimeError(f"Silver Core is missing location columns: {missing}")
+    # Select only location fields before crossing the JVM/Python boundary. This
+    # also keeps unrelated timestamp columns out of the location transformer.
+    core = core.select(*sorted(required))
     input_rows = core.count()
     distinct_source_ids = core.select("source_id").distinct().count()
     if input_rows == 0 or distinct_source_ids != input_rows:
@@ -455,8 +438,8 @@ def main() -> None:
     if reject_rows:
         raise RuntimeError(f"Location contains {reject_rows:,} REJECT rows")
 
-    location.write.mode("overwrite").parquet(output_path)
-    verified = spark.read.parquet(output_path)
+    location.writeTo(output_path).using("iceberg").tableProperty("format-version", "2").createOrReplace()
+    verified = spark.table(output_path)
     if verified.count() != output_rows:
         raise RuntimeError("Location read-back row count mismatch")
     if verified.columns != LOCATION_COLUMNS:
@@ -503,13 +486,13 @@ def main() -> None:
             "avg_km": distance_row["avg_km"],
             "max_km": distance_row["max_km"],
         },
-        "status": "SUCCESS",
+        "status": "PASS",
     }
-    summary_path = PROJECT_ROOT / "outputs/validation/silver_location_summary.json"
-    summary_path.parent.mkdir(parents=True, exist_ok=True)
-    summary_path.write_text(
-        json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
+    for output_dir in (PROJECT_ROOT / "outputs/validation", PROJECT_ROOT / "docs/validation"):
+        output_dir.mkdir(parents=True, exist_ok=True)
+        (output_dir / "silver_location_summary.json").write_text(
+            json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     location.unpersist()
     spark.stop()

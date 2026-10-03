@@ -1,0 +1,74 @@
+{
+  "started_at": "2026-10-03T11:07:12.619472+00:00",
+  "finished_at": "2026-10-03T11:08:33.814322+00:00",
+  "input": "lakehouse.silver.silver_listings_current_27",
+  "output": "lakehouse.silver.listing_location",
+  "input_rows": 119872,
+  "output_rows": 119872,
+  "province_model_version": "vn_province_34_effective_2025_07_01_v1",
+  "province_counts": {
+    "Tây Ninh": 1101,
+    "Hải Phòng": 1558,
+    "Đồng Nai": 4133,
+    "Lâm Đồng": 923,
+    "Thanh Hóa": 75,
+    "Điện Biên": 356,
+    "Đồng Tháp": 157,
+    "Hà Nội": 18708,
+    "Quảng Ngãi": 50,
+    "Huế": 374,
+    "None": 12819,
+    "Hồ Chí Minh": 68367,
+    "Phú Thọ": 720,
+    "Gia Lai": 161,
+    "Đà Nẵng": 5266,
+    "Quảng Ninh": 685,
+    "An Giang": 115,
+    "Hưng Yên": 720,
+    "Ninh Bình": 309,
+    "Nghệ An": 447,
+    "Vĩnh Long": 281,
+    "Khánh Hòa": 966,
+    "Quảng Trị": 131,
+    "Đắk Lắk": 367,
+    "Cần Thơ": 336,
+    "Bắc Ninh": 639,
+    "Cà Mau": 15,
+    "Thái Nguyên": 65,
+    "Hà Tĩnh": 7,
+    "Lạng Sơn": 3,
+    "Lai Châu": 3,
+    "Lào Cai": 9,
+    "Tuyên Quang": 6
+  },
+  "province_mapping_method_counts": {
+    "NEAREST_CENTER": 27772,
+    "TEXT_ALIAS": 79281,
+    "UNMAPPED": 12819
+  },
+  "location_precision_counts": {
+    "DISTRICT": 18662,
+    "UNKNOWN": 182,
+    "PROVINCE_OR_ADDRESS": 23646,
+    "COORDINATE": 49116,
+    "WARD": 28266
+  },
+  "dq_status_counts": {
+    "WARN": 99510,
+    "PASS": 20362
+  },
+  "dq_reason_counts": {
+    "LQ05_PROVINCE_COORDINATE_CONFLICT": 982,
+    "LQ01_LOCATION_MISSING": 182,
+    "LQ03_COORDINATE_MISSING": 70756,
+    "LQ02_PROVINCE_UNKNOWN": 12819,
+    "LQ04_PROVINCE_INFERRED_BY_NEAREST_CENTER": 27772
+  },
+  "distance_to_center_stats": {
+    "count": 49116,
+    "min_km": 0.026058,
+    "avg_km": 31.605255862407358,
+    "max_km": 2227.511633
+  },
+  "status": "PASS"
+}

@@ -1,0 +1,48 @@
+{
+  "started_at": "2026-10-03T11:03:49.106465+00:00",
+  "finished_at": "2026-10-03T11:06:12.631247+00:00",
+  "catalog_namespace": "lakehouse.silver",
+  "source_input_rows": {
+    "batdongsan": 34000,
+    "guland": 77164,
+    "nhadatvui": 27660,
+    "chotot": 8152,
+    "mogi": 19075,
+    "alonhadat": 1278,
+    "luachonnhadat": 883,
+    "muaban": 363,
+    "homedy": 566
+  },
+  "normalized_rows": 169141,
+  "accepted_before_dedup": 168477,
+  "quarantine_rows": 664,
+  "duplicates_dropped": 3688,
+  "observation_rows": 164789,
+  "crawl_current_rows": 89555,
+  "historical_current_rows": 30317,
+  "final_current_rows": 119872,
+  "final_source_counts": {
+    "guland": 45832,
+    "nhadatvui": 17336,
+    "batdongsan": 26387,
+    "chotot": 8152,
+    "muaban": 363,
+    "alonhadat": 1278,
+    "luachonnhadat": 883,
+    "homedy": 566,
+    "mogi": 19075
+  },
+  "dq_status_counts": {
+    "WARN": 66119,
+    "PASS": 98670,
+    "REJECT": 664
+  },
+  "iceberg_readback_counts": {
+    "listing_observation": 164789,
+    "listing_dq_quarantine": 664,
+    "crawl_current_27": 89555,
+    "historical_current_27": 30317,
+    "silver_listings_current_27": 119872
+  },
+  "status": "PASS"
+}

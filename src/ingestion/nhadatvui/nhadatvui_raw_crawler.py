@@ -56,7 +56,7 @@ BASE_URL = "https://www.nhadatvui.vn/mua-ban-nha-dat"
 START_PAGE = 1
 
 # Số trang muốn crawl
-PAGES_TO_CRAWL = 10
+PAGES_TO_CRAWL = 50
 
 # Delay cơ bản giữa 2 trang
 DELAY_SECONDS = 2.0

@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-10-03T11:03:35.992309+00:00",
+  "table": "lakehouse.smoke_test.silver_io_test",
+  "row_count": 2,
+  "columns": [
+    "id",
+    "label",
+    "observed_at"
+  ],
+  "spark_version": "3.5.9",
+  "status": "PASS"
+}

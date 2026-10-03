@@ -1,0 +1,50 @@
+{
+  "generated_at": "2026-10-03T11:09:13.519816+00:00",
+  "catalog_namespace": "lakehouse.silver",
+  "table_counts": {
+    "listing_observation": 164789,
+    "listing_dq_quarantine": 664,
+    "crawl_current_27": 89555,
+    "historical_current_27": 30317,
+    "silver_listings_current_27": 119872,
+    "listing_history": 126458,
+    "listing_location": 119872
+  },
+  "source_counts": {
+    "guland": 45832,
+    "nhadatvui": 17336,
+    "batdongsan": 26387,
+    "chotot": 8152,
+    "muaban": 363,
+    "alonhadat": 1278,
+    "luachonnhadat": 883,
+    "homedy": 566,
+    "mogi": 19075
+  },
+  "checks": {
+    "source_set_9": true,
+    "schema_exact_27": true,
+    "source_id_not_null": true,
+    "source_id_unique": true,
+    "source_id_convention": true,
+    "observation_grain_unique": true,
+    "current_union_count": true,
+    "location_coverage": true,
+    "location_unique": true,
+    "location_fk": true,
+    "history_no_consecutive_duplicate": true,
+    "history_version_sequence": true
+  },
+  "metrics": {
+    "null_source_ids": 0,
+    "duplicate_source_ids": 0,
+    "bad_source_id_prefix": 0,
+    "observation_duplicate_keys": 0,
+    "location_duplicate_ids": 0,
+    "location_orphans": 0,
+    "history_consecutive_duplicate_hashes": 0,
+    "history_bad_version_sequences": 0
+  },
+  "status": "PASS",
+  "failures": []
+}
