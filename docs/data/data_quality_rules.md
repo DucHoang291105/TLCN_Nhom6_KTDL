@@ -1,120 +1,83 @@
-﻿# Data Quality Rules
+# Data Quality Rules
 
-Các quy tắc này được áp dụng khi chuyển dữ liệu từ Bronze sang Silver.
+Các quy tắc này áp dụng khi chuyển dữ liệu từ Bronze sang Silver. Silver ưu tiên bảo toàn dữ liệu và lineage: chỉ quarantine khi không thể định danh record; dữ liệu thiếu hoặc bất thường nhưng còn giá trị sử dụng được giữ lại với trạng thái WARN.
 
-## 1. Quy tắc bắt buộc
+## 1. Mã quy tắc
 
-| Rule | Điều kiện | Xử lý |
-|---|---|---|
-| DQ01 | source_name bị thiếu | REJECT |
-| DQ02 | source_listing_id bị thiếu | REJECT |
-| DQ03 | title bị thiếu hoặc rỗng | REJECT |
-| DQ04 | price không parse được hoặc <= 0 | REJECT |
-| DQ05 | area không parse được hoặc <= 0 | REJECT |
-| DQ06 | transaction_type không xác định được | REJECT |
-| DQ07 | property_type không map được | WARN |
+| Rule | Điều kiện | Chuẩn hóa | Trạng thái |
+|---|---|---|---|
+| DQ01 | Thiếu `source` | Không thể xác định nguồn | REJECT |
+| DQ02 | Thiếu `ad_id` | Không thể tạo khóa ổn định | REJECT |
+| DQ03 | Thiếu/rỗng `title` | Không đủ khả năng định danh nội dung tin | REJECT |
+| DQ04 | Giá thỏa thuận, thiếu, không parse được hoặc <= 0 | `price = NULL`, giữ `price_str` | WARN |
+| DQ05 | Diện tích thiếu, không parse được hoặc <= 0 | `area = NULL` | WARN |
+| DQ06 | Không xác định được bán/thuê từ field hoặc endpoint đã xác minh | `is_rent = NULL` | WARN |
+| DQ07 | Category chưa map | Giữ raw category trong metadata; canonical category NULL | WARN |
+| DQ08 | Nguồn có cung cấp thời gian đăng nhưng giá trị `posted_at > scraped_at`, rỗng hoặc không tin cậy | `posted_at = NULL` | WARN |
+| DQ09 | Nguồn có cung cấp tọa độ nhưng thiếu một phía, `(0,0)` hoặc ngoài phạm vi | `lat = lon = NULL`, `has_coord = FALSE` | WARN |
+| DQ10 | `price_per_m2` nguồn lệch lớn với `price / area` | Dùng giá trị canonical `price / area` | WARN |
+| DQ11 | Giá/diện tích có dấu hiệu outlier | Không tự động xóa; gắn cờ audit | WARN |
+| DQ12 | Text chứa HTML/control character/khoảng trắng thừa | Chuẩn Unicode, loại control character và gom khoảng trắng | PASS sau chuẩn hóa |
+| DQ13 | `batch_id` snapshot không đúng `YYYYMMDD` | Không ghi vào observation chính | REJECT |
 
-## 2. Quy tắc thời gian
+## 2. DQ Status và quarantine
 
-### DQ08 - Published date không hợp lệ
+- `PASS`: đạt các rule chính sau chuẩn hóa.
+- `WARN`: vẫn được giữ trong Silver nhưng có ít nhất một vấn đề không nghiêm trọng.
+- `REJECT`: không vào canonical observation/current; ghi sang `silver_dq_quarantine` cùng lý do và lineage Bronze.
 
-Nếu:
+Một record có nhiều lỗi thì `dq_reasons` chứa toàn bộ mã rule. Mức cuối cùng lấy theo thứ tự `REJECT > WARN > PASS`.
 
-published_at > observed_at
+Một field được Data Contract đánh dấu `UNAVAILABLE` cho toàn bộ nguồn không phải lỗi riêng của từng record, nên không phát sinh DQ08/DQ09. Field vẫn để NULL/FALSE và được phản ánh trong `completeness_score`. Ví dụ card Batdongsan hiện không có `published_info_text`, `lat` và `lon`; chỉ khi crawler bắt đầu cung cấp các cột này mà giá trị của record rỗng/sai thì mới gắn WARN.
 
-thì:
+## 3. Duplicate và grain
 
-- không đoán lại ngày;
-- đặt published_at = NULL ở Silver;
-- dq_status = WARN.
+- Grain observation: một `(source, ad_id, batch_id)` sau dedup.
+- Duplicate trong cùng batch được chọn theo: `completeness_score DESC`, `scraped_at DESC`, `page_fetched ASC`.
+- Cùng `source_id` ở ngày khác là repeated observation và phải được giữ để theo dõi lịch sử.
+- `record_hash` chỉ dùng field nghiệp vụ chuẩn hóa; không dùng batch, page, scraped time hoặc ingestion time.
+- Record hash giống batch trước: cập nhật metadata quan sát; hash khác: tạo version nghiệp vụ mới trong history.
+- Không quan sát lại listing không đồng nghĩa listing đã bán.
+- ID khác nhưng nghi cùng bất động sản chỉ ghi match candidate, không tự động merge.
 
-Ví dụ đã phát hiện:
+## 4. Giá, diện tích và phòng
 
-source_id: muaban_70944165  
-posted_at: 2030-10-15  
-scraped_at: 2026-06-03
+- Giá canonical dùng VND.
+- `price_str` giữ text nguồn để audit.
+- `price_m = price / 1_000_000` khi price hợp lệ.
+- `price_per_m2 = price / area` khi price và area hợp lệ; ngược lại là NULL.
+- Không suy đoán giá từ description nếu nguồn không công bố giá chính thức.
+- Không thay area hoặc rooms thiếu bằng 0.
+- Chỉ trích rooms từ description khi regex thể hiện rõ phòng ngủ, ví dụ `3PN` hoặc `3 phòng ngủ`.
 
-Đây được xem là dữ liệu ngày đăng không hợp lệ.
+## 5. Location và tọa độ
 
-## 3. Duplicate
+- `ward`, `district_id`, `district_name`, `lat`, `lon` có thể NULL.
+- Thiếu location/tọa độ không làm record bị loại.
+- Cần cả lat và lon hợp lệ mới đặt `has_coord = TRUE`.
+- Tọa độ bổ sung phải ghi nguồn: `original`, `geocoded`, `ward_centroid`, `district_centroid` hoặc `missing`.
+- Không coi centroid là vị trí thật của bất động sản.
+- Với dữ liệu toàn quốc, khoảng cách phải tính tới trung tâm tỉnh/thành tương ứng, không mặc định dùng trung tâm TP.HCM.
 
-Historical:
+## 6. Timestamp
 
-(source_name, source_listing_id)
+- Chuẩn hóa timestamp về cùng timezone nghiệp vụ `Asia/Ho_Chi_Minh` trước khi ghi.
+- Epoch milliseconds của NhaDatVui phải chuyển đúng đơn vị.
+- Thời gian tương đối như `2 giờ trước` chỉ được suy ra dựa trên `scraped_at` khi parser chắc chắn; nếu không thì `posted_at = NULL`.
+- Không dùng `scraped_at` để giả làm `posted_at` khi nguồn không cung cấp ngày đăng.
 
-không được trùng trong cùng một batch.
+## 7. Feature từ văn bản
 
-Khi có dữ liệu snapshot:
+Bronze giữ nguyên title/description. Silver Feature có thể trích:
 
-(source_name, source_listing_id, observed_at)
+- `title_has_frontage`
+- `title_has_car_access`
+- `title_has_elevator`
+- `title_has_furnished`
+- `title_has_legal`
 
-là khóa quan sát.
+Chỉ đặt TRUE khi văn bản có bằng chứng rõ. Không đề cập không đồng nghĩa với FALSE; khi BQ cần phân biệt phải dùng `*_known` hoặc NULL. Feature phải ghi `feature_extracted_from` để audit.
 
-Không được xóa các bản ghi của cùng một listing ở các ngày khác nhau vì các bản ghi này được dùng để tạo lịch sử giá.
+## 8. Outlier và BQ
 
-## 4. Location
-
-district_name, ward_name, latitude và longitude có thể thiếu.
-
-Thiếu tọa độ không làm record bị loại.
-
-Nếu không có tọa độ:
-
-has_coord = false  
-coordinate_source = missing
-
-Nếu sau này bổ sung tọa độ thì phải ghi rõ nguồn:
-
-- original
-- geocoded
-- centroid
-
-Không được coi tọa độ centroid là tọa độ thật của bất động sản.
-
-## 5. Rooms
-
-rooms là trường không bắt buộc.
-
-Không được tự động thay giá trị thiếu bằng 0.
-
-NULL có nghĩa là không có thông tin, trong khi 0 là một giá trị thực.
-
-## 6. Price per m2
-
-Nếu price và area hợp lệ:
-
-price_per_m2 = price / area
-
-Có thể so sánh giá trị tính lại với price_per_m2 từ nguồn.
-
-Nếu sai lệch lớn thì gắn WARN để kiểm tra.
-
-## 7. Description
-
-description không phải trường bắt buộc.
-
-Historical data hiện tại gần như không có description.
-
-Với dữ liệu mới, nếu có description thì Bronze giữ nguyên nội dung và Silver có thể trích thêm các feature sau nếu rule đủ rõ:
-
-- is_frontage
-- is_alley
-- car_access
-- has_elevator
-- has_furniture
-- has_legal_info
-
-Không suy diễn feature nếu nội dung không đủ rõ.
-
-## 8. DQ Status
-
-Mỗi record Silver có một trong ba trạng thái:
-
-PASS  
-Dữ liệu đạt các rule chính.
-
-WARN  
-Record vẫn được giữ nhưng có vấn đề không nghiêm trọng như thiếu tọa độ hoặc ngày đăng không hợp lệ.
-
-REJECT  
-Record không đủ điều kiện dùng cho phân tích chính, ví dụ không có ID, giá hoặc diện tích hợp lệ.
+Silver không kết luận tin “đắt”, “rẻ” hoặc “đáng mua”. Silver chỉ chuẩn hóa và gắn cờ chất lượng. Benchmark giá, mức lệch so với bất động sản tương đồng, trade-off ngân sách và xếp hạng khu vực thay thế thuộc Gold/ML.

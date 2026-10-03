@@ -113,6 +113,7 @@ summary = {
         timezone.utc
     ).isoformat(),
     "sources": {},
+    "skipped_lfs_files": [],
 }
 
 total_input = 0
@@ -168,6 +169,31 @@ for source_name, file_name in SOURCE_FILES.items():
             raise RuntimeError(
                 f"Khong tim thay file: {input_path}"
             )
+
+        with input_path.open(
+            "r",
+            encoding="utf-8-sig",
+            errors="replace",
+        ) as pointer_check:
+            is_lfs_pointer = (
+                pointer_check.readline().strip()
+                == "version https://git-lfs.github.com/spec/v1"
+            )
+
+        if is_lfs_pointer:
+            print(
+                f"[SKIP] {source_name} - {batch_id}: "
+                "Git LFS pointer, chua co CSV that"
+            )
+            summary["skipped_lfs_files"].append(
+                str(input_path)
+            )
+            summary["sources"][source_name][batch_id] = {
+                "file": file_name,
+                "input_path": str(input_path),
+                "status": "SKIPPED_LFS_POINTER",
+            }
+            continue
 
         output_path = (
             f"{BRONZE_ROOT}/"

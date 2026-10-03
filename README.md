@@ -122,4 +122,59 @@ docker compose --profile full config --quiet
 docker compose ps
 ```
 
+## Chạy Silver Core local
+
+Có thể chuẩn hóa và kiểm tra snapshot của cả ba nguồn mà không cần Docker:
+
+```powershell
+python -m src.silver.build_listing_core --build-local-silver
+```
+
+Job tự tìm các file theo cấu trúc `data/incoming/snapshots/<source>/YYYYMMDD/*_raw.csv`, bỏ qua file Git LFS pointer chưa tải, chuẩn hóa schema, loại duplicate trong cùng batch và ghi:
+
+- `outputs/silver/listing_observation.csv`: một listing của một nguồn trong một batch, gồm 27 cột nghiệp vụ và metadata DQ/lineage.
+- `outputs/silver/listings_current_27.csv`: phiên bản mới nhất theo `source_id`, đúng 27 cột canonical.
+- `outputs/silver/listing_dq_quarantine.csv`: các record REJECT.
+- `outputs/silver/build_summary.json`: số dòng đầu vào, duplicate, PASS/WARN/REJECT và các file bị bỏ qua.
+
+Khi crawl thêm batch mới đúng cấu trúc, chạy lại cùng lệnh. Các file đầu ra được ghi nguyên tử để hạn chế kết quả dở dang nếu job lỗi giữa chừng. Đây là runner local để kiểm chứng logic; bước triển khai lakehouse sẽ dùng cùng Data Contract và quy tắc dedup khi ghi Iceberg bằng Spark.
+
+> Lưu ý: runner local đọc trực tiếp `data/incoming/snapshots`, vì vậy không thay thế pipeline Bronze → Silver chính thức bên dưới.
+
+## Chạy pipeline Bronze → Silver chính thức
+
+Pipeline chính thức không đọc CSV crawler từ Silver. Thứ tự chạy là:
+
+```powershell
+# 1. Khởi động MinIO và Spark
+.\scripts\start_platform.ps1 core
+
+# 2. Nạp CSV crawler vào Bronze Parquet trên MinIO
+.\scripts\run_spark.ps1 "src\bronze\ingest_snapshots_bronze.py"
+
+# 3. Đọc Bronze Parquet và xây Silver Core trên MinIO
+.\scripts\run_spark.ps1 "src\silver\build_listing_core_spark.py"
+
+# 4. Xây Silver Location toàn Việt Nam từ Silver Core
+.\scripts\run_spark.ps1 "src\silver\build_location.py"
+```
+
+Đường đi dữ liệu:
+
+```text
+data/incoming/snapshots
+  -> s3a://lakehouse-bronze/real_estate/snapshots
+  -> s3a://lakehouse-silver/real_estate/core/listing_observation
+  -> s3a://lakehouse-silver/real_estate/core/listings_current_27
+  -> s3a://lakehouse-silver/real_estate/core/listing_dq_quarantine
+  -> s3a://lakehouse-silver/real_estate/location/listing_location
+```
+
+Silver Core chỉ đọc Parquet trong bucket Bronze. Silver Location tiếp tục đọc
+`listings_current_27` từ Silver Core, chuẩn hóa theo danh mục 34 tỉnh/thành và
+tính khoảng cách đến tâm tham chiếu của đúng tỉnh/thành đó. Các job không đọc
+thẳng CSV crawler. Báo cáo kiểm tra read-back được ghi tại
+`outputs/validation/silver_core_spark_summary.json` và
+`outputs/validation/silver_location_summary.json`.
+
 Các container dài hạn dùng `restart: unless-stopped`. Những profile nặng như Airflow, Superset, Trino và Hadoop chỉ nên bật khi sử dụng.
