@@ -1,15 +1,15 @@
 {
-  "started_at": "2026-10-09T09:32:21.273408+00:00",
-  "finished_at": "2026-10-09T09:32:29.298841+00:00",
-  "rows": 158,
-  "provinces": 34,
-  "listings": 107635,
+  "started_at": "2026-10-09T16:27:51.257541+00:00",
+  "finished_at": "2026-10-09T16:27:59.720471+00:00",
+  "rows": 143,
+  "provinces": 33,
+  "listings": 107733,
   "top_provinces": {
-    "Hồ Chí Minh": 67395,
-    "Hà Nội": 19429,
-    "Đà Nẵng": 5472,
-    "Đồng Nai": 4154,
-    "Hải Phòng": 1650
+    "Hồ Chí Minh": 69887,
+    "Hà Nội": 19740,
+    "Đà Nẵng": 5597,
+    "Đồng Nai": 2937,
+    "Hải Phòng": 1621
   },
   "status": "PASS"
 }

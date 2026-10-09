@@ -70,11 +70,44 @@ def main() -> None:
             F.round(F.avg(F.col("legal_known").cast("double")), 4).alias("legal_known"),
         ).orderBy(F.desc("n"))
     )
+    current_titles = spark.table(f"{silver}.silver_listings_current_27").select("source_id", "title")
+    # Examples only from labels backed by the source taxonomy and not
+    # contradicted by the title.
     data["feature_examples"] = rows(
-        spark.table(f"{silver}.silver_listings_current_27").select("source_id", "title")
-        .join(feature, "source_id")
+        current_titles.join(feature, "source_id")
         .filter("title_has_legal AND title_has_car_access AND title_has_elevator")
-        .select("source", "title", "model_category").orderBy("source_id"), 5
+        .filter("category_evidence = 'SOURCE_STRUCTURED' AND model_category_method = 'CATEGORY_NAME' AND NOT category_title_conflict")
+        .select("source", "title", "model_category", "category_evidence").orderBy("source_id"), 5
+    )
+    data["category_evidence_method"] = rows(
+        feature.groupBy("category_evidence", "model_category_method").count().orderBy(F.desc("count"))
+    )
+    data["category_conflict_by_source"] = rows(
+        feature.groupBy("source").agg(
+            F.count("*").alias("n"), F.sum(F.col("category_title_conflict").cast("int")).alias("conflicts"),
+            F.sum((F.col("model_category_method") == "TITLE_OVER_ENDPOINT").cast("int")).alias("title_over_endpoint"),
+        ).orderBy(F.desc("n"))
+    )
+    data["category_conflict_examples"] = rows(
+        current_titles.join(feature, "source_id").filter("category_title_conflict")
+        .withColumn("_h", F.sha2(F.col("source_id"), 256)).orderBy("_h")
+        .select("source", "category_name", "category_evidence", "model_category", "model_category_method", "title_model_category", "title"), 8
+    )
+    # Trace of the "Moonlight Park View" listing flagged by the review.
+    data["moonlight_trace"] = rows(
+        current_titles.join(feature, "source_id").filter(F.lower("title").contains("moonlight park view"))
+        .filter("model_category <> 'can_ho'")
+        .select("source_id", "source", "category_name", "category_evidence", "model_category", "model_category_method",
+                "title_model_category", "category_title_conflict", "title").orderBy("source_id"), 10
+    )
+    loc = spark.table(f"{silver}.listing_location")
+    data["location_method_counts"] = rows(loc.groupBy("province_mapping_method").count().orderBy(F.desc("count")))
+    data["location_conflicts"] = {
+        "silver_rows": loc.filter(F.array_contains("location_dq_reasons", "LQ05_PROVINCE_COORDINATE_CONFLICT")).count(),
+        "fact_rows": spark.table(f"{gold}.fact_listing").filter("is_location_conflict").count(),
+    }
+    data["location_conflict_by_source"] = rows(
+        loc.filter(F.array_contains("location_dq_reasons", "LQ05_PROVINCE_COORDINATE_CONFLICT")).groupBy("source").count().orderBy(F.desc("count"))
     )
 
     # Gold foundation
@@ -119,9 +152,9 @@ def main() -> None:
     titles = spark.table(f"{silver}.silver_listings_current_27").select("source_id", "title")
     group_listings = assess.filter(F.col("peer_group_id") == peer_group["peer_group_id"]).join(titles, "source_id")
     data["bq2_examples"] = rows(
-        group_listings.filter("price_position = 'thap'").orderBy("price_ratio", "source_id").limit(3)
-        .unionByName(group_listings.filter("price_position = 'hop_ly'").orderBy(F.abs(F.col("price_ratio") - 1), "source_id").limit(2))
-        .unionByName(group_listings.filter("price_position = 'cao'").orderBy(F.desc("price_ratio"), "source_id").limit(3))
+        group_listings.filter("price_position = 'duoi_p25'").orderBy("price_ratio", "source_id").limit(3)
+        .unionByName(group_listings.filter("price_position = 'p25_p75'").orderBy(F.abs(F.col("price_ratio") - 1), "source_id").limit(2))
+        .unionByName(group_listings.filter("price_position = 'tren_p75'").orderBy(F.desc("price_ratio"), "source_id").limit(3))
         .select("source_id", "title", "price", "area", "price_per_m2", "price_ratio", "price_position", "feature_count", "feature_count_vs_peer")
     )
 
@@ -156,7 +189,8 @@ def main() -> None:
     data["bq1_pareto_points"] = rows(frontier.select("source_id", "price", "area", "rooms", "is_pareto_efficient"))
     data["bq1_pareto_examples"] = rows(
         frontier.filter("is_pareto_efficient").orderBy("price", "source_id")
-        .select("title", "price", "area", "rooms", "title_has_legal", "title_has_car_access", "title_has_frontage", "title_has_elevator"), 6
+        .join(feature.select("source_id", "source", "category_evidence", "model_category_method"), "source_id")
+        .select("source", "category_evidence", "title", "price", "area", "rooms", "title_has_legal", "title_has_car_access", "title_has_frontage", "title_has_elevator"), 6
     )
 
     # 3c / BQ3: alternatives for the origin with most candidate districts
@@ -164,22 +198,24 @@ def main() -> None:
     alt_loc = location.select(F.col("location_key").alias("alternative_location_key"), F.col("district_name").alias("alternative_district"))
     substitution = t("agg_area_substitution").join(origin_loc, "origin_location_key").join(alt_loc, "alternative_location_key").join(category, "property_category_key").join(area_band, "area_band_key")
     focus = substitution.filter((F.col("province_name") == FOCUS_PROVINCE) & (F.col("model_category") == "nha_pho"))
-    # Origin = the most-listed district (where buyers look most) with >= 5 alternatives.
+    # Origin = the most-listed district (where buyers look most) with >= 3 alternatives.
     origin = rows(
         focus.filter(F.col("origin_district").isNotNull()).groupBy("origin_district", "area_band", "area_band_key")
         .agg(F.count("*").alias("count"), F.first("origin_n_listings").alias("origin_n_listings"))
-        .filter("count >= 5").orderBy(F.desc("origin_n_listings"), "origin_district", "area_band_key"), 1
+        .filter("count >= 3").orderBy(F.desc("origin_n_listings"), "origin_district", "area_band_key"), 1
     )[0]
     data["bq3_origin"] = origin
     data["bq3_examples"] = rows(
         focus.filter((F.col("origin_district") == origin["origin_district"]) & (F.col("area_band_key") == origin["area_band_key"]))
         .select("alternative_district", "origin_median_price_per_m2", "alternative_median_price_per_m2", "price_gap_pct",
-                "typical_budget_saving", "distance_diff_km", "feature_similarity", "origin_n_listings", "alternative_n_listings", "substitution_rank")
+                "target_area", "estimated_saving_at_target_area", "median_total_price_diff", "distance_diff_km",
+                "feature_similarity", "max_flag_share_gap", "origin_n_listings", "alternative_n_listings", "substitution_rank")
         .orderBy("substitution_rank"), 8
     )
     data["bq3_by_category"] = rows(substitution.groupBy("category_label").agg(
         F.count("*").alias("pairs"), F.round(F.expr("percentile(price_gap_pct, 0.5)"), 4).alias("median_gap"),
         F.round(F.expr("percentile(distance_diff_km, 0.5)"), 2).alias("median_distance_diff"),
+        F.sum((F.col("median_total_price_diff") <= 0).cast("int")).alias("total_not_lower"),
     ).orderBy(F.desc("pairs")))
 
     # 3d DQ KPI and 3e repricing

@@ -30,6 +30,7 @@ OBSERVATION_SCHEMA = T.StructType([
     T.StructField("posted_at",T.TimestampType(),True),T.StructField("scraped_at",T.TimestampType(),True),T.StructField("page_fetched",T.IntegerType(),True),T.StructField("price_m",T.DoubleType(),True),T.StructField("price_per_m2",T.DoubleType(),True),
     T.StructField("has_coord",T.BooleanType(),True),T.StructField("is_rent",T.BooleanType(),True),T.StructField("batch_id",T.StringType(),True),T.StructField("snapshot_date",T.DateType(),True),T.StructField("bronze_ingested_at",T.TimestampType(),True),
     T.StructField("bronze_source_file",T.StringType(),True),T.StructField("bronze_path",T.StringType(),True),T.StructField("record_hash",T.StringType(),True),T.StructField("dq_status",T.StringType(),True),T.StructField("dq_reasons",T.ArrayType(T.StringType()),True),T.StructField("completeness_score",T.DoubleType(),True),
+    T.StructField("category_evidence",T.StringType(),True),
 ])
 
 def transform_partition(rows: Iterator[Row], builder: Callable[..., dict[str,Any]]) -> Iterator[tuple[Any,...]]:
@@ -84,6 +85,8 @@ def read_historical_source(spark, source: str) -> tuple[DataFrame,int]:
     base=base.withColumn("dq_status",F.when(F.array_contains(F.col("dq_reasons"),"DQ01"),"REJECT").when(F.size("dq_reasons")>0,"WARN").otherwise("PASS"))
     score_fields=["title","price","area","rooms","address","ward","district_name","category_name","lat","lon","image","ad_url","posted_at"]
     score=sum(F.when(F.col(c).isNotNull(),F.lit(1.0)).otherwise(F.lit(0.0)) for c in score_fields)/F.lit(float(len(score_fields)))
+    # Historical exports carry the source's own category label.
+    base=base.withColumn("category_evidence",F.when(F.col("category_name").isNotNull(),F.lit("SOURCE_LABEL")).otherwise(F.lit("NONE")))
     return base.withColumn("completeness_score",F.round(score,6)).select(*(CANONICAL_COLUMNS+OBSERVATION_METADATA_COLUMNS)),count
 
 def current_from(observations: DataFrame) -> DataFrame:

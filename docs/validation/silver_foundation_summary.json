@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-10-09T09:25:38.501287+00:00",
-  "finished_at": "2026-10-09T09:26:57.393149+00:00",
+  "started_at": "2026-10-09T16:21:07.772047+00:00",
+  "finished_at": "2026-10-09T16:22:26.170800+00:00",
   "catalog_namespace": "lakehouse.silver",
   "source_input_rows": {
     "batdongsan": 42000,
@@ -33,8 +33,8 @@
     "mogi": 19075
   },
   "dq_status_counts": {
-    "WARN": 75767,
-    "PASS": 114750,
+    "WARN": 75645,
+    "PASS": 114872,
     "REJECT": 664
   },
   "iceberg_readback_counts": {

@@ -3,6 +3,12 @@
 Every dimension has an INT surrogate key and exactly one ``-1`` "Không rõ" row
 so fact foreign keys are never NULL. Keys are assigned deterministically from
 sorted natural keys, so rebuilding the same input yields the same keys.
+
+Limitation: keys are not stable across *different* inputs. A new location that
+sorts before existing ones shifts their ``location_key`` (same for dates).
+This is safe only because every run rebuilds all dimensions and facts
+together; nothing outside this pipeline may store Gold surrogate keys. Stable
+keys across incremental loads would need a persisted natural-key -> key map.
 """
 
 from __future__ import annotations

@@ -8,7 +8,7 @@ Thành viên:
 - 23133029 - Vương Đức Huy
 - 23133040 - Nguyễn Lê Hoàng Kiệt
 
-Repository hiện phản ánh tiến độ đến **tuần 6: Silver Feature, Gold nền và Gold theo Business Question (BQ1–BQ3)**. Toàn bộ đã được kiểm chứng end-to-end và rebuild deterministic. Báo cáo tiến độ: [`docs/report/Bao_cao_Silver_Feature_Gold.docx`](docs/report/Bao_cao_Silver_Feature_Gold.docx).
+Repository hiện phản ánh tiến độ đến **tuần 6: Silver Feature, Gold nền và Gold theo Business Question (BQ1–BQ3)**, kèm đợt rà soát sửa lỗi ngày 09/10/2026. Báo cáo tiến độ: [`docs/report/Bao_cao_Silver_Feature_Gold.docx`](docs/report/Bao_cao_Silver_Feature_Gold.docx).
 
 ## Kiến trúc hiện tại
 
@@ -52,7 +52,7 @@ Silver chỉ đọc Bronze Parquet trên MinIO, không đọc tắt CSV crawler.
 
 ## Kết quả hiện tại
 
-Số liệu dưới đây là lần rebuild đầy đủ ngày 09/10/2026 từ dữ liệu trong repo. So với tuần 5, Bronze có thêm batch `20260929` và `20261002` của `batdongsan` và `guland` (+26.000 dòng snapshot), nên mọi count downstream đều tăng.
+Số liệu dưới đây là lần rebuild đầy đủ ngày 09/10/2026 sau đợt rà soát (xem mục *Đợt rà soát 09/10/2026* bên dưới). Bronze gồm batch `20260929` và `20261002` của `batdongsan` và `guland`.
 
 ### Bronze State Audit
 
@@ -62,9 +62,9 @@ Số liệu dưới đây là lần rebuild đầy đủ ngày 09/10/2026 từ d
 | Snapshot crawl | 3 | 164.824 |
 | Tổng cộng | 9 | 195.141 |
 
-Các count trên là trạng thái được đọc trực tiếp từ MinIO khi chạy audit. Job ingest snapshot chỉ nhận thư mục batch đúng dạng `YYYYMMDD`; các thư mục crawl tạm như `20261003_150728` không được ingest.
+Các count trên là trạng thái được đọc trực tiếp từ MinIO khi chạy audit. Job ingest snapshot chỉ nhận thư mục batch đúng dạng `YYYYMMDD`.
 
-### Data Quality và dedup
+### Data Quality và dedup theo batch
 
 | Chỉ số | Số dòng |
 |---|---:|
@@ -72,67 +72,67 @@ Các count trên là trạng thái được đọc trực tiếp từ MinIO khi 
 | Accepted trước dedup | 194.477 |
 | Duplicate bị loại | 3.960 |
 | Listing observation | 190.517 |
-| Quarantine | 664 |
-| PASS | 114.750 |
-| WARN | 75.767 |
-| REJECT | 664 |
-
-WARN được giữ lại kèm lý do để tránh làm mất dữ liệu thật. Chỉ lỗi định danh nghiêm trọng mới được đưa vào quarantine.
+| Quarantine (REJECT) | 664 |
+| PASS / WARN | 114.872 / 75.645 |
 
 ### Các bảng Silver Iceberg
 
 | Bảng | Số dòng | Vai trò |
 |---|---:|---|
-| `listing_observation` | 190.517 | Observation hợp lệ sau dedup theo batch |
+| `listing_observation` | 190.517 | Observation hợp lệ sau dedup theo batch; có `category_evidence` |
 | `listing_dq_quarantine` | 664 | Record không đạt điều kiện tối thiểu |
-| `crawl_current_27` | 93.651 | Current của 3 nguồn crawl |
-| `historical_current_27` | 30.317 | Current của 6 nguồn historical |
-| `silver_listings_current_27` | 123.968 | Final current đủ 9 nguồn, đúng 27 cột |
-| `listing_history` | 131.416 | Phiên bản khi business `record_hash` thay đổi |
-| `listing_location` | 123.968 | Một dòng location cho mỗi `source_id` current |
-| `listing_feature` | 123.968 | `model_category`, cờ đặc điểm từ title, cờ `*_known` |
+| `crawl_current_27` / `historical_current_27` | 93.651 / 30.317 | Current theo nhánh |
+| `silver_listings_current_27` | 123.968 | Bản ghi **mới nhất đã quan sát** của mỗi tin (không xác nhận tin còn hiển thị), đúng 27 cột |
+| `listing_history` | 131.420 | Phiên bản khi business `record_hash` thay đổi |
+| `listing_location` | 123.968 | Vị trí theo thứ tự bằng chứng; LQ05 → khoảng cách NULL |
+| `listing_feature` | 123.968 | `model_category` + nguồn gốc nhãn, cờ mâu thuẫn, cờ đặc điểm từ title |
 
-History có 7.448 phiên bản thay đổi bổ sung và không có hai version liên tiếp trùng `record_hash`. Location có 103.061 dòng WARN, chủ yếu do dữ liệu nguồn thiếu tọa độ hoặc cần fallback vị trí, không phải lỗi thực thi pipeline.
-
-`listing_feature` map được `model_category` cho 99,73% listing (`khong_ro` 332 dòng). Tỷ lệ title nhắc đặc điểm: pháp lý 10,1%, nội thất 8,5%, mặt tiền 19,1%, thang máy 4,2%, ô tô vào 12,7%. `title_has_* = FALSE` chỉ có nghĩa title không đề cập.
+Loại hình: nhà phố 72.582, căn hộ 26.959, biệt thự/liền kề/shophouse 10.041, khác 7.106, đất 6.917, không rõ 363. 4.621 tin có nhãn nguồn mâu thuẫn với title (khác họ căn hộ/đất/nhà) được gắn cờ, không bị ghi đè. Title nêu pháp lý 10,1%, nội thất 8,5%, mặt tiền đường 16,8%, thang máy 4,2%, ô tô tiếp cận 12,7%; `title_has_* = FALSE` gộp "không nêu" và "nói không có".
 
 ### Gold nền (star schema)
 
 | Bảng | Số dòng | Vai trò |
 |---|---:|---|
-| `dim_source` | 10 | 9 nguồn + dòng `-1` |
-| `dim_date` | 2.694 | Ngày đăng/quan sát |
-| `dim_location` | 362 | Tỉnh – quận/huyện theo `listing_location` |
-| `dim_property_category` | 6 | 5 `model_category` + `-1` |
-| `dim_price_band` / `dim_area_band` / `dim_unit_price_band` / `dim_room_band` | 9 / 7 / 8 / 6 | Band khai báo trong `config/gold_bands.csv` |
-| `dim_dq_status` | 3 | PASS, WARN, `-1` |
+| `dim_source` / `dim_date` / `dim_location` | 10 / 2.694 / 272 | Mỗi dimension có dòng `-1` |
+| `dim_property_category` / `dim_dq_status` | 6 / 3 | |
+| Band giá / diện tích / giá/m² / phòng | 9 / 7 / 8 / 6 | `config/gold_bands.csv` |
 | `fact_listing` | 108.611 | Một dòng cho mỗi tin **bán** current |
 
-`fact_listing` = 123.968 current − 15.357 tin thuê (không có `is_rent` NULL hay REJECT). Mọi FK đều trỏ tới dimension; giá trị không map được dùng `-1` (ví dụ 39.426 tin thiếu số phòng, 2.235 tin giá thỏa thuận).
+`fact_listing` = 123.968 current − 15.357 tin thuê. Giá trị không map được dùng `-1` (ví dụ 39.426 tin thiếu số phòng); 16 tin có tỉnh mâu thuẫn tọa độ nhận `location_key = -1`.
 
-Dedup giữa các nguồn chỉ gắn cờ, không xóa: cùng location và category, diện tích lệch ≤ 2%, giá lệch ≤ 3%, Jaccard token title ≥ 0,35. Kết quả có 1.052 cặp, gom thành 606 nhóm, 1.582 tin nghi trùng (1,46%), nhiều nhất là cặp `guland` – `nhadatvui`. Bảng tổng hợp phải dùng `is_dup_representative = TRUE` (107.635 tin).
+Tin trùng giữa các nguồn chỉ được **nghi trùng** theo luật (cùng location và loại hình, diện tích ±2%, giá ±3%, Jaccard title ≥ 0,35, chỉ giữ cặp tốt nhất hai chiều): 850 nhóm, 1.738 tin; 3 nhóm có hai tin cùng nguồn không được gộp. Bảng tổng hợp dùng 107.733 **tin đại diện theo luật**, không bảo đảm một dòng cho mỗi bất động sản thực. Khóa dimension chỉ ổn định khi rebuild đồng bộ dimension và fact.
 
 ### Gold theo Business Question
 
 | Bảng | Số dòng | Trả lời |
 |---|---:|---|
-| `agg_peer_group_benchmark` | 2.895 | BQ2: nhóm tương đồng (≥ 5 tin) ở 3 cấp |
-| `fact_listing_price_assessment` | 107.635 | BQ2: vị trí giá thấp / hợp lý / cao của từng tin |
-| `agg_budget_tradeoff` | 2.649 | BQ1: người mua được gì theo ngân sách × quận × loại hình |
-| `fact_budget_pareto` | 105.397 | BQ1: 19.670 tin không bị trội |
-| `agg_area_substitution` | 4.666 | BQ3: quận thay thế rẻ hơn, tương đồng đặc điểm ≥ 0,8 |
-| `agg_dq_kpi` | 9 | Phễu dữ liệu Bronze → Gold theo nguồn |
+| `agg_peer_group_benchmark` | 2.616 | BQ2: nhóm tương đồng (≥ 5 tin) ở 3 cấp |
+| `fact_listing_price_assessment` | 107.733 | BQ2: vị trí giá/m² dưới P25 / trong P25–P75 / trên P75 (benchmark mô tả, không phải định giá) |
+| `agg_budget_tradeoff` | 2.455 | BQ1: người mua được gì theo ngân sách × quận × loại hình |
+| `fact_budget_pareto` | 105.495 | BQ1: 19.709 tin không bị trội theo tiêu chí đã chọn, trong cùng quận |
+| `agg_area_substitution` | 3.485 | BQ3: quận cùng tỉnh có chi phí thấp hơn **cho cùng diện tích**, tương đồng đặc điểm ≥ 0,8 và không cờ nào lệch > 0,3 |
+| `agg_dq_kpi` | 9 | Phễu Bronze → Gold theo nguồn (job duy nhất đọc Bronze) |
 | `fact_listing_price_change` | 642 | Lịch sử đổi giá (499 lần giảm) |
-| `agg_market_overview` | 158 | Mặt bằng giá theo tỉnh × loại hình |
+| `agg_market_overview` | 143 | Mặt bằng giá theo tỉnh × loại hình |
 
 ### Kiểm chứng
 
-- Iceberg smoke test Spark → REST Catalog → MinIO: **PASS**.
-- Silver final verification: **18/18 PASS** (12 check cũ + 5 check `listing_feature` + bảng nằm đúng bucket `lakehouse-silver`).
-- Gold verification: **67/67 PASS** (dimension, band, FK, grain của mọi bảng BQ, nhóm benchmark ≥ 5 tin, tổng n khớp fact, khu vực thay thế cùng tỉnh và rẻ hơn, DQ KPI khớp Silver, mọi bảng nằm đúng bucket `lakehouse-gold`).
-- Nguồn trong final current: **9/9**; final current đúng **27 cột canonical**.
-- Unit tests: **122/122 PASS**.
-- Rebuild deterministic: chạy toàn bộ Silver + Gold 2 lần, **26/26 bảng** cùng số dòng (`scripts/check_deterministic_rebuild.ps1`).
+- Silver verification: **22/22 PASS** (gồm so khớp tập `source_id` hai chiều và `category_evidence`).
+- Gold verification: **81/81 PASS**; các check tính lại kết quả: tập khóa fact, band theo giá trị, vị trí giá từ P25/P75, nhãn Pareto (so từng cặp), điều kiện BQ3, xử lý LQ05 và nhóm nghi trùng.
+- Unit tests: **PASS** (`python -m pytest -q`), gồm regression test cho từng lỗi trong đợt rà soát.
+- Rebuild hai lần trên cùng Bronze: **PASS** trên 26 bảng, so số dòng, số khóa grain và hash nội dung (bỏ cột `*_built_at`) — `scripts/check_deterministic_rebuild.ps1`.
+
+### Đợt rà soát 09/10/2026
+
+| Chỉ số | Trước | Sau |
+|---|---:|---:|
+| Căn hộ / nhà phố (tin current) | 36.731 / 65.029 | 26.959 / 72.582 |
+| LQ05 tỉnh mâu thuẫn tọa độ | 982 | 16 |
+| LQ04 tỉnh suy từ tâm gần nhất | 27.772 | 0 |
+| Nhóm nghi trùng lớn nhất | 30 | 5 |
+| Cặp BQ3 | 4.666 | 3.485 |
+
+Chi tiết lỗi, cách sửa và phần chưa kiểm chứng: [`docs/report/ban_ghi_sua_loi.md`](docs/report/ban_ghi_sua_loi.md) và Chương 7 của báo cáo.
 
 Kết quả máy đọc được nằm trong [`docs/validation`](docs/validation/).
 

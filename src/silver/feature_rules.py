@@ -13,12 +13,12 @@ import unicodedata
 from collections.abc import Mapping
 from typing import Any
 
-FEATURE_RULE_VERSION = "listing_feature_rules_v2"
+FEATURE_RULE_VERSION = "listing_feature_rules_v3"
 
 MODEL_CATEGORIES = ("nha_pho", "can_ho", "biet_thu", "dat", "phong_tro_khac", "khong_ro")
 
-# Matched on folded text (lowercase, no diacritics, punctuation -> space).
-# Order matters: the first matching group wins, so specific labels such as
+# Category labels from Silver Core, matched on folded text (lowercase, no
+# diacritics, punctuation -> space). Order matters: specific labels such as
 # "shophouse" or "căn hộ" are checked before the broad "nhà"/"đất" labels.
 MODEL_CATEGORY_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("can_ho", (
@@ -29,6 +29,7 @@ MODEL_CATEGORY_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("phong_tro_khac", (
         r"phong tro", r"nha tro", r"phong", r"kho", r"xuong", r"mat bang", r"van phong",
         r"thuong mai", r"commercial", r"khach san", r"cua hang", r"ki ot", r"kiot",
+        r"trang trai", r"nghi duong",
     )),
     ("dat", (r"dat", r"land")),
     ("nha_pho", (
@@ -36,32 +37,58 @@ MODEL_CATEGORY_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
         r"nha nguyen can", r"nha cap 4", r"house", r"nha",
     )),
 )
+# Labels that name no property type; the title decides.
+GENERIC_CATEGORY_LABELS = {"bat dong san khac", "loai bat dong san khac", "khac", "other"}
 
-# Titles are noisier than category labels and rely on agent shorthand
-# ("CH", "CC", "2PN", "MT", "lô"), so the fallback uses its own ordered rules.
-TITLE_FALLBACK_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
-    ("biet_thu", (r"biet thu", r"villa", r"lien ke", r"shop ?house", r"lk")),
+# Title evidence. STRONG signals name a property type explicitly. WEAK signals
+# are agent shorthand or words with other meanings ("CC" = chung cư or chính
+# chủ, "lô" = lô đất or nhà phân lô, "MT" = mặt tiền or chiều ngang), so they
+# only count when no strong signal is present.
+TITLE_STRONG_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("phong_tro_khac", (
         r"chdv", r"can ho dich vu", r"phong tro", r"nha tro", r"kho", r"xuong",
-        r"mat bang", r"van phong", r"building", r"khach san",
+        r"nha xuong", r"mat bang", r"van phong", r"building", r"khach san",
+        r"trang trai", r"nghi duong",
     )),
+    ("biet_thu", (r"biet thu", r"villa", r"lien ke", r"shop ?house", r"nha vuon")),
     ("can_ho", (
-        r"can ho", r"chung cu", r"ch", r"cc", r"condotel", r"officetel",
-        r"penthouse", r"duplex", r"can (?:goc )?\d+ ?pn", r"studio",
+        r"can ho", r"chung cu", r"condotel", r"officetel", r"penthouse", r"duplex",
+        r"studio", r"can (?:goc )?\d+ ?pn",
     )),
-    ("dat", (r"dat", r"lo", r"tho cu", r"dat nen", r"nen")),
+    ("dat", (
+        r"ban dat", r"lo dat", r"dat nen", r"dat tho cu", r"manh dat", r"thua dat",
+        r"nen dat", r"dat vuon", r"dat nong nghiep", r"dat o",
+    )),
     ("nha_pho", (
-        r"nha", r"mat tien", r"mt", r"hem", r"hxh", r"ngo", r"\d+ ?(?:tang|lau)",
-        r"tret", r"lau",
+        r"nha", r"\d+ ?(?:tang|lau)", r"tret", r"nha cap 4", r"nha nguyen can",
+        r"mtkd", r"nha mat tien", r"nha mat pho",
     )),
-    ("can_ho", (r"\d+ ?pn",)),
 )
+TITLE_WEAK_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("biet_thu", (r"lk",)),
+    ("can_ho", (r"ch", r"cc", r"\d+ ?pn")),
+    ("dat", (r"lo", r"nen", r"tho cu")),
+    ("nha_pho", (r"mat tien", r"mt", r"hem", r"hxh", r"ngo", r"lau")),
+)
+# When several types have strong signals, the most specific wins: a "căn hộ"
+# or "đất" title routinely also says "nhà" or "3 tầng" (building, neighbours).
+TITLE_PRECEDENCE = ("phong_tro_khac", "biet_thu", "can_ho", "dat", "nha_pho")
+# Only a different *family* is a contradiction. "Nhà", "4 tầng", "văn phòng" or
+# "mặt bằng" in the title of a villa, townhouse or shophouse listing describe
+# the same kind of building (or its use), not another property type.
+CATEGORY_FAMILY = {
+    "nha_pho": "building", "biet_thu": "building", "phong_tro_khac": "building",
+    "can_ho": "apartment", "dat": "land",
+}
 
 # "hong" is deliberately excluded: it is the folded form of "hồng" in "sổ hồng".
 NEGATION_TOKENS = {"khong", "ko", "k", "kh", "chua", "thieu"}
 # A frontage mention such as "cách mặt tiền 20m" describes proximity, not the
 # property itself.
 PROXIMITY_TOKENS = {"gan", "cach", "sat", "ra", "toi", "den", "vai"}
+# "MT 5m" / "mặt tiền 4,5m" gives the lot width; "mặt tiền hẻm" faces an alley.
+# Neither shows that the property faces a street.
+FRONTAGE_NOT_STREET = re.compile(r" ?(?:\d+(?: \d+)? ?m\b|hem|ngo|kiet)")
 NEGATION_WINDOW = 2
 
 FEATURE_RULES: dict[str, dict[str, tuple[str, ...]]] = {
@@ -132,9 +159,10 @@ KNOWN_FLAG_WEIGHTS: dict[str, float] = {
 
 FEATURE_COLUMNS = [
     "source_id", "source", "dq_status", "is_rent", "record_hash",
-    "category_name", "model_category", "model_category_method",
+    "category_name", "category_evidence", "model_category", "model_category_method",
+    "title_model_category", "category_title_conflict",
     "title_has_legal", "title_has_furnished", "title_has_frontage",
-    "title_has_elevator", "title_has_car_access",
+    "title_has_elevator", "title_has_car_access", "title_negated_features",
     "price_known", "area_known", "rooms_known", "location_known", "legal_known",
     "feature_completeness_score", "feature_rule_version",
 ]
@@ -165,7 +193,8 @@ def _compile(patterns: tuple[str, ...]) -> tuple[re.Pattern[str], ...]:
 
 
 _CATEGORY_INDEX = tuple((name, _compile(patterns)) for name, patterns in MODEL_CATEGORY_RULES)
-_TITLE_CATEGORY_INDEX = tuple((name, _compile(patterns)) for name, patterns in TITLE_FALLBACK_RULES)
+_TITLE_STRONG_INDEX = tuple((name, _compile(patterns)) for name, patterns in TITLE_STRONG_RULES)
+_TITLE_WEAK_INDEX = tuple((name, _compile(patterns)) for name, patterns in TITLE_WEAK_RULES)
 _FEATURE_INDEX = {
     feature: {kind: _compile(patterns) for kind, patterns in rules.items()}
     for feature, rules in FEATURE_RULES.items()
@@ -201,7 +230,10 @@ def feature_status(feature: str, title: Any) -> str | None:
             if NEGATION_TOKENS.intersection(before):
                 negated = True
                 continue
-            if feature == "frontage" and PROXIMITY_TOKENS.intersection(before):
+            if feature == "frontage" and (
+                PROXIMITY_TOKENS.intersection(before)
+                or FRONTAGE_NOT_STREET.match(folded, match.end())
+            ):
                 continue
             if _is_false_friend(match.group().strip(), title):
                 continue
@@ -227,20 +259,64 @@ def feature_status(feature: str, title: Any) -> str | None:
     return "NEGATIVE" if negated else None
 
 
-def map_model_category(category_name: Any, title: Any = None) -> tuple[str, str]:
-    """Map a canonical category (fallback: title) to (model_category, method)."""
+def category_from_label(category_name: Any) -> str | None:
+    """Model category named by a Core label; None for missing/generic labels."""
 
-    for text, method, index in (
-        (category_name, "CATEGORY_NAME", _CATEGORY_INDEX),
-        (title, "TITLE_FALLBACK", _TITLE_CATEGORY_INDEX),
-    ):
-        folded = fold_text(text)
-        if not folded:
-            continue
-        for name, patterns in index:
-            if any(pattern.search(folded) for pattern in patterns):
-                return name, method
-    return "khong_ro", "UNMAPPED"
+    folded = fold_text(category_name)
+    if not folded or folded in GENERIC_CATEGORY_LABELS:
+        return None
+    for name, patterns in _CATEGORY_INDEX:
+        if any(pattern.search(folded) for pattern in patterns):
+            return name
+    return None
+
+
+def category_from_title(title: Any) -> tuple[str | None, str | None]:
+    """(model_category, "STRONG"/"WEAK") read from a title, or (None, None).
+
+    Several strong types resolve by TITLE_PRECEDENCE. Weak signals are used only
+    without any strong signal and only when they all point to one type.
+    """
+
+    folded = fold_text(title)
+    if not folded:
+        return None, None
+    strong = {name for name, patterns in _TITLE_STRONG_INDEX if any(p.search(folded) for p in patterns)}
+    if strong:
+        return next(name for name in TITLE_PRECEDENCE if name in strong), "STRONG"
+    weak = {name for name, patterns in _TITLE_WEAK_INDEX if any(p.search(folded) for p in patterns)}
+    if len(weak) == 1:
+        return weak.pop(), "WEAK"
+    return None, None
+
+
+def map_model_category(
+    category_name: Any, title: Any = None, category_evidence: Any = None
+) -> tuple[str, str, bool]:
+    """Return (model_category, method, category_title_conflict).
+
+    - A specific Core label backed by the source (taxonomy or label) is kept;
+      a strong title signal of another family (building / apartment / land)
+      only raises the conflict flag.
+    - A label that rests on the crawled endpoint alone yields to a strong title
+      signal of another family (method TITLE_OVER_ENDPOINT).
+    - Missing/generic labels use the title (TITLE_FALLBACK), else khong_ro.
+    """
+
+    label = category_from_label(category_name)
+    title_category, strength = category_from_title(title)
+    conflict = (
+        label is not None and strength == "STRONG"
+        and CATEGORY_FAMILY[title_category] != CATEGORY_FAMILY[label]
+    )
+    if label is not None:
+        if conflict and category_evidence == "ENDPOINT_CONTEXT":
+            return title_category, "TITLE_OVER_ENDPOINT", True
+        method = "ENDPOINT_CONTEXT" if category_evidence == "ENDPOINT_CONTEXT" else "CATEGORY_NAME"
+        return label, method, conflict
+    if title_category is not None:
+        return title_category, "TITLE_FALLBACK", False
+    return "khong_ro", "UNMAPPED", False
 
 
 def _positive_number(value: Any) -> bool:
@@ -260,7 +336,9 @@ def build_feature_record(record: Mapping[str, Any]) -> dict[str, Any]:
     """Build one ``listing_feature`` row from Core + location + observation fields."""
 
     title = record.get("title")
-    model_category, method = map_model_category(record.get("category_name"), title)
+    model_category, method, conflict = map_model_category(
+        record.get("category_name"), title, record.get("category_evidence")
+    )
     statuses = {feature: feature_status(feature, title) for feature in FEATURE_RULES}
     known = {
         "price_known": _positive_number(record.get("price")),
@@ -280,9 +358,14 @@ def build_feature_record(record: Mapping[str, Any]) -> dict[str, Any]:
         "is_rent": record.get("is_rent"),
         "record_hash": record.get("record_hash"),
         "category_name": record.get("category_name"),
+        "category_evidence": record.get("category_evidence"),
         "model_category": model_category,
         "model_category_method": method,
+        "title_model_category": category_from_title(title)[0],
+        "category_title_conflict": conflict,
+        # TRUE = the title states the feature; FALSE = not stated or negated.
         **{f"title_has_{feature}": status == "POSITIVE" for feature, status in statuses.items()},
+        "title_negated_features": [feature for feature, status in statuses.items() if status == "NEGATIVE"],
         **known,
         "feature_completeness_score": feature_completeness(known),
         "feature_rule_version": FEATURE_RULE_VERSION,

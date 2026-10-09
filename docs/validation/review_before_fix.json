@@ -1,0 +1,65 @@
+{
+  "captured_at": "2026-10-09",
+  "note": "Numbers before the review fixes, captured from docs/validation of commit 3c86881 and Trino queries on the Gold tables of that build.",
+  "model_category_counts": {
+    "nha_pho": 65029,
+    "dat": 7534,
+    "phong_tro_khac": 6914,
+    "biet_thu": 7428,
+    "can_ho": 36731,
+    "khong_ro": 332
+  },
+  "model_category_method_counts": {
+    "TITLE_FALLBACK": 1458,
+    "CATEGORY_NAME": 122178,
+    "UNMAPPED": 332
+  },
+  "batdongsan_default_to_apartment_rows_bronze": 24225,
+  "batdongsan_bronze_rows": 42000,
+  "location_reason_counts": {
+    "LQ05_PROVINCE_COORDINATE_CONFLICT": 982,
+    "LQ01_LOCATION_MISSING": 181,
+    "LQ03_COORDINATE_MISSING": 74307,
+    "LQ02_PROVINCE_UNKNOWN": 12818,
+    "LQ04_PROVINCE_INFERRED_BY_NEAREST_CENTER": 27772
+  },
+  "lq05_rows_silver": 982,
+  "lq05_rows_in_fact": 926,
+  "lq05_rows_representative": 923,
+  "lq05_top_provinces": {
+    "Phú Thọ": 387,
+    "Nghệ An": 279,
+    "Điện Biên": 133,
+    "Hưng Yên": 54,
+    "Hà Nội": 30,
+    "Huế": 28
+  },
+  "fact_rows": 108611,
+  "representative_rows": 107635,
+  "dedup": {
+    "candidate_pairs": 1052,
+    "dup_groups": 606,
+    "suspect_rows": 1582,
+    "groups_with_same_source_members": 180,
+    "max_group_size": 30
+  },
+  "price_position_counts": {
+    "khong_du_du_lieu": 3412,
+    "hop_ly": 51099,
+    "thap": 26053,
+    "cao": 27071
+  },
+  "pareto_efficient_rows": 19670,
+  "pareto_rows": 105397,
+  "substitution_pairs": 4666,
+  "substitution_pairs_total_price_not_lower": 216,
+  "verify_silver": "18/18",
+  "verify_gold": "67/67",
+  "rebuild_check": "row counts only, 26 tables",
+  "pytest": "122/122",
+  "province_mapping_method_counts": {
+    "NEAREST_CENTER": 27772,
+    "TEXT_ALIAS": 83378,
+    "UNMAPPED": 12818
+  }
+}

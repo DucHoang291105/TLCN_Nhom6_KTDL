@@ -222,7 +222,8 @@ class ReportDocument:
         self.doc.add_paragraph().paragraph_format.space_after = Pt(0)
 
     def table(self, caption: str, headers: Sequence[str], rows: Sequence[Sequence[object]],
-              numeric: Iterable[int] = (), widths_cm: Sequence[float] | None = None, font_size: int = 11) -> None:
+              numeric: Iterable[int] = (), widths_cm: Sequence[float] | None = None, font_size: int = 11,
+              keep_together: bool = False) -> None:
         self.tables += 1
         self.doc.add_paragraph(f"Bảng {self.chapter}.{self.tables}. {caption}", style="Caption").paragraph_format.keep_with_next = True
         numeric = set(numeric)
@@ -246,9 +247,16 @@ class ReportDocument:
             for index, value in enumerate(values):
                 self._cell_text(cells[index], "" if value is None else str(value), font_size,
                                 align=WD_ALIGN_PARAGRAPH.RIGHT if index in numeric else WD_ALIGN_PARAGRAPH.LEFT)
-        for row in table.rows:
+        for row_index, row in enumerate(table.rows):
+            tr_pr = row._tr.get_or_add_trPr()
+            cant_split = OxmlElement("w:cantSplit")
+            tr_pr.append(cant_split)
             for index, cell in enumerate(row.cells):
                 cell.width = Cm(widths[index])
+                # Small tables stay on one page: chain every row to the next.
+                if keep_together and row_index < len(table.rows) - 1:
+                    for paragraph in cell.paragraphs:
+                        paragraph.paragraph_format.keep_with_next = True
         self.doc.add_paragraph().paragraph_format.space_after = Pt(0)
 
     @staticmethod

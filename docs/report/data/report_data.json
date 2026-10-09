@@ -1,67 +1,67 @@
 {
-  "generated_at": "2026-10-09T09:41:25.909237+00:00",
+  "generated_at": "2026-10-09T16:33:14.577535+00:00",
   "focus_province": "Hồ Chí Minh",
   "feature_by_category": [
     {
       "model_category": "nha_pho",
-      "n": 65029,
-      "legal": 0.0782,
-      "furnished": 0.0413,
-      "frontage": 0.2349,
-      "elevator": 0.0554,
-      "car_access": 0.1957
+      "n": 72582,
+      "legal": 0.0768,
+      "furnished": 0.0434,
+      "frontage": 0.22,
+      "elevator": 0.0589,
+      "car_access": 0.1999
     },
     {
       "model_category": "can_ho",
-      "n": 36731,
-      "legal": 0.1712,
-      "furnished": 0.185,
-      "frontage": 0.1005,
-      "elevator": 0.0273,
-      "car_access": 0.0547
-    },
-    {
-      "model_category": "dat",
-      "n": 7534,
-      "legal": 0.1018,
-      "furnished": 0.0123,
-      "frontage": 0.2441,
-      "elevator": 0.0048,
-      "car_access": 0.0816
+      "n": 26959,
+      "legal": 0.2069,
+      "furnished": 0.2333,
+      "frontage": 0.0214,
+      "elevator": 0.0088,
+      "car_access": 0.0064
     },
     {
       "model_category": "biet_thu",
-      "n": 7428,
-      "legal": 0.0456,
-      "furnished": 0.0548,
-      "frontage": 0.1929,
-      "elevator": 0.0425,
-      "car_access": 0.0427
+      "n": 10041,
+      "legal": 0.0599,
+      "furnished": 0.0525,
+      "frontage": 0.1255,
+      "elevator": 0.0451,
+      "car_access": 0.035
     },
     {
       "model_category": "phong_tro_khac",
-      "n": 6914,
-      "legal": 0.0036,
-      "furnished": 0.0743,
-      "frontage": 0.2152,
-      "elevator": 0.0344,
-      "car_access": 0.0133
+      "n": 7106,
+      "legal": 0.0049,
+      "furnished": 0.0725,
+      "frontage": 0.2005,
+      "elevator": 0.0296,
+      "car_access": 0.011
+    },
+    {
+      "model_category": "dat",
+      "n": 6917,
+      "legal": 0.1039,
+      "furnished": 0.0019,
+      "frontage": 0.2325,
+      "elevator": 0.0019,
+      "car_access": 0.0934
     },
     {
       "model_category": "khong_ro",
-      "n": 332,
-      "legal": 0.0392,
-      "furnished": 0.1265,
-      "frontage": 0.0241,
-      "elevator": 0.009,
-      "car_access": 0.009
+      "n": 363,
+      "legal": 0.0468,
+      "furnished": 0.1267,
+      "frontage": 0.0386,
+      "elevator": 0.011,
+      "car_access": 0.0193
     }
   ],
   "feature_by_source": [
     {
       "source": "guland",
       "n": 47387,
-      "avg_completeness": 0.7146,
+      "avg_completeness": 0.7147,
       "rooms_known": 0.5098,
       "legal_known": 0.0673
     },
@@ -82,7 +82,7 @@
     {
       "source": "nhadatvui",
       "n": 17336,
-      "avg_completeness": 0.7779,
+      "avg_completeness": 0.7804,
       "rooms_known": 0.6202,
       "legal_known": 0.2818
     },
@@ -124,61 +124,324 @@
   ],
   "feature_examples": [
     {
-      "source": "alonhadat",
-      "title": "NHÀ PHỐ LUXURY 2 MẶT TIỀN GIÁP SÂN BAY,OTO VÀO NHÀ, 60m2,5 TẦNG SHR,CÓ THANG MÁY,CHỈ 9.99",
-      "model_category": "nha_pho"
-    },
-    {
       "source": "batdongsan",
       "title": "Phân lô Phú Diễn nhà 41m2 mới tinh sẵn thang máy, ô tô đỗ cửa, 2 thoáng, sổ sẵn giao dịch nhanh",
-      "model_category": "can_ho"
+      "model_category": "nha_pho",
+      "category_evidence": "SOURCE_STRUCTURED"
     },
     {
       "source": "batdongsan",
       "title": "Hẻm ô tô Nguyễn Đình Chính, Phú Nhuận- nhà đẹp xây mới 5 tầng, thang máy 43,3m2- sổ đẹp A4- 10.5 tỷ",
-      "model_category": "can_ho"
+      "model_category": "nha_pho",
+      "category_evidence": "SOURCE_STRUCTURED"
     },
     {
       "source": "batdongsan",
       "title": "Bán nhà 3 tầng 73m2. 78/60/7 Nguyễn Văn Khối, Gò Vấp - DTSD 206m2, hẻm ô tô 6m, có thang máy, SHR.",
-      "model_category": "can_ho"
+      "model_category": "nha_pho",
+      "category_evidence": "SOURCE_STRUCTURED"
     },
     {
       "source": "batdongsan",
       "title": "Mặt ngõ ô tô kinh doanh phố Minh Khai 40m2x5T giá 7.5 tỷ thang máy nhà mới sổ đỏ CC có TL bao QH",
-      "model_category": "can_ho"
+      "model_category": "nha_pho",
+      "category_evidence": "SOURCE_STRUCTURED"
+    },
+    {
+      "source": "batdongsan",
+      "title": "Quá ổn định 43m2 x 5 tầng thang máy phố Láng ô tô đỗ 2 thoáng vĩnh viễn, nội thất ngoại, sổ đỏ A4",
+      "model_category": "nha_pho",
+      "category_evidence": "SOURCE_STRUCTURED"
+    }
+  ],
+  "category_evidence_method": [
+    {
+      "category_evidence": "SOURCE_LABEL",
+      "model_category_method": "CATEGORY_NAME",
+      "count": 48456
+    },
+    {
+      "category_evidence": "SOURCE_STRUCTURED",
+      "model_category_method": "CATEGORY_NAME",
+      "count": 46138
+    },
+    {
+      "category_evidence": "ENDPOINT_CONTEXT",
+      "model_category_method": "ENDPOINT_CONTEXT",
+      "count": 26746
+    },
+    {
+      "category_evidence": "SOURCE_LABEL",
+      "model_category_method": "TITLE_FALLBACK",
+      "count": 1370
+    },
+    {
+      "category_evidence": "ENDPOINT_CONTEXT",
+      "model_category_method": "TITLE_OVER_ENDPOINT",
+      "count": 806
+    },
+    {
+      "category_evidence": "SOURCE_LABEL",
+      "model_category_method": "UNMAPPED",
+      "count": 326
+    },
+    {
+      "category_evidence": "SOURCE_STRUCTURED",
+      "model_category_method": "TITLE_FALLBACK",
+      "count": 89
+    },
+    {
+      "category_evidence": "SOURCE_STRUCTURED",
+      "model_category_method": "UNMAPPED",
+      "count": 37
+    }
+  ],
+  "category_conflict_by_source": [
+    {
+      "source": "guland",
+      "n": 47387,
+      "conflicts": 1332,
+      "title_over_endpoint": 806
+    },
+    {
+      "source": "batdongsan",
+      "n": 28928,
+      "conflicts": 1330,
+      "title_over_endpoint": 0
+    },
+    {
+      "source": "mogi",
+      "n": 19075,
+      "conflicts": 540,
+      "title_over_endpoint": 0
+    },
+    {
+      "source": "nhadatvui",
+      "n": 17336,
+      "conflicts": 588,
+      "title_over_endpoint": 0
+    },
+    {
+      "source": "chotot",
+      "n": 8152,
+      "conflicts": 476,
+      "title_over_endpoint": 0
+    },
+    {
+      "source": "alonhadat",
+      "n": 1278,
+      "conflicts": 232,
+      "title_over_endpoint": 0
+    },
+    {
+      "source": "luachonnhadat",
+      "n": 883,
+      "conflicts": 10,
+      "title_over_endpoint": 0
+    },
+    {
+      "source": "homedy",
+      "n": 566,
+      "conflicts": 20,
+      "title_over_endpoint": 0
+    },
+    {
+      "source": "muaban",
+      "n": 363,
+      "conflicts": 93,
+      "title_over_endpoint": 0
+    }
+  ],
+  "category_conflict_examples": [
+    {
+      "source": "guland",
+      "category_name": "Nhà ở",
+      "category_evidence": "ENDPOINT_CONTEXT",
+      "model_category": "dat",
+      "model_category_method": "TITLE_OVER_ENDPOINT",
+      "title_model_category": "dat",
+      "title": "BÁN ĐẤT AN DƯƠNG VƯƠNG – TÂY HỒ – LÔ GÓC - OTO VÀO – SÁT CIPUTRA – 89M – 13.2 TỶ"
+    },
+    {
+      "source": "nhadatvui",
+      "category_name": "Căn hộ chung cư",
+      "category_evidence": "SOURCE_STRUCTURED",
+      "model_category": "can_ho",
+      "model_category_method": "CATEGORY_NAME",
+      "title_model_category": "nha_pho",
+      "title": "CHUYỂN NHÀ – BÁN NHANH CHCC SAIGON MIA DT 65m2 2PN 2WC GIÁ 2 TỶ 450 TL"
+    },
+    {
+      "source": "batdongsan",
+      "category_name": "Căn hộ chung cư",
+      "category_evidence": "SOURCE_STRUCTURED",
+      "model_category": "can_ho",
+      "model_category_method": "CATEGORY_NAME",
+      "title_model_category": "nha_pho",
+      "title": "Tôi chính chủ cần bán nhà tại Mipec Rubik, 2PN 2WC, 77m2, giá: 7.3 tỷ, LH 0944 641 ***"
+    },
+    {
+      "source": "chotot",
+      "category_name": "Đất",
+      "category_evidence": "SOURCE_LABEL",
+      "model_category": "dat",
+      "model_category_method": "CATEGORY_NAME",
+      "title_model_category": "phong_tro_khac",
+      "title": "Nhà vườn Hưng Long BC,T phcm, có sẵn nhà, vườn cây ăn trái, nghĩ dưỡng"
+    },
+    {
+      "source": "guland",
+      "category_name": "Officetel",
+      "category_evidence": "SOURCE_LABEL",
+      "model_category": "can_ho",
+      "model_category_method": "CATEGORY_NAME",
+      "title_model_category": "nha_pho",
+      "title": "TÒA NHÀ MT HOÀNG DIỆU – PHÚ NHUẬN - ĐẶNG VĂN NGỮ - PHÙ HỢP LÀM CÔNG TY - SPA - TRƯƠNG QUỐC DUNG"
+    },
+    {
+      "source": "guland",
+      "category_name": "Nhà ở",
+      "category_evidence": "ENDPOINT_CONTEXT",
+      "model_category": "dat",
+      "model_category_method": "TITLE_OVER_ENDPOINT",
+      "title_model_category": "dat",
+      "title": "BÁN ĐẤT 100M² MẶT ĐƯỜNG LIÊN HUYỆN CỔ ĐÔNG – GIÁ SIÊU RẺ"
+    },
+    {
+      "source": "chotot",
+      "category_name": "Căn hộ/Chung cư",
+      "category_evidence": "SOURCE_LABEL",
+      "model_category": "can_ho",
+      "model_category_method": "CATEGORY_NAME",
+      "title_model_category": "nha_pho",
+      "title": "CĂN GÓC ZENITY QUẬN 1 - 200M² - 4PN, 3WC - NHÀ MỚI 99% - SỔ HỒNG RIÊNG"
+    },
+    {
+      "source": "guland",
+      "category_name": "Officetel",
+      "category_evidence": "SOURCE_LABEL",
+      "model_category": "can_ho",
+      "model_category_method": "CATEGORY_NAME",
+      "title_model_category": "nha_pho",
+      "title": "Nhà mới 5 tầng có thang máy Thái Thịnh Đống Đa – 49m², full nội thất, gần ô tô"
+    }
+  ],
+  "moonlight_trace": [
+    {
+      "source_id": "homedy_3207890",
+      "source": "homedy",
+      "category_name": "Nhà phố",
+      "category_evidence": "SOURCE_LABEL",
+      "model_category": "nha_pho",
+      "model_category_method": "CATEGORY_NAME",
+      "title_model_category": "nha_pho",
+      "category_title_conflict": false,
+      "title": "Bán CH Moonlight Park View, 1PN 1WC sổ hồng riêng nhận nhà ở ngay.LH 0933654662"
+    },
+    {
+      "source_id": "luachonnhadat_luachonnhadat_20067",
+      "source": "luachonnhadat",
+      "category_name": "Shop house",
+      "category_evidence": "SOURCE_LABEL",
+      "model_category": "biet_thu",
+      "model_category_method": "CATEGORY_NAME",
+      "title_model_category": "biet_thu",
+      "category_title_conflict": false,
+      "title": "Bán Shophouse Tại Moonlight Park View đường Số 7, DT 5.5 x 16m, 1 lầu, giá 8.5 tỷ"
+    },
+    {
+      "source_id": "luachonnhadat_luachonnhadat_20069",
+      "source": "luachonnhadat",
+      "category_name": "Shop house",
+      "category_evidence": "SOURCE_LABEL",
+      "model_category": "biet_thu",
+      "model_category_method": "CATEGORY_NAME",
+      "title_model_category": "biet_thu",
+      "category_title_conflict": false,
+      "title": "Cho thuê Shophouse tầng trệt CC Moonlight Park View đường Số 7, Bình Tân, 5.5 x 16m, 28 triệu/tháng"
+    },
+    {
+      "source_id": "luachonnhadat_luachonnhadat_48347",
+      "source": "luachonnhadat",
+      "category_name": "Shop house",
+      "category_evidence": "SOURCE_LABEL",
+      "model_category": "biet_thu",
+      "model_category_method": "CATEGORY_NAME",
+      "title_model_category": "biet_thu",
+      "category_title_conflict": false,
+      "title": "Cho thuê Shophouse tầng trệt CC Moonlight Park View đường Số 7, Bình Tân, 5 x 10m, 21 triệu/tháng"
+    }
+  ],
+  "location_method_counts": [
+    {
+      "province_mapping_method": "ADDRESS_COMPONENT",
+      "count": 115572
+    },
+    {
+      "province_mapping_method": "HCMC_DISTRICT",
+      "count": 8212
+    },
+    {
+      "province_mapping_method": "UNMAPPED",
+      "count": 163
+    },
+    {
+      "province_mapping_method": "FREE_TEXT",
+      "count": 11
+    },
+    {
+      "province_mapping_method": "ADMIN_PREFIX_TEXT",
+      "count": 10
+    }
+  ],
+  "location_conflicts": {
+    "silver_rows": 16,
+    "fact_rows": 16
+  },
+  "location_conflict_by_source": [
+    {
+      "source": "guland",
+      "count": 12
+    },
+    {
+      "source": "chotot",
+      "count": 3
+    },
+    {
+      "source": "nhadatvui",
+      "count": 1
     }
   ],
   "fact_by_source": [
     {
       "source": "guland",
       "fact_rows": 47387,
-      "dup_suspect": 553
+      "dup_suspect": 578
     },
     {
       "source": "batdongsan",
       "fact_rows": 28928,
-      "dup_suspect": 111
+      "dup_suspect": 232
     },
     {
       "source": "nhadatvui",
       "fact_rows": 17336,
-      "dup_suspect": 384
+      "dup_suspect": 392
     },
     {
       "source": "chotot",
       "fact_rows": 8062,
-      "dup_suspect": 268
+      "dup_suspect": 261
     },
     {
       "source": "mogi",
       "fact_rows": 4591,
-      "dup_suspect": 165
+      "dup_suspect": 167
     },
     {
       "source": "alonhadat",
       "fact_rows": 1278,
-      "dup_suspect": 46
+      "dup_suspect": 50
     },
     {
       "source": "luachonnhadat",
@@ -188,12 +451,12 @@
     {
       "source": "homedy",
       "fact_rows": 390,
-      "dup_suspect": 46
+      "dup_suspect": 48
     },
     {
       "source": "muaban",
       "fact_rows": 179,
-      "dup_suspect": 5
+      "dup_suspect": 6
     }
   ],
   "fact_by_category_price_band": [
@@ -201,7 +464,7 @@
       "category_label": "Biệt thự / liền kề / shophouse",
       "price_band_key": -1,
       "price_band": "Không rõ",
-      "count": 311
+      "count": 591
     },
     {
       "category_label": "Biệt thự / liền kề / shophouse",
@@ -213,103 +476,103 @@
       "category_label": "Biệt thự / liền kề / shophouse",
       "price_band_key": 2,
       "price_band": "1 - 2 tỷ",
-      "count": 153
+      "count": 171
     },
     {
       "category_label": "Biệt thự / liền kề / shophouse",
       "price_band_key": 3,
       "price_band": "2 - 3 tỷ",
-      "count": 180
+      "count": 210
     },
     {
       "category_label": "Biệt thự / liền kề / shophouse",
       "price_band_key": 4,
       "price_band": "3 - 5 tỷ",
-      "count": 323
+      "count": 501
     },
     {
       "category_label": "Biệt thự / liền kề / shophouse",
       "price_band_key": 5,
       "price_band": "5 - 7 tỷ",
-      "count": 387
+      "count": 571
     },
     {
       "category_label": "Biệt thự / liền kề / shophouse",
       "price_band_key": 6,
       "price_band": "7 - 10 tỷ",
-      "count": 599
+      "count": 909
     },
     {
       "category_label": "Biệt thự / liền kề / shophouse",
       "price_band_key": 7,
       "price_band": "10 - 20 tỷ",
-      "count": 1085
+      "count": 1815
     },
     {
       "category_label": "Biệt thự / liền kề / shophouse",
       "price_band_key": 8,
       "price_band": "Từ 20 tỷ",
-      "count": 2513
+      "count": 3429
     },
     {
       "category_label": "Căn hộ chung cư",
       "price_band_key": -1,
       "price_band": "Không rõ",
-      "count": 1720
+      "count": 1101
     },
     {
       "category_label": "Căn hộ chung cư",
       "price_band_key": 1,
       "price_band": "Dưới 1 tỷ",
-      "count": 160
+      "count": 135
     },
     {
       "category_label": "Căn hộ chung cư",
       "price_band_key": 2,
       "price_band": "1 - 2 tỷ",
-      "count": 5804
+      "count": 5688
     },
     {
       "category_label": "Căn hộ chung cư",
       "price_band_key": 3,
       "price_band": "2 - 3 tỷ",
-      "count": 3497
+      "count": 3346
     },
     {
       "category_label": "Căn hộ chung cư",
       "price_band_key": 4,
       "price_band": "3 - 5 tỷ",
-      "count": 6109
+      "count": 5323
     },
     {
       "category_label": "Căn hộ chung cư",
       "price_band_key": 5,
       "price_band": "5 - 7 tỷ",
-      "count": 4083
+      "count": 2905
     },
     {
       "category_label": "Căn hộ chung cư",
       "price_band_key": 6,
       "price_band": "7 - 10 tỷ",
-      "count": 4160
+      "count": 2446
     },
     {
       "category_label": "Căn hộ chung cư",
       "price_band_key": 7,
       "price_band": "10 - 20 tỷ",
-      "count": 4187
+      "count": 1967
     },
     {
       "category_label": "Căn hộ chung cư",
       "price_band_key": 8,
       "price_band": "Từ 20 tỷ",
-      "count": 3743
+      "count": 854
     },
     {
       "category_label": "Không rõ",
       "price_band_key": 1,
       "price_band": "Dưới 1 tỷ",
-      "count": 7
+      "count": 8
     },
     {
       "category_label": "Không rõ",
@@ -321,7 +584,7 @@
       "category_label": "Không rõ",
       "price_band_key": 3,
       "price_band": "2 - 3 tỷ",
-      "count": 28
+      "count": 37
     },
     {
       "category_label": "Không rõ",
@@ -333,338 +596,332 @@
       "category_label": "Không rõ",
       "price_band_key": 5,
       "price_band": "5 - 7 tỷ",
-      "count": 23
+      "count": 29
     },
     {
       "category_label": "Không rõ",
       "price_band_key": 6,
       "price_band": "7 - 10 tỷ",
-      "count": 8
+      "count": 11
     },
     {
       "category_label": "Không rõ",
       "price_band_key": 7,
       "price_band": "10 - 20 tỷ",
-      "count": 16
+      "count": 21
     },
     {
       "category_label": "Không rõ",
       "price_band_key": 8,
       "price_band": "Từ 20 tỷ",
-      "count": 45
+      "count": 46
     },
     {
       "category_label": "Nhà phố / nhà riêng",
       "price_band_key": -1,
       "price_band": "Không rõ",
-      "count": 83
+      "count": 493
     },
     {
       "category_label": "Nhà phố / nhà riêng",
       "price_band_key": 1,
       "price_band": "Dưới 1 tỷ",
-      "count": 1264
+      "count": 1239
     },
     {
       "category_label": "Nhà phố / nhà riêng",
       "price_band_key": 2,
       "price_band": "1 - 2 tỷ",
-      "count": 2904
+      "count": 2921
     },
     {
       "category_label": "Nhà phố / nhà riêng",
       "price_band_key": 3,
       "price_band": "2 - 3 tỷ",
-      "count": 4295
+      "count": 4444
     },
     {
       "category_label": "Nhà phố / nhà riêng",
       "price_band_key": 4,
       "price_band": "3 - 5 tỷ",
-      "count": 9874
+      "count": 10576
     },
     {
       "category_label": "Nhà phố / nhà riêng",
       "price_band_key": 5,
       "price_band": "5 - 7 tỷ",
-      "count": 11039
+      "count": 12103
     },
     {
       "category_label": "Nhà phố / nhà riêng",
       "price_band_key": 6,
       "price_band": "7 - 10 tỷ",
-      "count": 10333
+      "count": 11813
     },
     {
       "category_label": "Nhà phố / nhà riêng",
       "price_band_key": 7,
       "price_band": "10 - 20 tỷ",
-      "count": 11228
+      "count": 12821
     },
     {
       "category_label": "Nhà phố / nhà riêng",
       "price_band_key": 8,
       "price_band": "Từ 20 tỷ",
-      "count": 9523
+      "count": 11686
     },
     {
       "category_label": "Phòng trọ / thương mại / khác",
       "price_band_key": -1,
       "price_band": "Không rõ",
+      "count": 50
+    },
+    {
+      "category_label": "Phòng trọ / thương mại / khác",
+      "price_band_key": 1,
+      "price_band": "Dưới 1 tỷ",
+      "count": 9
+    },
+    {
+      "category_label": "Phòng trọ / thương mại / khác",
+      "price_band_key": 2,
+      "price_band": "1 - 2 tỷ",
       "count": 19
     },
     {
       "category_label": "Phòng trọ / thương mại / khác",
-      "price_band_key": 1,
-      "price_band": "Dưới 1 tỷ",
-      "count": 4
-    },
-    {
-      "category_label": "Phòng trọ / thương mại / khác",
-      "price_band_key": 2,
-      "price_band": "1 - 2 tỷ",
-      "count": 6
-    },
-    {
-      "category_label": "Phòng trọ / thương mại / khác",
       "price_band_key": 3,
       "price_band": "2 - 3 tỷ",
-      "count": 14
+      "count": 21
     },
     {
       "category_label": "Phòng trọ / thương mại / khác",
       "price_band_key": 4,
       "price_band": "3 - 5 tỷ",
-      "count": 15
-    },
-    {
-      "category_label": "Phòng trọ / thương mại / khác",
-      "price_band_key": 5,
-      "price_band": "5 - 7 tỷ",
       "count": 20
     },
     {
       "category_label": "Phòng trọ / thương mại / khác",
+      "price_band_key": 5,
+      "price_band": "5 - 7 tỷ",
+      "count": 23
+    },
+    {
+      "category_label": "Phòng trọ / thương mại / khác",
       "price_band_key": 6,
       "price_band": "7 - 10 tỷ",
-      "count": 33
+      "count": 38
     },
     {
       "category_label": "Phòng trọ / thương mại / khác",
       "price_band_key": 7,
       "price_band": "10 - 20 tỷ",
-      "count": 88
+      "count": 143
     },
     {
       "category_label": "Phòng trọ / thương mại / khác",
       "price_band_key": 8,
       "price_band": "Từ 20 tỷ",
-      "count": 259
-    },
-    {
-      "category_label": "Đất",
-      "price_band_key": -1,
-      "price_band": "Không rõ",
-      "count": 102
+      "count": 326
     },
     {
       "category_label": "Đất",
       "price_band_key": 1,
       "price_band": "Dưới 1 tỷ",
-      "count": 1067
+      "count": 1106
     },
     {
       "category_label": "Đất",
       "price_band_key": 2,
       "price_band": "1 - 2 tỷ",
-      "count": 1032
+      "count": 1095
     },
     {
       "category_label": "Đất",
       "price_band_key": 3,
       "price_band": "2 - 3 tỷ",
-      "count": 486
+      "count": 487
     },
     {
       "category_label": "Đất",
       "price_band_key": 4,
       "price_band": "3 - 5 tỷ",
-      "count": 1230
+      "count": 1180
     },
     {
       "category_label": "Đất",
       "price_band_key": 5,
       "price_band": "5 - 7 tỷ",
-      "count": 841
+      "count": 769
     },
     {
       "category_label": "Đất",
       "price_band_key": 6,
       "price_band": "7 - 10 tỷ",
-      "count": 692
+      "count": 619
     },
     {
       "category_label": "Đất",
       "price_band_key": 7,
       "price_band": "10 - 20 tỷ",
-      "count": 910
+      "count": 752
     },
     {
       "category_label": "Đất",
       "price_band_key": 8,
       "price_band": "Từ 20 tỷ",
-      "count": 1004
+      "count": 737
     }
   ],
   "market_overview": [
     {
       "province_name": "Hà Nội",
       "category_label": "Căn hộ chung cư",
-      "n_listings": 7563,
-      "median_price": 8600000000.0,
-      "median_price_per_m2": 101515151.51515152,
-      "p25_price_per_m2": 71212121.21212122,
-      "p75_price_per_m2": 228452380.95238096,
-      "median_area": 78.0
+      "n_listings": 5111,
+      "median_price": 6550000000.0,
+      "median_price_per_m2": 79411764.70588236,
+      "p25_price_per_m2": 64166666.666666664,
+      "p75_price_per_m2": 100000000.0,
+      "median_area": 80.0
     },
     {
       "province_name": "Hà Nội",
       "category_label": "Nhà phố / nhà riêng",
-      "n_listings": 9542,
-      "median_price": 13800000000.0,
-      "median_price_per_m2": 275058823.5294118,
-      "p25_price_per_m2": 215625000.0,
-      "p75_price_per_m2": 360000000.0,
+      "n_listings": 11344,
+      "median_price": 13900000000.0,
+      "median_price_per_m2": 277970588.2352941,
+      "p25_price_per_m2": 216000000.0,
+      "p75_price_per_m2": 369230769.2307692,
       "median_area": 50.0
     },
     {
       "province_name": "Hà Nội",
       "category_label": "Đất",
-      "n_listings": 612,
-      "median_price": 8199999999.999999,
-      "median_price_per_m2": 125000000.0,
-      "p25_price_per_m2": 65280477.40835465,
-      "p75_price_per_m2": 197996087.3818063,
-      "median_area": 80.0
+      "n_listings": 511,
+      "median_price": 7800000000.0,
+      "median_price_per_m2": 137931034.4827586,
+      "p25_price_per_m2": 40000000.0,
+      "p75_price_per_m2": 190000000.0,
+      "median_area": 73.0
     },
     {
       "province_name": "Hải Phòng",
       "category_label": "Căn hộ chung cư",
-      "n_listings": 486,
-      "median_price": 4800000000.0,
-      "median_price_per_m2": 66666666.666666664,
-      "p25_price_per_m2": 44431464.17445483,
-      "p75_price_per_m2": 113333333.33333333,
-      "median_area": 72.6
+      "n_listings": 177,
+      "median_price": 2705000000.0,
+      "median_price_per_m2": 43190909.09090909,
+      "p25_price_per_m2": 38750000.0,
+      "p75_price_per_m2": 46893339.20187794,
+      "median_area": 65.0
     },
     {
       "province_name": "Hải Phòng",
       "category_label": "Nhà phố / nhà riêng",
-      "n_listings": 937,
-      "median_price": 3300000000.0,
-      "median_price_per_m2": 62857142.85714286,
-      "p25_price_per_m2": 51312500.0,
-      "p75_price_per_m2": 92125000.0,
-      "median_area": 51.0
+      "n_listings": 1042,
+      "median_price": 3410000000.0,
+      "median_price_per_m2": 66666666.666666664,
+      "p25_price_per_m2": 52510593.220338985,
+      "p75_price_per_m2": 98928052.3255814,
+      "median_area": 52.0
     },
     {
       "province_name": "Hải Phòng",
       "category_label": "Đất",
-      "n_listings": 132,
-      "median_price": 2900000000.0,
-      "median_price_per_m2": 33000000.0,
+      "n_listings": 135,
+      "median_price": 2350000000.0,
+      "median_price_per_m2": 32500000.0,
       "p25_price_per_m2": 22000000.0,
-      "p75_price_per_m2": 45714285.71428572,
-      "median_area": 75.0
+      "p75_price_per_m2": 42854166.666666664,
+      "median_area": 70.0
     },
     {
       "province_name": "Hồ Chí Minh",
       "category_label": "Căn hộ chung cư",
-      "n_listings": 20411,
-      "median_price": 4400000000.0,
-      "median_price_per_m2": 62500000.0,
-      "p25_price_per_m2": 35000000.0,
-      "p75_price_per_m2": 112068965.51724137,
+      "n_listings": 15843,
+      "median_price": 3050000000.0,
+      "median_price_per_m2": 48076923.07692308,
+      "p25_price_per_m2": 28260869.56521739,
+      "p75_price_per_m2": 72711864.40677966,
       "median_area": 70.0
     },
     {
       "province_name": "Hồ Chí Minh",
       "category_label": "Nhà phố / nhà riêng",
-      "n_listings": 40427,
-      "median_price": 6950000000.0,
-      "median_price_per_m2": 111538461.53846154,
-      "p25_price_per_m2": 73846153.84615384,
-      "p75_price_per_m2": 168150612.55026653,
+      "n_listings": 46787,
+      "median_price": 7100000000.0,
+      "median_price_per_m2": 113750000.0,
+      "p25_price_per_m2": 75625000.0,
+      "p75_price_per_m2": 172500000.0,
       "median_area": 68.0
     },
     {
       "province_name": "Hồ Chí Minh",
       "category_label": "Đất",
-      "n_listings": 3895,
-      "median_price": 6450000000.0,
-      "median_price_per_m2": 67832681.01761252,
-      "p25_price_per_m2": 30025252.525252525,
-      "p75_price_per_m2": 109979338.84297521,
+      "n_listings": 3940,
+      "median_price": 5500000000.0,
+      "median_price_per_m2": 57416735.55698399,
+      "p25_price_per_m2": 16271428.57142857,
+      "p75_price_per_m2": 95000000.0,
       "median_area": 100.0
     },
     {
       "province_name": "Đà Nẵng",
       "category_label": "Căn hộ chung cư",
-      "n_listings": 1359,
-      "median_price": 4780000000.0,
-      "median_price_per_m2": 70000000.0,
-      "p25_price_per_m2": 58589624.10686549,
-      "p75_price_per_m2": 94138249.18807206,
-      "median_area": 69.0
+      "n_listings": 1192,
+      "median_price": 4200000000.0,
+      "median_price_per_m2": 66265060.240963854,
+      "p25_price_per_m2": 56059539.0524968,
+      "p75_price_per_m2": 82812089.81886402,
+      "median_area": 63.0
     },
     {
       "province_name": "Đà Nẵng",
       "category_label": "Nhà phố / nhà riêng",
-      "n_listings": 3122,
-      "median_price": 6290000000.0,
-      "median_price_per_m2": 86956521.73913044,
-      "p25_price_per_m2": 61176470.5882353,
-      "p75_price_per_m2": 112903225.80645162,
-      "median_area": 80.0
+      "n_listings": 3337,
+      "median_price": 6440000000.0,
+      "median_price_per_m2": 88000000.0,
+      "p25_price_per_m2": 61992957.74647887,
+      "p75_price_per_m2": 115116279.06976745,
+      "median_area": 81.0
     },
     {
       "province_name": "Đà Nẵng",
       "category_label": "Đất",
-      "n_listings": 788,
+      "n_listings": 811,
       "median_price": 1170000000.0,
-      "median_price_per_m2": 8900000.0,
-      "p25_price_per_m2": 6305263.157894737,
-      "p75_price_per_m2": 12800000.0,
+      "median_price_per_m2": 8971962.616822429,
+      "p25_price_per_m2": 6277631.578947369,
+      "p75_price_per_m2": 13174242.424242424,
       "median_area": 125.0
     },
     {
       "province_name": "Đồng Nai",
       "category_label": "Căn hộ chung cư",
-      "n_listings": 740,
-      "median_price": 1950000000.0,
-      "median_price_per_m2": 28188984.65419382,
-      "p25_price_per_m2": 24164161.392405063,
-      "p75_price_per_m2": 47144268.77470356,
-      "median_area": 70.0
+      "n_listings": 132,
+      "median_price": 2100000000.0,
+      "median_price_per_m2": 38076923.07692308,
+      "p25_price_per_m2": 22649769.585253455,
+      "p75_price_per_m2": 45929487.17948718,
+      "median_area": 53.175
     },
     {
       "province_name": "Đồng Nai",
       "category_label": "Nhà phố / nhà riêng",
-      "n_listings": 2388,
-      "median_price": 2049999999.9999998,
-      "median_price_per_m2": 22111111.111111112,
-      "p25_price_per_m2": 15444444.444444444,
-      "p75_price_per_m2": 43343373.49397591,
+      "n_listings": 2080,
+      "median_price": 1950000000.0,
+      "median_price_per_m2": 20581395.348837208,
+      "p25_price_per_m2": 14500000.0,
+      "p75_price_per_m2": 36201923.07692307,
       "median_area": 90.0
     },
     {
       "province_name": "Đồng Nai",
       "category_label": "Đất",
-      "n_listings": 658,
-      "median_price": 1300000000.0,
-      "median_price_per_m2": 15186666.666666666,
-      "p25_price_per_m2": 3484104.0462427745,
-      "p75_price_per_m2": 44722222.222222224,
+      "n_listings": 243,
+      "median_price": 950000000.0,
+      "median_price_per_m2": 6200000.0,
+      "p25_price_per_m2": 3000000.0,
+      "p75_price_per_m2": 17782018.659881257,
       "median_area": 100.0
     }
   ],
@@ -678,152 +935,152 @@
   "position_by_category": [
     {
       "category_label": "Biệt thự / liền kề / shophouse",
-      "price_position": "cao",
-      "count": 1289
-    },
-    {
-      "category_label": "Biệt thự / liền kề / shophouse",
-      "price_position": "hop_ly",
-      "count": 2605
+      "price_position": "duoi_p25",
+      "count": 1925
     },
     {
       "category_label": "Biệt thự / liền kề / shophouse",
       "price_position": "khong_du_du_lieu",
-      "count": 429
+      "count": 696
     },
     {
       "category_label": "Biệt thự / liền kề / shophouse",
-      "price_position": "thap",
-      "count": 1298
+      "price_position": "p25_p75",
+      "count": 3809
+    },
+    {
+      "category_label": "Biệt thự / liền kề / shophouse",
+      "price_position": "tren_p75",
+      "count": 1837
     },
     {
       "category_label": "Căn hộ chung cư",
-      "price_position": "cao",
-      "count": 8828
-    },
-    {
-      "category_label": "Căn hộ chung cư",
-      "price_position": "hop_ly",
-      "count": 15294
+      "price_position": "duoi_p25",
+      "count": 5618
     },
     {
       "category_label": "Căn hộ chung cư",
       "price_position": "khong_du_du_lieu",
-      "count": 1886
+      "count": 1143
     },
     {
       "category_label": "Căn hộ chung cư",
-      "price_position": "thap",
-      "count": 7455
+      "price_position": "p25_p75",
+      "count": 11249
+    },
+    {
+      "category_label": "Căn hộ chung cư",
+      "price_position": "tren_p75",
+      "count": 5755
     },
     {
       "category_label": "Không rõ",
       "price_position": "khong_du_du_lieu",
-      "count": 186
+      "count": 211
     },
     {
       "category_label": "Nhà phố / nhà riêng",
-      "price_position": "cao",
-      "count": 15160
-    },
-    {
-      "category_label": "Nhà phố / nhà riêng",
-      "price_position": "hop_ly",
-      "count": 29444
+      "price_position": "duoi_p25",
+      "count": 17148
     },
     {
       "category_label": "Nhà phố / nhà riêng",
       "price_position": "khong_du_du_lieu",
-      "count": 638
+      "count": 852
     },
     {
       "category_label": "Nhà phố / nhà riêng",
-      "price_position": "thap",
-      "count": 15301
+      "price_position": "p25_p75",
+      "count": 32822
+    },
+    {
+      "category_label": "Nhà phố / nhà riêng",
+      "price_position": "tren_p75",
+      "count": 17274
     },
     {
       "category_label": "Phòng trọ / thương mại / khác",
-      "price_position": "cao",
-      "count": 99
-    },
-    {
-      "category_label": "Phòng trọ / thương mại / khác",
-      "price_position": "hop_ly",
-      "count": 181
+      "price_position": "duoi_p25",
+      "count": 145
     },
     {
       "category_label": "Phòng trọ / thương mại / khác",
       "price_position": "khong_du_du_lieu",
-      "count": 59
+      "count": 76
     },
     {
       "category_label": "Phòng trọ / thương mại / khác",
-      "price_position": "thap",
-      "count": 119
+      "price_position": "p25_p75",
+      "count": 274
+    },
+    {
+      "category_label": "Phòng trọ / thương mại / khác",
+      "price_position": "tren_p75",
+      "count": 154
     },
     {
       "category_label": "Đất",
-      "price_position": "cao",
-      "count": 1695
-    },
-    {
-      "category_label": "Đất",
-      "price_position": "hop_ly",
-      "count": 3575
+      "price_position": "duoi_p25",
+      "count": 1605
     },
     {
       "category_label": "Đất",
       "price_position": "khong_du_du_lieu",
-      "count": 214
+      "count": 117
     },
     {
       "category_label": "Đất",
-      "price_position": "thap",
-      "count": 1880
+      "price_position": "p25_p75",
+      "count": 3432
+    },
+    {
+      "category_label": "Đất",
+      "price_position": "tren_p75",
+      "count": 1591
     }
   ],
   "position_feature_gap": [
     {
-      "price_position": "cao",
-      "n": 27071,
-      "avg_feature_count": 0.654,
-      "avg_feature_count_vs_peer": 0.077,
-      "share_low_missing_legal": 0.0
+      "price_position": "duoi_p25",
+      "n": 26441,
+      "avg_feature_count": 0.498,
+      "avg_feature_count_vs_peer": -0.058,
+      "share_low_missing_legal": 0.8223
     },
     {
-      "price_position": "hop_ly",
-      "n": 51099,
-      "avg_feature_count": 0.57,
+      "price_position": "p25_p75",
+      "n": 51586,
+      "avg_feature_count": 0.544,
       "avg_feature_count_vs_peer": -0.01,
       "share_low_missing_legal": 0.0
     },
     {
-      "price_position": "thap",
-      "n": 26053,
-      "avg_feature_count": 0.516,
-      "avg_feature_count_vs_peer": -0.065,
-      "share_low_missing_legal": 0.8246
+      "price_position": "tren_p75",
+      "n": 26611,
+      "avg_feature_count": 0.619,
+      "avg_feature_count_vs_peer": 0.062,
+      "share_low_missing_legal": 0.0
     }
   ],
   "bq2_peer_group": {
     "room_band_key": 2,
     "area_band_key": 3,
     "property_category_key": 2,
-    "location_key": 159,
-    "peer_group_id": "LOC_CAT_AREA_ROOM|159|2|3|2",
+    "location_key": 129,
+    "peer_group_id": "LOC_CAT_AREA_ROOM|129|2|3|2",
     "benchmark_level": "LOC_CAT_AREA_ROOM",
-    "n_listings": 887,
-    "p25_price_per_m2": 25886381.95004029,
-    "median_price_per_m2": 29666666.666666668,
-    "p75_price_per_m2": 52890109.89010989,
-    "median_price": 1920000000.0,
-    "median_area": 67.0,
-    "median_distance_km": 8.875641,
-    "share_legal": 0.479143,
-    "share_furnished": 0.282976,
-    "share_frontage": 0.028185,
-    "share_elevator": 0.001127,
-    "share_car_access": 0.001127,
+    "n_listings": 1072,
+    "p25_price_per_m2": 25866459.627329193,
+    "median_price_per_m2": 30159090.90909091,
+    "p75_price_per_m2": 51633406.232914165,
+    "median_price": 1950000000.0,
+    "median_area": 67.5,
+    "median_distance_km": 9.228588,
+    "share_legal": 0.451493,
+    "share_furnished": 0.296642,
+    "share_frontage": 0.028918,
+    "share_elevator": 0.000933,
+    "share_car_access": 0.0,
     "province_name": "Hồ Chí Minh",
     "district_name": "Thành phố Thủ Đức",
     "model_category": "can_ho",
@@ -833,59 +1090,59 @@
   },
   "bq2_examples": [
     {
+      "source_id": "chotot_132396840",
+      "title": "Căn Hộ mặt tiền QL 13 nhận nhà mới 100%",
+      "price": 499000000.0,
+      "area": 50.0,
+      "price_per_m2": 9980000.0,
+      "price_ratio": 0.330912,
+      "price_position": "duoi_p25",
+      "feature_count": 1,
+      "feature_count_vs_peer": 0.222014
+    },
+    {
+      "source_id": "mogi_22733446",
+      "title": "Căn hộ Phúc Lộc Thọ – 2PN – 78m² – giá tốt 980 triệu",
+      "price": 980000000.0,
+      "area": 78.0,
+      "price_per_m2": 12564102.564102564,
+      "price_ratio": 0.416594,
+      "price_position": "duoi_p25",
+      "feature_count": 0,
+      "feature_count_vs_peer": -0.777986
+    },
+    {
       "source_id": "mogi_22738119",
       "title": "Cần bán chung cư Linh Tây Tower Phạm Văn Đồng- 2pn2wc 965Triệu",
       "price": 965000000.0,
       "area": 70.0,
       "price_per_m2": 13785714.285714285,
-      "price_ratio": 0.464687,
-      "price_position": "thap",
+      "price_ratio": 0.4571,
+      "price_position": "duoi_p25",
       "feature_count": 0,
-      "feature_count_vs_peer": -0.792558
+      "feature_count_vs_peer": -0.777986
     },
     {
-      "source_id": "mogi_22738211",
-      "title": "EM BÁN CĂN CHUNG CƯ STOWN THỦ ĐỨC Đ/c: 2A Đường Bình Chiểu, P",
-      "price": 925000000.0,
-      "area": 64.0,
-      "price_per_m2": 14453125.0,
-      "price_ratio": 0.487184,
-      "price_position": "thap",
-      "feature_count": 0,
-      "feature_count_vs_peer": -0.792558
-    },
-    {
-      "source_id": "mogi_22738045",
-      "title": "Bán căn hộ cao cấp, khu compound Lucky Dragon - Đỗ Xuân Hợp - Quận 9",
-      "price": 1145000000.0,
-      "area": 75.0,
-      "price_per_m2": 15266666.666666666,
-      "price_ratio": 0.514607,
-      "price_position": "thap",
-      "feature_count": 0,
-      "feature_count_vs_peer": -0.792558
-    },
-    {
-      "source_id": "nhadatvui_4739707089",
-      "title": "Bán gấp! chung cư Precia, DT 60M2, 2PN, 2 WC, giá 1 tỷ 780, nội thất đầy đủ",
-      "price": 1780000000.0,
-      "area": 60.0,
-      "price_per_m2": 29666666.666666668,
-      "price_ratio": 1.0,
-      "price_position": "hop_ly",
-      "feature_count": 1,
-      "feature_count_vs_peer": 0.207442
-    },
-    {
-      "source_id": "nhadatvui_5219749634",
-      "title": "GẤP BÁN CH Citisoho Thủ Đức ĐỂ ĐỊNH CƯ NƯỚC NGOÀI, 60M2, 2PN2WC, 1TỶ780, TẦNG TRUNG, FULL NT, SHR",
-      "price": 1780000000.0,
-      "area": 60.0,
-      "price_per_m2": 29666666.666666668,
-      "price_ratio": 1.0,
-      "price_position": "hop_ly",
+      "source_id": "nhadatvui_1047645473",
+      "title": "Chính chủ bán gấp CH MT Eastmark City Q, thủ đức DT 66m2 2PN 2WC Nội thất đầy đủ Giá 1 tỷ 990 có TL",
+      "price": 1990000000.0,
+      "area": 66.0,
+      "price_per_m2": 30151515.151515152,
+      "price_ratio": 0.999749,
+      "price_position": "p25_p75",
       "feature_count": 2,
-      "feature_count_vs_peer": 1.207442
+      "feature_count_vs_peer": 1.222014
+    },
+    {
+      "source_id": "nhadatvui_7906059869",
+      "title": "Cần bán căn hộ chung cư Ricca, Q. 9 giá 1 tỷ 810 DT 60m2, 2PN2WC, nội thất đầy đủ - SHR",
+      "price": 1810000000.0,
+      "area": 60.0,
+      "price_per_m2": 30166666.666666668,
+      "price_ratio": 1.000251,
+      "price_position": "p25_p75",
+      "feature_count": 2,
+      "feature_count_vs_peer": 1.222014
     },
     {
       "source_id": "nhadatvui_4950195856",
@@ -893,10 +1150,10 @@
       "price": 15000000000.0,
       "area": 75.0,
       "price_per_m2": 200000000.0,
-      "price_ratio": 6.741573,
-      "price_position": "cao",
+      "price_ratio": 6.6315,
+      "price_position": "tren_p75",
       "feature_count": 1,
-      "feature_count_vs_peer": 0.207442
+      "feature_count_vs_peer": 0.222014
     },
     {
       "source_id": "mogi_22739792",
@@ -904,10 +1161,10 @@
       "price": 12400000000.0,
       "area": 70.0,
       "price_per_m2": 177142857.14285713,
-      "price_ratio": 5.971108,
-      "price_position": "cao",
+      "price_ratio": 5.873614,
+      "price_position": "tren_p75",
       "feature_count": 0,
-      "feature_count_vs_peer": -0.792558
+      "feature_count_vs_peer": -0.777986
     },
     {
       "source_id": "batdongsan_46272554",
@@ -915,48 +1172,48 @@
       "price": 12600000000.0,
       "area": 75.0,
       "price_per_m2": 168000000.0,
-      "price_ratio": 5.662921,
-      "price_position": "cao",
+      "price_ratio": 5.57046,
+      "price_position": "tren_p75",
       "feature_count": 0,
-      "feature_count_vs_peer": -0.792558
+      "feature_count_vs_peer": -0.777986
     }
   ],
   "bq1_budget_label": "3 - 5 tỷ",
   "bq1_tradeoff_nha_pho": [
     {
       "district_name": "Huyện Củ Chi",
-      "n_listings": 63,
-      "median_area": 166.0,
+      "n_listings": 65,
+      "median_area": 168.0,
       "median_rooms": 3.0,
-      "median_price_per_m2": 22619047.61904762,
-      "median_distance_km": 27.814053,
-      "share_legal": 0.047619,
-      "share_frontage": 0.333333,
-      "share_car_access": 0.031746,
+      "median_price_per_m2": 22500000.0,
+      "median_distance_km": 28.472393,
+      "share_legal": 0.046154,
+      "share_frontage": 0.338462,
+      "share_car_access": 0.030769,
       "share_elevator": 0.0
     },
     {
       "district_name": "Huyện Bình Chánh",
-      "n_listings": 57,
-      "median_area": 98.0,
+      "n_listings": 59,
+      "median_area": 95.0,
       "median_rooms": 3.0,
-      "median_price_per_m2": 38888888.88888889,
-      "median_distance_km": 14.043021,
-      "share_legal": 0.070175,
-      "share_frontage": 0.157895,
-      "share_car_access": 0.175439,
+      "median_price_per_m2": 40506329.11392405,
+      "median_distance_km": 14.240597000000001,
+      "share_legal": 0.118644,
+      "share_frontage": 0.169492,
+      "share_car_access": 0.169492,
       "share_elevator": 0.0
     },
     {
       "district_name": "Huyện Hóc Môn",
-      "n_listings": 129,
+      "n_listings": 133,
       "median_area": 80.0,
       "median_rooms": 3.0,
       "median_price_per_m2": 46575342.46575342,
-      "median_distance_km": 16.452602,
-      "share_legal": 0.155039,
-      "share_frontage": 0.124031,
-      "share_car_access": 0.093023,
+      "median_distance_km": 15.875602,
+      "share_legal": 0.150376,
+      "share_frontage": 0.12782,
+      "share_car_access": 0.090226,
       "share_elevator": 0.0
     },
     {
@@ -979,200 +1236,212 @@
       "median_price_per_m2": 65000000.0,
       "median_distance_km": 10.2895875,
       "share_legal": 0.188034,
-      "share_frontage": 0.068376,
+      "share_frontage": 0.051282,
       "share_car_access": 0.205128,
       "share_elevator": 0.0
     },
     {
       "district_name": "Thành phố Thủ Đức",
-      "n_listings": 806,
-      "median_area": 59.0,
+      "n_listings": 881,
+      "median_area": 58.74,
       "median_rooms": 3.0,
-      "median_price_per_m2": 67307692.3076923,
-      "median_distance_km": 10.430094,
-      "share_legal": 0.151365,
-      "share_frontage": 0.080645,
-      "share_car_access": 0.362283,
+      "median_price_per_m2": 67857142.85714285,
+      "median_distance_km": 10.939199,
+      "share_legal": 0.155505,
+      "share_frontage": 0.077185,
+      "share_car_access": 0.356413,
       "share_elevator": 0.0
     },
     {
       "district_name": "Quận 12",
-      "n_listings": 433,
-      "median_area": 57.0,
+      "n_listings": 458,
+      "median_area": 56.0,
       "median_rooms": 3.0,
-      "median_price_per_m2": 70833333.33333333,
-      "median_distance_km": 11.36608,
-      "share_legal": 0.166282,
-      "share_frontage": 0.036952,
-      "share_car_access": 0.344111,
+      "median_price_per_m2": 70954545.45454545,
+      "median_distance_km": 11.419098,
+      "share_legal": 0.176856,
+      "share_frontage": 0.028384,
+      "share_car_access": 0.349345,
       "share_elevator": 0.0
     },
     {
       "district_name": "Quận 3",
-      "n_listings": 183,
+      "n_listings": 209,
       "median_area": 50.0,
       "median_rooms": 3.0,
       "median_price_per_m2": 73404255.31914894,
       "median_distance_km": 2.489873,
-      "share_legal": 0.393443,
-      "share_frontage": 0.027322,
-      "share_car_access": 0.071038,
-      "share_elevator": 0.0
+      "share_legal": 0.358852,
+      "share_frontage": 0.033493,
+      "share_car_access": 0.100478,
+      "share_elevator": 0.004785
     },
     {
       "district_name": "Quận Bình Tân",
-      "n_listings": 1393,
+      "n_listings": 1391,
       "median_area": 50.0,
       "median_rooms": 2.0,
-      "median_price_per_m2": 85000000.0,
+      "median_price_per_m2": 85416666.66666666,
       "median_distance_km": 10.7002855,
-      "share_legal": 0.06748,
-      "share_frontage": 0.065327,
-      "share_car_access": 0.374731,
+      "share_legal": 0.067577,
+      "share_frontage": 0.053199,
+      "share_car_access": 0.378145,
       "share_elevator": 0.0
     },
     {
       "district_name": "Quận Phú Nhuận",
-      "n_listings": 119,
-      "median_area": 50.0,
+      "n_listings": 124,
+      "median_area": 49.0,
       "median_rooms": 3.0,
-      "median_price_per_m2": 74242424.24242425,
-      "median_distance_km": 3.644312,
-      "share_legal": 0.369748,
-      "share_frontage": 0.058824,
-      "share_car_access": 0.218487,
+      "median_price_per_m2": 75989583.33333333,
+      "median_distance_km": 3.779641,
+      "share_legal": 0.362903,
+      "share_frontage": 0.056452,
+      "share_car_access": 0.217742,
       "share_elevator": 0.0
     },
     {
       "district_name": "Quận 5",
-      "n_listings": 97,
+      "n_listings": 99,
       "median_area": 45.0,
       "median_rooms": 3.0,
       "median_price_per_m2": 79852579.85257985,
-      "median_distance_km": 4.0658294999999995,
-      "share_legal": 0.42268,
-      "share_frontage": 0.030928,
-      "share_car_access": 0.061856,
+      "median_distance_km": 3.975171,
+      "share_legal": 0.424242,
+      "share_frontage": 0.020202,
+      "share_car_access": 0.060606,
       "share_elevator": 0.0
     },
     {
       "district_name": "Quận 10",
-      "n_listings": 119,
+      "n_listings": 131,
       "median_area": 44.0,
       "median_rooms": 3.0,
-      "median_price_per_m2": 77560975.6097561,
-      "median_distance_km": 3.651217,
-      "share_legal": 0.268908,
-      "share_frontage": 0.02521,
-      "share_car_access": 0.193277,
-      "share_elevator": 0.008403
+      "median_price_per_m2": 78000000.0,
+      "median_distance_km": 3.661887,
+      "share_legal": 0.274809,
+      "share_frontage": 0.0,
+      "share_car_access": 0.175573,
+      "share_elevator": 0.015267
     },
     {
       "district_name": "Quận 4",
-      "n_listings": 86,
-      "median_area": 43.6,
+      "n_listings": 99,
+      "median_area": 43.0,
       "median_rooms": 3.0,
-      "median_price_per_m2": 88169862.34021631,
+      "median_price_per_m2": 91370558.37563452,
       "median_distance_km": 2.115892,
-      "share_legal": 0.313953,
+      "share_legal": 0.272727,
       "share_frontage": 0.0,
-      "share_car_access": 0.104651,
+      "share_car_access": 0.111111,
       "share_elevator": 0.0
     },
     {
       "district_name": "Quận 6",
-      "n_listings": 162,
+      "n_listings": 190,
       "median_area": 42.0,
       "median_rooms": 3.0,
-      "median_price_per_m2": 99893390.19189766,
-      "median_distance_km": 7.874409,
-      "share_legal": 0.080247,
-      "share_frontage": 0.018519,
-      "share_car_access": 0.185185,
+      "median_price_per_m2": 100000000.0,
+      "median_distance_km": 7.872512,
+      "share_legal": 0.078947,
+      "share_frontage": 0.015789,
+      "share_car_access": 0.210526,
       "share_elevator": 0.0
     },
     {
       "district_name": "Quận Bình Thạnh",
-      "n_listings": 216,
+      "n_listings": 222,
       "median_area": 42.0,
       "median_rooms": 3.0,
-      "median_price_per_m2": 86208359.522313,
+      "median_price_per_m2": 87392179.41345601,
       "median_distance_km": 3.89445,
-      "share_legal": 0.212963,
-      "share_frontage": 0.032407,
-      "share_car_access": 0.208333,
+      "share_legal": 0.207207,
+      "share_frontage": 0.013514,
+      "share_car_access": 0.211712,
       "share_elevator": 0.0
     },
     {
       "district_name": "Quận Tân Bình",
-      "n_listings": 259,
+      "n_listings": 269,
       "median_area": 42.0,
       "median_rooms": 3.0,
-      "median_price_per_m2": 97916666.66666667,
+      "median_price_per_m2": 90465116.27906977,
       "median_distance_km": 5.559603,
-      "share_legal": 0.204633,
-      "share_frontage": 0.019305,
-      "share_car_access": 0.204633,
+      "share_legal": 0.211896,
+      "share_frontage": 0.018587,
+      "share_car_access": 0.200743,
       "share_elevator": 0.0
     },
     {
       "district_name": "Quận 7",
-      "n_listings": 220,
-      "median_area": 41.65,
+      "n_listings": 257,
+      "median_area": 41.0,
       "median_rooms": 2.0,
-      "median_price_per_m2": 99729729.72972973,
-      "median_distance_km": 5.659513499999999,
-      "share_legal": 0.209091,
-      "share_frontage": 0.054545,
-      "share_car_access": 0.204545,
+      "median_price_per_m2": 99459459.45945945,
+      "median_distance_km": 5.194359,
+      "share_legal": 0.206226,
+      "share_frontage": 0.042802,
+      "share_car_access": 0.202335,
       "share_elevator": 0.0
     },
     {
       "district_name": "Quận 8",
-      "n_listings": 220,
+      "n_listings": 224,
       "median_area": 41.0,
       "median_rooms": 3.0,
-      "median_price_per_m2": 99089285.71428572,
-      "median_distance_km": 7.992095,
-      "share_legal": 0.204545,
-      "share_frontage": 0.045455,
-      "share_car_access": 0.095455,
+      "median_price_per_m2": 99428571.42857143,
+      "median_distance_km": 7.593397,
+      "share_legal": 0.196429,
+      "share_frontage": 0.044643,
+      "share_car_access": 0.09375,
+      "share_elevator": 0.0
+    },
+    {
+      "district_name": "Quận 11",
+      "n_listings": 119,
+      "median_area": 40.0,
+      "median_rooms": 3.0,
+      "median_price_per_m2": 96541786.74351585,
+      "median_distance_km": 6.530418,
+      "share_legal": 0.226891,
+      "share_frontage": 0.02521,
+      "share_car_access": 0.134454,
       "share_elevator": 0.0
     },
     {
       "district_name": "Quận Gò Vấp",
-      "n_listings": 375,
+      "n_listings": 379,
       "median_area": 40.0,
       "median_rooms": 2.0,
       "median_price_per_m2": 100000000.0,
-      "median_distance_km": 7.6566725,
-      "share_legal": 0.205333,
-      "share_frontage": 0.050667,
-      "share_car_access": 0.216,
-      "share_elevator": 0.002667
+      "median_distance_km": 7.65088,
+      "share_legal": 0.203166,
+      "share_frontage": 0.047493,
+      "share_car_access": 0.216359,
+      "share_elevator": 0.002639
     },
     {
-      "district_name": "Quận 11",
-      "n_listings": 96,
-      "median_area": 39.5,
+      "district_name": "Quận 1",
+      "n_listings": 82,
+      "median_area": 38.0,
       "median_rooms": 3.0,
-      "median_price_per_m2": 98270893.37175792,
-      "median_distance_km": 6.530418,
-      "share_legal": 0.229167,
-      "share_frontage": 0.052083,
-      "share_car_access": 0.135417,
-      "share_elevator": 0.0
+      "median_price_per_m2": 105071428.57142857,
+      "median_distance_km": 2.0375375,
+      "share_legal": 0.341463,
+      "share_frontage": 0.0,
+      "share_car_access": 0.060976,
+      "share_elevator": 0.012195
     },
     {
       "district_name": "Quận Tân Phú",
-      "n_listings": 419,
-      "median_area": 37.0,
+      "n_listings": 468,
+      "median_area": 37.3,
       "median_rooms": 2.0,
-      "median_price_per_m2": 108333333.33333331,
-      "median_distance_km": 8.3725465,
-      "share_legal": 0.078759,
-      "share_frontage": 0.059666,
-      "share_car_access": 0.24105,
+      "median_price_per_m2": 107559523.8095238,
+      "median_distance_km": 8.182972,
+      "share_legal": 0.08547,
+      "share_frontage": 0.053419,
+      "share_car_access": 0.245726,
       "share_elevator": 0.0
     },
     {
@@ -1186,305 +1455,281 @@
       "share_frontage": 0.057143,
       "share_car_access": 0.028571,
       "share_elevator": 0.0
-    },
-    {
-      "district_name": "Quận 1",
-      "n_listings": 78,
-      "median_area": 35.5,
-      "median_rooms": 3.0,
-      "median_price_per_m2": 107849206.34920636,
-      "median_distance_km": 2.037038,
-      "share_legal": 0.346154,
-      "share_frontage": 0.0,
-      "share_car_access": 0.051282,
-      "share_elevator": 0.012821
     }
   ],
   "bq1_tradeoff_can_ho": [
     {
-      "district_name": "Quận 8",
-      "n_listings": 144,
-      "median_area": 75.5,
+      "district_name": "Quận 6",
+      "n_listings": 76,
+      "median_area": 81.0,
       "median_rooms": 2.0,
-      "median_price_per_m2": 51899038.461538464,
+      "median_price_per_m2": 52910071.196516216,
+      "median_distance_km": 8.417212,
+      "share_legal": 0.328947,
+      "share_frontage": 0.039474,
+      "share_car_access": 0.0,
+      "share_elevator": 0.0
+    },
+    {
+      "district_name": "Quận 8",
+      "n_listings": 145,
+      "median_area": 78.0,
+      "median_rooms": 2.0,
+      "median_price_per_m2": 51647058.823529415,
       "median_distance_km": 6.249054,
-      "share_legal": 0.229167,
-      "share_frontage": 0.048611,
-      "share_car_access": 0.006944,
-      "share_elevator": 0.006944
+      "share_legal": 0.241379,
+      "share_frontage": 0.034483,
+      "share_car_access": 0.006897,
+      "share_elevator": 0.006897
     },
     {
       "district_name": "Huyện Nhà Bè",
-      "n_listings": 82,
+      "n_listings": 83,
       "median_area": 75.0,
       "median_rooms": 2.0,
       "median_price_per_m2": 41666666.666666664,
       "median_distance_km": 8.102528,
-      "share_legal": 0.536585,
-      "share_frontage": 0.012195,
-      "share_car_access": 0.012195,
+      "share_legal": 0.53012,
+      "share_frontage": 0.012048,
+      "share_car_access": 0.012048,
       "share_elevator": 0.0
     },
     {
       "district_name": "Quận Tân Bình",
-      "n_listings": 82,
-      "median_area": 73.5,
+      "n_listings": 92,
+      "median_area": 73.0,
       "median_rooms": 2.0,
-      "median_price_per_m2": 52786377.708978325,
-      "median_distance_km": 6.877946,
-      "share_legal": 0.439024,
+      "median_price_per_m2": 52484567.90123457,
+      "median_distance_km": 6.96368,
+      "share_legal": 0.391304,
       "share_frontage": 0.0,
       "share_car_access": 0.0,
-      "share_elevator": 0.097561
-    },
-    {
-      "district_name": "Quận Gò Vấp",
-      "n_listings": 51,
-      "median_area": 71.0,
-      "median_rooms": 2.0,
-      "median_price_per_m2": 55833333.333333336,
-      "median_distance_km": 7.84773,
-      "share_legal": 0.294118,
-      "share_frontage": 0.058824,
-      "share_car_access": 0.019608,
-      "share_elevator": 0.0
-    },
-    {
-      "district_name": "Quận 6",
-      "n_listings": 87,
-      "median_area": 70.0,
-      "median_rooms": 2.0,
-      "median_price_per_m2": 55421686.746987954,
-      "median_distance_km": 8.417212,
-      "share_legal": 0.275862,
-      "share_frontage": 0.034483,
-      "share_car_access": 0.08046,
-      "share_elevator": 0.0
+      "share_elevator": 0.086957
     },
     {
       "district_name": "Quận Tân Phú",
-      "n_listings": 132,
-      "median_area": 70.0,
+      "n_listings": 152,
+      "median_area": 71.0,
       "median_rooms": 2.0,
-      "median_price_per_m2": 55857142.85714286,
-      "median_distance_km": 7.723492,
-      "share_legal": 0.340909,
-      "share_frontage": 0.007576,
-      "share_car_access": 0.007576,
+      "median_price_per_m2": 55202485.966319166,
+      "median_distance_km": 7.86678,
+      "share_legal": 0.368421,
+      "share_frontage": 0.006579,
+      "share_car_access": 0.0,
       "share_elevator": 0.0
     },
     {
-      "district_name": "Huyện Bình Chánh",
-      "n_listings": 61,
-      "median_area": 69.0,
+      "district_name": "Quận Gò Vấp",
+      "n_listings": 54,
+      "median_area": 70.2,
       "median_rooms": 2.0,
-      "median_price_per_m2": 47727272.72727273,
-      "median_distance_km": 10.657718,
-      "share_legal": 0.442623,
-      "share_frontage": 0.0,
+      "median_price_per_m2": 55833333.333333336,
+      "median_distance_km": 7.84773,
+      "share_legal": 0.277778,
+      "share_frontage": 0.055556,
       "share_car_access": 0.0,
       "share_elevator": 0.0
     },
     {
       "district_name": "Quận Bình Tân",
       "n_listings": 54,
-      "median_area": 68.5,
+      "median_area": 70.0,
       "median_rooms": 2.0,
-      "median_price_per_m2": 57752403.84615385,
-      "median_distance_km": 11.366692,
-      "share_legal": 0.351852,
-      "share_frontage": 0.018519,
-      "share_car_access": 0.055556,
+      "median_price_per_m2": 57606438.707596585,
+      "median_distance_km": 11.2195035,
+      "share_legal": 0.37037,
+      "share_frontage": 0.055556,
+      "share_car_access": 0.0,
+      "share_elevator": 0.0
+    },
+    {
+      "district_name": "Huyện Bình Chánh",
+      "n_listings": 62,
+      "median_area": 69.5,
+      "median_rooms": 2.0,
+      "median_price_per_m2": 47709790.209790215,
+      "median_distance_km": 10.657718,
+      "share_legal": 0.435484,
+      "share_frontage": 0.0,
+      "share_car_access": 0.0,
       "share_elevator": 0.0
     },
     {
       "district_name": "Quận 7",
-      "n_listings": 346,
+      "n_listings": 325,
       "median_area": 68.0,
       "median_rooms": 2.0,
-      "median_price_per_m2": 60144927.53623189,
-      "median_distance_km": 6.7614529999999995,
-      "share_legal": 0.16763,
-      "share_frontage": 0.028902,
-      "share_car_access": 0.020231,
-      "share_elevator": 0.0
-    },
-    {
-      "district_name": "Quận 5",
-      "n_listings": 68,
-      "median_area": 66.45,
-      "median_rooms": 2.0,
-      "median_price_per_m2": 56964285.71428572,
-      "median_distance_km": 4.01413,
-      "share_legal": 0.220588,
-      "share_frontage": 0.088235,
+      "median_price_per_m2": 57183702.644746244,
+      "median_distance_km": 6.631807,
+      "share_legal": 0.163077,
+      "share_frontage": 0.021538,
       "share_car_access": 0.0,
-      "share_elevator": 0.044118
-    },
-    {
-      "district_name": "Quận 1",
-      "n_listings": 37,
-      "median_area": 66.0,
-      "median_rooms": 2.0,
-      "median_price_per_m2": 61333333.333333336,
-      "median_distance_km": 1.146743,
-      "share_legal": 0.297297,
-      "share_frontage": 0.027027,
-      "share_car_access": 0.027027,
       "share_elevator": 0.0
     },
     {
       "district_name": "Thành phố Thủ Đức",
-      "n_listings": 227,
-      "median_area": 66.0,
+      "n_listings": 276,
+      "median_area": 68.0,
       "median_rooms": 2.0,
-      "median_price_per_m2": 56964285.71428572,
-      "median_distance_km": 10.120223500000002,
-      "share_legal": 0.273128,
-      "share_frontage": 0.171806,
-      "share_car_access": 0.013216,
-      "share_elevator": 0.004405
+      "median_price_per_m2": 55694980.694980696,
+      "median_distance_km": 11.106734,
+      "share_legal": 0.278986,
+      "share_frontage": 0.137681,
+      "share_car_access": 0.0,
+      "share_elevator": 0.003623
     },
     {
-      "district_name": "Quận 12",
-      "n_listings": 88,
-      "median_area": 65.0,
+      "district_name": "Quận 5",
+      "n_listings": 72,
+      "median_area": 67.95,
       "median_rooms": 2.0,
-      "median_price_per_m2": 55307692.307692304,
-      "median_distance_km": 10.335725,
-      "share_legal": 0.295455,
-      "share_frontage": 0.034091,
-      "share_car_access": 0.136364,
+      "median_price_per_m2": 57142857.14285714,
+      "median_distance_km": 3.8790329999999997,
+      "share_legal": 0.222222,
+      "share_frontage": 0.083333,
+      "share_car_access": 0.0,
+      "share_elevator": 0.041667
+    },
+    {
+      "district_name": "Quận 1",
+      "n_listings": 38,
+      "median_area": 67.0,
+      "median_rooms": 2.0,
+      "median_price_per_m2": 61023809.52380952,
+      "median_distance_km": 0.947832,
+      "share_legal": 0.263158,
+      "share_frontage": 0.026316,
+      "share_car_access": 0.026316,
       "share_elevator": 0.0
     },
     {
       "district_name": "Quận 11",
-      "n_listings": 57,
-      "median_area": 64.0,
-      "median_rooms": 2.0,
-      "median_price_per_m2": 59090909.09090909,
-      "median_distance_km": 5.82666,
-      "share_legal": 0.280702,
-      "share_frontage": 0.017544,
-      "share_car_access": 0.035088,
-      "share_elevator": 0.122807
-    },
-    {
-      "district_name": "Quận Bình Thạnh",
       "n_listings": 67,
-      "median_area": 62.0,
+      "median_area": 65.0,
       "median_rooms": 2.0,
-      "median_price_per_m2": 61967213.114754096,
-      "median_distance_km": 3.101591,
-      "share_legal": 0.19403,
-      "share_frontage": 0.029851,
-      "share_car_access": 0.014925,
-      "share_elevator": 0.029851
+      "median_price_per_m2": 58571428.571428575,
+      "median_distance_km": 5.263729,
+      "share_legal": 0.298507,
+      "share_frontage": 0.014925,
+      "share_car_access": 0.0,
+      "share_elevator": 0.104478
     },
     {
-      "district_name": "Quận 10",
-      "n_listings": 46,
-      "median_area": 61.0,
+      "district_name": "Quận 12",
+      "n_listings": 62,
+      "median_area": 65.0,
       "median_rooms": 2.0,
-      "median_price_per_m2": 65406283.85698809,
-      "median_distance_km": 4.0548645,
-      "share_legal": 0.173913,
+      "median_price_per_m2": 51904761.9047619,
+      "median_distance_km": 10.335725,
+      "share_legal": 0.290323,
       "share_frontage": 0.0,
-      "share_car_access": 0.021739,
-      "share_elevator": 0.043478
-    },
-    {
-      "district_name": "Quận 4",
-      "n_listings": 71,
-      "median_area": 60.0,
-      "median_rooms": 2.0,
-      "median_price_per_m2": 66393442.62295082,
-      "median_distance_km": 2.1941365,
-      "share_legal": 0.197183,
-      "share_frontage": 0.028169,
-      "share_car_access": 0.014085,
+      "share_car_access": 0.016129,
       "share_elevator": 0.0
     },
     {
-      "district_name": "Quận Phú Nhuận",
-      "n_listings": 39,
-      "median_area": 56.0,
+      "district_name": "Quận 4",
+      "n_listings": 74,
+      "median_area": 62.5,
       "median_rooms": 2.0,
-      "median_price_per_m2": 71956521.73913044,
-      "median_distance_km": 4.0348875,
-      "share_legal": 0.076923,
-      "share_frontage": 0.0,
+      "median_price_per_m2": 62520090.003214404,
+      "median_distance_km": 2.221922,
+      "share_legal": 0.256757,
+      "share_frontage": 0.027027,
       "share_car_access": 0.0,
-      "share_elevator": 0.051282
+      "share_elevator": 0.0
     },
     {
-      "district_name": "Quận 3",
-      "n_listings": 34,
-      "median_area": 55.0,
+      "district_name": "Quận Bình Thạnh",
+      "n_listings": 71,
+      "median_area": 62.0,
       "median_rooms": 2.0,
-      "median_price_per_m2": 67773224.04371583,
-      "median_distance_km": 2.052029,
-      "share_legal": 0.176471,
-      "share_frontage": 0.117647,
-      "share_car_access": 0.176471,
-      "share_elevator": 0.088235
+      "median_price_per_m2": 60714285.71428572,
+      "median_distance_km": 2.948666,
+      "share_legal": 0.197183,
+      "share_frontage": 0.028169,
+      "share_car_access": 0.014085,
+      "share_elevator": 0.028169
+    },
+    {
+      "district_name": "Quận 10",
+      "n_listings": 43,
+      "median_area": 61.0,
+      "median_rooms": 2.0,
+      "median_price_per_m2": 64000000.0,
+      "median_distance_km": 3.899857,
+      "share_legal": 0.186047,
+      "share_frontage": 0.0,
+      "share_car_access": 0.023256,
+      "share_elevator": 0.023256
+    },
+    {
+      "district_name": "Quận Phú Nhuận",
+      "n_listings": 42,
+      "median_area": 57.0,
+      "median_rooms": 2.0,
+      "median_price_per_m2": 70000000.0,
+      "median_distance_km": 4.005883,
+      "share_legal": 0.119048,
+      "share_frontage": 0.0,
+      "share_car_access": 0.0,
+      "share_elevator": 0.047619
     }
   ],
   "bq1_pareto_overall": [
     {
       "price_band_key": 1,
       "price_band": "Dưới 1 tỷ",
-      "n": 2572,
-      "efficient": 591
+      "n": 2567,
+      "efficient": 613
     },
     {
       "price_band_key": 2,
       "price_band": "1 - 2 tỷ",
-      "n": 9929,
-      "efficient": 1519
+      "n": 9924,
+      "efficient": 1539
     },
     {
       "price_band_key": 3,
       "price_band": "2 - 3 tỷ",
-      "n": 8500,
-      "efficient": 1696
+      "n": 8545,
+      "efficient": 1761
     },
     {
       "price_band_key": 4,
       "price_band": "3 - 5 tỷ",
-      "n": 17580,
-      "efficient": 2700
+      "n": 17629,
+      "efficient": 2769
     },
     {
       "price_band_key": 5,
       "price_band": "5 - 7 tỷ",
-      "n": 16393,
-      "efficient": 2569
+      "n": 16400,
+      "efficient": 2495
     },
     {
       "price_band_key": 6,
       "price_band": "7 - 10 tỷ",
-      "n": 15824,
-      "efficient": 2888
+      "n": 15835,
+      "efficient": 2820
     },
     {
       "price_band_key": 7,
       "price_band": "10 - 20 tỷ",
-      "n": 17514,
-      "efficient": 3674
+      "n": 17519,
+      "efficient": 3677
     },
     {
       "price_band_key": 8,
       "price_band": "Từ 20 tỷ",
-      "n": 17085,
-      "efficient": 4033
+      "n": 17076,
+      "efficient": 4035
     }
   ],
   "bq1_pareto_group": {
-    "location_key": 154,
+    "location_key": 124,
     "district_name": "Quận Bình Tân",
-    "group_size": 1393,
-    "frontier_size": 53
+    "group_size": 1391,
+    "frontier_size": 66
   },
   "bq1_pareto_points": [
     {
@@ -1621,6 +1866,13 @@
       "is_pareto_efficient": false
     },
     {
+      "source_id": "guland_2085333",
+      "price": 4730000000.0,
+      "area": 42.0,
+      "rooms": 2,
+      "is_pareto_efficient": false
+    },
+    {
       "source_id": "guland_2155826",
       "price": 4950000000.0,
       "area": 65.0,
@@ -1660,7 +1912,7 @@
       "price": 4600000000.0,
       "area": 60.0,
       "rooms": null,
-      "is_pareto_efficient": false
+      "is_pareto_efficient": true
     },
     {
       "source_id": "guland_1746065",
@@ -1758,6 +2010,13 @@
       "price": 4000000000.0,
       "area": 52.0,
       "rooms": 3,
+      "is_pareto_efficient": false
+    },
+    {
+      "source_id": "chotot_133054774",
+      "price": 4200000000.0,
+      "area": 48.0,
+      "rooms": 2,
       "is_pareto_efficient": false
     },
     {
@@ -1954,7 +2213,7 @@
       "price": 3600000000.0,
       "area": 54.0,
       "rooms": null,
-      "is_pareto_efficient": false
+      "is_pareto_efficient": true
     },
     {
       "source_id": "chotot_132006063",
@@ -2234,7 +2493,7 @@
       "price": 3990000000.0,
       "area": 24.1,
       "rooms": null,
-      "is_pareto_efficient": false
+      "is_pareto_efficient": true
     },
     {
       "source_id": "guland_2327879",
@@ -2990,7 +3249,7 @@
       "price": 4300000000.0,
       "area": 48.0,
       "rooms": null,
-      "is_pareto_efficient": false
+      "is_pareto_efficient": true
     },
     {
       "source_id": "guland_2723080",
@@ -3067,7 +3326,7 @@
       "price": 3800000000.0,
       "area": 48.0,
       "rooms": 2,
-      "is_pareto_efficient": true
+      "is_pareto_efficient": false
     },
     {
       "source_id": "guland_2389253",
@@ -3144,6 +3403,13 @@
       "price": 4900000000.0,
       "area": 80.0,
       "rooms": 3,
+      "is_pareto_efficient": false
+    },
+    {
+      "source_id": "batdongsan_44213446",
+      "price": 4000000000.0,
+      "area": 40.0,
+      "rooms": 2,
       "is_pareto_efficient": false
     },
     {
@@ -3262,13 +3528,6 @@
       "source_id": "guland_2722930",
       "price": 4900000000.0,
       "area": 72.0,
-      "rooms": null,
-      "is_pareto_efficient": false
-    },
-    {
-      "source_id": "guland_1432611",
-      "price": 4900000000.0,
-      "area": 48.0,
       "rooms": null,
       "is_pareto_efficient": false
     },
@@ -3998,7 +4257,7 @@
       "price": 3000000000.0,
       "area": 60.0,
       "rooms": null,
-      "is_pareto_efficient": false
+      "is_pareto_efficient": true
     },
     {
       "source_id": "guland_2707005",
@@ -4242,13 +4501,6 @@
       "source_id": "guland_2642008",
       "price": 3800000000.0,
       "area": 68.0,
-      "rooms": null,
-      "is_pareto_efficient": false
-    },
-    {
-      "source_id": "guland_2674196",
-      "price": 4900000000.0,
-      "area": 82.0,
       "rooms": null,
       "is_pareto_efficient": false
     },
@@ -4505,6 +4757,13 @@
       "is_pareto_efficient": false
     },
     {
+      "source_id": "nhadatvui_2771512821",
+      "price": 4800000000.0,
+      "area": 73.0,
+      "rooms": 3,
+      "is_pareto_efficient": false
+    },
+    {
       "source_id": "guland_1797121",
       "price": 4950000000.0,
       "area": 40.0,
@@ -4573,13 +4832,6 @@
       "area": 86.0,
       "rooms": 6,
       "is_pareto_efficient": true
-    },
-    {
-      "source_id": "guland_2593504",
-      "price": 4990000000.0,
-      "area": 70.0,
-      "rooms": null,
-      "is_pareto_efficient": false
     },
     {
       "source_id": "guland_2604446",
@@ -4684,6 +4936,13 @@
       "price": 4500000000.0,
       "area": 80.0,
       "rooms": 3,
+      "is_pareto_efficient": false
+    },
+    {
+      "source_id": "batdongsan_45668875",
+      "price": 4860000000.0,
+      "area": 53.0,
+      "rooms": 2,
       "is_pareto_efficient": false
     },
     {
@@ -5055,7 +5314,7 @@
       "price": 3330000000.0,
       "area": 45.0,
       "rooms": null,
-      "is_pareto_efficient": false
+      "is_pareto_efficient": true
     },
     {
       "source_id": "guland_2386805",
@@ -5286,7 +5545,7 @@
       "price": 4200000000.0,
       "area": 44.0,
       "rooms": null,
-      "is_pareto_efficient": false
+      "is_pareto_efficient": true
     },
     {
       "source_id": "guland_2431285",
@@ -5450,13 +5709,6 @@
       "is_pareto_efficient": false
     },
     {
-      "source_id": "guland_1828580",
-      "price": 4950000000.0,
-      "area": 54.0,
-      "rooms": null,
-      "is_pareto_efficient": false
-    },
-    {
       "source_id": "guland_2069224",
       "price": 4000000000.0,
       "area": 53.0,
@@ -5530,6 +5782,13 @@
       "source_id": "guland_2388761",
       "price": 4250000000.0,
       "area": 48.3,
+      "rooms": 2,
+      "is_pareto_efficient": false
+    },
+    {
+      "source_id": "batdongsan_46247417",
+      "price": 3650000000.0,
+      "area": 31.0,
       "rooms": 2,
       "is_pareto_efficient": false
     },
@@ -5747,6 +6006,13 @@
       "source_id": "guland_2260483",
       "price": 4099999999.9999995,
       "area": 60.0,
+      "rooms": 2,
+      "is_pareto_efficient": false
+    },
+    {
+      "source_id": "guland_2441224",
+      "price": 4950000000.0,
+      "area": 40.0,
       "rooms": 2,
       "is_pareto_efficient": false
     },
@@ -6084,7 +6350,7 @@
       "price": 4179999999.9999995,
       "area": 56.0,
       "rooms": null,
-      "is_pareto_efficient": false
+      "is_pareto_efficient": true
     },
     {
       "source_id": "guland_2662111",
@@ -6231,13 +6497,6 @@
       "price": 4900000000.0,
       "area": 54.0,
       "rooms": 3,
-      "is_pareto_efficient": false
-    },
-    {
-      "source_id": "guland_2521385",
-      "price": 4950000000.0,
-      "area": 54.0,
-      "rooms": 4,
       "is_pareto_efficient": false
     },
     {
@@ -6843,13 +7102,6 @@
       "is_pareto_efficient": false
     },
     {
-      "source_id": "guland_2203908",
-      "price": 4500000000.0,
-      "area": 95.0,
-      "rooms": null,
-      "is_pareto_efficient": false
-    },
-    {
       "source_id": "guland_2218097",
       "price": 3800000000.0,
       "area": 36.0,
@@ -7186,13 +7438,6 @@
       "is_pareto_efficient": false
     },
     {
-      "source_id": "guland_1755970",
-      "price": 4850000000.0,
-      "area": 72.0,
-      "rooms": 2,
-      "is_pareto_efficient": false
-    },
-    {
       "source_id": "guland_2053281",
       "price": 4950000000.0,
       "area": 40.0,
@@ -7210,6 +7455,13 @@
       "source_id": "guland_2389188",
       "price": 3700000000.0,
       "area": 41.0,
+      "rooms": 2,
+      "is_pareto_efficient": false
+    },
+    {
+      "source_id": "batdongsan_46372959",
+      "price": 4950000000.0,
+      "area": 84.0,
       "rooms": 2,
       "is_pareto_efficient": false
     },
@@ -7323,7 +7575,7 @@
       "price": 4800000000.0,
       "area": 64.0,
       "rooms": null,
-      "is_pareto_efficient": false
+      "is_pareto_efficient": true
     },
     {
       "source_id": "guland_2340130",
@@ -7407,7 +7659,7 @@
       "price": 4950000000.0,
       "area": 76.0,
       "rooms": null,
-      "is_pareto_efficient": false
+      "is_pareto_efficient": true
     },
     {
       "source_id": "guland_2194223",
@@ -7715,14 +7967,7 @@
       "price": 3400000000.0,
       "area": 140.0,
       "rooms": null,
-      "is_pareto_efficient": false
-    },
-    {
-      "source_id": "guland_2673460",
-      "price": 4900000000.0,
-      "area": 82.0,
-      "rooms": null,
-      "is_pareto_efficient": false
+      "is_pareto_efficient": true
     },
     {
       "source_id": "guland_2677051",
@@ -7900,13 +8145,6 @@
       "is_pareto_efficient": false
     },
     {
-      "source_id": "guland_2209891",
-      "price": 4500000000.0,
-      "area": 97.0,
-      "rooms": null,
-      "is_pareto_efficient": false
-    },
-    {
       "source_id": "guland_2433333",
       "price": 4200000000.0,
       "area": 75.0,
@@ -7960,13 +8198,6 @@
       "price": 3330000000.0,
       "area": 45.0,
       "rooms": 2,
-      "is_pareto_efficient": false
-    },
-    {
-      "source_id": "guland_2318132",
-      "price": 4950000000.0,
-      "area": 56.0,
-      "rooms": null,
       "is_pareto_efficient": false
     },
     {
@@ -8198,6 +8429,13 @@
       "price": 4200000000.0,
       "area": 44.0,
       "rooms": null,
+      "is_pareto_efficient": false
+    },
+    {
+      "source_id": "guland_2353424",
+      "price": 3900000000.0,
+      "area": 46.0,
+      "rooms": 2,
       "is_pareto_efficient": false
     },
     {
@@ -8520,7 +8758,7 @@
       "price": 4500000000.0,
       "area": 64.0,
       "rooms": 3,
-      "is_pareto_efficient": true
+      "is_pareto_efficient": false
     },
     {
       "source_id": "guland_2728057",
@@ -8891,7 +9129,7 @@
       "price": 4050000000.0,
       "area": 40.0,
       "rooms": 4,
-      "is_pareto_efficient": true
+      "is_pareto_efficient": false
     },
     {
       "source_id": "guland_2265769",
@@ -9059,7 +9297,7 @@
       "price": 4099999999.9999995,
       "area": 52.0,
       "rooms": null,
-      "is_pareto_efficient": false
+      "is_pareto_efficient": true
     },
     {
       "source_id": "guland_2361319",
@@ -9164,7 +9402,7 @@
       "price": 4150000000.0000005,
       "area": 53.0,
       "rooms": null,
-      "is_pareto_efficient": false
+      "is_pareto_efficient": true
     },
     {
       "source_id": "guland_2278689",
@@ -9185,7 +9423,7 @@
       "price": 4550000000.0,
       "area": 48.0,
       "rooms": 2,
-      "is_pareto_efficient": true
+      "is_pareto_efficient": false
     },
     {
       "source_id": "guland_2722921",
@@ -9430,7 +9668,7 @@
       "price": 4300000000.0,
       "area": 48.0,
       "rooms": null,
-      "is_pareto_efficient": false
+      "is_pareto_efficient": true
     },
     {
       "source_id": "guland_2260491",
@@ -9622,18 +9860,11 @@
       "is_pareto_efficient": false
     },
     {
-      "source_id": "guland_1756093",
-      "price": 4300000000.0,
-      "area": 65.0,
-      "rooms": null,
-      "is_pareto_efficient": false
-    },
-    {
       "source_id": "guland_1818387",
       "price": 3100000000.0,
       "area": 44.1,
       "rooms": null,
-      "is_pareto_efficient": false
+      "is_pareto_efficient": true
     },
     {
       "source_id": "guland_2277338",
@@ -9801,7 +10032,7 @@
       "price": 4300000000.0,
       "area": 48.0,
       "rooms": 3,
-      "is_pareto_efficient": true
+      "is_pareto_efficient": false
     },
     {
       "source_id": "guland_1623261",
@@ -10203,6 +10434,13 @@
       "is_pareto_efficient": false
     },
     {
+      "source_id": "guland_2479346",
+      "price": 4850000000.0,
+      "area": 48.0,
+      "rooms": 3,
+      "is_pareto_efficient": false
+    },
+    {
       "source_id": "guland_2610850",
       "price": 4300000000.0,
       "area": 60.0,
@@ -10242,7 +10480,7 @@
       "price": 4290000000.0,
       "area": 64.0,
       "rooms": null,
-      "is_pareto_efficient": false
+      "is_pareto_efficient": true
     },
     {
       "source_id": "guland_2349524",
@@ -10354,7 +10592,7 @@
       "price": 4700000000.0,
       "area": 55.0,
       "rooms": null,
-      "is_pareto_efficient": false
+      "is_pareto_efficient": true
     },
     {
       "source_id": "guland_2356461",
@@ -10473,7 +10711,7 @@
       "price": 4190000000.0000005,
       "area": 60.0,
       "rooms": null,
-      "is_pareto_efficient": false
+      "is_pareto_efficient": true
     },
     {
       "source_id": "guland_2665164",
@@ -10777,13 +11015,6 @@
       "is_pareto_efficient": false
     },
     {
-      "source_id": "guland_2199117",
-      "price": 4600000000.0,
-      "area": 82.0,
-      "rooms": null,
-      "is_pareto_efficient": false
-    },
-    {
       "source_id": "guland_2266351",
       "price": 4990000000.0,
       "area": 50.0,
@@ -10837,13 +11068,6 @@
       "price": 4900000000.0,
       "area": 44.0,
       "rooms": 2,
-      "is_pareto_efficient": false
-    },
-    {
-      "source_id": "guland_2709806",
-      "price": 4700000000.0,
-      "area": 70.0,
-      "rooms": null,
       "is_pareto_efficient": false
     },
     {
@@ -11026,6 +11250,13 @@
       "price": 4700000000.0,
       "area": 111.0,
       "rooms": 3,
+      "is_pareto_efficient": false
+    },
+    {
+      "source_id": "chotot_132939747",
+      "price": 3250000000.0,
+      "area": 24.0,
+      "rooms": 2,
       "is_pareto_efficient": false
     },
     {
@@ -11241,56 +11472,8 @@
   ],
   "bq1_pareto_examples": [
     {
-      "title": "HẺM 5M 4X14 3 LẦU PHẠM ĐĂNG GIẢNG",
-      "price": 3000000000.0,
-      "area": 57.0,
-      "rooms": 5,
-      "title_has_legal": false,
-      "title_has_car_access": false,
-      "title_has_frontage": false,
-      "title_has_elevator": false
-    },
-    {
-      "title": "BÁN NHÀ ĐẸP TÂN KỲ TÂN QUÝ - 44M² - SỔ HỒNG RIÊNG - VÀO Ở NGAY - 3,xx",
-      "price": 3000000000.0,
-      "area": 44.0,
-      "rooms": 2,
-      "title_has_legal": true,
-      "title_has_car_access": false,
-      "title_has_frontage": false,
-      "title_has_elevator": false
-    },
-    {
-      "title": "Bán Gấp Nhà Hẻm Xe Hơi Kinh Dương Vương, Bình Tân – Chỉ 3 Tỷ, 2 Tầng, Pháp Lý Chuẩn, Gần Aeon Mall Bình Tân",
-      "price": 3000000000.0,
-      "area": 32.0,
-      "rooms": 2,
-      "title_has_legal": true,
-      "title_has_car_access": true,
-      "title_has_frontage": false,
-      "title_has_elevator": false
-    },
-    {
-      "title": "NHÀ LÊ VĂN QUỚI - NGÃ 4 BỐN XÃ - HẺM Ô TÔ - 96M2 - 3Đ NHỈNH.",
-      "price": 3000000000.0,
-      "area": 96.0,
-      "rooms": 4,
-      "title_has_legal": false,
-      "title_has_car_access": true,
-      "title_has_frontage": false,
-      "title_has_elevator": false
-    },
-    {
-      "title": "Chủ giảm chào cần bán gấp, nhà 2 mặt tiền, Hương Lộ 3, 40m2 3Đ hơn, sát Aeon Tân Phú",
-      "price": 3000000000.0,
-      "area": 40.0,
-      "rooms": null,
-      "title_has_legal": false,
-      "title_has_car_access": false,
-      "title_has_frontage": true,
-      "title_has_elevator": false
-    },
-    {
+      "source": "homedy",
+      "category_evidence": "SOURCE_LABEL",
       "title": "Bán CH Moonlight Park View, 1PN 1WC sổ hồng riêng nhận nhà ở ngay.LH 0933654662",
       "price": 3050000000.0,
       "area": 52.0,
@@ -11299,143 +11482,187 @@
       "title_has_car_access": false,
       "title_has_frontage": false,
       "title_has_elevator": false
+    },
+    {
+      "source": "guland",
+      "category_evidence": "ENDPOINT_CONTEXT",
+      "title": "Nhỉnh 4 tỷ nhà sát AEON BÌNH TÂN DT(60M²) hẻm ô tô thông,SHR,vào ở ngay(KK2109)",
+      "price": 4600000000.0,
+      "area": 60.0,
+      "rooms": null,
+      "title_has_legal": true,
+      "title_has_car_access": true,
+      "title_has_frontage": false,
+      "title_has_elevator": false
+    },
+    {
+      "source": "guland",
+      "category_evidence": "SOURCE_LABEL",
+      "title": "KẾ KHU TÊN LỬA BÌNH TÂN 56M2 BTCT 4PN 3.98 TỶ HXH 8M NỘI THẤT CAO CẤP",
+      "price": 3980000000.0,
+      "area": 56.0,
+      "rooms": 4,
+      "title_has_legal": false,
+      "title_has_car_access": true,
+      "title_has_frontage": false,
+      "title_has_elevator": false
+    },
+    {
+      "source": "guland",
+      "category_evidence": "SOURCE_LABEL",
+      "title": "MTKD ĐƯỜNG SỐ 14 - SÁT LÊ VĂN QUỚI - 54M2 - NHỈNH 3TY",
+      "price": 3600000000.0,
+      "area": 54.0,
+      "rooms": null,
+      "title_has_legal": false,
+      "title_has_car_access": false,
+      "title_has_frontage": true,
+      "title_has_elevator": false
+    },
+    {
+      "source": "guland",
+      "category_evidence": "ENDPOINT_CONTEXT",
+      "title": "Bán Nhà Hẻm Chiến Lược, Bình Tân – Ngang 14m Hiếm Có – 2 Mặt Hẻm – Nhà Mới Đẹp – 2PN – Sổ Hồng Riêng – Chỉ 3.9 Tỷ",
+      "price": 3900000000.0,
+      "area": 69.0,
+      "rooms": 2,
+      "title_has_legal": true,
+      "title_has_car_access": false,
+      "title_has_frontage": false,
+      "title_has_elevator": false
+    },
+    {
+      "source": "guland",
+      "category_evidence": "ENDPOINT_CONTEXT",
+      "title": "Chỉ 4tỉ hơn, có ngay nhà 2 tầng,4x30 mặt tiền đường,mặt tiền chợ,có nguồn tiền 15tr/tháng,gồm mặt tiền kinh doanh +5 phòng trọ",
+      "price": 4800000000.0,
+      "area": 120.0,
+      "rooms": null,
+      "title_has_legal": false,
+      "title_has_car_access": false,
+      "title_has_frontage": true,
+      "title_has_elevator": false
     }
   ],
   "bq3_origin": {
     "origin_district": "Quận Bình Tân",
     "area_band": "50 - 80 m²",
     "area_band_key": 3,
-    "count": 8,
-    "origin_n_listings": 2858
+    "count": 5,
+    "origin_n_listings": 2859
   },
   "bq3_examples": [
     {
       "alternative_district": "Huyện Củ Chi",
-      "origin_median_price_per_m2": 96387175.32467532,
+      "origin_median_price_per_m2": 96428571.42857143,
       "alternative_median_price_per_m2": 21561771.56177156,
-      "price_gap_pct": 0.7763,
-      "typical_budget_saving": 4740000000.0,
-      "distance_diff_km": 15.347,
-      "feature_similarity": 0.866258,
-      "origin_n_listings": 2858,
+      "price_gap_pct": 0.776396,
+      "target_area": 62.0,
+      "estimated_saving_at_target_area": 4641741591.741592,
+      "median_total_price_diff": 4740000000.0,
+      "distance_diff_km": 15.346,
+      "feature_similarity": 0.864737,
+      "max_flag_share_gap": 0.266908,
+      "origin_n_listings": 2859,
       "alternative_n_listings": 22,
       "substitution_rank": 1
     },
     {
       "alternative_district": "Huyện Bình Chánh",
-      "origin_median_price_per_m2": 96387175.32467532,
-      "alternative_median_price_per_m2": 34910714.28571428,
-      "price_gap_pct": 0.637807,
-      "typical_budget_saving": 3800000000.0,
-      "distance_diff_km": 3.441,
-      "feature_similarity": 0.916312,
-      "origin_n_listings": 2858,
-      "alternative_n_listings": 102,
+      "origin_median_price_per_m2": 96428571.42857143,
+      "alternative_median_price_per_m2": 35833333.333333336,
+      "price_gap_pct": 0.628395,
+      "target_area": 62.0,
+      "estimated_saving_at_target_area": 3756904761.9047623,
+      "median_total_price_diff": 3800000000.0,
+      "distance_diff_km": 3.47,
+      "feature_similarity": 0.913577,
+      "max_flag_share_gap": 0.253469,
+      "origin_n_listings": 2859,
+      "alternative_n_listings": 115,
       "substitution_rank": 2
     },
     {
-      "alternative_district": "Thị xã Tân Uyên",
-      "origin_median_price_per_m2": 96387175.32467532,
-      "alternative_median_price_per_m2": 35494791.66666667,
-      "price_gap_pct": 0.631748,
-      "typical_budget_saving": 3700000000.0,
-      "distance_diff_km": 23.531,
-      "feature_similarity": 0.864403,
-      "origin_n_listings": 2858,
-      "alternative_n_listings": 38,
+      "alternative_district": "Huyện Nhà Bè",
+      "origin_median_price_per_m2": 96428571.42857143,
+      "alternative_median_price_per_m2": 80000000.0,
+      "price_gap_pct": 0.17037,
+      "target_area": 62.0,
+      "estimated_saving_at_target_area": 1018571428.5714293,
+      "median_total_price_diff": 850000000.0,
+      "distance_diff_km": -0.536,
+      "feature_similarity": 0.953767,
+      "max_flag_share_gap": 0.076771,
+      "origin_n_listings": 2859,
+      "alternative_n_listings": 153,
       "substitution_rank": 3
     },
     {
-      "alternative_district": "Huyện Hóc Môn",
-      "origin_median_price_per_m2": 96387175.32467532,
-      "alternative_median_price_per_m2": 44260752.68817204,
-      "price_gap_pct": 0.540802,
-      "typical_budget_saving": 3050000000.0,
-      "distance_diff_km": 5.851,
-      "feature_similarity": 0.883132,
-      "origin_n_listings": 2858,
-      "alternative_n_listings": 154,
+      "alternative_district": "Quận 12",
+      "origin_median_price_per_m2": 96428571.42857143,
+      "alternative_median_price_per_m2": 82031250.0,
+      "price_gap_pct": 0.149306,
+      "target_area": 62.0,
+      "estimated_saving_at_target_area": 892633928.5714293,
+      "median_total_price_diff": 950000000.0,
+      "distance_diff_km": 0.562,
+      "feature_similarity": 0.955558,
+      "max_flag_share_gap": 0.105977,
+      "origin_n_listings": 2859,
+      "alternative_n_listings": 797,
       "substitution_rank": 4
     },
     {
-      "alternative_district": "Thị xã Thuận An",
-      "origin_median_price_per_m2": 96387175.32467532,
-      "alternative_median_price_per_m2": 45151515.15151515,
-      "price_gap_pct": 0.531561,
-      "typical_budget_saving": 2970000000.0,
-      "distance_diff_km": 14.073,
-      "feature_similarity": 0.911571,
-      "origin_n_listings": 2858,
-      "alternative_n_listings": 79,
-      "substitution_rank": 5
-    },
-    {
-      "alternative_district": "Huyện Nhà Bè",
-      "origin_median_price_per_m2": 96387175.32467532,
-      "alternative_median_price_per_m2": 80000000.0,
-      "price_gap_pct": 0.170014,
-      "typical_budget_saving": 850000000.0,
-      "distance_diff_km": -0.535,
-      "feature_similarity": 0.95729,
-      "origin_n_listings": 2858,
-      "alternative_n_listings": 153,
-      "substitution_rank": 6
-    },
-    {
-      "alternative_district": "Quận 12",
-      "origin_median_price_per_m2": 96387175.32467532,
-      "alternative_median_price_per_m2": 82031250.0,
-      "price_gap_pct": 0.14894,
-      "typical_budget_saving": 950000000.0,
-      "distance_diff_km": 0.645,
-      "feature_similarity": 0.960502,
-      "origin_n_listings": 2858,
-      "alternative_n_listings": 741,
-      "substitution_rank": 7
-    },
-    {
       "alternative_district": "Thành phố Thủ Đức",
-      "origin_median_price_per_m2": 96387175.32467532,
-      "alternative_median_price_per_m2": 90069444.44444445,
-      "price_gap_pct": 0.065545,
-      "typical_budget_saving": 600000000.0,
-      "distance_diff_km": -0.258,
-      "feature_similarity": 0.972466,
-      "origin_n_listings": 2858,
-      "alternative_n_listings": 1518,
-      "substitution_rank": 8
+      "origin_median_price_per_m2": 96428571.42857143,
+      "alternative_median_price_per_m2": 89959128.06539509,
+      "price_gap_pct": 0.067091,
+      "target_area": 62.0,
+      "estimated_saving_at_target_area": 401105488.51693344,
+      "median_total_price_diff": 610000000.0,
+      "distance_diff_km": -0.011,
+      "feature_similarity": 0.973843,
+      "max_flag_share_gap": 0.056434,
+      "origin_n_listings": 2859,
+      "alternative_n_listings": 1656,
+      "substitution_rank": 5
     }
   ],
   "bq3_by_category": [
     {
       "category_label": "Nhà phố / nhà riêng",
-      "pairs": 2657,
-      "median_gap": 0.4807,
-      "median_distance_diff": 4.7
+      "pairs": 2053,
+      "median_gap": 0.4201,
+      "median_distance_diff": 4.14,
+      "total_not_lower": 94
     },
     {
       "category_label": "Căn hộ chung cư",
-      "pairs": 856,
-      "median_gap": 0.4006,
-      "median_distance_diff": 2.75
+      "pairs": 579,
+      "median_gap": 0.2736,
+      "median_distance_diff": 2.5,
+      "total_not_lower": 34
     },
     {
       "category_label": "Đất",
-      "pairs": 625,
-      "median_gap": 0.5446,
-      "median_distance_diff": 4.94
+      "pairs": 488,
+      "median_gap": 0.5351,
+      "median_distance_diff": 4.71,
+      "total_not_lower": 25
     },
     {
       "category_label": "Biệt thự / liền kề / shophouse",
-      "pairs": 485,
-      "median_gap": 0.4421,
-      "median_distance_diff": 4.39
+      "pairs": 340,
+      "median_gap": 0.4457,
+      "median_distance_diff": 4.25,
+      "total_not_lower": 29
     },
     {
       "category_label": "Phòng trọ / thương mại / khác",
-      "pairs": 43,
-      "median_gap": 0.6363,
-      "median_distance_diff": 3.16
+      "pairs": 25,
+      "median_gap": 0.6025,
+      "median_distance_diff": 3.14,
+      "total_not_lower": 0
     }
   ],
   "dq_kpi": [
@@ -11451,7 +11678,7 @@
       "current_rows": 47387,
       "rent_rows": 0,
       "fact_rows": 47387,
-      "representative_rows": 47052,
+      "representative_rows": 47092,
       "pass_rows": 22023,
       "warn_rows": 72162,
       "pass_rate": 0.23219,
@@ -11462,16 +11689,16 @@
         "DQ08:50673",
         "DQ04:5"
       ],
-      "dup_suspect_rows": 553,
-      "dup_suspect_rate": 0.01167,
+      "dup_suspect_rows": 578,
+      "dup_suspect_rate": 0.012197,
       "coverage_price_known": 0.999916,
       "coverage_area_known": 0.999958,
       "coverage_rooms_known": 0.509781,
-      "coverage_location_known": 0.996138,
+      "coverage_location_known": 0.99656,
       "coverage_legal_known": 0.067339,
       "coverage_coordinate": 0.37466,
-      "coverage_province": 0.996138,
-      "avg_feature_completeness": 0.714626
+      "coverage_province": 0.99656,
+      "avg_feature_completeness": 0.714711
     },
     {
       "source_key": 7,
@@ -11485,7 +11712,7 @@
       "current_rows": 28928,
       "rent_rows": 0,
       "fact_rows": 28928,
-      "representative_rows": 28877,
+      "representative_rows": 28835,
       "pass_rows": 35433,
       "warn_rows": 3071,
       "pass_rate": 0.920242,
@@ -11494,8 +11721,8 @@
       "top_warn_reasons": [
         "DQ04:3071"
       ],
-      "dup_suspect_rows": 111,
-      "dup_suspect_rate": 0.003837,
+      "dup_suspect_rows": 232,
+      "dup_suspect_rate": 0.00802,
       "coverage_price_known": 0.922877,
       "coverage_area_known": 1.0,
       "coverage_rooms_known": 0.785502,
@@ -11517,26 +11744,25 @@
       "current_rows": 17336,
       "rent_rows": 0,
       "fact_rows": 17336,
-      "representative_rows": 17098,
-      "pass_rows": 26978,
-      "warn_rows": 533,
-      "pass_rate": 0.980626,
-      "warn_rate": 0.019374,
+      "representative_rows": 17183,
+      "pass_rows": 27100,
+      "warn_rows": 411,
+      "pass_rate": 0.985061,
+      "warn_rate": 0.014939,
       "reject_rate": 0.0,
       "top_warn_reasons": [
-        "DQ09:411",
-        "DQ07:130"
+        "DQ09:411"
       ],
-      "dup_suspect_rows": 384,
-      "dup_suspect_rate": 0.02215,
+      "dup_suspect_rows": 392,
+      "dup_suspect_rate": 0.022612,
       "coverage_price_known": 1.0,
       "coverage_area_known": 1.0,
       "coverage_rooms_known": 0.620155,
-      "coverage_location_known": 0.987713,
+      "coverage_location_known": 1.0,
       "coverage_legal_known": 0.281784,
       "coverage_coordinate": 0.983964,
-      "coverage_province": 0.987713,
-      "avg_feature_completeness": 0.77793
+      "coverage_province": 1.0,
+      "avg_feature_completeness": 0.780388
     },
     {
       "source_key": 5,
@@ -11550,22 +11776,22 @@
       "current_rows": 19075,
       "rent_rows": 14484,
       "fact_rows": 4591,
-      "representative_rows": 4519,
+      "representative_rows": 4523,
       "pass_rows": 19075,
       "warn_rows": 0,
       "pass_rate": 1.0,
       "warn_rate": 0.0,
       "reject_rate": 0.0,
       "top_warn_reasons": null,
-      "dup_suspect_rows": 165,
-      "dup_suspect_rate": 0.03594,
+      "dup_suspect_rows": 167,
+      "dup_suspect_rate": 0.036376,
       "coverage_price_known": 1.0,
       "coverage_area_known": 1.0,
       "coverage_rooms_known": 0.651481,
       "coverage_location_known": 1.0,
       "coverage_legal_known": 0.012896,
       "coverage_coordinate": 0.325033,
-      "coverage_province": 0.351717,
+      "coverage_province": 1.0,
       "avg_feature_completeness": 0.732875
     },
     {
@@ -11580,7 +11806,7 @@
       "current_rows": 8152,
       "rent_rows": 90,
       "fact_rows": 8062,
-      "representative_rows": 7840,
+      "representative_rows": 7851,
       "pass_rows": 8151,
       "warn_rows": 1,
       "pass_rate": 0.999877,
@@ -11589,15 +11815,15 @@
       "top_warn_reasons": [
         "DQ08:1"
       ],
-      "dup_suspect_rows": 268,
-      "dup_suspect_rate": 0.033242,
+      "dup_suspect_rows": 261,
+      "dup_suspect_rate": 0.032374,
       "coverage_price_known": 1.0,
       "coverage_area_known": 0.999877,
       "coverage_rooms_known": 0.719455,
       "coverage_location_known": 1.0,
       "coverage_legal_known": 0.139475,
       "coverage_coordinate": 0.99264,
-      "coverage_province": 0.993131,
+      "coverage_province": 1.0,
       "avg_feature_completeness": 0.771762
     },
     {
@@ -11612,15 +11838,15 @@
       "current_rows": 1278,
       "rent_rows": 0,
       "fact_rows": 1278,
-      "representative_rows": 1254,
+      "representative_rows": 1253,
       "pass_rows": 1278,
       "warn_rows": 0,
       "pass_rate": 1.0,
       "warn_rate": 0.0,
       "reject_rate": 0.0,
       "top_warn_reasons": null,
-      "dup_suspect_rows": 46,
-      "dup_suspect_rate": 0.035994,
+      "dup_suspect_rows": 50,
+      "dup_suspect_rate": 0.039124,
       "coverage_price_known": 1.0,
       "coverage_area_known": 1.0,
       "coverage_rooms_known": 1.0,
@@ -11672,15 +11898,15 @@
       "current_rows": 566,
       "rent_rows": 176,
       "fact_rows": 390,
-      "representative_rows": 364,
+      "representative_rows": 366,
       "pass_rows": 566,
       "warn_rows": 0,
       "pass_rate": 1.0,
       "warn_rate": 0.0,
       "reject_rate": 0.0,
       "top_warn_reasons": null,
-      "dup_suspect_rows": 46,
-      "dup_suspect_rate": 0.117949,
+      "dup_suspect_rows": 48,
+      "dup_suspect_rate": 0.123077,
       "coverage_price_known": 1.0,
       "coverage_area_known": 1.0,
       "coverage_rooms_known": 0.515901,
@@ -11702,15 +11928,15 @@
       "current_rows": 363,
       "rent_rows": 184,
       "fact_rows": 179,
-      "representative_rows": 175,
+      "representative_rows": 174,
       "pass_rows": 363,
       "warn_rows": 0,
       "pass_rate": 1.0,
       "warn_rate": 0.0,
       "reject_rate": 0.0,
       "top_warn_reasons": null,
-      "dup_suspect_rows": 5,
-      "dup_suspect_rate": 0.027933,
+      "dup_suspect_rows": 6,
+      "dup_suspect_rate": 0.03352,
       "coverage_price_known": 1.0,
       "coverage_area_known": 1.0,
       "coverage_rooms_known": 0.38843,
@@ -11725,62 +11951,50 @@
     {
       "category_label": "Biệt thự / liền kề / shophouse",
       "direction": "giam",
-      "events": 42,
-      "median_pct": -0.0483
+      "events": 73,
+      "median_pct": -0.0503
     },
     {
       "category_label": "Biệt thự / liền kề / shophouse",
       "direction": "tang",
-      "events": 26,
-      "median_pct": 0.0128
+      "events": 34,
+      "median_pct": 0.0129
     },
     {
       "category_label": "Căn hộ chung cư",
       "direction": "giam",
-      "events": 261,
-      "median_pct": -0.0447
+      "events": 202,
+      "median_pct": -0.0443
     },
     {
       "category_label": "Căn hộ chung cư",
       "direction": "tang",
-      "events": 86,
-      "median_pct": 0.0764
+      "events": 70,
+      "median_pct": 0.0703
     },
     {
       "category_label": "Nhà phố / nhà riêng",
       "direction": "giam",
-      "events": 184,
-      "median_pct": -0.051
+      "events": 222,
+      "median_pct": -0.0492
     },
     {
       "category_label": "Nhà phố / nhà riêng",
       "direction": "tang",
-      "events": 27,
+      "events": 37,
       "median_pct": 0.0529
     },
     {
       "category_label": "Phòng trọ / thương mại / khác",
       "direction": "giam",
-      "events": 1,
-      "median_pct": -0.0682
+      "events": 2,
+      "median_pct": -0.1445
     },
     {
       "category_label": "Phòng trọ / thương mại / khác",
       "direction": "tang",
-      "events": 1,
-      "median_pct": 0.0105
-    },
-    {
-      "category_label": "Đất",
-      "direction": "giam",
-      "events": 11,
-      "median_pct": -0.0476
-    },
-    {
-      "category_label": "Đất",
-      "direction": "tang",
-      "events": 3,
-      "median_pct": 0.0206
+      "events": 2,
+      "median_pct": 0.1434
     }
   ],
   "schemas": {
@@ -11810,12 +12024,24 @@
         "string"
       ],
       [
+        "category_evidence",
+        "string"
+      ],
+      [
         "model_category",
         "string"
       ],
       [
         "model_category_method",
         "string"
+      ],
+      [
+        "title_model_category",
+        "string"
+      ],
+      [
+        "category_title_conflict",
+        "boolean"
       ],
       [
         "title_has_legal",
@@ -11836,6 +12062,10 @@
       [
         "title_has_car_access",
         "boolean"
+      ],
+      [
+        "title_negated_features",
+        "array<string>"
       ],
       [
         "price_known",
@@ -12060,6 +12290,18 @@
         "double"
       ],
       [
+        "location_dq_status",
+        "string"
+      ],
+      [
+        "is_location_conflict",
+        "boolean"
+      ],
+      [
+        "is_province_inferred_from_coordinates",
+        "boolean"
+      ],
+      [
         "title_has_legal",
         "boolean"
       ],
@@ -12105,6 +12347,10 @@
       ],
       [
         "dup_group_id",
+        "string"
+      ],
+      [
+        "dup_group_status",
         "string"
       ],
       [
@@ -12410,7 +12656,23 @@
         "double"
       ],
       [
-        "typical_budget_saving",
+        "target_area",
+        "double"
+      ],
+      [
+        "estimated_cost_origin_at_target_area",
+        "double"
+      ],
+      [
+        "estimated_cost_alternative_at_target_area",
+        "double"
+      ],
+      [
+        "estimated_saving_at_target_area",
+        "double"
+      ],
+      [
+        "median_total_price_diff",
         "double"
       ],
       [
@@ -12419,6 +12681,10 @@
       ],
       [
         "feature_similarity",
+        "double"
+      ],
+      [
+        "max_flag_share_gap",
         "double"
       ],
       [

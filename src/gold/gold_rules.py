@@ -35,6 +35,13 @@ DQ_STATUS_KEYS = {"PASS": 1, "WARN": 2}
 DUP_AREA_TOLERANCE = 0.02
 DUP_PRICE_TOLERANCE = 0.03
 DUP_MIN_TITLE_JACCARD = 0.35
+# (area tolerance, price tolerance, min title Jaccard) used for the
+# sensitivity check of the heuristic; "default" is what fact_listing applies.
+DUP_SENSITIVITY = {
+    "strict": (0.01, 0.02, 0.50),
+    "default": (DUP_AREA_TOLERANCE, DUP_PRICE_TOLERANCE, DUP_MIN_TITLE_JACCARD),
+    "loose": (0.03, 0.05, 0.25),
+}
 # Words present in most titles carry no identity signal.
 TITLE_STOPWORDS = {
     "ban", "can", "nha", "gap", "gia", "tot", "re", "chinh", "chu", "ty", "trieu",
@@ -155,6 +162,50 @@ def cluster_pairs(pairs: Iterable[tuple[str, str]]) -> dict[str, str]:
     return {item: find(item) for item in list(parent)}
 
 
+def mutual_best_pairs(pairs: Iterable[Mapping[str, Any]]) -> list[tuple[str, str]]:
+    """Keep a candidate pair only if each side is the other's best match in
+    that source (highest title Jaccard, then smallest price and area gap).
+
+    Without this, one generic listing can link several listings of another
+    source and union-find chains unrelated listings into one group.
+    """
+
+    pairs = list(pairs)
+    best: dict[tuple[str, str], tuple[tuple[Any, ...], str]] = {}
+
+    def offer(me: str, other: str, other_source: str, pair: Mapping[str, Any]) -> None:
+        key = (-pair["jaccard"], pair["price_gap"], pair["area_gap"], other)
+        current = best.get((me, other_source))
+        if current is None or key < current[0]:
+            best[(me, other_source)] = (key, other)
+
+    for pair in pairs:
+        offer(pair["left"], pair["right"], pair["right_source"], pair)
+        offer(pair["right"], pair["left"], pair["left_source"], pair)
+    return sorted(
+        (pair["left"], pair["right"])
+        for pair in pairs
+        if best[(pair["left"], pair["right_source"])][1] == pair["right"]
+        and best[(pair["right"], pair["left_source"])][1] == pair["left"]
+    )
+
+
+def resolve_dup_groups(groups: Mapping[str, str], source_of: Mapping[str, str]) -> dict[str, str]:
+    """Group status: RESOLVED (one listing per source) or AMBIGUOUS.
+
+    A group holding two listings of the same source cannot be one property
+    seen on several sites; its members are kept (not collapsed).
+    """
+
+    sources: dict[str, list[str]] = {}
+    for member, group in groups.items():
+        sources.setdefault(group, []).append(source_of[member])
+    return {
+        group: "AMBIGUOUS" if len(set(found)) < len(found) else "RESOLVED"
+        for group, found in sources.items()
+    }
+
+
 def pick_representative(members: Iterable[Mapping[str, Any]]) -> str:
     """Highest completeness, then most recent observation, then smallest id."""
 
@@ -174,10 +225,17 @@ def pick_representative(members: Iterable[Mapping[str, Any]]) -> str:
 # listings; smaller groups fall back to a coarser benchmark level.
 MIN_PEER_GROUP_SIZE = 5
 BENCHMARK_LEVELS = ("LOC_CAT_AREA_ROOM", "LOC_CAT_AREA", "LOC_CAT")
-PRICE_POSITIONS = ("thap", "hop_ly", "cao", "khong_du_du_lieu")
-# Area substitution: alternatives must be at least this similar in amenity
-# profile (1 - mean absolute difference of the five title-flag shares).
+# Position against the peer group's P25-P75 range. A descriptive position, not
+# a judgement that a price is fair.
+PRICE_POSITIONS = ("duoi_p25", "p25_p75", "tren_p75", "khong_du_du_lieu")
+# Area substitution: the title-flag profile of the two groups must be at least
+# this similar (1 - mean absolute difference of the five flag shares) and no
+# single flag share may differ by more than MAX_FLAG_SHARE_GAP, so a group
+# without street frontage never substitutes for one where all have it.
+# Similarity compares how often titles *mention* features; it does not show
+# that two groups of properties are equivalent.
 MIN_SUBSTITUTION_SIMILARITY = 0.8
+MAX_FLAG_SHARE_GAP = 0.3
 FEATURE_FLAGS = ("legal", "furnished", "frontage", "elevator", "car_access")
 
 
@@ -187,38 +245,53 @@ def price_position(value: Any, p25: Any, p75: Any) -> str:
     if value is None or p25 is None or p75 is None:
         return "khong_du_du_lieu"
     if value < p25:
-        return "thap"
+        return "duoi_p25"
     if value > p75:
-        return "cao"
-    return "hop_ly"
+        return "tren_p75"
+    return "p25_p75"
+
+
+def _rooms_at_least(better: Any, worse: Any) -> bool:
+    """Unknown rooms are not comparable with known rooms (never 0)."""
+
+    if better is None or worse is None:
+        return better is None and worse is None
+    return better >= worse
 
 
 def _dominates(better: Mapping[str, Any], worse: Mapping[str, Any]) -> bool:
     criteria = [
         better["price"] <= worse["price"],
         better["area"] >= worse["area"],
-        better["rooms"] >= worse["rooms"],
+        _rooms_at_least(better["rooms"], worse["rooms"]),
         *(b >= w for b, w in zip(better["flags"], worse["flags"])),
     ]
     strictly = (
         better["price"] < worse["price"] or better["area"] > worse["area"]
-        or better["rooms"] > worse["rooms"]
+        or (better["rooms"] is not None and worse["rooms"] is not None and better["rooms"] > worse["rooms"])
         or any(b > w for b, w in zip(better["flags"], worse["flags"]))
     )
     return all(criteria) and strictly
 
 
 def pareto_efficient_ids(items: Iterable[Mapping[str, Any]]) -> set[str]:
-    """Listings not dominated on price (lower), area, rooms and every flag (higher).
+    """Listings not dominated within one comparison group.
 
-    Unknown rooms count as 0, so a listing never wins on rooms it does not state.
-    A dominator always sorts no later than the listing it dominates, and
-    dominance is transitive, so comparing against the frontier is sufficient.
+    Criteria: lower price; larger area; more rooms; each title flag. A flag is
+    TRUE only when the title states it, so "not dominated" is relative to the
+    extracted information, not to the real property. Unknown rooms are
+    incomparable with known rooms, so a listing is never beaten on rooms it
+    does not state. Dominance is transitive and a dominator always sorts no
+    later than the listing it dominates, so comparing against the frontier is
+    sufficient.
     """
 
     ordered = sorted(
         items,
-        key=lambda item: (item["price"], -item["area"], -item["rooms"], -sum(item["flags"]), item["source_id"]),
+        key=lambda item: (
+            item["price"], -item["area"], -(item["rooms"] if item["rooms"] is not None else -1),
+            -sum(item["flags"]), item["source_id"],
+        ),
     )
     frontier: list[Mapping[str, Any]] = []
     for item in ordered:
@@ -232,3 +305,17 @@ def feature_similarity(left: Mapping[str, float], right: Mapping[str, float]) ->
 
     differences = [abs((left.get(flag) or 0.0) - (right.get(flag) or 0.0)) for flag in FEATURE_FLAGS]
     return round(1.0 - sum(differences) / len(differences), 6)
+
+
+def max_flag_share_gap(left: Mapping[str, float], right: Mapping[str, float]) -> float:
+    return round(max(abs((left.get(f) or 0.0) - (right.get(f) or 0.0)) for f in FEATURE_FLAGS), 6)
+
+
+def cost_at_target_area(median_price_per_m2: float, target_area: float) -> float:
+    """Estimated cost of ``target_area`` m² at a group's median price per m².
+
+    Comparing two groups at the *same* area avoids the trap of a lower price
+    per m² on a larger typical area meaning a larger total budget.
+    """
+
+    return median_price_per_m2 * target_area

@@ -44,3 +44,32 @@ def test_nhadatvui_transformer():
     assert row["source_id"]=="nhadatvui_n1"
 
 def test_haversine_zero(): assert haversine_km(10.0,106.0,10.0,106.0)==0.0
+
+
+# --- Regression: category evidence in Silver Core (review 2026-10-09) -------
+from src.silver.build_listing_core import (
+    build_batdongsan_observation, compose_nhadatvui_address, map_batdongsan_category,
+    map_guland_category, map_nhadatvui_category, _map_general_category,
+)
+
+def test_batdongsan_uses_taxonomy_not_endpoint():
+    assert map_batdongsan_category({"category_id":"41","title":"Bán nhà 3 tầng 73m2"})==("house","Nhà ở","SOURCE_STRUCTURED")
+    assert map_batdongsan_category({"category_id":"324"})[0]=="apartment"
+    assert map_batdongsan_category({"listing_url":"https://batdongsan.com.vn/ban-nha-rieng-duong-x/pr1"})[0]=="house"
+
+def test_batdongsan_unknown_category_is_not_apartment():
+    assert map_batdongsan_category({"title":"Hẻm ô tô nhà đẹp 5 tầng"})==(None,None,"NONE")
+    obs=build_batdongsan_observation({"listing_id":"1","title":"Hẻm ô tô nhà đẹp 5 tầng"},batch_id="20261002")
+    assert obs["category_id"] is None and obs["category_evidence"]=="NONE" and "DQ07" in obs["dq_reasons"]
+
+def test_general_category_ignores_project_names():
+    assert _map_general_category("Căn hộ Đất Xanh 2PN")==("apartment","Căn hộ chung cư")
+    assert _map_general_category("datxanh update")==(None,None)
+
+def test_nhadatvui_slug_and_address():
+    assert map_nhadatvui_category({"product_slug":"mua-ban-nha-rieng"})==("house","Nhà ở","SOURCE_STRUCTURED")
+    assert compose_nhadatvui_address({"address":"Đại Hiệp, ","ward_name":"Xã Đại Lộc","province_name":"Thành phố Đà Nẵng"})=="Đại Hiệp, Xã Đại Lộc, Thành phố Đà Nẵng"
+
+def test_guland_endpoint_default_is_marked():
+    assert map_guland_category({"features":'["Hẻm xe hơi"]'})==("house","Nhà ở","ENDPOINT_CONTEXT")
+    assert map_guland_category({"features":'["Nhà phố"]'})[2]=="SOURCE_LABEL"

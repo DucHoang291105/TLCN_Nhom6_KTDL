@@ -18,6 +18,7 @@ import json
 import os
 import re
 import tempfile
+import unicodedata
 from collections import Counter
 from datetime import date, datetime
 from pathlib import Path
@@ -50,7 +51,16 @@ OBSERVATION_METADATA_COLUMNS = [
     "dq_status",
     "dq_reasons",
     "completeness_score",
+    "category_evidence",
 ]
+
+# Where ``category_name`` comes from, strongest first. Stored on
+# listing_observation (not in the 27 canonical columns) so listing_feature can
+# weigh a site taxonomy differently from an endpoint assumption.
+CATEGORY_EVIDENCE_STRUCTURED = "SOURCE_STRUCTURED"  # site taxonomy id / slug
+CATEGORY_EVIDENCE_LABEL = "SOURCE_LABEL"  # site text label or tag
+CATEGORY_EVIDENCE_ENDPOINT = "ENDPOINT_CONTEXT"  # only the crawled endpoint
+CATEGORY_EVIDENCE_NONE = "NONE"
 
 GULAND_SOURCE_GROUP = "mua_ban_nha_mat_pho_mat_tien"
 BATDONGSAN_SOURCE_GROUP = "ban_can_ho_chung_cu"
@@ -62,6 +72,47 @@ BATDONGSAN_POSTED_FIELDS = (
 )
 BATDONGSAN_LAT_FIELDS = ("lat", "latitude")
 BATDONGSAN_LON_FIELDS = ("lon", "lng", "longitude")
+
+# Batdongsan taxonomy. The crawler starts from /ban-can-ho-chung-cu, but the
+# result pages also contain other property types (category_id and the listing
+# URL prefix agree), so the endpoint is not evidence of an apartment.
+BATDONGSAN_CATEGORY_IDS: dict[str, tuple[str, str]] = {
+    "324": ("apartment", "Căn hộ chung cư"),
+    "650": ("apartment", "Căn hộ chung cư"),  # căn hộ chung cư mini
+    "41": ("house", "Nhà ở"),  # nhà riêng
+    "163": ("house", "Nhà ở"),  # nhà mặt phố
+    "325": ("villa", "Biệt thự"),  # nhà biệt thự, liền kề
+    "575": ("shophouse", "Shophouse"),
+    "562": ("condotel", "Condotel"),
+    "45": ("commercial", "Bất động sản thương mại"),  # kho, nhà xưởng
+    "44": ("farm_resort", "Trang trại, khu nghỉ dưỡng"),
+    "48": ("other", "Bất động sản khác"),
+}
+# Listing URL prefixes, used only when category_id is missing.
+BATDONGSAN_URL_PREFIXES: tuple[tuple[str, str], ...] = (
+    ("ban-can-ho-chung-cu", "324"),
+    ("ban-nha-rieng", "41"),
+    ("ban-nha-mat-pho", "163"),
+    ("ban-nha-biet-thu-lien-ke", "325"),
+    ("ban-shophouse-nha-pho-thuong-mai", "575"),
+    ("ban-condotel", "562"),
+    ("ban-kho-nha-xuong", "45"),
+    ("ban-trang-trai-khu-nghi-duong", "44"),
+    ("ban-loai-bat-dong-san-khac", "48"),
+)
+NHADATVUI_PRODUCT_SLUGS: dict[str, tuple[str, str]] = {
+    "mua-ban-can-ho-chung-cu": ("apartment", "Căn hộ chung cư"),
+    "mua-ban-nha-rieng": ("house", "Nhà ở"),
+    "mua-ban-nha-mat-pho": ("house", "Nhà ở"),
+    "mua-ban-dat": ("land", "Đất"),
+    "mua-ban-biet-thu": ("villa", "Biệt thự"),
+    "mua-ban-shophouse": ("shophouse", "Shophouse"),
+    "mua-ban-condotel": ("condotel", "Condotel"),
+    "mua-ban-kho-nha-xuong": ("commercial", "Bất động sản thương mại"),
+    "mua-ban-van-phong": ("commercial", "Bất động sản thương mại"),
+    "mua-ban-khu-nghi-duong-trang-trai": ("farm_resort", "Trang trại, khu nghỉ dưỡng"),
+    "mua-ban-bat-dong-san-khac": ("other", "Bất động sản khác"),
+}
 
 # Priority matters: a listing can contain both a broad house label and a more
 # specific label such as Shophouse or Biệt thự.
@@ -85,8 +136,9 @@ GULAND_CATEGORY_RULES: tuple[tuple[str, str, set[str]], ...] = (
     ),
 )
 
+# Matched per source *label* field (never on titles), on folded text with word
+# boundaries, so "Đất" does not match inside a project name such as "Đất Xanh".
 GENERAL_CATEGORY_RULES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
-    ("land", "Đất", ("đất", "dat", "land")),
     ("officetel", "Officetel", ("officetel", "offictel")),
     ("shophouse", "Shophouse", ("shophouse",)),
     ("villa", "Biệt thự", ("biệt thự", "biet thu", "villa")),
@@ -108,6 +160,8 @@ GENERAL_CATEGORY_RULES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
             "commercial",
         ),
     ),
+    # Land after the specific types: "Đất" also appears in names (Đất Xanh).
+    ("land", "Đất", ("đất", "dat", "land")),
     (
         "house",
         "Nhà ở",
@@ -200,20 +254,6 @@ def _parse_guland_location(value: Any) -> tuple[str | None, str | None, str | No
     return address, ward, district
 
 
-def _map_guland_category(value: Any) -> tuple[str | None, str | None]:
-    features = _parse_list(value)
-    normalized = {feature.casefold() for feature in features}
-
-    for category_id, category_name, source_labels in GULAND_CATEGORY_RULES:
-        if normalized.intersection(label.casefold() for label in source_labels):
-            return category_id, category_name
-
-    # The crawler's verified endpoint is mua-ban-nha-mat-pho-mat-tien. Many
-    # cards only expose amenity labels (for example "Hẻm xe hơi") and omit a
-    # property-type feature, so the endpoint is the reliable category fallback.
-    return "house", "Nhà ở"
-
-
 def _guland_posted_at(posted_text: Any, scraped_at: datetime | None) -> datetime | None:
     if scraped_at is None:
         return None
@@ -245,9 +285,7 @@ def transform_guland_record(raw_record: Mapping[str, Any]) -> dict[str, Any]:
     address, ward, district_name = _parse_guland_location(
         raw_record.get("location_rows")
     )
-    category_id, category_name = _map_guland_category(
-        raw_record.get("features")
-    )
+    category_id, category_name, _ = map_guland_category(raw_record)
     lat, lon, has_coord = normalize_coordinates(
         raw_record.get("lat"),
         raw_record.get("lon"),
@@ -313,17 +351,94 @@ def _first_url(value: Any) -> str | None:
     return None
 
 
-def _map_general_category(*values: Any) -> tuple[str | None, str | None]:
-    texts: list[str] = []
-    for value in values:
-        texts.extend(_parse_list(value))
+def _fold(value: Any) -> str:
+    text = unicodedata.normalize("NFKD", str(value or ""))
+    text = "".join(char for char in text if not unicodedata.combining(char))
+    text = text.replace("đ", "d").replace("Đ", "D").casefold()
+    return " ".join(re.sub(r"[^a-z0-9]+", " ", text).split())
 
-    normalized = " | ".join(texts).casefold()
-    normalized = normalized.replace("-", " ").replace("_", " ")
-    for category_id, category_name, patterns in GENERAL_CATEGORY_RULES:
-        if any(pattern.casefold() in normalized for pattern in patterns):
-            return category_id, category_name
+
+_GENERAL_CATEGORY_INDEX = tuple(
+    (
+        category_id,
+        category_name,
+        tuple(re.compile(rf"(?:^| ){re.escape(_fold(p))}(?= |$)") for p in patterns),
+    )
+    for category_id, category_name, patterns in GENERAL_CATEGORY_RULES
+)
+
+
+def _map_general_category(*values: Any) -> tuple[str | None, str | None]:
+    """Map source *label* fields, checked one field at a time in the given order.
+
+    Fields are never concatenated, so a keyword in one field cannot override
+    the label of another.
+    """
+
+    for value in values:
+        for text in _parse_list(value):
+            folded = _fold(text)
+            for category_id, category_name, patterns in _GENERAL_CATEGORY_INDEX:
+                if any(pattern.search(folded) for pattern in patterns):
+                    return category_id, category_name
     return None, None
+
+
+def map_batdongsan_category(raw_record: Mapping[str, Any]) -> tuple[str | None, str | None, str]:
+    """Category from Batdongsan's taxonomy id, else its listing URL prefix."""
+
+    category_key = clean_text(raw_record.get("category_id"))
+    if category_key in BATDONGSAN_CATEGORY_IDS:
+        return (*BATDONGSAN_CATEGORY_IDS[category_key], CATEGORY_EVIDENCE_STRUCTURED)
+    url = clean_text(raw_record.get("listing_url")) or ""
+    path = re.sub(r"^https?://[^/]+/", "", url)
+    for prefix, key in BATDONGSAN_URL_PREFIXES:
+        if path.startswith(prefix):
+            return (*BATDONGSAN_CATEGORY_IDS[key], CATEGORY_EVIDENCE_STRUCTURED)
+    # No default: the title is left to listing_feature, which records the method.
+    return None, None, CATEGORY_EVIDENCE_NONE
+
+
+def map_nhadatvui_category(raw_record: Mapping[str, Any]) -> tuple[str | None, str | None, str]:
+    slug = (clean_text(raw_record.get("product_slug")) or "").casefold()
+    if slug in NHADATVUI_PRODUCT_SLUGS:
+        category_id, category_name = NHADATVUI_PRODUCT_SLUGS[slug]
+        if category_id == "apartment" and _fold(raw_record.get("property_subtype")) == "officetel":
+            category_id, category_name = "officetel", "Officetel"
+        return category_id, category_name, CATEGORY_EVIDENCE_STRUCTURED
+    category_id, category_name = _map_general_category(
+        raw_record.get("product_name"), raw_record.get("property_subtype")
+    )
+    evidence = CATEGORY_EVIDENCE_LABEL if category_id else CATEGORY_EVIDENCE_NONE
+    return category_id, category_name, evidence
+
+
+def map_guland_category(raw_record: Mapping[str, Any]) -> tuple[str | None, str | None, str]:
+    features = {feature.casefold() for feature in _parse_list(raw_record.get("features"))}
+    for category_id, category_name, source_labels in GULAND_CATEGORY_RULES:
+        if features.intersection(label.casefold() for label in source_labels):
+            return category_id, category_name, CATEGORY_EVIDENCE_LABEL
+    # Only the crawled endpoint (mua-ban-nha-mat-pho-mat-tien) says "house";
+    # listing_feature lets clear title evidence override this weak default.
+    return "house", "Nhà ở", CATEGORY_EVIDENCE_ENDPOINT
+
+
+def compose_nhadatvui_address(raw_record: Mapping[str, Any]) -> str | None:
+    """Raw address completed with the structured ward and province fields.
+
+    Most NhaDatVui rows have an empty ``address``; without the structured
+    ``province_name`` listing_location had to guess the province from the title.
+    """
+
+    raw = clean_text(raw_record.get("address")) or ""
+    parts = [part.strip() for part in raw.split(",") if part.strip()]
+    seen = {_fold(part) for part in parts}
+    for field in ("ward_name", "province_name"):
+        value = clean_text(raw_record.get(field))
+        if value and _fold(value) not in seen:
+            parts.append(value)
+            seen.add(_fold(value))
+    return ", ".join(parts) or None
 
 
 def _parse_location_text(value: Any) -> tuple[str | None, str | None]:
@@ -376,14 +491,7 @@ def transform_batdongsan_record(raw_record: Mapping[str, Any]) -> dict[str, Any]
 
     address = clean_text(raw_record.get("location_text"))
     ward, district_name = _parse_location_text(address)
-    category_id, category_name = _map_general_category(
-        raw_record.get("product_type"),
-        raw_record.get("page_type"),
-        raw_record.get("title"),
-    )
-    if category_id is None:
-        # START_URL is the verified ban-can-ho-chung-cu endpoint.
-        category_id, category_name = "apartment", "Căn hộ chung cư"
+    category_id, category_name, _ = map_batdongsan_category(raw_record)
 
     ad_url = normalize_url(raw_record.get("listing_url"))
     source_url = ad_url or normalize_url(raw_record.get("_crawl_url"))
@@ -464,11 +572,7 @@ def transform_nhadatvui_record(raw_record: Mapping[str, Any]) -> dict[str, Any]:
         raw_record.get("product_slug"),
         raw_record.get("product_name"),
     )
-    category_id, category_name = _map_general_category(
-        raw_record.get("product_slug"),
-        raw_record.get("product_name"),
-        raw_record.get("property_subtype"),
-    )
+    category_id, category_name, _ = map_nhadatvui_category(raw_record)
 
     scraped_at = parse_timestamp(raw_record.get("_scraped_at"))
     posted_at = parse_epoch_milliseconds(raw_record.get("public_date_ms"))
@@ -486,7 +590,7 @@ def transform_nhadatvui_record(raw_record: Mapping[str, Any]) -> dict[str, Any]:
         "price_str": raw_price_text,
         "area": area,
         "rooms": rooms,
-        "address": clean_text(raw_record.get("address")),
+        "address": compose_nhadatvui_address(raw_record),
         "ward": clean_text(raw_record.get("ward_name")),
         "district_id": None,  # Source CSV has no direct district field.
         "district_name": None,
@@ -563,6 +667,7 @@ def _build_observation(
     default_source_file: str,
     bronze_path: str | None = None,
     source_unavailable_rules: Collection[str] = (),
+    category_evidence: str = CATEGORY_EVIDENCE_NONE,
 ) -> dict[str, Any]:
     """Attach technical metadata to a canonical Core record."""
 
@@ -591,6 +696,7 @@ def _build_observation(
         "dq_status": dq_status,
         "dq_reasons": dq_reasons,
         "completeness_score": calculate_completeness_score(core),
+        "category_evidence": category_evidence if core.get("category_name") else CATEGORY_EVIDENCE_NONE,
     }
     return observation
 
@@ -607,6 +713,7 @@ def build_guland_observation(
         batch_id=batch_id,
         default_source_file="guland_raw.csv",
         bronze_path=bronze_path,
+        category_evidence=map_guland_category(raw_record)[2],
     )
 
 
@@ -631,6 +738,7 @@ def build_batdongsan_observation(
         default_source_file="batdongsan_raw.csv",
         bronze_path=bronze_path,
         source_unavailable_rules=source_unavailable_rules,
+        category_evidence=map_batdongsan_category(raw_record)[2],
     )
 
 
@@ -646,6 +754,7 @@ def build_nhadatvui_observation(
         batch_id=batch_id,
         default_source_file="nhadatvui_raw.csv",
         bronze_path=bronze_path,
+        category_evidence=map_nhadatvui_category(raw_record)[2],
     )
 
 

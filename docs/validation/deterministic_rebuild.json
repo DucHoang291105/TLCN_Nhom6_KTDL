@@ -1,162 +1,269 @@
 {
-  "generated_at": "2026-10-09T09:33:13.592123+00:00",
+  "generated_at": "2026-10-09T16:29:24.022243+00:00",
+  "method": "two full Silver+Gold rebuilds from the same Bronze input; per table row count, distinct grain keys and an order-independent SHA-256 content hash (build-time columns excluded)",
   "tables_compared": 26,
   "tables": [
     {
       "table": "gold.agg_area_substitution",
-      "run1": 4666,
-      "run2": 4666,
-      "equal": true
+      "rows_run1": 3485,
+      "rows_run2": 3485,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "gold.agg_budget_tradeoff",
-      "run1": 2649,
-      "run2": 2649,
-      "equal": true
+      "rows_run1": 2455,
+      "rows_run2": 2455,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "gold.agg_dq_kpi",
-      "run1": 9,
-      "run2": 9,
-      "equal": true
+      "rows_run1": 9,
+      "rows_run2": 9,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "gold.agg_market_overview",
-      "run1": 158,
-      "run2": 158,
-      "equal": true
+      "rows_run1": 143,
+      "rows_run2": 143,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "gold.agg_peer_group_benchmark",
-      "run1": 2895,
-      "run2": 2895,
-      "equal": true
+      "rows_run1": 2616,
+      "rows_run2": 2616,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "gold.dim_area_band",
-      "run1": 7,
-      "run2": 7,
-      "equal": true
+      "rows_run1": 7,
+      "rows_run2": 7,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "gold.dim_date",
-      "run1": 2694,
-      "run2": 2694,
-      "equal": true
+      "rows_run1": 2694,
+      "rows_run2": 2694,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "gold.dim_dq_status",
-      "run1": 3,
-      "run2": 3,
-      "equal": true
+      "rows_run1": 3,
+      "rows_run2": 3,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "gold.dim_location",
-      "run1": 362,
-      "run2": 362,
-      "equal": true
+      "rows_run1": 272,
+      "rows_run2": 272,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "gold.dim_price_band",
-      "run1": 9,
-      "run2": 9,
-      "equal": true
+      "rows_run1": 9,
+      "rows_run2": 9,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "gold.dim_property_category",
-      "run1": 6,
-      "run2": 6,
-      "equal": true
+      "rows_run1": 6,
+      "rows_run2": 6,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "gold.dim_room_band",
-      "run1": 6,
-      "run2": 6,
-      "equal": true
+      "rows_run1": 6,
+      "rows_run2": 6,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "gold.dim_source",
-      "run1": 10,
-      "run2": 10,
-      "equal": true
+      "rows_run1": 10,
+      "rows_run2": 10,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "gold.dim_unit_price_band",
-      "run1": 8,
-      "run2": 8,
-      "equal": true
+      "rows_run1": 8,
+      "rows_run2": 8,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "gold.fact_budget_pareto",
-      "run1": 105397,
-      "run2": 105397,
-      "equal": true
+      "rows_run1": 105495,
+      "rows_run2": 105495,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "gold.fact_listing",
-      "run1": 108611,
-      "run2": 108611,
-      "equal": true
+      "rows_run1": 108611,
+      "rows_run2": 108611,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "gold.fact_listing_price_assessment",
-      "run1": 107635,
-      "run2": 107635,
-      "equal": true
+      "rows_run1": 107733,
+      "rows_run2": 107733,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "gold.fact_listing_price_change",
-      "run1": 642,
-      "run2": 642,
-      "equal": true
+      "rows_run1": 642,
+      "rows_run2": 642,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "silver.crawl_current_27",
-      "run1": 93651,
-      "run2": 93651,
-      "equal": true
+      "rows_run1": 93651,
+      "rows_run2": 93651,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "silver.historical_current_27",
-      "run1": 30317,
-      "run2": 30317,
-      "equal": true
+      "rows_run1": 30317,
+      "rows_run2": 30317,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "silver.listing_dq_quarantine",
-      "run1": 664,
-      "run2": 664,
-      "equal": true
+      "rows_run1": 664,
+      "rows_run2": 664,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": false,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "silver.listing_feature",
-      "run1": 123968,
-      "run2": 123968,
-      "equal": true
+      "rows_run1": 123968,
+      "rows_run2": 123968,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": [
+        "feature_built_at"
+      ]
     },
     {
       "table": "silver.listing_history",
-      "run1": 131416,
-      "run2": 131416,
-      "equal": true
+      "rows_run1": 131420,
+      "rows_run2": 131420,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "silver.listing_location",
-      "run1": 123968,
-      "run2": 123968,
-      "equal": true
+      "rows_run1": 123968,
+      "rows_run2": 123968,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "silver.listing_observation",
-      "run1": 190517,
-      "run2": 190517,
-      "equal": true
+      "rows_run1": 190517,
+      "rows_run2": 190517,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     },
     {
       "table": "silver.silver_listings_current_27",
-      "run1": 123968,
-      "run2": 123968,
-      "equal": true
+      "rows_run1": 123968,
+      "rows_run2": 123968,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "content_equal": true,
+      "excluded_columns": []
     }
   ],
   "status": "PASS",

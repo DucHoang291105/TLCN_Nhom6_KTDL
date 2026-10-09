@@ -7,6 +7,12 @@ level means "all bands".
 
 ``fact_listing_price_assessment``: one row per representative listing with
 the most specific published peer group, its price ratio and P25–P75 position.
+
+Scope: a descriptive benchmark. ``p25_p75`` only means "inside the peer
+group's middle half", not a fair price; peers can still differ in project,
+quality or legal status. ``feature_count_vs_peer`` counts title flags against
+the group's expectation; it does not measure how much of a price gap the
+features explain (that needs a hedonic model, not built in this phase).
 """
 
 from __future__ import annotations
@@ -90,16 +96,16 @@ def main() -> None:
         assessed = assessed.join(level_groups, keys, "left")
     for column in peer_columns:
         assessed = assessed.withColumn(column, F.coalesce(*[F.col(f"_{i}_{column}") for i in range(len(BENCHMARK_LEVELS))]))
-    # Coalesce: NULL price_per_m2 (negotiable price) must not fall through to "hop_ly".
+    # Coalesce: NULL price_per_m2 (negotiable price) must not fall through to "p25_p75".
     has_peer = F.col("peer_group_id").isNotNull() & F.coalesce(F.col("price_per_m2") > 0, F.lit(False))
 
     flag_count = sum(F.col(c).cast("int") for c in FLAG_COLUMNS)
     peer_flag_expectation = sum(F.col(c.replace("title_has_", "share_")) for c in FLAG_COLUMNS)
     position = (
         F.when(~has_peer, "khong_du_du_lieu")
-        .when(F.col("price_per_m2") < F.col("p25_price_per_m2"), "thap")
-        .when(F.col("price_per_m2") > F.col("p75_price_per_m2"), "cao")
-        .otherwise("hop_ly")
+        .when(F.col("price_per_m2") < F.col("p25_price_per_m2"), "duoi_p25")
+        .when(F.col("price_per_m2") > F.col("p75_price_per_m2"), "tren_p75")
+        .otherwise("p25_p75")
     )
     assessment = assessed.select(
         "source_id", "location_key", "property_category_key", "area_band_key", "room_band_key",
@@ -114,7 +120,7 @@ def main() -> None:
         position.alias("price_position"),
         flag_count.alias("feature_count"),
         F.when(has_peer, F.round(flag_count - peer_flag_expectation, 6)).alias("feature_count_vs_peer"),
-        (position.eqNullSafe("thap") & ~F.col("legal_known")).alias("is_low_price_missing_legal"),
+        (position.eqNullSafe("duoi_p25") & ~F.col("legal_known")).alias("is_low_price_missing_legal"),
     )
     write_iceberg_table(assessment, f"{gold}.fact_listing_price_assessment")
     written = spark.table(f"{gold}.fact_listing_price_assessment")

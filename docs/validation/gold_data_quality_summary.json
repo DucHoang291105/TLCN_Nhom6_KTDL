@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-10-09T09:31:35.987501+00:00",
-  "finished_at": "2026-10-09T09:32:00.084229+00:00",
+  "started_at": "2026-10-09T16:27:11.828408+00:00",
+  "finished_at": "2026-10-09T16:27:30.499676+00:00",
   "rows": 9,
   "totals": {
     "bronze_rows": 195141,
@@ -10,10 +10,10 @@
     "observation_rows": 190517,
     "current_rows": 123968,
     "fact_rows": 108611,
-    "representative_rows": 107635,
-    "pass_rows": 114750,
-    "warn_rows": 75767,
-    "dup_suspect_rows": 1582
+    "representative_rows": 107733,
+    "pass_rows": 114872,
+    "warn_rows": 75645,
+    "dup_suspect_rows": 1738
   },
   "status": "PASS"
 }

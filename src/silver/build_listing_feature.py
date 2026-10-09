@@ -69,7 +69,7 @@ def main() -> None:
     observation = (
         spark.table(observation_table)
         .withColumn("_rank", F.row_number().over(latest)).filter("_rank = 1")
-        .select("source_id", "dq_status", "record_hash")
+        .select("source_id", "dq_status", "record_hash", "category_evidence")
     )
 
     input_rows = current.count()
@@ -78,14 +78,16 @@ def main() -> None:
     if missing_observation:
         raise RuntimeError(f"{missing_observation:,} current rows have no source observation")
 
-    boolean_columns = set(FLAG_COLUMNS + KNOWN_COLUMNS) | {"is_rent"}
+    boolean_columns = set(FLAG_COLUMNS + KNOWN_COLUMNS) | {"is_rent", "category_title_conflict"}
     schema = T.StructType([
         T.StructField(
             column,
             T.BooleanType() if column in boolean_columns
+            else T.ArrayType(T.StringType()) if column == "title_negated_features"
             else T.DoubleType() if column == "feature_completeness_score"
             else T.StringType(),
-            column in {"is_rent", "dq_status", "record_hash", "category_name", "source"},
+            column in {"is_rent", "dq_status", "record_hash", "category_name", "source",
+                       "category_evidence", "title_model_category"},
         )
         for column in FEATURE_COLUMNS
     ])
@@ -132,6 +134,12 @@ def main() -> None:
         "category_name_counts": raw_categories,
         "model_category_counts": category_counts,
         "model_category_method_counts": grouped_counts("model_category_method"),
+        "category_evidence_counts": grouped_counts("category_evidence"),
+        "category_title_conflict_rows": feature.filter("category_title_conflict").count(),
+        "category_title_conflict_by_source": {
+            str(r["source"]): int(r["count"])
+            for r in feature.filter("category_title_conflict").groupBy("source").count().collect()
+        },
         "model_category_unmapped_share": round(unmapped_share, 6),
         "true_rates": {column: round(float(rates[column]), 6) for column in FLAG_COLUMNS + KNOWN_COLUMNS},
         "is_rent_counts": grouped_counts("is_rent"),

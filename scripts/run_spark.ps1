@@ -1,6 +1,8 @@
 ﻿param(
     [Parameter(Mandatory=$true)]
-    [string]$App
+    [string]$App,
+    [Parameter(ValueFromRemainingArguments=$true)]
+    [string[]]$AppArgs
 )
 
 $containerPath = "/opt/project/" + ($App -replace "\\", "/")
@@ -11,7 +13,7 @@ docker exec -e PYTHONPATH=/opt/project tlcn_spark_master `
     --conf spark.jars.ivy=/tmp/.ivy2 `
     --conf spark.executorEnv.PYTHONPATH=/opt/project `
     --packages org.apache.hadoop:hadoop-aws:3.3.4,org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.11.0,org.apache.iceberg:iceberg-aws-bundle:1.11.0 `
-    $containerPath
+    $containerPath @AppArgs
 $jobExitCode = $LASTEXITCODE
 
 # Each application copies ~370 MB of dependency jars into the worker work dir

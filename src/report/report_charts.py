@@ -150,8 +150,8 @@ def horizontal_bars(path: Path, labels: Sequence[str], values: Sequence[float], 
 
 
 def position_stacked(path: Path, categories: Sequence[str], shares: dict[str, Sequence[float]]) -> Path:
-    order = [("thap", "Thấp (< P25)", BLUE), ("hop_ly", "Hợp lý (P25–P75)", NEUTRAL),
-             ("cao", "Cao (> P75)", RED), ("khong_du_du_lieu", "Không đủ dữ liệu", "#f0efec")]
+    order = [("duoi_p25", "Dưới P25", BLUE), ("p25_p75", "Trong P25–P75", NEUTRAL),
+             ("tren_p75", "Trên P75", RED), ("khong_du_du_lieu", "Không đủ dữ liệu", "#f0efec")]
     fig, ax = plt.subplots(figsize=(9, 0.55 * len(categories) + 1.4))
     positions = list(range(len(categories)))[::-1]
     left = [0.0] * len(categories)

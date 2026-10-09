@@ -7,6 +7,13 @@ representative listings with a known price band.
 and area; ``is_pareto_efficient`` is TRUE when no other listing in the same
 (price_band, location, model_category) is cheaper-or-equal and at least as
 good on area, rooms and every title flag, and strictly better on one.
+
+Scope (deliberate): Pareto is computed *within* one district, the place a
+buyer has already chosen; comparing districts is what agg_budget_tradeoff is
+for. Distance is not a criterion (most listings have no coordinates, so it
+is shown in agg_budget_tradeoff only). "Not dominated" is relative to the
+chosen criteria and the information extracted from titles; it does not mean
+the listing is good value in reality.
 """
 
 from __future__ import annotations
@@ -34,7 +41,7 @@ def pareto_group(entry: tuple[tuple[int, int, int], Iterable[Any]]) -> list[tupl
             "source_id": row["source_id"],
             "price": row["price"],
             "area": row["area"],
-            "rooms": row["rooms"] or 0,
+            "rooms": row["rooms"],  # None = unknown, incomparable with known rooms
             "flags": tuple(int(bool(row[c])) for c in FLAG_COLUMNS),
         }
         for row in rows

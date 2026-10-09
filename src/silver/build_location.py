@@ -3,6 +3,14 @@
 Province names are normalized against a versioned 34-province reference.
 Distance is measured to the matched province's reference administrative
 centre; no nationwide record defaults to Ho Chi Minh City.
+
+Province evidence is ranked: an address component naming a province, a
+Ho Chi Minh City district, a name with an administrative prefix ("Tỉnh",
+"Thành phố", "TP"), and only then a bare name in free text. Bare names are
+matched with diacritics and skipped after street/ward words, because many
+street, ward and person names equal a (former) province name: "Xa lộ Hà Nội",
+"Phường Phú Thọ Hòa", "Hồ Văn Huê", "Vĩnh Lộc". When coordinates disagree with
+the text province (LQ05) the distance is left NULL.
 """
 
 from __future__ import annotations
@@ -171,6 +179,7 @@ def load_province_reference(path: Path = PROVINCE_REFERENCE_PATH) -> list[dict[s
 
 
 PROVINCE_REFERENCE = load_province_reference()
+PROVINCE_ROW_BY_NAME = {row["province_name"]: row for row in PROVINCE_REFERENCE}
 PROVINCE_ALIAS_INDEX = sorted(
     [
         (match_text(alias), alias, row)
@@ -182,24 +191,147 @@ PROVINCE_ALIAS_INDEX = sorted(
 )
 
 
+_TONE_MOVES = {
+    "òa": "oà", "óa": "oá", "ỏa": "oả", "õa": "oã", "ọa": "oạ",
+    "òe": "oè", "óe": "oé", "ỏe": "oẻ", "õe": "oẽ", "ọe": "oẹ",
+    "ùy": "uỳ", "úy": "uý", "ủy": "uỷ", "ũy": "uỹ", "ụy": "uỵ",
+}
+
+
+def accented_text(value: Any) -> str:
+    """Lowercase NFC text, punctuation -> space, tone mark placement unified."""
+
+    if value is None:
+        return ""
+    text = unicodedata.normalize("NFC", str(value)).casefold()
+    for old, new in _TONE_MOVES.items():
+        text = text.replace(old, new)
+    return " ".join(re.sub(r"[\W_]+", " ", text).split())
+
+
+ADMIN_PREFIX = r"(?:tinh|thanh pho|tp)"
+ADMIN_PREFIX_ACCENTED = ("tỉnh ", "thành phố ", "tp ")
+# Words after which a province-like name is a street, ward, project or person.
+NOT_PROVINCE_BEFORE = {
+    "duong", "d", "pho", "lo", "ql", "phuong", "p", "xa", "tt", "tran", "ngo", "hem",
+    "kiet", "so", "khu", "kdc", "an", "cu", "cau", "cho", "truong", "van", "thi",
+    "ward", "street", "nga", "ap", "thon", "lang", "to",
+}
+PROVINCE_ALIAS_ACCENTED = sorted(
+    [(accented_text(alias), row) for row in PROVINCE_REFERENCE for alias in row["aliases"]],
+    key=lambda item: len(item[0]),
+    reverse=True,
+)
+PROVINCE_ALIAS_FOLDED = {match_text(alias): row for row in PROVINCE_REFERENCE for alias in row["aliases"]}
+
+
 def _contains_alias(text: str, alias_key: str) -> bool:
     return bool(alias_key and re.search(rf"(?:^| ){re.escape(alias_key)}(?: |$)", text))
 
 
-def province_from_text(*values: Any) -> tuple[str | None, dict[str, Any] | None]:
-    text = " ".join(match_text(value) for value in values if value is not None)
-    if not text:
-        return None, None
+def _segments(*values: Any) -> list[str]:
+    parts: list[str] = []
+    for value in values:
+        if value:
+            parts.extend(part.strip() for part in re.split(r"[,|;]", str(value)) if part.strip())
+    return parts
 
-    # Source strings such as "Bình Dương (Hồ Chí Minh mới)" must prefer the
-    # explicitly marked new province over the legacy name appearing first.
-    for alias_key, alias_raw, row in PROVINCE_ALIAS_INDEX:
-        if alias_key and re.search(rf"(?:^| ){re.escape(alias_key)} moi(?: |$)", text):
-            return alias_raw, row
-    for alias_key, alias_raw, row in PROVINCE_ALIAS_INDEX:
-        if _contains_alias(text, alias_key):
-            return alias_raw, row
-    return None, None
+
+def _province_of_segment(segment: str) -> dict[str, Any] | None:
+    """Province named by a whole address component, e.g. "Thành phố Hà Nội"."""
+
+    # "Bình Dương (Hồ Chí Minh mới)": the explicitly new province wins.
+    marked = re.search(r"\(([^)]*)m[ơo]i\s*\)", segment, flags=re.IGNORECASE)
+    candidates = [match_text(marked.group(1))] if marked else []
+    candidates.append(match_text(re.sub(r"\s*\(.*\)\s*$", "", segment)))
+    for candidate in candidates:
+        candidate = re.sub(rf"^{ADMIN_PREFIX} ", "", candidate.strip())
+        if candidate in PROVINCE_ALIAS_FOLDED:
+            return PROVINCE_ALIAS_FOLDED[candidate]
+    return None
+
+
+def _bare_alias_candidates(value: Any) -> list[dict[str, Any]]:
+    """Bare province names in free text, in reading order (accent-aware)."""
+
+    raw = clean_optional_text(value)
+    if not raw:
+        return []
+    ascii_only = raw.isascii()
+    text = match_text(raw) if ascii_only else accented_text(raw)
+    found: list[tuple[int, dict[str, Any]]] = []
+    aliases = (
+        [(key, row) for key, row in PROVINCE_ALIAS_FOLDED.items()] if ascii_only else PROVINCE_ALIAS_ACCENTED
+    )
+    for alias, row in aliases:
+        for match in re.finditer(rf"(?:^| ){re.escape(alias)}(?= |$)", text):
+            before = match_text(text[: match.start()]).split()[-1:]
+            if before and before[0] in NOT_PROVINCE_BEFORE:
+                continue
+            found.append((match.start(), row))
+    return [row for _, row in sorted(found, key=lambda item: item[0])]
+
+
+def _consistent(row: dict[str, Any], lat: float | None, lon: float | None) -> bool:
+    if lat is None or lon is None:
+        return True
+    return haversine_km(lat, lon, row["center_lat"], row["center_lon"]) <= MAX_NEAREST_CENTER_KM
+
+
+def resolve_province(
+    address: Any = None,
+    district_name: Any = None,
+    ward: Any = None,
+    title: Any = None,
+    source_url: Any = None,
+    lat: float | None = None,
+    lon: float | None = None,
+) -> tuple[str | None, dict[str, Any] | None, str]:
+    """Return (raw text, province reference row, method) by ranked evidence."""
+
+    # 1. An address component that is exactly a province: the last component,
+    # or one carrying an administrative prefix. Leading components are house
+    # numbers and streets ("Hòa Bình, Phường Hiệp Tân, ...").
+    for value in (address, district_name):
+        segments = _segments(value)
+        for index, segment in reversed(list(enumerate(segments))):
+            folded = match_text(segment)
+            is_last = index == len(segments) - 1
+            if not (is_last or re.match(rf"{ADMIN_PREFIX} ", folded) or "(" in segment):
+                continue
+            row = _province_of_segment(segment)
+            if row:
+                return segment, row, "ADDRESS_COMPONENT"
+    # 2. A Ho Chi Minh City district named in the address or district field.
+    for value in (district_name, address):
+        if clean_optional_text(value) and canonical_hcmc_district_from_text(str(value)):
+            return clean_optional_text(value), PROVINCE_ROW_BY_NAME["Hồ Chí Minh"], "HCMC_DISTRICT"
+    # 3. A province with an administrative prefix anywhere in the text.
+    for value in (address, title, source_url):
+        folded = match_text(value)
+        if not folded:
+            continue
+        for alias, row in sorted(PROVINCE_ALIAS_FOLDED.items(), key=lambda item: -len(item[0])):
+            if re.search(rf"(?:^| ){ADMIN_PREFIX} {re.escape(alias)}(?= |$)", folded) and _consistent(row, lat, lon):
+                return clean_optional_text(value), row, "ADMIN_PREFIX_TEXT"
+    if clean_optional_text(title) and canonical_hcmc_district_from_text(str(title)):
+        row = PROVINCE_ROW_BY_NAME["Hồ Chí Minh"]
+        if _consistent(row, lat, lon):
+            return clean_optional_text(title), row, "HCMC_DISTRICT"
+    # 4. A bare name in free text; with coordinates it must be consistent.
+    for value in (address, title, source_url):
+        for row in _bare_alias_candidates(value):
+            if _consistent(row, lat, lon):
+                return clean_optional_text(value), row, "FREE_TEXT"
+    return None, None, "UNMAPPED"
+
+
+def province_from_text(*values: Any) -> tuple[str | None, dict[str, Any] | None]:
+    """Backward-compatible wrapper: (address, district, url, ward, title)."""
+
+    address, district, url, ward, title = (list(values) + [None] * 5)[:5]
+    raw, row, _ = resolve_province(address, district, ward, title, url)
+    return raw, row
 
 
 def nearest_province_center(lat: float, lon: float) -> tuple[dict[str, Any], float]:
@@ -269,10 +401,9 @@ def build_location_record(record: Mapping[str, Any]) -> dict[str, Any]:
     lat, lon = valid_coordinate_pair(record.get("lat"), record.get("lon"))
     has_coord = lat is not None and lon is not None
 
-    province_raw, province_ref = province_from_text(
-        address, district_raw, source_url, ward, title
+    province_raw, province_ref, province_method = resolve_province(
+        address, district_raw, ward, title, source_url, lat, lon
     )
-    province_method = "TEXT_ALIAS" if province_ref else "UNMAPPED"
     nearest_distance: float | None = None
     if province_ref is None and has_coord:
         candidate_ref, nearest_distance = nearest_province_center(lat, lon)
@@ -319,6 +450,9 @@ def build_location_record(record: Mapping[str, Any]) -> dict[str, Any]:
         reasons.append("LQ04_PROVINCE_INFERRED_BY_NEAREST_CENTER")
     if distance is not None and distance > MAX_NEAREST_CENTER_KM:
         reasons.append("LQ05_PROVINCE_COORDINATE_CONFLICT")
+        # A distance to the centre of a province the coordinates contradict
+        # is not a measurement; keep the conflict visible instead.
+        distance = None
 
     dq_status = (
         "REJECT" if "LQ00_SOURCE_ID_MISSING" in reasons else "WARN" if reasons else "PASS"

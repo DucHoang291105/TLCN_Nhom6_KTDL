@@ -1,8 +1,9 @@
 $ErrorActionPreference = "Stop"
 . "$PSScriptRoot\pipeline_utils.ps1"
 
-# Rebuild Silver and Gold twice from the same Bronze input and compare the
-# row count of every table. Evidence: docs/validation/deterministic_rebuild.json
+# Rebuild Silver and Gold twice from the same Bronze input and compare, per
+# table, row count, distinct grain keys and a content hash of all rows
+# (build-time columns excluded). Evidence: docs/validation/deterministic_rebuild.json
 $projectRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $projectRoot
 try {
@@ -10,11 +11,9 @@ try {
         Write-Host "`n##### REBUILD $run #####" -ForegroundColor Yellow
         & "$PSScriptRoot\run_silver_pipeline.ps1"
         & "$PSScriptRoot\run_gold_pipeline.ps1"
-        $runDir = "outputs\determinism\run$run"
-        New-Item -ItemType Directory -Force $runDir | Out-Null
-        Copy-Item "docs\validation\silver_final_verification.json", "docs\validation\gold_verification.json" $runDir
+        Invoke-Native { & "$PSScriptRoot\run_spark.ps1" "src\common\table_fingerprints.py" "outputs/determinism/run$run.json" } "Fingerprint job failed (run $run)"
     }
-    Invoke-Native { python -m src.common.compare_rebuild_counts outputs\determinism\run1 outputs\determinism\run2 } "Rebuilds are not deterministic"
+    Invoke-Native { python -m src.common.compare_rebuild_counts outputs\determinism\run1.json outputs\determinism\run2.json } "Rebuilds are not deterministic"
 } finally {
     Pop-Location
 }

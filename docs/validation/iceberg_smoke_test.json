@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-09T09:25:29.969966+00:00",
+  "generated_at": "2026-10-09T16:20:57.746716+00:00",
   "table": "lakehouse.smoke_test.silver_io_test",
   "location": "s3://lakehouse-silver/_smoke_test/silver_io_test",
   "row_count": 2,

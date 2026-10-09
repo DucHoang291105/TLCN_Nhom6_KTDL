@@ -92,15 +92,23 @@ Các feature không thuộc 27 cột được ghi ở `lakehouse.silver.listing_
 | source_id, source | string | Khóa và nguồn từ Silver Core |
 | dq_status, record_hash | string | Lấy từ observation đã tạo ra dòng current (cùng thứ tự với `current_from()`) |
 | is_rent, category_name | boolean, string | Giữ từ Silver Core |
+| category_evidence | string | Nguồn gốc `category_name` (từ `listing_observation`): `SOURCE_STRUCTURED` (taxonomy của site: `category_id`/URL batdongsan, `product_slug` nhadatvui), `SOURCE_LABEL` (nhãn/tag của site, category của file historical), `ENDPOINT_CONTEXT` (chỉ dựa vào endpoint crawl, ví dụ guland không có tag loại hình), `NONE` |
 | model_category | string | `nha_pho`, `can_ho`, `biet_thu`, `dat`, `phong_tro_khac`, `khong_ro` |
-| model_category_method | string | `CATEGORY_NAME`, `TITLE_FALLBACK` hoặc `UNMAPPED` |
-| title_has_legal / furnished / frontage / elevator / car_access | boolean | Regex tiếng Việt có dấu và không dấu trên `title`, xử lý phủ định và viết tắt |
+| model_category_method | string | `CATEGORY_NAME` (nhãn có bằng chứng từ nguồn), `ENDPOINT_CONTEXT` (giữ mặc định endpoint), `TITLE_OVER_ENDPOINT` (title có tín hiệu mạnh khác mặc định endpoint), `TITLE_FALLBACK` (nhãn thiếu hoặc chung chung), `UNMAPPED` |
+| title_model_category | string | Loại hình đọc từ title (NULL nếu không đủ tín hiệu) |
+| category_title_conflict | boolean | Nhãn nguồn và tín hiệu **mạnh** trong title chỉ hai loại hình khác nhau. Nhãn có bằng chứng từ nguồn được giữ; cờ này để kiểm tra, không tự ghi đè |
+| title_has_legal / furnished / elevator | boolean | TRUE khi title nêu đặc điểm (có dấu/không dấu, viết tắt, xử lý phủ định) |
+| title_has_frontage | boolean | TRUE khi title nêu BĐS **nằm mặt tiền đường/phố**. "MT 5m", "mặt tiền 4,5m" (chiều ngang) và "mặt tiền hẻm" không được tính |
+| title_has_car_access | boolean | Ô tô tiếp cận được: gộp "hẻm/ngõ ô tô", "ô tô vào nhà", "ô tô đỗ cửa" |
+| title_negated_features | array<string> | Các đặc điểm title nói rõ là **không có** (ví dụ "không thang máy", "chưa có sổ") |
 | price_known, area_known, rooms_known | boolean | Giá trị tương ứng > 0 |
 | location_known | boolean | Có tọa độ hoặc map được tỉnh/quận trong `listing_location` |
 | legal_known | boolean | Title có nhắc pháp lý, kể cả nhắc theo nghĩa phủ định (giấy tay, chưa có sổ) |
-| feature_completeness_score | double | Trung bình có trọng số của 5 cờ `*_known`, trong `[0, 1]` |
+| feature_completeness_score | double | Trung bình có trọng số của 5 cờ `*_known`, trong `[0, 1]`. Đo mức **đầy đủ** thông tin, không đo độ chính xác hay độ tin cậy |
 | feature_rule_version, feature_built_at | string, timestamp | Lineage |
 
 `distance_to_center_km`, `center_type` và `location_precision` nằm ở `listing_location`, không lặp lại trong bảng feature.
 
-Cờ `title_has_* = FALSE` chỉ có nghĩa văn bản không đề cập, không khẳng định bất động sản không có đặc điểm đó. Khi cần phân biệt phải dùng thêm cờ `*_known`.
+Cờ `title_has_* = FALSE` gộp hai trường hợp: title không đề cập, hoặc title nói rõ là không có (liệt kê trong `title_negated_features`). Không được diễn giải FALSE là "chắc chắn không có".
+
+Phân loại title dùng tín hiệu **mạnh** (gọi tên loại hình: "căn hộ", "chung cư", "nhà 3 tầng", "bán đất", "lô đất"…) và **yếu** (viết tắt/đa nghĩa: "CH", "CC" – chung cư hoặc chính chủ, "lô" – lô đất hoặc nhà phân lô, "2PN"). Tín hiệu yếu chỉ dùng khi không có tín hiệu mạnh và mọi tín hiệu yếu cùng chỉ một loại hình; còn lại để `khong_ro`.

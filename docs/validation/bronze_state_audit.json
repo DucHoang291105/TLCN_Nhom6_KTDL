@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-09T09:25:20.416988+00:00",
+  "generated_at": "2026-10-09T16:20:48.326678+00:00",
   "bronze_root": "s3a://lakehouse-bronze/real_estate",
   "expected_sources": {
     "historical": [
