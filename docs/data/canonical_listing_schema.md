@@ -85,20 +85,22 @@ Chi tiết mã lỗi nằm trong `docs/data/data_quality_rules.md`.
 
 ## 5. Feature phục vụ Business Questions
 
-Các feature sau không thuộc 27 cột và được ghi ở `silver_listing_feature`:
+Các feature không thuộc 27 cột được ghi ở `lakehouse.silver.listing_feature`, grain **một dòng cho mỗi `source_id`** của `silver_listings_current_27`. Quy tắc nằm trong `src/silver/feature_rules.py` (phiên bản `feature_rule_version`), job là `src/silver/build_listing_feature.py`.
 
-- `model_category`
-- `distance_to_center_km`
-- `center_type`
-- `location_precision`
-- `title_has_legal`
-- `title_has_furnished`
-- `title_has_frontage`
-- `title_has_elevator`
-- `title_has_car_access`
-- `rooms_known`
-- `legal_info_known`
-- `feature_completeness_score`
-- `feature_extracted_from`
+| Field | Kiểu | Quy tắc |
+|---|---|---|
+| source_id, source | string | Khóa và nguồn từ Silver Core |
+| dq_status, record_hash | string | Lấy từ observation đã tạo ra dòng current (cùng thứ tự với `current_from()`) |
+| is_rent, category_name | boolean, string | Giữ từ Silver Core |
+| model_category | string | `nha_pho`, `can_ho`, `biet_thu`, `dat`, `phong_tro_khac`, `khong_ro` |
+| model_category_method | string | `CATEGORY_NAME`, `TITLE_FALLBACK` hoặc `UNMAPPED` |
+| title_has_legal / furnished / frontage / elevator / car_access | boolean | Regex tiếng Việt có dấu và không dấu trên `title`, xử lý phủ định và viết tắt |
+| price_known, area_known, rooms_known | boolean | Giá trị tương ứng > 0 |
+| location_known | boolean | Có tọa độ hoặc map được tỉnh/quận trong `listing_location` |
+| legal_known | boolean | Title có nhắc pháp lý, kể cả nhắc theo nghĩa phủ định (giấy tay, chưa có sổ) |
+| feature_completeness_score | double | Trung bình có trọng số của 5 cờ `*_known`, trong `[0, 1]` |
+| feature_rule_version, feature_built_at | string, timestamp | Lineage |
 
-Cờ `title_has_* = FALSE` chỉ có nghĩa văn bản không đề cập, không khẳng định bất động sản không có đặc điểm đó. Khi cần phân biệt phải dùng thêm cờ `*_known` hoặc để NULL.
+`distance_to_center_km`, `center_type` và `location_precision` nằm ở `listing_location`, không lặp lại trong bảng feature.
+
+Cờ `title_has_* = FALSE` chỉ có nghĩa văn bản không đề cập, không khẳng định bất động sản không có đặc điểm đó. Khi cần phân biệt phải dùng thêm cờ `*_known`.

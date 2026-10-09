@@ -1,0 +1,37 @@
+{
+  "started_at": "2026-10-09T09:32:06.115879+00:00",
+  "finished_at": "2026-10-09T09:32:14.741957+00:00",
+  "price_change_events": 642,
+  "listings_with_change": 628,
+  "direction_counts": {
+    "giam": 499,
+    "tang": 143
+  },
+  "median_price_change_pct": {
+    "giam": -0.046729,
+    "tang": 0.060606
+  },
+  "price_drop_by_current_position": {
+    "khong_du_du_lieu": {
+      "listings": 3412,
+      "with_price_drop": 1,
+      "share": 0.000293
+    },
+    "hop_ly": {
+      "listings": 51099,
+      "with_price_drop": 245,
+      "share": 0.004795
+    },
+    "thap": {
+      "listings": 26053,
+      "with_price_drop": 136,
+      "share": 0.00522
+    },
+    "cao": {
+      "listings": 27071,
+      "with_price_drop": 106,
+      "share": 0.003916
+    }
+  },
+  "status": "PASS"
+}

@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-10-09T09:31:23.500923+00:00",
+  "finished_at": "2026-10-09T09:31:29.639269+00:00",
+  "min_peer_group_size": 5,
+  "min_feature_similarity": 0.8,
+  "district_groups": 735,
+  "substitution_pairs": 4666,
+  "origins_with_alternative": 594,
+  "median_price_gap_pct": 0.470622,
+  "status": "PASS"
+}

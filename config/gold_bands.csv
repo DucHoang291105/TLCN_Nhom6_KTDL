@@ -1,0 +1,27 @@
+dimension,band_key,band_code,band_label,lower,upper
+price,1,lt_1b,Dưới 1 tỷ,0,1000000000
+price,2,1b_2b,1 - 2 tỷ,1000000000,2000000000
+price,3,2b_3b,2 - 3 tỷ,2000000000,3000000000
+price,4,3b_5b,3 - 5 tỷ,3000000000,5000000000
+price,5,5b_7b,5 - 7 tỷ,5000000000,7000000000
+price,6,7b_10b,7 - 10 tỷ,7000000000,10000000000
+price,7,10b_20b,10 - 20 tỷ,10000000000,20000000000
+price,8,ge_20b,Từ 20 tỷ,20000000000,
+area,1,lt_30,Dưới 30 m²,0,30
+area,2,30_50,30 - 50 m²,30,50
+area,3,50_80,50 - 80 m²,50,80
+area,4,80_120,80 - 120 m²,80,120
+area,5,120_200,120 - 200 m²,120,200
+area,6,ge_200,Từ 200 m²,200,
+unit_price,1,lt_20m,Dưới 20 triệu/m²,0,20000000
+unit_price,2,20m_40m,20 - 40 triệu/m²,20000000,40000000
+unit_price,3,40m_60m,40 - 60 triệu/m²,40000000,60000000
+unit_price,4,60m_80m,60 - 80 triệu/m²,60000000,80000000
+unit_price,5,80m_120m,80 - 120 triệu/m²,80000000,120000000
+unit_price,6,120m_200m,120 - 200 triệu/m²,120000000,200000000
+unit_price,7,ge_200m,Từ 200 triệu/m²,200000000,
+room,1,1pn,1 phòng ngủ,1,2
+room,2,2pn,2 phòng ngủ,2,3
+room,3,3pn,3 phòng ngủ,3,4
+room,4,4pn,4 phòng ngủ,4,5
+room,5,ge_5pn,Từ 5 phòng ngủ,5,

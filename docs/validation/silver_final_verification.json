@@ -1,19 +1,20 @@
 {
-  "generated_at": "2026-10-03T11:09:13.519816+00:00",
+  "generated_at": "2026-10-09T09:29:13.316525+00:00",
   "catalog_namespace": "lakehouse.silver",
   "table_counts": {
-    "listing_observation": 164789,
+    "listing_observation": 190517,
     "listing_dq_quarantine": 664,
-    "crawl_current_27": 89555,
+    "crawl_current_27": 93651,
     "historical_current_27": 30317,
-    "silver_listings_current_27": 119872,
-    "listing_history": 126458,
-    "listing_location": 119872
+    "silver_listings_current_27": 123968,
+    "listing_history": 131416,
+    "listing_location": 123968,
+    "listing_feature": 123968
   },
   "source_counts": {
-    "guland": 45832,
+    "guland": 47387,
     "nhadatvui": 17336,
-    "batdongsan": 26387,
+    "batdongsan": 28928,
     "chotot": 8152,
     "muaban": 363,
     "alonhadat": 1278,
@@ -33,7 +34,13 @@
     "location_unique": true,
     "location_fk": true,
     "history_no_consecutive_duplicate": true,
-    "history_version_sequence": true
+    "history_version_sequence": true,
+    "feature_coverage": true,
+    "feature_source_id_not_null": true,
+    "feature_unique": true,
+    "feature_fk": true,
+    "feature_score_range": true,
+    "tables_in_silver_bucket": true
   },
   "metrics": {
     "null_source_ids": 0,
@@ -43,7 +50,30 @@
     "location_duplicate_ids": 0,
     "location_orphans": 0,
     "history_consecutive_duplicate_hashes": 0,
-    "history_bad_version_sequences": 0
+    "history_bad_version_sequences": 0,
+    "feature_null_ids": 0,
+    "feature_duplicate_ids": 0,
+    "feature_orphans": 0,
+    "feature_bad_scores": 0,
+    "model_category_mapped_rate": 0.997322,
+    "title_flag_true_rates": {
+      "title_has_legal": 0.101002,
+      "title_has_furnished": 0.085006,
+      "title_has_frontage": 0.191493,
+      "title_has_elevator": 0.041898,
+      "title_has_car_access": 0.127154
+    }
+  },
+  "warnings": [],
+  "table_locations": {
+    "listing_observation": "s3://lakehouse-silver/real_estate/listing_observation",
+    "listing_dq_quarantine": "s3://lakehouse-silver/real_estate/listing_dq_quarantine",
+    "crawl_current_27": "s3://lakehouse-silver/real_estate/crawl_current_27",
+    "historical_current_27": "s3://lakehouse-silver/real_estate/historical_current_27",
+    "silver_listings_current_27": "s3://lakehouse-silver/real_estate/silver_listings_current_27",
+    "listing_history": "s3://lakehouse-silver/real_estate/listing_history",
+    "listing_location": "s3://lakehouse-silver/real_estate/listing_location",
+    "listing_feature": "s3://lakehouse-silver/real_estate/listing_feature"
   },
   "status": "PASS",
   "failures": []

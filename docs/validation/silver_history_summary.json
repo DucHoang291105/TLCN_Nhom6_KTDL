@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-10-03T11:07:01.233764+00:00",
+  "generated_at": "2026-10-09T09:27:22.001537+00:00",
   "input_table": "lakehouse.silver.listing_observation",
   "output_table": "lakehouse.silver.listing_history",
-  "observation_rows": 164789,
-  "history_rows": 126458,
-  "source_id_count": 119872,
-  "changed_versions": 6586,
+  "observation_rows": 190517,
+  "history_rows": 131416,
+  "source_id_count": 123968,
+  "changed_versions": 7448,
   "consecutive_duplicate_hashes": 0,
   "status": "PASS"
 }

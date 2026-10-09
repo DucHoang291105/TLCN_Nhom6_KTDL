@@ -1,0 +1,77 @@
+{
+  "started_at": "2026-10-09T09:29:40.583407+00:00",
+  "finished_at": "2026-10-09T09:30:26.286581+00:00",
+  "output": "lakehouse.gold.fact_listing",
+  "filter_counts": {
+    "current_rows": 123968,
+    "excluded_is_rent_true": 15357,
+    "excluded_is_rent_null": 0,
+    "excluded_dq_reject": 0,
+    "fact_rows_expected": 108611
+  },
+  "output_rows": 108611,
+  "unknown_fk_counts": {
+    "source_key": 0,
+    "date_key": 0,
+    "posted_date_key": 67491,
+    "location_key": 483,
+    "property_category_key": 186,
+    "price_band_key": 2235,
+    "area_band_key": 3,
+    "unit_price_band_key": 2238,
+    "room_band_key": 39426,
+    "dq_status_key": 0
+  },
+  "dedup_rule": {
+    "area_tolerance": 0.02,
+    "price_tolerance": 0.03,
+    "min_title_jaccard": 0.35,
+    "blocking": "same location_key + property_category_key, adjacent log-area bins, different source"
+  },
+  "dedup": {
+    "candidate_pairs": 1052,
+    "pairs_by_source_pair": {
+      "guland | nhadatvui": 448,
+      "chotot | guland": 120,
+      "chotot | mogi": 80,
+      "batdongsan | chotot": 73,
+      "guland | mogi": 69,
+      "batdongsan | nhadatvui": 61,
+      "alonhadat | guland": 28,
+      "chotot | nhadatvui": 26,
+      "batdongsan | guland": 22,
+      "homedy | mogi": 22,
+      "chotot | homedy": 21,
+      "batdongsan | mogi": 15,
+      "alonhadat | chotot": 12,
+      "guland | homedy": 12,
+      "mogi | nhadatvui": 11,
+      "alonhadat | mogi": 11,
+      "alonhadat | homedy": 7,
+      "chotot | muaban": 4,
+      "alonhadat | luachonnhadat": 2,
+      "homedy | nhadatvui": 2,
+      "guland | muaban": 2,
+      "guland | luachonnhadat": 1,
+      "alonhadat | nhadatvui": 1,
+      "luachonnhadat | mogi": 1,
+      "alonhadat | muaban": 1
+    },
+    "dup_groups": 606,
+    "suspect_rows": 1582,
+    "suspect_rate": 0.014566,
+    "suspect_rows_by_source": {
+      "chotot": 268,
+      "homedy": 46,
+      "guland": 553,
+      "nhadatvui": 384,
+      "batdongsan": 111,
+      "mogi": 165,
+      "alonhadat": 46,
+      "muaban": 5,
+      "luachonnhadat": 4
+    },
+    "representative_rows": 107635
+  },
+  "status": "PASS"
+}

@@ -8,7 +8,7 @@ from pyspark.sql import functions as F
 
 PROJECT_ROOT=Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path: sys.path.insert(0,str(PROJECT_ROOT))
-from src.common.spark_session import build_spark_session,ensure_silver_namespace
+from src.common.spark_session import build_spark_session,ensure_silver_namespace,write_iceberg_table
 from src.common.utils import CANONICAL_COLUMNS
 
 def main() -> None:
@@ -22,7 +22,7 @@ def main() -> None:
     history=changed.withColumn("version_number",F.row_number().over(versions)).withColumn("valid_from",observed)
     validity=Window.partitionBy("source_id").orderBy("version_number")
     history=history.withColumn("valid_to",F.lead("valid_from").over(validity)).withColumn("is_current_version",F.col("valid_to").isNull()).select(*(CANONICAL_COLUMNS+["batch_id","snapshot_date","bronze_ingested_at","record_hash","dq_status","dq_reasons","completeness_score","version_number","valid_from","valid_to","is_current_version"]))
-    history.writeTo(history_table).using("iceberg").tableProperty("format-version","2").createOrReplace()
+    write_iceberg_table(history,history_table)
     verified=spark.table(history_table); rows=verified.count(); distinct_ids=verified.select("source_id").distinct().count()
     duplicate_consecutive=verified.withColumn("prev",F.lag("record_hash").over(Window.partitionBy("source_id").orderBy("version_number"))).filter(F.col("prev")==F.col("record_hash")).count()
     if duplicate_consecutive: raise RuntimeError(f"History has {duplicate_consecutive} consecutive duplicate hash rows")

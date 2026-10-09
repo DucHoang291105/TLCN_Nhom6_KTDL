@@ -4,11 +4,22 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from pyspark.sql import SparkSession
+from pyspark.sql import DataFrame, SparkSession
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CATALOG_NAME = os.getenv("ICEBERG_CATALOG", "lakehouse")
 SILVER_NAMESPACE = os.getenv("ICEBERG_SILVER_NAMESPACE", "silver")
+GOLD_NAMESPACE = os.getenv("ICEBERG_GOLD_NAMESPACE", "gold")
+SMOKE_NAMESPACE = "smoke_test"
+
+# One MinIO bucket per Medallion layer. The JDBC catalog behind the Iceberg REST
+# fixture ignores namespace-level locations, so every table is created with an
+# explicit location under its layer bucket instead of the catalog warehouse.
+LAYER_TABLE_ROOTS = {
+    SILVER_NAMESPACE: os.getenv("SILVER_TABLE_ROOT", "s3://lakehouse-silver/real_estate"),
+    GOLD_NAMESPACE: os.getenv("GOLD_TABLE_ROOT", "s3://lakehouse-gold/real_estate"),
+    SMOKE_NAMESPACE: os.getenv("SMOKE_TABLE_ROOT", "s3://lakehouse-silver/_smoke_test"),
+}
 
 
 def build_spark_session(app_name: str) -> SparkSession:
@@ -58,3 +69,45 @@ def ensure_silver_namespace(spark: SparkSession) -> str:
     namespace = f"{CATALOG_NAME}.{SILVER_NAMESPACE}"
     spark.sql(f"CREATE NAMESPACE IF NOT EXISTS {namespace}")
     return namespace
+
+
+def ensure_gold_namespace(spark: SparkSession) -> str:
+    namespace = f"{CATALOG_NAME}.{GOLD_NAMESPACE}"
+    spark.sql(f"CREATE NAMESPACE IF NOT EXISTS {namespace}")
+    return namespace
+
+
+def table_location(table: str) -> str:
+    """Return the layer-bucket location for ``catalog.namespace.table``."""
+
+    parts = table.split(".")
+    if len(parts) != 3 or parts[0] != CATALOG_NAME or parts[1] not in LAYER_TABLE_ROOTS:
+        raise ValueError(f"No layer bucket configured for table: {table}")
+    return f"{LAYER_TABLE_ROOTS[parts[1]].rstrip('/')}/{parts[2]}"
+
+
+def _current_location(spark: SparkSession, table: str) -> str | None:
+    if not spark.catalog.tableExists(table):
+        return None
+    rows = spark.sql(f"DESCRIBE TABLE EXTENDED {table}").filter("col_name = 'Location'").collect()
+    return rows[0]["data_type"].rstrip("/") if rows else None
+
+
+def write_iceberg_table(frame: DataFrame, table: str) -> None:
+    """Create or replace an Iceberg v2 table in its layer bucket.
+
+    A replace keeps the old table location, so a table still stored elsewhere
+    (for example the former ``s3://warehouse/`` root) is purged and recreated.
+    """
+
+    spark = frame.sparkSession
+    location = table_location(table)
+    current = _current_location(spark, table)
+    if current is not None and current != location:
+        spark.sql(f"DROP TABLE {table} PURGE")
+    (
+        frame.writeTo(table).using("iceberg")
+        .tableProperty("format-version", "2")
+        .tableProperty("location", location)
+        .createOrReplace()
+    )

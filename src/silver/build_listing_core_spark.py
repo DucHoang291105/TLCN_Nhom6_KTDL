@@ -12,7 +12,7 @@ from pyspark.storagelevel import StorageLevel
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path: sys.path.insert(0, str(PROJECT_ROOT))
-from src.common.spark_session import build_spark_session, ensure_silver_namespace
+from src.common.spark_session import build_spark_session, ensure_silver_namespace, write_iceberg_table
 from src.common.utils import CANONICAL_COLUMNS, RECORD_HASH_FIELDS
 from src.silver.build_listing_core import OBSERVATION_METADATA_COLUMNS, build_batdongsan_observation, build_guland_observation, build_nhadatvui_observation
 
@@ -91,7 +91,7 @@ def current_from(observations: DataFrame) -> DataFrame:
     return observations.withColumn("_rank",F.row_number().over(window)).filter("_rank=1").select(*CANONICAL_COLUMNS)
 
 def write_table(frame: DataFrame, table: str) -> None:
-    frame.writeTo(table).using("iceberg").tableProperty("format-version","2").createOrReplace()
+    write_iceberg_table(frame,table)
 
 def counts_by(frame: DataFrame, column: str) -> dict[str,int]:
     return {str(r[column]):int(r["count"]) for r in frame.groupBy(column).count().collect()}

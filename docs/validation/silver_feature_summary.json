@@ -1,0 +1,78 @@
+{
+  "started_at": "2026-10-09T09:28:23.204660+00:00",
+  "finished_at": "2026-10-09T09:28:49.737495+00:00",
+  "inputs": [
+    "lakehouse.silver.silver_listings_current_27",
+    "lakehouse.silver.listing_location",
+    "lakehouse.silver.listing_observation"
+  ],
+  "output": "lakehouse.silver.listing_feature",
+  "feature_rule_version": "listing_feature_rules_v2",
+  "input_rows": 123968,
+  "output_rows": 123968,
+  "category_name_counts": {
+    "Nhà ở": 57878,
+    "Căn hộ chung cư": 29477,
+    "Đất": 6853,
+    "Nhà phố": 6544,
+    "Biệt thự": 5905,
+    "Phòng/Cho thuê": 5884,
+    "Căn hộ": 3793,
+    "Căn hộ/Chung cư": 2661,
+    "Bất động sản khác": 1696,
+    "Shophouse": 1494,
+    "Đất nền": 573,
+    "Officetel": 424,
+    "Văn phòng, Mặt bằng kinh doanh": 262,
+    "Bất động sản thương mại": 195,
+    "None": 94,
+    "Nhà đất cho thuê": 64,
+    "Văn phòng/Mặt bằng": 40,
+    "Kho xưởng": 30,
+    "Phòng trọ": 28,
+    "Mặt bằng": 28,
+    "Mặt bằng": 15,
+    "Nhà trọ": 12,
+    "Nhà xưởng": 6,
+    "Shop house": 5,
+    "Khách sạn": 4,
+    "Phòng cho thuê": 2,
+    "Căn hộ dịch vụ": 1
+  },
+  "model_category_counts": {
+    "nha_pho": 65029,
+    "dat": 7534,
+    "phong_tro_khac": 6914,
+    "biet_thu": 7428,
+    "can_ho": 36731,
+    "khong_ro": 332
+  },
+  "model_category_method_counts": {
+    "TITLE_FALLBACK": 1458,
+    "CATEGORY_NAME": 122178,
+    "UNMAPPED": 332
+  },
+  "model_category_unmapped_share": 0.002678,
+  "true_rates": {
+    "title_has_legal": 0.101002,
+    "title_has_furnished": 0.085006,
+    "title_has_frontage": 0.191493,
+    "title_has_elevator": 0.041898,
+    "title_has_car_access": 0.127154,
+    "price_known": 0.981971,
+    "area_known": 0.999976,
+    "rooms_known": 0.626242,
+    "location_known": 0.996806,
+    "legal_known": 0.101841
+  },
+  "is_rent_counts": {
+    "True": 15357,
+    "False": 108611
+  },
+  "dq_status_counts": {
+    "WARN": 41418,
+    "PASS": 82550
+  },
+  "warnings": [],
+  "status": "PASS"
+}

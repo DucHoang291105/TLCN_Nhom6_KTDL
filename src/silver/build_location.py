@@ -370,7 +370,7 @@ def main() -> None:
     from pyspark.sql import types as T
     from pyspark.storagelevel import StorageLevel
 
-    from src.common.spark_session import build_spark_session, ensure_silver_namespace
+    from src.common.spark_session import build_spark_session, ensure_silver_namespace, write_iceberg_table
 
     spark = build_spark_session("SilverListingLocationNationwide")
     spark.conf.set("spark.sql.shuffle.partitions", str(OUTPUT_PARTITIONS))
@@ -438,7 +438,7 @@ def main() -> None:
     if reject_rows:
         raise RuntimeError(f"Location contains {reject_rows:,} REJECT rows")
 
-    location.writeTo(output_path).using("iceberg").tableProperty("format-version", "2").createOrReplace()
+    write_iceberg_table(location, output_path)
     verified = spark.table(output_path)
     if verified.count() != output_rows:
         raise RuntimeError("Location read-back row count mismatch")
