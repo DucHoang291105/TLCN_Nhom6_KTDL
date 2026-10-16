@@ -19,17 +19,13 @@ Thumbs.db
 data/incoming/**
 !data/incoming/**/.gitkeep
 !data/incoming/**/README.md
+# Snapshot batches: every source, every YYYYMMDD batch, only <source>_raw.csv
+# (CSV goes through Git LFS, see .gitattributes). Temporary crawl folders such
+# as 20261003_150728/ do not match and stay local.
 !data/incoming/snapshots/
-!data/incoming/snapshots/batdongsan/
-!data/incoming/snapshots/batdongsan/20260929/
-!data/incoming/snapshots/batdongsan/20260929/batdongsan_raw.csv
-!data/incoming/snapshots/batdongsan/20261002/
-!data/incoming/snapshots/batdongsan/20261002/batdongsan_raw.csv
-!data/incoming/snapshots/nhadatvui/
-!data/incoming/snapshots/nhadatvui/20260922/
-!data/incoming/snapshots/nhadatvui/20260922/nhadatvui_raw.csv
-!data/incoming/snapshots/nhadatvui/20260925/
-!data/incoming/snapshots/nhadatvui/20260925/nhadatvui_raw.csv
+!data/incoming/snapshots/*/
+!data/incoming/snapshots/*/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]/
+!data/incoming/snapshots/*/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]/*_raw.csv
 
 # Internal reports supplied outside the repository
 KTDL_*.pdf
