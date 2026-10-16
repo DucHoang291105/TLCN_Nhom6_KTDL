@@ -35,11 +35,13 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import random
 import re
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 from typing import Any
 from urllib.parse import urlencode
 
@@ -56,7 +58,7 @@ BASE_URL = "https://www.nhadatvui.vn/mua-ban-nha-dat"
 START_PAGE = 1
 
 # Số trang muốn crawl
-PAGES_TO_CRAWL = 50
+PAGES_TO_CRAWL = int(os.getenv("CRAWL_PAGES", "200"))
 
 # Delay cơ bản giữa 2 trang
 DELAY_SECONDS = 2.0
@@ -75,7 +77,9 @@ MAX_RETRIES = 3
 # OUTPUT
 # ============================================================
 
-RUN_ID = datetime.now().strftime("%Y%m%d_%H%M%S")
+RUN_ID = os.getenv("CRAWL_BATCH_ID", datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%Y%m%d"))
+if not re.fullmatch(r"\d{8}", RUN_ID):
+    raise ValueError("CRAWL_BATCH_ID must be YYYYMMDD")
 
 # File này được đặt tại:
 #   TLCN_BDS_Lakehouse/src/ingestion/nhadatvui/nhadatvui_raw_crawler.py
@@ -722,6 +726,8 @@ def append_csv(
 # ============================================================
 
 def main() -> None:
+    if CSV_PATH.exists():
+        raise FileExistsError(f"Existing batch is preserved: {CSV_PATH}")
 
     if START_PAGE <= 0:
         raise ValueError(

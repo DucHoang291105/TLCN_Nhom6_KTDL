@@ -1,25 +1,25 @@
 {
-  "started_at": "2026-10-09T16:24:59.737070+00:00",
-  "finished_at": "2026-10-09T16:26:04.545151+00:00",
+  "started_at": "2026-10-16T16:24:24.439563+00:00",
+  "finished_at": "2026-10-16T16:26:21.507447+00:00",
   "output": "lakehouse.gold.fact_listing",
   "filter_counts": {
-    "current_rows": 123968,
+    "current_rows": 134620,
     "excluded_is_rent_true": 15357,
     "excluded_is_rent_null": 0,
     "excluded_dq_reject": 0,
-    "fact_rows_expected": 108611
+    "fact_rows_expected": 119263
   },
-  "output_rows": 108611,
+  "output_rows": 119263,
   "unknown_fk_counts": {
     "source_key": 0,
     "date_key": 0,
-    "posted_date_key": 67491,
-    "location_key": 179,
-    "property_category_key": 211,
-    "price_band_key": 2235,
+    "posted_date_key": 72206,
+    "location_key": 181,
+    "property_category_key": 215,
+    "price_band_key": 2548,
     "area_band_key": 3,
-    "unit_price_band_key": 2238,
-    "room_band_key": 39426,
+    "unit_price_band_key": 2551,
+    "room_band_key": 44216,
     "dq_status_key": 0
   },
   "dedup_rule": {
@@ -31,113 +31,113 @@
     "ambiguous_groups": "groups with two listings of one source are kept, not collapsed"
   },
   "location": {
-    "conflict_rows_set_to_unknown_location": 16,
+    "conflict_rows_set_to_unknown_location": 18,
     "province_inferred_from_coordinates_rows": 0
   },
   "dedup_sensitivity": {
     "strict": {
-      "candidate_pairs": 650,
-      "mutual_best_pairs": 417,
-      "dup_groups": 403,
+      "candidate_pairs": 697,
+      "mutual_best_pairs": 458,
+      "dup_groups": 440,
       "ambiguous_groups": 1,
-      "suspect_rows": 814,
-      "rows_removed_from_aggregates": 408,
+      "suspect_rows": 890,
+      "rows_removed_from_aggregates": 447,
       "max_group_size": 4
     },
     "default": {
-      "candidate_pairs": 1414,
-      "mutual_best_pairs": 907,
-      "dup_groups": 850,
-      "ambiguous_groups": 3,
-      "suspect_rows": 1738,
-      "rows_removed_from_aggregates": 878,
+      "candidate_pairs": 1581,
+      "mutual_best_pairs": 1007,
+      "dup_groups": 946,
+      "ambiguous_groups": 4,
+      "suspect_rows": 1933,
+      "rows_removed_from_aggregates": 974,
       "max_group_size": 5
     },
     "loose": {
-      "candidate_pairs": 5615,
-      "mutual_best_pairs": 2926,
-      "dup_groups": 2539,
-      "ambiguous_groups": 48,
-      "suspect_rows": 5393,
-      "rows_removed_from_aggregates": 2694,
+      "candidate_pairs": 6516,
+      "mutual_best_pairs": 3256,
+      "dup_groups": 2830,
+      "ambiguous_groups": 53,
+      "suspect_rows": 6009,
+      "rows_removed_from_aggregates": 3001,
       "max_group_size": 6
     }
   },
   "median_price_per_m2_by_category": {
     "can_ho": {
-      "all_rows": 56338028.16901408,
-      "representatives": 56250000.0
+      "all_rows": 57142857.14285714,
+      "representatives": 57142857.14285714
     },
     "phong_tro_khac": {
-      "all_rows": 39805194.8051948,
-      "representatives": 39805194.8051948
+      "all_rows": 36000000.0,
+      "representatives": 36000000.0
     },
     "dat": {
-      "all_rows": 37000000.0,
-      "representatives": 36666666.666666664
+      "all_rows": 35000000.0,
+      "representatives": 34920634.92063492
     },
     "khong_ro": {
-      "all_rows": 72093023.25581396,
-      "representatives": 72093023.25581396
+      "all_rows": 71666666.66666667,
+      "representatives": 71666666.66666667
     },
     "biet_thu": {
-      "all_rows": 128571428.57142857,
-      "representatives": 128995798.31932774
+      "all_rows": 125744284.95481128,
+      "representatives": 126582278.48101266
     },
     "nha_pho": {
-      "all_rows": 119780219.78021978,
-      "representatives": 120000000.0
+      "all_rows": 121785714.28571428,
+      "representatives": 121875000.0
     }
   },
   "dedup": {
-    "candidate_pairs": 1414,
-    "mutual_best_pairs": 907,
-    "ambiguous_groups": 3,
+    "candidate_pairs": 1581,
+    "mutual_best_pairs": 1007,
+    "ambiguous_groups": 4,
     "pairs_by_source_pair": {
-      "guland | nhadatvui": 299,
-      "chotot | guland": 105,
-      "batdongsan | guland": 95,
-      "batdongsan | nhadatvui": 64,
+      "guland | nhadatvui": 325,
+      "batdongsan | guland": 126,
+      "chotot | guland": 113,
+      "batdongsan | nhadatvui": 77,
+      "batdongsan | chotot": 67,
+      "guland | mogi": 66,
       "chotot | mogi": 62,
-      "batdongsan | chotot": 62,
-      "guland | mogi": 59,
+      "alonhadat | guland": 24,
       "homedy | mogi": 23,
       "chotot | nhadatvui": 21,
-      "alonhadat | guland": 20,
       "chotot | homedy": 16,
       "batdongsan | mogi": 14,
-      "guland | homedy": 11,
+      "guland | homedy": 13,
+      "mogi | nhadatvui": 11,
       "alonhadat | mogi": 11,
-      "mogi | nhadatvui": 10,
       "alonhadat | chotot": 10,
+      "alonhadat | batdongsan": 6,
       "alonhadat | homedy": 4,
-      "alonhadat | batdongsan": 4,
       "batdongsan | homedy": 3,
       "alonhadat | nhadatvui": 2,
+      "batdongsan | muaban": 2,
       "chotot | muaban": 2,
-      "guland | muaban": 2,
       "homedy | nhadatvui": 2,
       "alonhadat | luachonnhadat": 2,
-      "luachonnhadat | mogi": 1,
+      "guland | muaban": 2,
+      "alonhadat | muaban": 1,
       "guland | luachonnhadat": 1,
-      "batdongsan | muaban": 1,
-      "alonhadat | muaban": 1
+      "luachonnhadat | mogi": 1
     },
-    "dup_groups": 850,
-    "suspect_rows": 1738,
-    "suspect_rate": 0.016002,
+    "dup_groups": 946,
+    "suspect_rows": 1933,
+    "suspect_rate": 0.016208,
     "suspect_rows_by_source": {
-      "chotot": 261,
-      "homedy": 48,
-      "guland": 578,
-      "nhadatvui": 392,
-      "batdongsan": 232,
-      "mogi": 167,
-      "alonhadat": 50,
-      "muaban": 6,
+      "chotot": 273,
+      "homedy": 50,
+      "guland": 655,
+      "nhadatvui": 431,
+      "batdongsan": 282,
+      "mogi": 175,
+      "muaban": 7,
+      "alonhadat": 56,
       "luachonnhadat": 4
     },
-    "representative_rows": 107733
+    "representative_rows": 118289
   },
   "status": "PASS"
 }

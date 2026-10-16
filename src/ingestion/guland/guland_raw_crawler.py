@@ -9,11 +9,13 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import re
 import time
 from datetime import datetime, timezone
 from html import unescape
 from pathlib import Path
+from zoneinfo import ZoneInfo
 from urllib.parse import unquote, urljoin
 
 import requests
@@ -27,7 +29,7 @@ BASE_URL = "https://guland.vn/mua-ban-nha-mat-pho-mat-tien"
 START_PAGE = 1
 
 # Muốn crawl bao nhiêu page thì sửa số này.
-PAGES_TO_CRAWL = 10
+PAGES_TO_CRAWL = int(os.getenv("CRAWL_PAGES", "200"))
 
 # Delay giữa 2 request, đơn vị giây.
 DELAY_SECONDS = 2.0
@@ -39,7 +41,9 @@ MAX_RETRIES = 3
 # OUTPUT
 # ============================================================
 
-RUN_ID = datetime.now().strftime("%Y%m%d_%H%M%S")
+RUN_ID = os.getenv("CRAWL_BATCH_ID", datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%Y%m%d"))
+if not re.fullmatch(r"\d{8}", RUN_ID):
+    raise ValueError("CRAWL_BATCH_ID must be YYYYMMDD")
 
 # File này được đặt tại:
 #   TLCN_BDS_Lakehouse/src/ingestion/guland/guland_raw_crawler.py
@@ -343,6 +347,8 @@ def append_csv(records: list[dict], header_written: bool) -> bool:
 
 
 def main() -> None:
+    if CSV_PATH.exists():
+        raise FileExistsError(f"Existing batch is preserved: {CSV_PATH}")
     if PAGES_TO_CRAWL <= 0:
         raise ValueError("PAGES_TO_CRAWL phải lớn hơn 0.")
     if DELAY_SECONDS < 0:

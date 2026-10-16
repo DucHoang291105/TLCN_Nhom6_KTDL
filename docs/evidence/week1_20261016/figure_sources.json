@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-10-16T16:33:14.567233+00:00",
+  "kind": "rendered verification figures, not UI screenshots",
+  "run_id": "week1_complete_20261016",
+  "sources": [
+    "bronze_state_audit.json",
+    "silver_final_verification.json",
+    "gold_verification.json",
+    "gold_listing_lifecycle_summary.json",
+    "airflow_task_states.json",
+    "airflow_failure_gate.json"
+  ]
+}

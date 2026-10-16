@@ -1,20 +1,20 @@
 {
-  "generated_at": "2026-10-09T16:24:33.095664+00:00",
+  "generated_at": "2026-10-16T16:23:44.991439+00:00",
   "catalog_namespace": "lakehouse.silver",
   "table_counts": {
-    "listing_observation": 190517,
+    "listing_observation": 263331,
     "listing_dq_quarantine": 664,
-    "crawl_current_27": 93651,
+    "crawl_current_27": 104303,
     "historical_current_27": 30317,
-    "silver_listings_current_27": 123968,
-    "listing_history": 131420,
-    "listing_location": 123968,
-    "listing_feature": 123968
+    "silver_listings_current_27": 134620,
+    "listing_history": 148209,
+    "listing_location": 134620,
+    "listing_feature": 134620
   },
   "source_counts": {
-    "guland": 47387,
-    "nhadatvui": 17336,
-    "batdongsan": 28928,
+    "guland": 52242,
+    "nhadatvui": 17968,
+    "batdongsan": 34093,
     "chotot": 8152,
     "muaban": 363,
     "alonhadat": 1278,
@@ -63,13 +63,13 @@
     "location_missing_ids": 0,
     "observation_bad_category_evidence": 0,
     "observation_category_evidence_mismatch": 0,
-    "model_category_mapped_rate": 0.997072,
+    "model_category_mapped_rate": 0.997274,
     "title_flag_true_rates": {
-      "title_has_legal": 0.101002,
-      "title_has_furnished": 0.085006,
-      "title_has_frontage": 0.168205,
-      "title_has_elevator": 0.041898,
-      "title_has_car_access": 0.127154
+      "title_has_legal": 0.098878,
+      "title_has_furnished": 0.082907,
+      "title_has_frontage": 0.16889,
+      "title_has_elevator": 0.040603,
+      "title_has_car_access": 0.128762
     }
   },
   "warnings": [],

@@ -8,7 +8,7 @@ Thành viên:
 - 23133029 - Vương Đức Huy
 - 23133040 - Nguyễn Lê Hoàng Kiệt
 
-Repository hiện phản ánh tiến độ đến **tuần 6: Silver Feature, Gold nền và Gold theo Business Question (BQ1–BQ3)**, kèm đợt rà soát sửa lỗi ngày 09/10/2026. Báo cáo tiến độ: [`docs/report/Bao_cao_Silver_Feature_Gold.docx`](docs/report/Bao_cao_Silver_Feature_Gold.docx).
+Repository gồm Silver Feature, Gold nền/BQ1–BQ3 và phần pipeline, lifecycle, Airflow của giai đoạn hoàn thiện **16–22/10/2026**. Kết quả batch 16/10 và minh chứng vận hành: [`docs/report/Tien_do_A_tuan1.md`](docs/report/Tien_do_A_tuan1.md). Báo cáo Word ở mốc 09/10 được giữ để đối chiếu: [`docs/report/Bao_cao_Silver_Feature_Gold.docx`](docs/report/Bao_cao_Silver_Feature_Gold.docx).
 
 ## Kiến trúc hiện tại
 
@@ -34,6 +34,7 @@ Repository hiện phản ánh tiến độ đến **tuần 6: Silver Feature, Go
                      Gold: Apache Iceberg (star schema)
                      ├── 9 dimension (dim_source, dim_date, dim_location, ...)
                      ├── fact_listing
+                     ├── fact_listing_lifecycle
                      └── bảng BQ: price benchmark (BQ2), budget trade-off (BQ1),
                          area substitution (BQ3), DQ KPI, repricing, market overview
                                  │
@@ -50,9 +51,18 @@ Mỗi tầng có bucket MinIO riêng: `lakehouse-bronze` (Parquet), `lakehouse-s
 
 Silver chỉ đọc Bronze Parquet trên MinIO, không đọc tắt CSV crawler. Bảng downstream chính là `lakehouse.silver.silver_listings_current_27`; hai bảng crawl/historical current được giữ để kiểm chứng lineage.
 
-## Kết quả hiện tại
+Airflow điều phối chuẩn bị snapshot → Bronze → Silver → verify Silver → Gold/lifecycle → verify Gold vào **22:00 thứ 3 và thứ 6** (giờ Việt Nam). Guland/Nhadatvui chỉ được crawl nếu thiếu batch hôm đó; CSV Batdongsan xuất từ Chrome extension được sensor tiếp nhận trước khi ingest. Batch đã có được dùng lại. Hướng dẫn đầy đủ: [`docs/operations/week1_pipeline.md`](docs/operations/week1_pipeline.md).
 
-Số liệu dưới đây là lần rebuild đầy đủ ngày 09/10/2026 sau đợt rà soát (xem mục *Đợt rà soát 09/10/2026* bên dưới). Bronze gồm batch `20260929` và `20261002` của `batdongsan` và `guland`.
+```powershell
+docker compose --profile orchestration up -d --build
+.\scripts\run_airflow_pipeline.ps1 -BatchId 20261016
+```
+
+Airflow UI: http://localhost:8082. Các hình minh chứng xuất từ kết quả thật ở [`docs/evidence/week1_20261016`](docs/evidence/week1_20261016/).
+
+## Mốc kiểm chứng 09/10/2026 (lưu để đối chiếu)
+
+Số liệu dưới đây là lần rebuild ngày 09/10/2026, trước khi bổ sung các batch tới 16/10. Đây là snapshot lịch sử; số liệu mới lấy từ [`docs/report/Tien_do_A_tuan1.md`](docs/report/Tien_do_A_tuan1.md) và các JSON hiện tại trong `docs/validation/`.
 
 ### Bronze State Audit
 
@@ -202,6 +212,7 @@ Hoặc chạy từng bước:
 .\scripts\run_spark.ps1 "src\silver\verify_silver.py"
 .\scripts\run_spark.ps1 "src\gold\build_dimensions.py"
 .\scripts\run_spark.ps1 "src\gold\build_fact_listing.py"
+.\scripts\run_spark.ps1 "src\gold\build_listing_lifecycle.py"
 .\scripts\run_spark.ps1 "src\gold\verify_gold.py"
 python -m pytest -q
 ```
@@ -224,6 +235,9 @@ config/gold_bands.csv                Ngưỡng band giá, diện tích, giá/m²
 src/gold/gold_rules.py               Quy tắc Gold thuần Python (band, dedup cross-source)
 src/gold/build_dimensions.py         Xây 9 dimension
 src/gold/build_fact_listing.py       Xây fact_listing và cờ nghi trùng
+src/gold/build_listing_lifecycle.py  Vòng đời quan sát, lần đổi giá, vắng hai batch
+src/orchestration/                  Chuẩn bị batch, gọi Spark và lưu minh chứng Airflow
+dags/lakehouse_pipeline.py           DAG lịch thứ 3/thứ 6, dừng downstream khi FAIL
 src/gold/verify_gold.py              Kiểm chứng star schema Gold
 tests/unit/                           Unit tests Silver và Gold
 docs/data/                            Data Contract và Data Quality Rules
@@ -232,10 +246,10 @@ docs/validation/                      Bằng chứng audit/test/verification
 
 ## Phạm vi và bước tiếp theo
 
-Đã hoàn thành: Silver Data Foundation, `listing_feature`, Gold nền (9 dimension + `fact_listing`) và các bảng Gold trả lời BQ1–BQ3 cùng DQ KPI, repricing và tổng quan thị trường.
+Đã hoàn thành: Silver Data Foundation, `listing_feature`, Gold nền/BQ1–BQ3, DQ KPI, repricing, tổng quan thị trường, `fact_listing_lifecycle` và DAG Airflow. Kết quả chạy và giới hạn được ghi trong báo cáo vận hành 16/10.
 
 Bước tiếp theo:
 
 - Mô hình hedonic cho BQ2 (`pyspark.ml`) để tách phần chênh lệch giá do từng đặc điểm.
-- Airflow DAG điều phối Bronze → Silver → Gold → verify; dashboard Superset qua Trino cho từng BQ.
+- Dashboard Superset qua Trino cho từng BQ.
 - GIS point-in-polygon, Location Master tới mã huyện/xã, incremental `MERGE INTO` và dọn snapshot Iceberg cũ.

@@ -39,6 +39,7 @@ GRAINS = {
     "gold.dim_room_band": ["band_key"],
     "gold.dim_dq_status": ["dq_status_key"],
     "gold.fact_listing": ["source_id"],
+    "gold.fact_listing_lifecycle": ["source_id"],
     "gold.agg_peer_group_benchmark": ["peer_group_id"],
     "gold.fact_listing_price_assessment": ["source_id"],
     "gold.agg_budget_tradeoff": ["price_band_key", "location_key", "property_category_key"],

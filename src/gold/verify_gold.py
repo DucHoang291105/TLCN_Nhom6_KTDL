@@ -15,6 +15,7 @@ BAND_TABLES={"price":"dim_price_band","area":"dim_area_band","unit_price":"dim_u
 BQ_GRAINS={"agg_peer_group_benchmark":["peer_group_id"],"fact_listing_price_assessment":["source_id"],"agg_budget_tradeoff":["price_band_key","location_key","property_category_key"],"fact_budget_pareto":["source_id"],"agg_area_substitution":["origin_location_key","alternative_location_key","property_category_key","area_band_key"],"agg_dq_kpi":["source_key"],"fact_listing_price_change":["source_id","version_number"],"agg_market_overview":["province_name","property_category_key"]}
 BAND_VALUES={"price_band_key":("price","dim_price_band"),"area_band_key":("area","dim_area_band"),"unit_price_band_key":("price_per_m2","dim_unit_price_band"),"room_band_key":("rooms","dim_room_band")}
 FLAGS=["title_has_legal","title_has_furnished","title_has_frontage","title_has_elevator","title_has_car_access"]
+BQ_GRAINS["fact_listing_lifecycle"]=["source_id"]
 BQ_FKS={"date_key":"dim_date","location_key":"dim_location","origin_location_key":"dim_location","alternative_location_key":"dim_location","property_category_key":"dim_property_category","area_band_key":"dim_area_band","room_band_key":"dim_room_band","price_band_key":"dim_price_band","source_key":"dim_source"}
 FACT_FKS={"source_key":"dim_source","date_key":"dim_date","posted_date_key":"dim_date","location_key":"dim_location","property_category_key":"dim_property_category","price_band_key":"dim_price_band","area_band_key":"dim_area_band","unit_price_band_key":"dim_unit_price_band","room_band_key":"dim_room_band","dq_status_key":"dim_dq_status"}
 
@@ -125,6 +126,9 @@ def main() -> None:
     checks["market_overview_sum_matches"]=bq["agg_market_overview"].agg(F.sum("n_listings")).first()[0]==metrics["representative_rows"]
     locations={name:spark.sql(f"DESCRIBE TABLE EXTENDED {gold}.{name}").filter("col_name='Location'").first()["data_type"].rstrip("/") for name in [*DIMENSIONS,"fact_listing",*BQ_GRAINS]}
     checks["tables_in_gold_bucket"]=all(loc==table_location(f"{gold}.{name}") for name,loc in locations.items())
+    from src.gold.verify_listing_lifecycle import verify_lifecycle
+    lifecycle_checks,lifecycle_metrics=verify_lifecycle(spark,silver,gold)
+    checks.update(lifecycle_checks); metrics.update(lifecycle_metrics)
     failures=[name for name,passed in checks.items() if not passed]
     summary={"generated_at":datetime.now(timezone.utc).isoformat(),"namespace":gold,"table_counts":counts,"checks":checks,"metrics":metrics,"table_locations":locations,"status":"PASS" if not failures else "FAIL","failures":failures}
     for out in (PROJECT_ROOT/"outputs/validation",PROJECT_ROOT/"docs/validation"):

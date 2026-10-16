@@ -34,6 +34,7 @@ parser.add_argument(
     help="Batch moi, dinh dang YYYYMMDD",
 )
 
+parser.add_argument("--source", choices=("all", "batdongsan", "guland", "nhadatvui"), default="all")
 args = parser.parse_args()
 
 OLD_BATCH = args.old_batch
@@ -45,14 +46,15 @@ def validate_batch_id(value: str) -> None:
         raise ValueError(
             f"Batch '{value}' khong dung YYYYMMDD"
         )
+    datetime.strptime(value, "%Y%m%d")
 
 
 validate_batch_id(OLD_BATCH)
 validate_batch_id(NEW_BATCH)
 
-if OLD_BATCH == NEW_BATCH:
+if OLD_BATCH >= NEW_BATCH:
     raise ValueError(
-        "OLD_BATCH va NEW_BATCH khong duoc giong nhau"
+        "OLD_BATCH phai nho hon NEW_BATCH"
     )
 
 
@@ -611,6 +613,8 @@ results = []
 # ============================================================
 
 for source_name, config in SOURCES.items():
+    if args.source != "all" and source_name != args.source:
+        continue
 
     print()
     print("=" * 82)
