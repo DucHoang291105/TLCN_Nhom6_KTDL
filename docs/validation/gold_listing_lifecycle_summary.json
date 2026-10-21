@@ -1,0 +1,407 @@
+{
+  "generated_at": "2026-10-16T16:30:16.841001+00:00",
+  "output_table": "lakehouse.gold.fact_listing_lifecycle",
+  "input_table": "lakehouse.silver.listing_observation",
+  "rows": 134620,
+  "grain": [
+    "source_id"
+  ],
+  "source_batch_calendar": {
+    "batdongsan": [
+      "20260922",
+      "20260925",
+      "20260929",
+      "20261002",
+      "20261006",
+      "20261009",
+      "20261013",
+      "20261016"
+    ],
+    "guland": [
+      "20260922",
+      "20260925",
+      "20260929",
+      "20261002",
+      "20261006",
+      "20261009",
+      "20261013",
+      "20261016"
+    ],
+    "nhadatvui": [
+      "20260922",
+      "20260925",
+      "20260929",
+      "20261002",
+      "20261006",
+      "20261009",
+      "20261013",
+      "20261016"
+    ]
+  },
+  "status_counts": [
+    {
+      "source": "alonhadat",
+      "lifecycle_status": "NOT_APPLICABLE",
+      "count": 1278
+    },
+    {
+      "source": "batdongsan",
+      "lifecycle_status": "NOT_OBSERVED_2_BATCHES",
+      "count": 28611
+    },
+    {
+      "source": "batdongsan",
+      "lifecycle_status": "NOT_OBSERVED_LATEST",
+      "count": 1543
+    },
+    {
+      "source": "batdongsan",
+      "lifecycle_status": "OBSERVED_LATEST",
+      "count": 3939
+    },
+    {
+      "source": "chotot",
+      "lifecycle_status": "NOT_APPLICABLE",
+      "count": 8152
+    },
+    {
+      "source": "guland",
+      "lifecycle_status": "NOT_OBSERVED_2_BATCHES",
+      "count": 39418
+    },
+    {
+      "source": "guland",
+      "lifecycle_status": "NOT_OBSERVED_LATEST",
+      "count": 3868
+    },
+    {
+      "source": "guland",
+      "lifecycle_status": "OBSERVED_LATEST",
+      "count": 8956
+    },
+    {
+      "source": "homedy",
+      "lifecycle_status": "NOT_APPLICABLE",
+      "count": 566
+    },
+    {
+      "source": "luachonnhadat",
+      "lifecycle_status": "NOT_APPLICABLE",
+      "count": 883
+    },
+    {
+      "source": "mogi",
+      "lifecycle_status": "NOT_APPLICABLE",
+      "count": 19075
+    },
+    {
+      "source": "muaban",
+      "lifecycle_status": "NOT_APPLICABLE",
+      "count": 363
+    },
+    {
+      "source": "nhadatvui",
+      "lifecycle_status": "NOT_OBSERVED_2_BATCHES",
+      "count": 14257
+    },
+    {
+      "source": "nhadatvui",
+      "lifecycle_status": "NOT_OBSERVED_LATEST",
+      "count": 113
+    },
+    {
+      "source": "nhadatvui",
+      "lifecycle_status": "OBSERVED_LATEST",
+      "count": 3598
+    }
+  ],
+  "sample": [
+    {
+      "source_id": "alonhadat_10180535",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    },
+    {
+      "source_id": "alonhadat_12552103",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    },
+    {
+      "source_id": "alonhadat_12807758",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    },
+    {
+      "source_id": "alonhadat_12963102",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    },
+    {
+      "source_id": "alonhadat_12994529",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    },
+    {
+      "source_id": "alonhadat_13273040",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    },
+    {
+      "source_id": "alonhadat_13275586",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    },
+    {
+      "source_id": "alonhadat_13392874",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    },
+    {
+      "source_id": "alonhadat_13440258",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    },
+    {
+      "source_id": "alonhadat_13838837",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    },
+    {
+      "source_id": "alonhadat_13854872",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    },
+    {
+      "source_id": "alonhadat_13868707",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    },
+    {
+      "source_id": "alonhadat_13879107",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    },
+    {
+      "source_id": "alonhadat_14029365",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    },
+    {
+      "source_id": "alonhadat_14029393",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    },
+    {
+      "source_id": "alonhadat_14029407",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    },
+    {
+      "source_id": "alonhadat_14149675",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    },
+    {
+      "source_id": "alonhadat_14152786",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    },
+    {
+      "source_id": "alonhadat_14152835",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    },
+    {
+      "source_id": "alonhadat_14152857",
+      "source_key": 1,
+      "source": "alonhadat",
+      "first_seen_date": "2026-06-25",
+      "last_seen_date": "2026-06-25",
+      "first_seen_batch_id": "historical_backfill_v1",
+      "last_seen_batch_id": "historical_backfill_v1",
+      "observation_count": 1,
+      "listed_days": 0,
+      "price_change_count": 0,
+      "lifecycle_status": "NOT_APPLICABLE",
+      "lifecycle_built_at": "2026-10-16T23:30:04.417+07:00"
+    }
+  ],
+  "definitions": {
+    "listed_days": "last_seen_date - first_seen_date; observed span, not time to sale",
+    "is_disappeared": "Absent from both latest audited batches of its own source; not sold",
+    "historical": "NOT_APPLICABLE and NULL disappearance fields",
+    "price_changes": "Adjacent valid positive observed prices differ; NULL does not bridge a gap"
+  },
+  "status": "PASS"
+}

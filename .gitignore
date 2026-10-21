@@ -1,5 +1,6 @@
 # Python
 __pycache__/
+.pytest_cache/
 *.py[cod]
 .venv/
 venv/
@@ -25,6 +26,8 @@ data/incoming/**
 
 # Internal reports supplied outside the repository
 KTDL_*.pdf
+/[Kk]e_[Hh]oach*
+/TLCN_Nhom6_Codex_Context_Bronze_Silver.txt
 
 # Runtime / outputs
 outputs/**
