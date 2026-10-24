@@ -1,0 +1,207 @@
+{
+  "fingerprint_version": "sha256_multiset_v2",
+  "tables_compared": 28,
+  "tables": [
+    {
+      "table": "gold.agg_area_substitution",
+      "rows_before": 3555,
+      "rows_after": 3555,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "gold.agg_budget_tradeoff",
+      "rows_before": 2529,
+      "rows_after": 2529,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "gold.agg_dq_kpi",
+      "rows_before": 9,
+      "rows_after": 9,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "gold.agg_market_overview",
+      "rows_before": 149,
+      "rows_after": 149,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "gold.agg_peer_group_benchmark",
+      "rows_before": 2705,
+      "rows_after": 2705,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "gold.dim_area_band",
+      "rows_before": 7,
+      "rows_after": 7,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "gold.dim_date",
+      "rows_before": 2694,
+      "rows_after": 2694,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "gold.dim_dq_status",
+      "rows_before": 3,
+      "rows_after": 3,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "gold.dim_location",
+      "rows_before": 275,
+      "rows_after": 275,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "gold.dim_price_band",
+      "rows_before": 9,
+      "rows_after": 9,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "gold.dim_property_category",
+      "rows_before": 6,
+      "rows_after": 6,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "gold.dim_room_band",
+      "rows_before": 6,
+      "rows_after": 6,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "gold.dim_source",
+      "rows_before": 10,
+      "rows_after": 10,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "gold.dim_unit_price_band",
+      "rows_before": 8,
+      "rows_after": 8,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "gold.fact_budget_pareto",
+      "rows_before": 118647,
+      "rows_after": 118647,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "gold.fact_listing",
+      "rows_before": 122375,
+      "rows_after": 122375,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "gold.fact_listing_lifecycle",
+      "rows_before": 137732,
+      "rows_after": 137732,
+      "excluded_build_columns": [
+        "lifecycle_built_at"
+      ],
+      "equal": true
+    },
+    {
+      "table": "gold.fact_listing_price_assessment",
+      "rows_before": 121382,
+      "rows_after": 121382,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "gold.fact_listing_price_change",
+      "rows_before": 1766,
+      "rows_after": 1766,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "silver.crawl_current_27",
+      "rows_before": 107415,
+      "rows_after": 107415,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "silver.historical_current_27",
+      "rows_before": 30317,
+      "rows_after": 30317,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "silver.listing_dq_quarantine",
+      "rows_before": 664,
+      "rows_after": 664,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "silver.listing_feature",
+      "rows_before": 137732,
+      "rows_after": 137732,
+      "excluded_build_columns": [
+        "feature_built_at"
+      ],
+      "equal": true
+    },
+    {
+      "table": "silver.listing_history",
+      "rows_before": 151972,
+      "rows_after": 151972,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "silver.listing_history_state",
+      "rows_before": 137732,
+      "rows_after": 137732,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "silver.listing_location",
+      "rows_before": 137732,
+      "rows_after": 137732,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "silver.listing_observation",
+      "rows_before": 278987,
+      "rows_after": 278987,
+      "excluded_build_columns": [],
+      "equal": true
+    },
+    {
+      "table": "silver.silver_listings_current_27",
+      "rows_before": 137732,
+      "rows_after": 137732,
+      "excluded_build_columns": [],
+      "equal": true
+    }
+  ],
+  "status": "PASS"
+}

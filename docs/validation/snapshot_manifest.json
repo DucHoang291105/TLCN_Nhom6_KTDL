@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-16T16:14:00.333413+00:00",
-  "expected_batch_id": "20261016",
+  "generated_at": "2026-10-24T11:44:43.018327+00:00",
+  "expected_batch_id": "20261023",
   "snapshots": [
     {
       "source": "batdongsan",
@@ -9,7 +9,8 @@
       "columns": 42,
       "max_source_page": 1000,
       "sha256": "6cc1d9148c85bd83bfa0bdd143ff0b32b6cc1a11170de85675dee220f80a60a1",
-      "size_bytes": 20953413
+      "size_bytes": 20953413,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "batdongsan",
@@ -18,7 +19,8 @@
       "columns": 42,
       "max_source_page": 700,
       "sha256": "15303e4b703a993d0e486739b06fd1ca3ed8bce024b1ebf0a2f7cfd0ebec3119",
-      "size_bytes": 15203414
+      "size_bytes": 15203414,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "batdongsan",
@@ -27,7 +29,8 @@
       "columns": 42,
       "max_source_page": 200,
       "sha256": "1dd176227f270a63eb7eb19a105c9a4575d16e82f347300b6e875213296701e7",
-      "size_bytes": 6128651
+      "size_bytes": 6128651,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "batdongsan",
@@ -36,7 +39,8 @@
       "columns": 42,
       "max_source_page": 200,
       "sha256": "61b307bf30ba95bdbede54e0013a3dde2da8686f989d44aa38880b146de4c78f",
-      "size_bytes": 6231147
+      "size_bytes": 6231147,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "batdongsan",
@@ -45,7 +49,8 @@
       "columns": 42,
       "max_source_page": 200,
       "sha256": "9245622a5087f034a7428e598746ca840ea8d2a9022747e7eac8d6c37eb86e4c",
-      "size_bytes": 6133288
+      "size_bytes": 6133288,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "batdongsan",
@@ -54,7 +59,8 @@
       "columns": 42,
       "max_source_page": 200,
       "sha256": "b9d25d3794ddbe912b572145c2fe10663e900ccfbad0203045e9c0db7570b0d8",
-      "size_bytes": 5976258
+      "size_bytes": 5976258,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "batdongsan",
@@ -63,7 +69,8 @@
       "columns": 42,
       "max_source_page": 200,
       "sha256": "cf48d8aab97e02ea4f7889b6048690111006dc41b8389d2efbc952415605d4bd",
-      "size_bytes": 5798381
+      "size_bytes": 5798381,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "batdongsan",
@@ -72,7 +79,28 @@
       "columns": 42,
       "max_source_page": 200,
       "sha256": "aaa94c3fec04d404b3a25f7fc24a41c78d74127308f32f974e672e4473ac6de6",
-      "size_bytes": 5732233
+      "size_bytes": 5732233,
+      "parser_version": "csv_contract_v2"
+    },
+    {
+      "source": "batdongsan",
+      "batch_id": "20261020",
+      "rows": 4000,
+      "columns": 42,
+      "max_source_page": 229,
+      "sha256": "eb8a35fe0fcc090106719e0ae0965faf031e7071231b3d4fb242021e7e2f118c",
+      "size_bytes": 5054904,
+      "parser_version": "csv_contract_v2"
+    },
+    {
+      "source": "batdongsan",
+      "batch_id": "20261023",
+      "rows": 4000,
+      "columns": 42,
+      "max_source_page": 200,
+      "sha256": "c5d1dce630ad1bfb6ec18ac3c6e89b61862dc4dde444244d28ee2041594e6be9",
+      "size_bytes": 5571448,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "guland",
@@ -81,7 +109,8 @@
       "columns": 22,
       "max_source_page": 1000,
       "sha256": "beee64ced4ba80baf910911338f61058b1096e2c878c89c4e47b0fbd4836dc62",
-      "size_bytes": 276033348
+      "size_bytes": 276033348,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "guland",
@@ -90,7 +119,8 @@
       "columns": 22,
       "max_source_page": 700,
       "sha256": "9dd5e61421a640eb6e2f27efae5589ba8de26f5c745b5f43b142e85c289561d5",
-      "size_bytes": 195252263
+      "size_bytes": 195252263,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "guland",
@@ -99,7 +129,8 @@
       "columns": 22,
       "max_source_page": 200,
       "sha256": "d4abda54e495af8a54c55c037bcfe2bda48c74fc6ea881b079e7e2b489034e25",
-      "size_bytes": 57686756
+      "size_bytes": 57686756,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "guland",
@@ -108,7 +139,8 @@
       "columns": 22,
       "max_source_page": 200,
       "sha256": "01d8af3c86d846d7f8dee1a005680fa8cfbe2af440a0c43e18af5f1961e36b7d",
-      "size_bytes": 56432657
+      "size_bytes": 56432657,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "guland",
@@ -117,7 +149,8 @@
       "columns": 22,
       "max_source_page": 200,
       "sha256": "ef6f471ed6d1c11c330caa2197c4894f9003364209046e93edf64725b3f97ca2",
-      "size_bytes": 56890041
+      "size_bytes": 56890041,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "guland",
@@ -126,7 +159,8 @@
       "columns": 22,
       "max_source_page": 200,
       "sha256": "b2355dff69c89d377f01fdee6e3bf2bd999156f11b7c2b8c96daea21c8aed6a7",
-      "size_bytes": 57051704
+      "size_bytes": 57051704,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "guland",
@@ -135,7 +169,8 @@
       "columns": 22,
       "max_source_page": 200,
       "sha256": "0c3e8e4bb7cf80ce9f5cd78e5a5db7a978bf7733f616a573f10de5a3c20b6c11",
-      "size_bytes": 56880665
+      "size_bytes": 56880665,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "guland",
@@ -144,7 +179,18 @@
       "columns": 22,
       "max_source_page": 200,
       "sha256": "f373b02dbf0be4c191cddd65b19fcfb0871e0dd4568dcc60092617bf964a1195",
-      "size_bytes": 60118447
+      "size_bytes": 60118447,
+      "parser_version": "csv_contract_v2"
+    },
+    {
+      "source": "guland",
+      "batch_id": "20261023",
+      "rows": 1350,
+      "columns": 22,
+      "max_source_page": 30,
+      "sha256": "90e57530b6f603c5d1d5158d911ff66315fc24018d7df8e76a646b6721be0f9c",
+      "size_bytes": 9992511,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "nhadatvui",
@@ -153,7 +199,8 @@
       "columns": 40,
       "max_source_page": 937,
       "sha256": "fd00120bcda93ebbab62e04c6f6bd206f973513ceeded4b1feaf12249980a37e",
-      "size_bytes": 10141745
+      "size_bytes": 10141745,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "nhadatvui",
@@ -162,7 +209,8 @@
       "columns": 40,
       "max_source_page": 600,
       "sha256": "c5e8168cfff50a1fae16f6fd8e80dd9dadea8e2126e26c5ab187182850ffc63e",
-      "size_bytes": 6467659
+      "size_bytes": 6467659,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "nhadatvui",
@@ -171,7 +219,8 @@
       "columns": 40,
       "max_source_page": 200,
       "sha256": "5e024755481125139b6aa646866d2567ff08037b689ecfffb5737d473f6d7447",
-      "size_bytes": 2123086
+      "size_bytes": 2123086,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "nhadatvui",
@@ -180,7 +229,8 @@
       "columns": 40,
       "max_source_page": 200,
       "sha256": "e91905a72aba07656fa4c19e7cb74b2fa36299d48070355338f6823cc8d1ff93",
-      "size_bytes": 2083598
+      "size_bytes": 2083598,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "nhadatvui",
@@ -189,7 +239,8 @@
       "columns": 40,
       "max_source_page": 200,
       "sha256": "29b778e4420bf18ffae2a9f4cef5563e5bd35ba71391b0ded2c53adfa4c367fb",
-      "size_bytes": 2119743
+      "size_bytes": 2119743,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "nhadatvui",
@@ -198,7 +249,8 @@
       "columns": 40,
       "max_source_page": 200,
       "sha256": "590f81c55706af78c99aeb65c058d2797bc7eda7fbdc0dda1c637e64e7e7fba6",
-      "size_bytes": 2114651
+      "size_bytes": 2114651,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "nhadatvui",
@@ -207,7 +259,8 @@
       "columns": 40,
       "max_source_page": 200,
       "sha256": "b2740c42ead7f9ebc359955c0575641275fcc38223ac77e74102fefdba290cc4",
-      "size_bytes": 4202793
+      "size_bytes": 4202793,
+      "parser_version": "csv_contract_v2"
     },
     {
       "source": "nhadatvui",
@@ -216,9 +269,38 @@
       "columns": 40,
       "max_source_page": 200,
       "sha256": "0a1f8c3b70065bf4ca0eacbeec8b8e10905ec5b875b455a5d7db0e36ac78c774",
-      "size_bytes": 2109265
+      "size_bytes": 2109265,
+      "parser_version": "csv_contract_v2"
+    },
+    {
+      "source": "nhadatvui",
+      "batch_id": "20261020",
+      "rows": 3600,
+      "columns": 40,
+      "max_source_page": 200,
+      "sha256": "28ae62ee1dba4272ff8a8226c268edb1bcd898772cdc2ae43428b2b00ea412e9",
+      "size_bytes": 2109319,
+      "parser_version": "csv_contract_v2"
+    },
+    {
+      "source": "nhadatvui",
+      "batch_id": "20261023",
+      "rows": 3600,
+      "columns": 40,
+      "max_source_page": 200,
+      "sha256": "a6b14fc93c20b07135bd38177e79e4383d326a5a3dc575488520191b86204fb4",
+      "size_bytes": 2109996,
+      "parser_version": "csv_contract_v2"
     }
   ],
-  "snapshot_rows": 241991,
-  "status": "PASS"
+  "snapshot_rows": 258541,
+  "status": "PASS",
+  "verification": {
+    "sha256_files_checked": 29,
+    "csv_profiles_reused": 29,
+    "csv_profiles_parsed": 0,
+    "force_rescan": false,
+    "workers": 4,
+    "elapsed_seconds": 3.888
+  }
 }

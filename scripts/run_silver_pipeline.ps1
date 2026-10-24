@@ -1,3 +1,4 @@
+param([ValidateSet("incremental", "rebuild")][string]$HistoryMode = "incremental")
 $ErrorActionPreference = "Stop"
 . "$PSScriptRoot\pipeline_utils.ps1"
 
@@ -14,7 +15,13 @@ $jobs = @(
 Push-Location (Split-Path -Parent $PSScriptRoot)
 try {
     Invoke-Native { docker compose up -d minio minio-init iceberg-rest spark-master spark-worker } "Cannot start core Docker services"
-    Invoke-SparkJobs $jobs "Silver"
+    foreach ($job in $jobs) {
+        if ($job -eq "src\silver\build_listing_history.py") {
+            Invoke-Native { & "$PSScriptRoot\run_spark.ps1" $job --mode $HistoryMode } "History job failed"
+        } else {
+            Invoke-SparkJobs @($job) "Silver"
+        }
+    }
     Invoke-Native { python -m pytest -q } "Unit tests failed"
 } finally {
     Pop-Location

@@ -33,6 +33,15 @@ KTDL_*.pdf
 /[Kk]e_[Hh]oach*
 /TLCN_Nhom6_Codex_Context_Bronze_Silver.txt
 
+# Local reviews and publication diagnostics
+/docs/reviews/
+/docs/report/Tien_do_A_tuan1.md
+/docs/validation/person_a_release_readiness.json
+/docs/validation/person_a_public_file_audit.json
+/docs/validation/person_a_pre_fix_permissions_failure.json
+/docs/validation/person_a_airflow_run.json
+/docs/validation/person_a_pytest.xml
+
 # Runtime / outputs
 outputs/**
 !outputs/**/.gitkeep

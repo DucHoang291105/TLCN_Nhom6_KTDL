@@ -1,0 +1,32 @@
+{
+  "before": {
+    "generated_at": "2026-10-24T11:23:16.158081+00:00",
+    "events": {
+      "low": 0,
+      "high": 0,
+      "max": 168656,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "memory_limit_bytes": 1073741824,
+    "peak_bytes": 1074626560,
+    "swap_bytes": 179826688
+  },
+  "after": {
+    "generated_at": "2026-10-24T11:43:20.968288+00:00",
+    "events": {
+      "low": 0,
+      "high": 0,
+      "max": 0,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "memory_limit_bytes": 1610612736,
+    "peak_bytes": 1569976320,
+    "swap_bytes": 59342848,
+    "ivy_named_volume": true,
+    "ivy_cache_writable": true
+  }
+}
