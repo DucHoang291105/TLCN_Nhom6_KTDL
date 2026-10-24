@@ -1,0 +1,171 @@
+{
+  "generated_at": "2026-10-24T10:01:46.068982+00:00",
+  "demo_table": "lakehouse.smoke_test.features_20261024_100129",
+  "original_snapshot_id": "6946067691564840274",
+  "checks": {
+    "time_travel_old_price_and_row_count": true,
+    "merge_update_and_insert": true,
+    "schema_add_preserves_rows_as_null": true,
+    "schema_add_is_metadata_only": true,
+    "schema_rename_preserves_rows": true,
+    "snapshot_date_partition": true
+  },
+  "outputs": {
+    "current_after_merge": [
+      {
+        "id": 1,
+        "price": 120,
+        "snapshot_date": "2026-10-16"
+      },
+      {
+        "id": 2,
+        "price": 200,
+        "snapshot_date": "2026-10-20"
+      },
+      {
+        "id": 3,
+        "price": 300,
+        "snapshot_date": "2026-10-23"
+      }
+    ],
+    "as_of_original_snapshot": [
+      {
+        "id": 1,
+        "price": 100,
+        "snapshot_date": "2026-10-16"
+      },
+      {
+        "id": 2,
+        "price": 200,
+        "snapshot_date": "2026-10-20"
+      }
+    ],
+    "after_add_column": [
+      {
+        "id": 1,
+        "quality_note": null
+      },
+      {
+        "id": 2,
+        "quality_note": null
+      },
+      {
+        "id": 3,
+        "quality_note": null
+      }
+    ],
+    "snapshots": [
+      {
+        "snapshot_id": 6946067691564840274,
+        "operation": "append",
+        "summary": {
+          "engine-version": "3.5.9",
+          "added-data-files": "2",
+          "total-equality-deletes": "0",
+          "app-id": "app-20261024100128-0006",
+          "added-records": "2",
+          "total-records": "2",
+          "app-name": "DemoIcebergFeatures",
+          "spark.app.id": "app-20261024100128-0006",
+          "changed-partition-count": "2",
+          "engine-name": "spark",
+          "manifests-created": "1",
+          "total-position-deletes": "0",
+          "added-files-size": "1860",
+          "total-delete-files": "0",
+          "iceberg-version": "Apache Iceberg 1.11.0 (commit 6976e020b894f6a6777704df2b8c4458cb291ae9)",
+          "manifests-kept": "0",
+          "manifests-replaced": "0",
+          "total-files-size": "1860",
+          "total-data-files": "2"
+        }
+      },
+      {
+        "snapshot_id": 2800107468374021873,
+        "operation": "overwrite",
+        "summary": {
+          "engine-version": "3.5.9",
+          "added-data-files": "2",
+          "total-equality-deletes": "0",
+          "app-id": "app-20261024100128-0006",
+          "added-records": "2",
+          "deleted-data-files": "1",
+          "deleted-records": "1",
+          "total-records": "3",
+          "app-name": "DemoIcebergFeatures",
+          "spark.app.id": "app-20261024100128-0006",
+          "removed-files-size": "930",
+          "changed-partition-count": "2",
+          "engine-name": "spark",
+          "manifests-created": "2",
+          "total-position-deletes": "0",
+          "added-files-size": "1907",
+          "total-delete-files": "0",
+          "iceberg-version": "Apache Iceberg 1.11.0 (commit 6976e020b894f6a6777704df2b8c4458cb291ae9)",
+          "manifests-kept": "0",
+          "manifests-replaced": "1",
+          "total-files-size": "2837",
+          "total-data-files": "3"
+        }
+      }
+    ],
+    "partitions": [
+      {
+        "partition": {
+          "snapshot_date": "2026-10-16"
+        },
+        "record_count": 1
+      },
+      {
+        "partition": {
+          "snapshot_date": "2026-10-20"
+        },
+        "record_count": 1
+      },
+      {
+        "partition": {
+          "snapshot_date": "2026-10-23"
+        },
+        "record_count": 1
+      }
+    ],
+    "schema": [
+      {
+        "col_name": "id",
+        "data_type": "bigint",
+        "comment": null
+      },
+      {
+        "col_name": "price",
+        "data_type": "bigint",
+        "comment": null
+      },
+      {
+        "col_name": "snapshot_date",
+        "data_type": "date",
+        "comment": null
+      },
+      {
+        "col_name": "review_note",
+        "data_type": "string",
+        "comment": null
+      },
+      {
+        "col_name": "# Partition Information",
+        "data_type": "",
+        "comment": ""
+      },
+      {
+        "col_name": "# col_name",
+        "data_type": "data_type",
+        "comment": "comment"
+      },
+      {
+        "col_name": "snapshot_date",
+        "data_type": "date",
+        "comment": null
+      }
+    ]
+  },
+  "status": "PASS"
+}

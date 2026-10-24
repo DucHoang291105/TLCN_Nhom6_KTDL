@@ -1,11 +1,20 @@
 {
-  "generated_at": "2026-10-16T16:21:03.285510+00:00",
+  "mode": "incremental",
+  "operation": "NO_CHANGE",
+  "input_source_ids": 137732,
+  "affected_source_ids": 0,
+  "staged_history_rows": 0,
+  "history_rows": 151972,
+  "history_table": "lakehouse.silver.listing_history",
+  "state_table": "lakehouse.silver.listing_history_state",
+  "snapshot_before": "5786207415974384285",
+  "snapshot_after": "5786207415974384285",
+  "elapsed_seconds": 15.7439,
+  "partition_by": [
+    "snapshot_date"
+  ],
+  "status": "PASS",
+  "generated_at": "2026-10-24T10:11:46.223037+00:00",
   "input_table": "lakehouse.silver.listing_observation",
-  "output_table": "lakehouse.silver.listing_history",
-  "observation_rows": 263331,
-  "history_rows": 148209,
-  "source_id_count": 134620,
-  "changed_versions": 13589,
-  "consecutive_duplicate_hashes": 0,
-  "status": "PASS"
+  "observation_rows": 278987
 }

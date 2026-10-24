@@ -53,6 +53,7 @@ def main():
     airflow = read("airflow_incremental_task_states")
     if airflow["state"] != "success" or not airflow["tasks"] or any(t["state"] != "success" for t in airflow["tasks"]):
         raise RuntimeError("Airflow evidence requires an actual fully successful run")
+    run_minutes = round((datetime.fromisoformat(airflow["end_date"].replace("Z", "+00:00")) - datetime.fromisoformat(airflow["start_date"].replace("Z", "+00:00"))).total_seconds()/60, 2)
     OUT.mkdir(parents=True, exist_ok=True)
     figures.OUT = OUT
     merged, rebuilt, comparison = history["incremental"], history["full_rebuild"], history["comparison"]
@@ -114,6 +115,7 @@ Sinh từ JSON kiểm chứng ngày {datetime.now(timezone.utc).isoformat()}. Kh
 | SCD2 fixture | {history['fixture_check_count']} PASS |
 | Iceberg feature demo | {len(demo['checks'])} PASS |
 | Airflow task | {len(airflow['tasks'])}/{len(airflow['tasks'])} SUCCESS |
+| Thời gian thực chạy Airflow | {run_minutes} phút |
 
 MERGE tính lại {merged['affected_source_ids']:,}/{merged['input_source_ids']:,} listing ID;
 đầu ra {comparison['merge']['rows']:,} dòng, cùng SHA256 với full rebuild:
@@ -125,6 +127,13 @@ Thời gian thực đo: MERGE {merged['elapsed_seconds']} giây, rebuild {rebuil
 CI: [{ci['workflowName']}]({ci['url']}), commit `{ci['headSha']}`.
 Airflow run: `{airflow['run_id']}`, chế độ history `{airflow['history_mode']}`.
 {len(checksum_checks)} checksum CSV giữ nguyên sau xử lý.
+
+## Ảnh minh chứng
+
+- [01 — MERGE so với full rebuild](01_merge_vs_rebuild.png).
+- [02 — Các kiểm thử Iceberg/SCD2](02_iceberg_checks.png).
+- [03 — Tổng hợp kiểm định pipeline](03_pipeline_validation.png).
+- [04 — Trạng thái 23 task Airflow](04_airflow_tasks.png).
 
 ## Lưu ý khi báo cáo
 

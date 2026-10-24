@@ -79,31 +79,37 @@ Dữ liệu historical đặt trong `data/incoming/historical/<nguồn>/`, theo 
 
 ## Kết quả đã kiểm chứng
 
-Số liệu dưới đây thuộc lần chạy thành công trên dữ liệu tới batch **20261016**. Nguồn đối chiếu: [các JSON kiểm chứng](docs/validation/).
+Số liệu dưới đây thuộc lần chạy thành công trên dữ liệu tới batch **20261023**. Nguồn đối chiếu: [các JSON kiểm chứng](docs/validation/) và [bộ minh chứng Iceberg/pipeline](docs/evidence/iceberg_20261023/).
 
 | Đầu ra | Số dòng |
 |---|---:|
 | Bronze historical | 30.317 |
-| Bronze snapshot — 24 CSV, 8 batch mỗi nguồn | 241.991 |
-| Tổng Bronze | 272.308 |
-| Silver `listing_observation` | 263.331 |
+| Bronze snapshot — 29 CSV (Batdongsan 10, Guland 9, Nhadatvui 10 batch) | 258.541 |
+| Tổng Bronze | 288.858 |
+| Silver `listing_observation` | 278.987 |
 | Silver `listing_dq_quarantine` | 664 |
-| Silver `silver_listings_current_27` | 134.620 |
-| Silver `listing_history` | 148.209 |
-| Silver `listing_location` / `listing_feature` | 134.620 mỗi bảng |
-| Gold `fact_listing` — tin bán | 119.263 |
-| Gold `fact_listing_lifecycle` | 134.620 |
-| Gold `fact_listing_price_change` — sự kiện đổi giá tin bán | 1.504 |
+| Silver `silver_listings_current_27` | 137.732 |
+| Silver `listing_history` | 151.972 |
+| Silver `listing_history_state` — checkpoint theo listing | 137.732 |
+| Silver `listing_location` / `listing_feature` | 137.732 mỗi bảng |
+| Gold `fact_listing` — tin bán | 122.375 |
+| Gold `fact_listing_lifecycle` | 137.732 |
+| Gold `fact_listing_price_change` — sự kiện đổi giá tin bán | 1.766 |
+
+Guland không có batch 20261020; pipeline giữ đúng lịch quan sát riêng của từng nguồn, không tạo batch thay thế.
 
 Kết quả kiểm định:
 
-- Silver: **22/22 PASS**.
+- Silver: **30/30 PASS**.
 - Gold: **92/92 PASS**.
-- Unit tests: **186 PASS**.
+- Unit tests: **199 PASS**, CI Python 3.10 và 3.12 đều xanh.
+- Kiểm thử Spark SCD2: **11/11 PASS**; demo Iceberg: **6/6 PASS**.
 - Kiểm thử Spark cho lifecycle: **12/12 PASS**.
-- Airflow: **23/23 task SUCCESS**, thời gian chạy khoảng **19,51 phút** trên môi trường đã kiểm chứng.
+- Airflow: **23/23 task SUCCESS**, thời gian chạy khoảng **12,94 phút**, run `incremental_verified_20261023`.
 - Kiểm thử lỗi: một task thất bại, 22 task downstream bị chặn.
-- Checksum của 24 CSV gốc giữ nguyên sau khi chạy pipeline.
+- Checksum của 29 CSV gốc giữ nguyên sau khi chạy pipeline.
+
+MERGE và full rebuild đều tạo **151.972 dòng history**, cùng SHA256 và không có khác biệt khi `EXCEPT ALL` hai chiều. MERGE chỉ tính lại timeline của **9.689/137.732 listing ID**. Lần đo local cùng input đã cache: MERGE **19,37 giây**, full rebuild **11,39 giây**; không khẳng định incremental luôn nhanh hơn trên tập dữ liệu nhỏ. Retry trả `NO_CHANGE` và không tạo snapshot history mới.
 
 ## Các đầu ra phục vụ phân tích
 

@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-10-24T10:22:47.124016+00:00",
+  "kind": "rendered verification figures, not UI screenshots",
+  "airflow_run_id": "incremental_verified_20261023",
+  "ci_run_url": "https://github.com/DucHoang291105/TLCN_Nhom6_KTDL/actions/runs/40085426425",
+  "sources": [
+    "history_incremental_verification.json",
+    "iceberg_features.json",
+    "silver_final_verification.json",
+    "gold_verification.json",
+    "snapshot_manifest.json",
+    "pytest.xml",
+    "github_actions_tests.json",
+    "airflow_incremental_task_states.json"
+  ]
+}

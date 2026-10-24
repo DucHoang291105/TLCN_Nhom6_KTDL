@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-16T16:14:00.333413+00:00",
-  "expected_batch_id": "20261016",
+  "generated_at": "2026-10-24T10:07:52.215975+00:00",
+  "expected_batch_id": "20261023",
   "snapshots": [
     {
       "source": "batdongsan",
@@ -75,6 +75,24 @@
       "size_bytes": 5732233
     },
     {
+      "source": "batdongsan",
+      "batch_id": "20261020",
+      "rows": 4000,
+      "columns": 42,
+      "max_source_page": 229,
+      "sha256": "eb8a35fe0fcc090106719e0ae0965faf031e7071231b3d4fb242021e7e2f118c",
+      "size_bytes": 5054904
+    },
+    {
+      "source": "batdongsan",
+      "batch_id": "20261023",
+      "rows": 4000,
+      "columns": 42,
+      "max_source_page": 200,
+      "sha256": "c5d1dce630ad1bfb6ec18ac3c6e89b61862dc4dde444244d28ee2041594e6be9",
+      "size_bytes": 5571448
+    },
+    {
       "source": "guland",
       "batch_id": "20260922",
       "rows": 45664,
@@ -147,6 +165,15 @@
       "size_bytes": 60118447
     },
     {
+      "source": "guland",
+      "batch_id": "20261023",
+      "rows": 1350,
+      "columns": 22,
+      "max_source_page": 30,
+      "sha256": "90e57530b6f603c5d1d5158d911ff66315fc24018d7df8e76a646b6721be0f9c",
+      "size_bytes": 9992511
+    },
+    {
       "source": "nhadatvui",
       "batch_id": "20260922",
       "rows": 16860,
@@ -217,8 +244,26 @@
       "max_source_page": 200,
       "sha256": "0a1f8c3b70065bf4ca0eacbeec8b8e10905ec5b875b455a5d7db0e36ac78c774",
       "size_bytes": 2109265
+    },
+    {
+      "source": "nhadatvui",
+      "batch_id": "20261020",
+      "rows": 3600,
+      "columns": 40,
+      "max_source_page": 200,
+      "sha256": "28ae62ee1dba4272ff8a8226c268edb1bcd898772cdc2ae43428b2b00ea412e9",
+      "size_bytes": 2109319
+    },
+    {
+      "source": "nhadatvui",
+      "batch_id": "20261023",
+      "rows": 3600,
+      "columns": 40,
+      "max_source_page": 200,
+      "sha256": "a6b14fc93c20b07135bd38177e79e4383d326a5a3dc575488520191b86204fb4",
+      "size_bytes": 2109996
     }
   ],
-  "snapshot_rows": 241991,
+  "snapshot_rows": 258541,
   "status": "PASS"
 }

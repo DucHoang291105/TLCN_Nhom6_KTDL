@@ -1,14 +1,14 @@
 {
-  "started_at": "2026-10-16T16:28:01.238731+00:00",
-  "finished_at": "2026-10-16T16:28:12.075425+00:00",
+  "started_at": "2026-10-24T10:16:25.183641+00:00",
+  "finished_at": "2026-10-24T10:16:34.371781+00:00",
   "min_peer_group_size": 5,
   "min_feature_similarity": 0.8,
   "max_flag_share_gap": 0.3,
   "budget_rule": "estimated cost at the origin's median area",
-  "pairs_where_median_total_price_not_lower": 174,
-  "district_groups": 691,
-  "substitution_pairs": 3565,
-  "origins_with_alternative": 529,
-  "median_price_gap_pct": 0.409143,
+  "pairs_where_median_total_price_not_lower": 172,
+  "district_groups": 689,
+  "substitution_pairs": 3555,
+  "origins_with_alternative": 527,
+  "median_price_gap_pct": 0.409509,
   "status": "PASS"
 }
