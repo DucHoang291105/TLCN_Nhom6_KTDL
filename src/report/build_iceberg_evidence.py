@@ -129,6 +129,11 @@ Airflow run: `{airflow['run_id']}`, chế độ history `{airflow['history_mode'
 - Chỉ history incremental; Silver Core và Gold vẫn rebuild. Không làm thay phần mô hình BQ/dashboard.
 - `valid_to=NULL` không chứng minh tin vẫn đang đăng; vắng hai batch không đồng nghĩa đã bán.
 - Các PNG trong thư mục này là hình tổng hợp từ JSON/API thật, **không phải ảnh chụp UI**.
+- Giữ cả log các lượt chưa thành công: batch 20/10 thiếu Guland nên bị chặn;
+  lượt 23/10 đầu tiên bị chặn ở cleanup smoke test do namespace đã có bảng demo.
+  Đã sửa cleanup chỉ xóa bảng riêng và chạy lại, không đổi task lỗi thành SUCCESS bằng tay.
+- Log trước sửa: [thiếu batch](../../validation/airflow_missing_batch_20261020.json),
+  [smoke cleanup](../../validation/airflow_smoke_cleanup_before_fix.json).
 - [Hướng dẫn vận hành](../../operations/iceberg_history.md), [SQL demo](../../demo/iceberg_features.sql).
 """
     (OUT / "README.md").write_text(report, encoding="utf-8")

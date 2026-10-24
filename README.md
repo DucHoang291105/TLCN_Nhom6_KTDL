@@ -175,13 +175,14 @@ Khi nạp dữ liệu lần đầu, chuẩn bị đủ historical CSV và snapsh
 
 ```powershell
 .\scripts\run_spark.ps1 src\bronze\ingest_bronze.py
-.\scripts\run_spark.ps1 src\bronze\ingest_snapshots_bronze.py
+python -c "from src.orchestration.pipeline import validate_snapshots; validate_snapshots('20261023')"
+.\scripts\run_spark.ps1 src\bronze\ingest_snapshots_bronze.py --skip-existing
 ```
 
 Chạy toàn bộ pipeline qua Airflow với một batch đã có:
 
 ```powershell
-.\scripts\run_airflow_pipeline.ps1 -BatchId 20261016
+.\scripts\run_airflow_pipeline.ps1 -BatchId 20261023 -HistoryMode incremental
 ```
 
 DAG `lakehouse_pipeline` có lịch **22:00 thứ 3 và thứ 6**, múi giờ `Asia/Ho_Chi_Minh`, không backfill tự động và chỉ chạy một run/task đồng thời. Có thể theo dõi Graph/Grid và log từng task tại Airflow.
@@ -223,7 +224,7 @@ src/bronze/            Ingest, audit và so sánh snapshot
 src/silver/            Chuẩn hóa, DQ, history, location và feature
 src/gold/              Dimension, fact, các bảng BQ và lifecycle
 src/orchestration/     Chuẩn bị batch, gọi Spark và lưu kết quả Airflow
-src/quality/           Kiểm thử Spark cho lifecycle
+src/quality/           Kiểm thử Spark cho lifecycle/SCD2 và demo Iceberg
 src/report/            Xuất dữ liệu, biểu đồ và báo cáo
 dags/                  DAG Airflow
 scripts/               Lệnh vận hành PowerShell
