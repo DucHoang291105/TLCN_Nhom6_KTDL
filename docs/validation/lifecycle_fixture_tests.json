@@ -1,0 +1,17 @@
+{
+  "checks": {
+    "one_row_per_listing": true,
+    "first_last_and_span": true,
+    "price_changes": true,
+    "latest_observed": true,
+    "one_missing_not_disappeared": true,
+    "two_missing_disappeared": true,
+    "reappearance_resets_absence": true,
+    "null_or_zero_price_not_bridged": true,
+    "one_batch_insufficient": true,
+    "source_specific_calendar": true,
+    "batch_without_accepted_rows_counted": true,
+    "historical_not_applicable": true
+  },
+  "status": "PASS"
+}

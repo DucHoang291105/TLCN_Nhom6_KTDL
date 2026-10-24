@@ -131,6 +131,7 @@ services:
       SPARK_NO_DAEMONIZE: "true"
       SPARK_WORKER_CORES: "2"
       SPARK_WORKER_MEMORY: "2g"
+      SPARK_WORKER_OPTS: "-Dspark.worker.cleanup.enabled=true -Dspark.worker.cleanup.interval=30 -Dspark.worker.cleanup.appDataTtl=60"
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     ports:
@@ -194,19 +195,47 @@ services:
     mem_limit: 128m
     networks: [tlcn_network]
 
+  airflow-permissions:
+    image: apache/airflow:3.3.1-python3.10
+    profiles: [orchestration, full]
+    user: "0:0"
+    entrypoint: ["python", "-c", "from pathlib import Path; p=Path('/shared/validation'); p.mkdir(parents=True, exist_ok=True); p.chmod(0o777)"]
+    volumes:
+      - ./docs/validation:/shared/validation
+    restart: "no"
+
   airflow:
     <<: *common-restart
-    image: lakehouse-airflow:3.3.1-python3.10
+    build:
+      context: ./docker/airflow
+    image: tlcn-airflow:3.3.1-week1
     container_name: tlcn_airflow
     profiles: [orchestration, full]
     depends_on:
+      airflow-permissions:
+        condition: service_completed_successfully
       postgres:
+        condition: service_healthy
+      spark-master:
+        condition: service_started
+      spark-worker:
+        condition: service_started
+      iceberg-rest:
         condition: service_healthy
     command: standalone
     environment:
       AIRFLOW_HOME: /opt/airflow
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DEFAULT_TIMEZONE: Asia/Ho_Chi_Minh
+      AIRFLOW__CORE__PARALLELISM: "1"
+      AIRFLOW__SCHEDULER__CREATE_CRON_DATA_INTERVALS: "false"
+      AIRFLOW__API__BASE_URL: http://localhost:8082
+      AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://localhost:8080/execution/
+      PYTHONPATH: /opt/project
+      GULAND_CRAWL_PAGES: ${GULAND_CRAWL_PAGES:-200}
+      NHADATVUI_CRAWL_PAGES: ${NHADATVUI_CRAWL_PAGES:-200}
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/airflow
       AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_JWT_SECRET}
       AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY}
@@ -217,6 +246,17 @@ services:
       - ./dags:/opt/airflow/dags
       - ./src:/opt/project/src:ro
       - ./config:/opt/project/config:ro
+      - ./data/incoming/snapshots:/opt/project/data/incoming/snapshots
+      - ./docs/validation:/opt/project/docs/validation
+      - ./outputs:/opt/project/outputs
+      - ./tests:/opt/project/tests:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ["CMD", "python", "-c", "import json,urllib.request; d=json.load(urllib.request.urlopen('http://localhost:8080/api/v2/monitor/health')); assert all(d[k]['status']=='healthy' for k in ('metadatabase','scheduler','dag_processor'))"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 18
     mem_limit: 2g
     networks: [tlcn_network]
 

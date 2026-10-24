@@ -1,0 +1,10 @@
+{
+  "task_count": 23,
+  "catchup": false,
+  "max_active_runs": 1,
+  "max_active_tasks": 1,
+  "timezone": "Asia/Ho_Chi_Minh",
+  "non_all_success": [],
+  "schedule": "0 22 * * 2,5",
+  "status": "PASS"
+}
