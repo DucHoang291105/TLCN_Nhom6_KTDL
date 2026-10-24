@@ -30,8 +30,10 @@ def prepare_web_source(source, batch):
     path = snapshot_path(source, batch)
     if path.is_file():
         summary_path = path.parent / "crawl_summary.json"
-        if summary_path.exists() and json.loads(summary_path.read_text(encoding="utf-8")).get("failed_pages"):
-            raise RuntimeError(f"Existing {source}/{batch} crawl is incomplete; inspect its summary")
+        if summary_path.exists():
+            summary = json.loads(summary_path.read_text(encoding="utf-8"))
+            if summary.get("failed_pages") or summary.get("status", "PASS") != "PASS":
+                raise RuntimeError(f"Existing {source}/{batch} crawl is incomplete; inspect its summary")
         print(f"REUSE existing {source}/{batch}; no crawl requested")
         return
     if source not in ("guland", "nhadatvui"):
@@ -42,7 +44,8 @@ def prepare_web_source(source, batch):
     env = {**os.environ, "CRAWL_BATCH_ID": batch, "CRAWL_PAGES": os.getenv(f"{source.upper()}_CRAWL_PAGES", "200")}
     subprocess.run([sys.executable, str(PROJECT_ROOT / f"src/ingestion/{source}/{source}_raw_crawler.py")], env=env, check=True)
     summary = json.loads((path.parent / "crawl_summary.json").read_text(encoding="utf-8"))
-    if not path.exists() or not summary.get("records_written") or summary.get("failed_pages"):
+    if (not path.exists() or not summary.get("records_written") or summary.get("failed_pages") or
+            summary.get("status", "PASS") != "PASS"):
         raise RuntimeError(f"Incomplete {source} crawl; inspect crawl_summary.json before retrying")
 
 
@@ -66,10 +69,18 @@ def spark_command(app, args=()):
             "--conf", "spark.executorEnv.PYTHONPATH=/opt/project", "--packages", PACKAGES, "/opt/project/" + app, *args]
 
 
+def require_catalog_write_window(client):
+    """The local SQLite catalog requires a separate Spark write window."""
+    for service in client.containers.list(all=True, filters={"name": "^/tlcn_trino$"}):
+        if service.status not in {"created", "exited", "dead"}:
+            raise RuntimeError("Trino is active: stop tlcn_trino before the Spark pipeline writes to the local SQLite Iceberg catalog; restart the query profile after the DAG finishes")
+
+
 def run_spark(app, args=()):
     import docker
     client = docker.from_env(timeout=3000)
     try:
+        require_catalog_write_window(client)
         container = client.containers.get("tlcn_spark_master")
         execution = client.api.exec_create(container.id, spark_command(app, args), environment={"PYTHONPATH": "/opt/project"})
         for chunk in client.api.exec_start(execution["Id"], stream=True):

@@ -1,10 +1,3 @@
-# Chưa khóa phiên bản ở giai đoạn khởi tạo.
-# Dự kiến sẽ dùng:
-# pyspark
-# pandas
-# pyarrow
-# psycopg
-# sqlalchemy
-# dash
-# plotly
-# dash-leaflet
+# Host-side dashboard and Trino tools; Spark/Airflow use Docker images.
+requests>=2.32,<3
+trino>=0.330,<1

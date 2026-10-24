@@ -1,0 +1,172 @@
+{
+  "generated_at": "2026-10-24T15:55:16.231465+00:00",
+  "run_id": "integration_ac_20261024",
+  "checks": {
+    "airflow_23_tasks": true,
+    "silver_30": true,
+    "gold_92": true,
+    "dashboard_29_charts": true,
+    "dashboards_checked_after_dag": true,
+    "all_28_trino_counts_match_spark": true,
+    "tlcn-tong-quan": true,
+    "tlcn-bq1": true,
+    "tlcn-bq2": true,
+    "tlcn-bq3": true,
+    "interactive_province_filters_match_gold": true,
+    "spark_writer_blocked_while_trino_active": true
+  },
+  "table_counts": {
+    "silver.listing_observation": {
+      "expected": 282586,
+      "actual": 282586
+    },
+    "silver.listing_dq_quarantine": {
+      "expected": 664,
+      "actual": 664
+    },
+    "silver.crawl_current_27": {
+      "expected": 107415,
+      "actual": 107415
+    },
+    "silver.historical_current_27": {
+      "expected": 30317,
+      "actual": 30317
+    },
+    "silver.silver_listings_current_27": {
+      "expected": 137732,
+      "actual": 137732
+    },
+    "silver.listing_history": {
+      "expected": 151982,
+      "actual": 151982
+    },
+    "silver.listing_history_state": {
+      "expected": 137732,
+      "actual": 137732
+    },
+    "silver.listing_location": {
+      "expected": 137732,
+      "actual": 137732
+    },
+    "silver.listing_feature": {
+      "expected": 137732,
+      "actual": 137732
+    },
+    "gold.dim_source": {
+      "expected": 10,
+      "actual": 10
+    },
+    "gold.dim_date": {
+      "expected": 2694,
+      "actual": 2694
+    },
+    "gold.dim_location": {
+      "expected": 258,
+      "actual": 258
+    },
+    "gold.dim_property_category": {
+      "expected": 6,
+      "actual": 6
+    },
+    "gold.dim_price_band": {
+      "expected": 9,
+      "actual": 9
+    },
+    "gold.dim_area_band": {
+      "expected": 7,
+      "actual": 7
+    },
+    "gold.dim_unit_price_band": {
+      "expected": 8,
+      "actual": 8
+    },
+    "gold.dim_room_band": {
+      "expected": 6,
+      "actual": 6
+    },
+    "gold.dim_dq_status": {
+      "expected": 3,
+      "actual": 3
+    },
+    "gold.fact_listing": {
+      "expected": 122375,
+      "actual": 122375
+    },
+    "gold.agg_peer_group_benchmark": {
+      "expected": 2675,
+      "actual": 2675
+    },
+    "gold.fact_listing_price_assessment": {
+      "expected": 121338,
+      "actual": 121338
+    },
+    "gold.agg_budget_tradeoff": {
+      "expected": 2464,
+      "actual": 2464
+    },
+    "gold.fact_budget_pareto": {
+      "expected": 118487,
+      "actual": 118487
+    },
+    "gold.agg_area_substitution": {
+      "expected": 3387,
+      "actual": 3387
+    },
+    "gold.agg_dq_kpi": {
+      "expected": 9,
+      "actual": 9
+    },
+    "gold.fact_listing_price_change": {
+      "expected": 1732,
+      "actual": 1732
+    },
+    "gold.agg_market_overview": {
+      "expected": 149,
+      "actual": 149
+    },
+    "gold.fact_listing_lifecycle": {
+      "expected": 137732,
+      "actual": 137732
+    }
+  },
+  "dashboards": [
+    {
+      "slug": "tlcn-tong-quan",
+      "matches": 1
+    },
+    {
+      "slug": "tlcn-bq1",
+      "matches": 1
+    },
+    {
+      "slug": "tlcn-bq2",
+      "matches": 1
+    },
+    {
+      "slug": "tlcn-bq3",
+      "matches": 1
+    }
+  ],
+  "filter_checks": [
+    {
+      "province": "Hồ Chí Minh",
+      "expected": 78459,
+      "actual": 78459,
+      "match": true
+    },
+    {
+      "province": "Hà Nội",
+      "expected": 22204,
+      "actual": 22204,
+      "match": true
+    }
+  ],
+  "manual_labeling": {
+    "sample_rows": 198,
+    "labelled_rows": 0,
+    "category_accuracy": null,
+    "status": "PARTIAL"
+  },
+  "operation_mode": "Sequential Spark write window then Trino/Superset query window. Concurrent reading/writing on SQLite is not certified.",
+  "status": "PASS"
+}

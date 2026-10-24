@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T11:44:43.018327+00:00",
+  "generated_at": "2026-10-24T15:36:12.683556+00:00",
   "expected_batch_id": "20261023",
   "snapshots": [
     {
@@ -234,6 +234,16 @@
     },
     {
       "source": "nhadatvui",
+      "batch_id": "20261003",
+      "rows": 3600,
+      "columns": 40,
+      "max_source_page": 200,
+      "sha256": "bf207b16d05e443c9a60b31913cae3228f99e7553e2b742bd637d64f6598b3bc",
+      "size_bytes": 2120537,
+      "parser_version": "csv_contract_v2"
+    },
+    {
+      "source": "nhadatvui",
       "batch_id": "20261006",
       "rows": 3600,
       "columns": 40,
@@ -293,14 +303,14 @@
       "parser_version": "csv_contract_v2"
     }
   ],
-  "snapshot_rows": 258541,
+  "snapshot_rows": 262141,
   "status": "PASS",
   "verification": {
-    "sha256_files_checked": 29,
+    "sha256_files_checked": 30,
     "csv_profiles_reused": 29,
-    "csv_profiles_parsed": 0,
+    "csv_profiles_parsed": 1,
     "force_rescan": false,
     "workers": 4,
-    "elapsed_seconds": 3.888
+    "elapsed_seconds": 6.1157
   }
 }

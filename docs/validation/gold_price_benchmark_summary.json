@@ -1,26 +1,26 @@
 {
-  "started_at": "2026-10-24T11:38:52.177179+00:00",
-  "finished_at": "2026-10-24T11:39:08.431049+00:00",
+  "started_at": "2026-10-24T15:44:36.924548+00:00",
+  "finished_at": "2026-10-24T15:44:54.073658+00:00",
   "min_peer_group_size": 5,
-  "representative_listings": 121382,
+  "representative_listings": 121338,
   "benchmark_groups_by_level": {
-    "LOC_CAT_AREA": 994,
-    "LOC_CAT": 372,
-    "LOC_CAT_AREA_ROOM": 1339
+    "LOC_CAT_AREA": 976,
+    "LOC_CAT": 361,
+    "LOC_CAT_AREA_ROOM": 1338
   },
-  "assessment_rows": 121382,
+  "assessment_rows": 121338,
   "assessment_by_level": {
-    "LOC_CAT_AREA": 45392,
-    "LOC_CAT": 1259,
-    "LOC_CAT_AREA_ROOM": 71118,
-    "None": 3613
+    "LOC_CAT_AREA": 45308,
+    "LOC_CAT": 1207,
+    "LOC_CAT_AREA_ROOM": 71107,
+    "None": 3716
   },
   "price_position_counts": {
-    "p25_p75": 58077,
-    "khong_du_du_lieu": 3613,
-    "duoi_p25": 29738,
-    "tren_p75": 29954
+    "p25_p75": 57962,
+    "khong_du_du_lieu": 3716,
+    "duoi_p25": 29679,
+    "tren_p75": 29981
   },
-  "low_price_missing_legal": 24502,
+  "low_price_missing_legal": 24441,
   "status": "PASS"
 }

@@ -26,6 +26,7 @@ from typing import Any, Callable, Collection, Iterable, Mapping
 
 from src.common.utils import (
     CANONICAL_COLUMNS,
+    apply_value_plausibility,
     calculate_completeness_score,
     clean_text,
     make_record_hash,
@@ -671,7 +672,12 @@ def _build_observation(
 ) -> dict[str, Any]:
     """Attach technical metadata to a canonical Core record."""
 
+    core, value_reasons = apply_value_plausibility(core)
     dq_status, dq_reasons = evaluate_core_data_quality(core)
+    if value_reasons:
+        dq_reasons = [*dq_reasons, *(r for r in value_reasons if r not in dq_reasons)]
+        if dq_status == "PASS":
+            dq_status = "WARN"
     unavailable = set(source_unavailable_rules)
     if unavailable:
         dq_reasons = [reason for reason in dq_reasons if reason not in unavailable]

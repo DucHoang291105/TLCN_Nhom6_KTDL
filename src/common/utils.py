@@ -166,30 +166,230 @@ def parse_vietnamese_price(value: Any) -> float | None:
     if any(term in lowered for term in agreement_terms):
         return None
 
-    billion_match = re.search(r"(\d[\d.,]*)\s*(?:tỷ|tỉ|ty)\b", lowered)
-    million_match = re.search(r"(\d[\d.,]*)\s*(?:triệu|trieu|tr)\b", lowered)
-    if billion_match and million_match:
-        billions = _parse_localized_number(billion_match.group(1))
-        millions = _parse_localized_number(million_match.group(1))
-        if billions is not None and millions is not None:
-            price = billions * 1_000_000_000 + millions * 1_000_000
-            return price if price > 0 else None
+    # Read the number written *before* the unit. Some sources put the whole
+    # title in the price field ("Bán nhà 52m2 giá 2tỷ360triệu"), where the
+    # first number in the text is the area, not the price.
+    billion = _BILLION_PRICE.search(lowered)
+    if billion:
+        whole = _parse_localized_number(billion.group(1))
+        if whole is None or whole <= 0:
+            return None
+        if whole >= 1_000:
+            return _rescale_billion_label(billion.group(1), whole)
+        rest = lowered[billion.end():]
+        millions = _MILLION_AFTER_BILLION.match(rest)
+        if millions:
+            extra = _parse_localized_number(millions.group(1)) or 0.0
+            return whole * 1_000_000_000 + extra * 1_000_000
+        tail = _BILLION_TAIL.match(rest)
+        if tail and float(whole).is_integer():
+            # "2 tỷ 290", "2tỷ550", "2 tỷ 12": the digits continue the figure.
+            digits = tail.group(1)
+            return (whole + int(digits) / 10 ** len(digits)) * 1_000_000_000
+        return whole * 1_000_000_000
+
+    million = _MILLION_PRICE.search(lowered)
+    if million:
+        whole = _single_separator_decimal(million.group(1)) if "," in million.group(1) else None
+        whole = whole if whole is not None else _parse_localized_number(million.group(1))
+        if whole is None or whole <= 0:
+            return None
+        rest = lowered[million.end():]
+        thousands = _THOUSAND_AFTER_MILLION.match(rest)
+        if thousands:  # "11 triệu 500 nghìn"
+            return whole * 1_000_000 + (_parse_localized_number(thousands.group(1)) or 0.0) * 1_000
+        tail = _BILLION_TAIL.match(rest)
+        if tail and float(whole).is_integer():  # "2tr700" = 2,7 triệu
+            digits = tail.group(1)
+            return (whole + int(digits) / 10 ** len(digits)) * 1_000_000
+        return whole * 1_000_000
+
+    unit = _THOUSAND_PRICE.search(lowered)
+    if unit:
+        number = _parse_localized_number(unit.group(1))
+        price = number * 1_000 if number is not None else None
+        return price if price is not None and math.isfinite(price) and price > 0 else None
 
     number = _parse_localized_number(lowered)
     if number is None or number <= 0:
         return None
+    return number if math.isfinite(number) else None
 
-    if re.search(r"\b(tỷ|tỉ|ty)\b", lowered):
-        multiplier = 1_000_000_000
-    elif re.search(r"\b(triệu|trieu|tr)\b", lowered):
-        multiplier = 1_000_000
-    elif re.search(r"\b(nghìn|ngàn|nghin|ngan|k)\b", lowered):
-        multiplier = 1_000
-    else:
-        multiplier = 1
 
-    price = number * multiplier
-    return price if math.isfinite(price) and price > 0 else None
+_NOT_LETTER = r"(?![a-zà-ỹđ])"
+_BILLION_PRICE = re.compile(rf"(\d[\d.,]*)\s*(?:tỷ|tỉ|ty){_NOT_LETTER}")
+_MILLION_PRICE = re.compile(rf"(\d[\d.,]*)\s*(?:triệu|trieu|tr){_NOT_LETTER}")
+_THOUSAND_PRICE = re.compile(rf"(\d[\d.,]*)\s*(?:nghìn|ngàn|nghin|ngan|k){_NOT_LETTER}")
+_MILLION_AFTER_BILLION = re.compile(rf"\s*(\d[\d.,]*)\s*(?:triệu|trieu|tr){_NOT_LETTER}")
+_THOUSAND_AFTER_MILLION = re.compile(rf"\s*(\d[\d.,]*)\s*(?:nghìn|ngàn|nghin|ngan|k){_NOT_LETTER}")
+# 1-3 digits right after "tỷ" that are not a quantity of something else.
+_BILLION_TAIL = re.compile(r"\s*(\d{1,3})(?![\d.,])(?!\s*(?:m|pn|phòng|tầng|tang|lầu|lau|%|x|wc|năm|nam|th))")
+
+
+def _rescale_billion_label(text: str, number: float) -> float | None:
+    """A "tỷ" figure of 1,000 or more is not a listing price.
+
+    Seen in the crawls: "9.630 tỷ" (dot as decimal, 9,63 tỷ), "5800 tỷ"
+    (millions labelled tỷ) and "3150000000 tỷ" (VND labelled tỷ).
+    """
+
+    decimal = _single_separator_decimal(text)
+    if decimal is not None:
+        return decimal * 1_000_000_000
+    if number >= 1_000_000:
+        return number
+    return number * 1_000_000
+
+
+def _single_separator_decimal(text: str) -> float | None:
+    """ "2,424" or "9.630" read as a decimal (2.424 / 9.63), else None."""
+
+    token = re.search(r"\d[\d.,]*", text)
+    if token and re.fullmatch(r"\d{1,3}[.,]\d{3}", token.group()):
+        return float(token.group().replace(",", "."))
+    return None
+
+
+def billion_label_readings(value: Any) -> list[float]:
+    """Possible VND values of a "tỷ" figure >= 1,000, most likely first.
+
+    A single separator followed by three digits ("2,424 tỷ", "9.630 tỷ") is
+    read as a decimal first: listings at 1,000 tỷ or more are far rarer than a
+    decimal written with three digits.
+    """
+
+    token = _billion_token(value)
+    if token is None:
+        return []
+    number = _parse_localized_number(token)
+    if number is None:
+        return []
+    decimal = _single_separator_decimal(token)
+    readings = [decimal * 1_000_000_000] if decimal is not None else []
+    readings += [number * 1_000_000_000, number * 1_000_000, number]
+    return readings
+
+
+def _billion_token(value: Any) -> str | None:
+    """The figure written right before "tỷ", if any."""
+
+    match = _BILLION_PRICE.search((clean_text(value) or "").lower())
+    return match.group(1) if match else None
+
+
+def price_unit_was_rescaled(value: Any) -> bool:
+    """True when ``parse_vietnamese_price`` reinterpreted a "tỷ" figure >= 1,000."""
+
+    token = _billion_token(value)
+    number = _parse_localized_number(token) if token else None
+    return number is not None and number >= 1_000
+
+
+# Values no sale listing can have. They come from parsing errors (unit or
+# separator mistakes, a width read as the area), not from real outliers,
+# which DQ11 keeps and only flags.
+MIN_PLAUSIBLE_AREA_M2 = 10.0
+MIN_PLAUSIBLE_SALE_PRICE = 50_000_000
+MIN_PLAUSIBLE_PRICE_PER_M2 = 20_000
+MAX_PLAUSIBLE_PRICE_PER_M2 = 2_000_000_000
+_TITLE_AREA = re.compile(r"(\d[\d.,]*)\s*(?:m2|m²|㎡|met vuong|mét vuông)", re.IGNORECASE)
+_TITLE_DIMENSIONS = re.compile(r"(\d+(?:[.,]\d+)?)\s*m?\s*[x×*]\s*(\d+(?:[.,]\d+)?)\s*m?\b", re.IGNORECASE)
+
+
+def area_from_title(title: Any) -> float | None:
+    """Area stated in a title: "1011,8m2", "5.460,5 m2", "162M²" or "4x20m"."""
+
+    text = clean_text(title)
+    if text is None:
+        return None
+    for match in _TITLE_AREA.finditer(text):
+        area = _parse_localized_number(match.group(1))
+        if area is not None and area >= MIN_PLAUSIBLE_AREA_M2:
+            return area
+    for match in _TITLE_DIMENSIONS.finditer(text):
+        width, length = _parse_localized_number(match.group(1)), _parse_localized_number(match.group(2))
+        if width and length and 1 <= width <= 100 and 1 <= length <= 500 and width * length >= MIN_PLAUSIBLE_AREA_M2:
+            return round(width * length, 2)
+    return None
+
+
+def apply_value_plausibility(record: Mapping[str, Any]) -> tuple[dict[str, Any], list[str]]:
+    """Repair or drop impossible price/area values; return (record, DQ codes).
+
+    DQ14  price label "tỷ" was rescaled by the parser (value kept, flagged).
+    DQ15  area < 10 m² replaced by the area stated in the title.
+    DQ16  area or price impossible and not repairable: set to NULL; the raw
+          ``price_str`` stays for audit.
+    Derived ``price_m`` and ``price_per_m2`` are recomputed.
+    """
+
+    out = dict(record)
+    reasons: list[str] = []
+    area = out.get("area")
+    stated = area_from_title(out.get("title")) if area is not None else None
+    if area is not None and area < MIN_PLAUSIBLE_AREA_M2:
+        out["area"] = stated
+        reasons.append("DQ15" if stated is not None else "DQ16")
+    elif stated is not None and abs(stated - area * 1000) <= 0.02 * stated:
+        # "11.000m2" in the title, 11 in the area field: thousands separator
+        # read as a decimal point.
+        out["area"] = stated
+        reasons.append("DQ15")
+    area = out.get("area")
+    if out.get("price") is not None and price_unit_was_rescaled(out.get("price_str")):
+        # With a known area, take the first reading of the "tỷ" figure that
+        # gives a possible price per m²; otherwise keep the parser's default.
+        if area:
+            plausible = [
+                value for value in billion_label_readings(out["price_str"])
+                if MIN_PLAUSIBLE_PRICE_PER_M2 <= value / area <= MAX_PLAUSIBLE_PRICE_PER_M2
+            ]
+            out["price"] = plausible[0] if plausible else out["price"]
+        reasons.append("DQ14")
+    price, area = out.get("price"), out.get("area")
+    if price is not None and not out.get("is_rent"):
+        per_m2 = price / area if area else None
+        if price < MIN_PLAUSIBLE_SALE_PRICE or (
+            per_m2 is not None and not MIN_PLAUSIBLE_PRICE_PER_M2 <= per_m2 <= MAX_PLAUSIBLE_PRICE_PER_M2
+        ):
+            out["price"] = None
+            if "DQ16" not in reasons:
+                reasons.append("DQ16")
+    price, area = out.get("price"), out.get("area")
+    out["price_m"] = price / 1_000_000 if price is not None else None
+    out["price_per_m2"] = price / area if price is not None and area else None
+    return out, reasons
+
+
+_PRICE_ONLY = re.compile(r"^\s*\d[\d.,]*\s*(?:tỷ|tỉ|triệu|trieu|tr|nghìn|ngàn|k)?(?:\s*\d[\d.,]*\s*(?:triệu|trieu|tr|nghìn|ngàn)?)?\s*$")
+_PER_UNIT = re.compile(r"/\s*(?:m2|m²|m|tháng|thang|năm|nam)|/m")
+
+
+def reconcile_shipped_price(price: Any, price_str: Any, area: Any) -> float | None:
+    """Choose between a pre-computed price and the one parsed from price_str.
+
+    Historical exports ship ``price`` computed by an older parser. price_str
+    may be a plain price ("8,5 tỷ": re-parse), a per-m² or per-month price
+    ("180 triệu / m²": keep the shipped total), or a whole title (muaban).
+    For a title only the known defect of the old parser is repaired: it read
+    the first number (the area) as the price, so ``price == area * 1e9``.
+    """
+
+    text = clean_text(price_str)
+    shipped = float(price) if price is not None else None
+    if text is None:
+        return shipped
+    lowered = text.lower()
+    if _PER_UNIT.search(lowered):
+        return shipped
+    parsed = parse_vietnamese_price(text)
+    if parsed is None:
+        return shipped
+    if _PRICE_ONLY.match(lowered) or shipped is None:
+        return parsed
+    if area and shipped and abs(shipped - float(area) * 1_000_000_000) < 1:
+        return parsed
+    return shipped
 
 
 def parse_area_m2(value: Any) -> float | None:

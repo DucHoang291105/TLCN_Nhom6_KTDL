@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-10-24T11:37:13.434883+00:00",
+  "generated_at": "2026-10-24T15:42:58.933849+00:00",
   "catalog_namespace": "lakehouse.silver",
   "table_counts": {
-    "listing_observation": 278987,
+    "listing_observation": 282586,
     "listing_dq_quarantine": 664,
     "crawl_current_27": 107415,
     "historical_current_27": 30317,
     "silver_listings_current_27": 137732,
-    "listing_history": 151972,
+    "listing_history": 151982,
     "listing_history_state": 137732,
     "listing_location": 137732,
     "listing_feature": 137732

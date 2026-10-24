@@ -39,6 +39,7 @@ def test_historical_missing_batch_not_fabricated(tmp_path, monkeypatch):
 @pytest.mark.parametrize("code", [1, 137, None])
 def test_spark_failure_reaches_airflow(monkeypatch, code):
     client = Mock()
+    client.containers.list.return_value = []
     client.api.exec_create.return_value = {"Id": "exec1"}
     client.api.exec_start.return_value = [b"job failed\n"]
     client.api.exec_inspect.return_value = {"ExitCode": code}
@@ -50,6 +51,7 @@ def test_spark_failure_reaches_airflow(monkeypatch, code):
 
 def test_spark_success(monkeypatch):
     client = Mock()
+    client.containers.list.return_value = []
     client.api.exec_create.return_value = {"Id": "exec1"}
     client.api.exec_start.return_value = []
     client.api.exec_inspect.return_value = {"ExitCode": 0}

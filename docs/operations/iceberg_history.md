@@ -41,7 +41,13 @@ với partition hiện hành và là đường đối chứng/khôi phục có c
 
 Chạy tại root repository sau khi bật Docker:
 
+Catalog SQLite hiện yêu cầu tách cửa sổ ghi/đọc. Dừng `tlcn_trino` (và dashboard
+nếu đang mở) trước các lệnh Spark. Airflow kiểm tra và từ chối chạy Spark nếu
+Trino còn hoạt động. Sau khi pipeline xong, khởi động lại profile query/dashboard.
+Kiểm tra này không tự di chuyển catalog hoặc tự dừng dịch vụ của người dùng.
+
 ```powershell
+docker stop tlcn_superset tlcn_trino
 # Cần đủ ba CSV cho batch yêu cầu; không crawl lại batch đã có.
 python -c "from src.orchestration.pipeline import validate_snapshots; validate_snapshots('20261023')"
 ./scripts/run_spark.ps1 src/bronze/ingest_snapshots_bronze.py --skip-existing
@@ -60,6 +66,9 @@ python -c "from src.orchestration.pipeline import validate_snapshots; validate_s
 # Demo thật, tạo bảng sandbox riêng, không đổi schema production:
 ./scripts/run_spark.ps1 src/quality/demo_iceberg_features.py
 python -m pytest -q
+
+# Chỉ sau khi các job Spark đã kết thúc:
+docker compose --profile query --profile dashboard up -d trino superset
 ```
 
 Bronze `--skip-existing` chỉ tái sử dụng batch có `_SUCCESS`; batch chưa hoàn

@@ -43,7 +43,7 @@ Airflow điều phối các bước và kiểm định chất lượng.
 
 Thành phần xử lý chính: Apache Spark 3.5.9, MinIO, Apache Iceberg REST Catalog, PostgreSQL 16, Apache Airflow 3.3.1, Trino và Docker Compose. Snapshot CSV được quản lý bằng Git LFS.
 
-Repository có cấu hình Superset để kết nối lớp truy vấn; dashboard nghiệp vụ chưa được hoàn thiện.
+Superset có 4 dashboard: tổng quan thị trường, lựa chọn theo ngân sách (BQ1), vị trí giá trong nhóm tương đồng (BQ2) và khu vực thay thế (BQ3). Dữ liệu đọc từ Gold qua Trino; script kiểm tra lại 29 biểu đồ và đối chiếu KPI.
 
 Các bucket:
 
@@ -79,22 +79,22 @@ Dữ liệu historical đặt trong `data/incoming/historical/<nguồn>/`, theo 
 
 ## Kết quả đã kiểm chứng
 
-Số liệu dưới đây được kiểm chứng trên dữ liệu tới batch **20261023**. Lượt chạy gần nhất: `person_a_resource_tuned_20261023`. Nguồn đối chiếu: [kết quả Airflow](docs/validation/person_a_airflow_run_final.json), [các JSON kiểm định](docs/validation/) và [bộ minh chứng Iceberg](docs/evidence/iceberg_20261023/).
+Số liệu dưới đây được kiểm chứng sau tích hợp pipeline và dashboard, dữ liệu tới batch **20261023**. Lượt chạy: `integration_ac_20261024`. Nguồn đối chiếu: [kết quả Airflow](docs/validation/integration_airflow_run.json), [kiểm chứng tích hợp](docs/validation/pipeline_dashboard_integration.json) và [các JSON kiểm định](docs/validation/).
 
 | Đầu ra | Số dòng |
 |---|---:|
 | Bronze historical | 30.317 |
-| Bronze snapshot — 29 CSV (Batdongsan 10, Guland 9, Nhadatvui 10 batch) | 258.541 |
-| Tổng Bronze | 288.858 |
-| Silver `listing_observation` | 278.987 |
+| Bronze snapshot — 30 CSV (Batdongsan 10, Guland 9, Nhadatvui 11 batch) | 262.141 |
+| Tổng Bronze | 292.458 |
+| Silver `listing_observation` | 282.586 |
 | Silver `listing_dq_quarantine` | 664 |
 | Silver `silver_listings_current_27` | 137.732 |
-| Silver `listing_history` | 151.972 |
+| Silver `listing_history` | 151.982 |
 | Silver `listing_history_state` — checkpoint theo listing | 137.732 |
 | Silver `listing_location` / `listing_feature` | 137.732 mỗi bảng |
 | Gold `fact_listing` — tin bán | 122.375 |
 | Gold `fact_listing_lifecycle` | 137.732 |
-| Gold `fact_listing_price_change` — sự kiện đổi giá tin bán | 1.766 |
+| Gold `fact_listing_price_change` — sự kiện đổi giá tin bán | 1.732 |
 
 Guland không có batch 20261020; pipeline giữ đúng lịch quan sát riêng của từng nguồn, không tạo batch thay thế.
 
@@ -102,14 +102,14 @@ Kết quả kiểm định:
 
 - Silver: **30/30 PASS**.
 - Gold: **92/92 PASS**.
-- Unit tests: **239 PASS tại máy local**; GitHub Actions chạy kiểm thử trên Python 3.10 và 3.12.
+- Unit tests: **315 PASS tại máy local**; GitHub Actions chạy kiểm thử trên Python 3.10 và 3.12.
 - Kiểm thử Spark SCD2: **11/11 PASS**; demo Iceberg: **6/6 PASS**.
 - Kiểm thử Spark cho lifecycle: **12/12 PASS**.
-- Airflow: **23/23 task SUCCESS**, thời gian chạy khoảng **12,79 phút**, run `person_a_resource_tuned_20261023`.
+- Airflow: **23/23 task SUCCESS**, thời gian chạy khoảng **12,48 phút**, run `integration_ac_20261024`.
 - Kiểm thử lỗi: một task thất bại, 22 task downstream bị chặn.
-- Checksum của 29 CSV gốc giữ nguyên sau khi chạy pipeline.
+- Checksum 29 CSV đã có giữ nguyên; bổ sung đúng batch Nhadatvui 03/10, nâng tổng lên 30 CSV.
 
-MERGE và full rebuild đều tạo **151.972 dòng history**, cùng SHA256 và không có khác biệt khi `EXCEPT ALL` hai chiều. MERGE chỉ tính lại timeline của **9.689/137.732 listing ID**, staging còn **4.398 dòng** thực sự thay đổi. Trung vị ba lượt local cùng input đã cache: MERGE **12,23 giây**, full rebuild **8,71 giây**; không khẳng định incremental luôn nhanh hơn trên tập dữ liệu nhỏ. Retry không đổi input không tạo data snapshot history mới.
+Đối chứng mới sau tích hợp: MERGE và full rebuild đều tạo **151.982 dòng history**, cùng SHA256 và không có khác biệt khi `EXCEPT ALL` hai chiều. MERGE chỉ tính lại timeline của **9.689/137.732 listing ID**, staging còn **4.398 dòng** thực sự thay đổi. Xem [kết quả history](docs/validation/history_incremental_verification.json) cho số đo thực tế; không khẳng định incremental luôn nhanh hơn rebuild. Retry không đổi input không tạo data snapshot history mới.
 
 ## An toàn vận hành và hiệu năng
 
@@ -117,8 +117,8 @@ MERGE và full rebuild đều tạo **151.972 dòng history**, cùng SHA256 và 
 - History chỉ MERGE các dòng thực sự đổi; có khóa writer local, kiểm tra location/schema, checkpoint phục hồi và fast path cho snapshot đã xác minh không đổi. Dùng `--force-verify` để bỏ fast path.
 - Manifest, summary history và công cụ kiểm chứng ghi JSON nguyên tử, đọc được giữa UID Airflow/Spark. Runner không xóa thư mục app đang chạy.
 - Giới hạn container master 1536 MiB để chừa bộ nhớ ngoài heap driver; Ivy cache nằm đúng named volume, có init quyền cho lần tạo volume đầu.
-- Benchmark local cùng input: manifest cached trung vị 3,64 giây (vẫn rehash 29 CSV); history MERGE trung vị 13,64 → 12,23 giây; lifecycle 2,89 → 2,66 giây. Chỉ history incremental, không khẳng định cả pipeline nhanh theo cùng tỷ lệ. MERGE vẫn chậm hơn rebuild trên tập đối chứng nhỏ này.
-- Đối chiếu **28/28 bảng Silver/Gold** trước/sau tối ưu: cùng số dòng, grain và SHA256 nội dung nghiệp vụ; chỉ bỏ cột ghi thời điểm build.
+- Benchmark tối ưu trước tích hợp: manifest cached trung vị 3,64 giây (rehash 29 CSV); history MERGE 13,64 → 12,23 giây; lifecycle 2,89 → 2,66 giây. Đây là dataset đối chứng cố định cũ, không phải thời gian cam kết cho batch mới. Chỉ history incremental, không khẳng định cả pipeline nhanh theo cùng tỷ lệ.
+- Đối chiếu tối ưu trước đây giữ nguyên nội dung 28/28 bảng. Sau tích hợp Silver có sửa giá/diện tích và thêm một batch thật nên dữ liệu thay đổi có chủ đích; kiểm chứng hiện tại đối chiếu số liệu Spark với Trino và dashboard, không ép hash về kết quả cũ.
 
 Kết quả kỹ thuật: [đối chiếu 28 bảng](docs/validation/person_a_output_equivalence.json),
 [benchmark history](docs/validation/person_a_history_optimization.json),
@@ -191,6 +191,15 @@ Dependency của Airflow được cài trong Docker image; dữ liệu MinIO, ca
 
 ## Chạy pipeline
 
+Catalog hiện dùng SQLite. **Tách cửa sổ Spark ghi và Trino đọc**: dừng Trino trước
+khi chạy pipeline; Airflow sẽ chặn Spark nếu Trino còn hoạt động. Dashboard tạm
+không truy vấn được trong cửa sổ này. Không chạy script Spark thủ công đồng thời
+với Trino. Chưa chuyển catalog sang PostgreSQL hoặc chứng nhận đọc/ghi đồng thời.
+
+```powershell
+docker stop tlcn_superset tlcn_trino
+```
+
 Khi nạp dữ liệu lần đầu, chuẩn bị đủ historical CSV và snapshot rồi chạy:
 
 ```powershell
@@ -218,6 +227,32 @@ python -m pip install -r requirements-dev.txt
 ```
 
 Chạy script trực tiếp và DAG vào các thời điểm riêng để tránh ghi đồng thời cùng bảng Iceberg.
+
+## Chạy dashboard và đánh giá
+
+Sau khi pipeline đã hoàn tất:
+
+```powershell
+python -m pip install -r requirements.txt
+docker compose --profile query --profile dashboard up -d trino superset
+python -m src.dashboard.provision_superset
+python -m src.quality.verify_pipeline_dashboard
+```
+
+Mở Superset tại http://localhost:8088, đăng nhập bằng tài khoản trong `.env`.
+Dashboard: `/superset/dashboard/tlcn-tong-quan/`, `tlcn-bq1/`, `tlcn-bq2/`, `tlcn-bq3/`.
+Provision chỉ dựng lại tài nguyên do script quản lý; sao lưu cấu hình Superset
+trước khi chạy nếu đã chỉnh sửa dashboard. Biểu đồ truy vấn Gold; phần nhận xét
+đầu trang được tính lúc provision và không tự đổi theo bộ lọc tương tác. Chạy lại
+provision sau batch mới để cập nhật phần nhận xét.
+
+- [Kiểm tra dashboard](docs/validation/superset_dashboard_check.json): 29 biểu đồ và KPI.
+- [Benchmark truy vấn](docs/validation/query_benchmark.json): so sánh thời gian mô tả; truy vấn Gold/Silver không tương đương hoàn toàn nên không xem tỷ lệ thời gian là speedup có kiểm soát.
+- [Hướng dẫn gán nhãn](docs/validation/labeling/README.md): 198 mẫu, hiện chưa có nhãn thủ công nên chưa có accuracy thực nghiệm. Không điền dự đoán làm nhãn thật.
+
+`verify_pipeline_dashboard` dùng bằng chứng run tích hợp đã lưu, không tự chứng
+nhận cho batch mới. Khi kiểm chứng một run mới cần export lại trạng thái Airflow,
+chạy lại kiểm định và provision trước khi đọc kết quả này.
 
 ## Kiểm thử và xem kết quả
 

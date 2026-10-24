@@ -130,3 +130,18 @@ def test_endpoint_default_kept_for_same_family():
 
 def test_land_label_with_house_title_is_conflict():
     assert map_model_category("Đất","Bán nhà 3 tầng hẻm xe hơi","SOURCE_STRUCTURED")==("dat","CATEGORY_NAME",True)
+
+
+@pytest.mark.parametrize("title,expected", [
+    ("BÁN NHÀ 6 TẦNG – ĐƯỜNG 10M CÓ VỈA HÈ – GẦN CHUNG CƯ SCREC TRƯỜNG SA – 15 TỶ", "nha_pho"),
+    ("ĐƯỜNG 10M CÓ VỈA HÈ – NGAY CHUNG CƯ SCREC TRƯỜNG SA – 6 TẦNG", "nha_pho"),
+    ("Nhà phố đối diện căn hộ Masteri", "nha_pho"),
+    ("Bán căn hộ chung cư 2PN ngay trung tâm", "can_ho"),   # proximity word after the type
+])
+def test_landmark_after_proximity_word_is_not_the_type(title, expected):
+    assert category_from_title(title)[0] == expected
+
+
+def test_endpoint_house_not_overridden_by_nearby_apartment():
+    title = "BÁN NHÀ 6 TẦNG – GẦN CHUNG CƯ SCREC TRƯỜNG SA"
+    assert map_model_category("Nhà ở", title, "ENDPOINT_CONTEXT") == ("nha_pho", "ENDPOINT_CONTEXT", False)

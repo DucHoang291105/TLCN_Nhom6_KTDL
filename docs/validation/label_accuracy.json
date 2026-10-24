@@ -1,0 +1,79 @@
+{
+  "generated_at": "2026-10-24T15:42:40.338676+00:00",
+  "sample_rows": 198,
+  "labelers": [],
+  "truth_definition": {
+    "true_category": "property type judged by a person from title, price, area and the listing page",
+    "true_<flag>": "1 if the title states the feature, 0 if not (\"?\" = cannot tell)"
+  },
+  "labelled_rows": 0,
+  "invalid_category_labels": [],
+  "category_accuracy": null,
+  "category_accuracy_by_source": {},
+  "category_per_class": {},
+  "category_confusion": {},
+  "flags": {
+    "legal": {
+      "support_true": 0,
+      "labelled": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "accuracy": null
+    },
+    "furnished": {
+      "support_true": 0,
+      "labelled": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "accuracy": null
+    },
+    "frontage": {
+      "support_true": 0,
+      "labelled": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "accuracy": null
+    },
+    "elevator": {
+      "support_true": 0,
+      "labelled": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "accuracy": null
+    },
+    "car_access": {
+      "support_true": 0,
+      "labelled": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "accuracy": null
+    }
+  },
+  "reviewed_rows": 0,
+  "status": "PARTIAL"
+}

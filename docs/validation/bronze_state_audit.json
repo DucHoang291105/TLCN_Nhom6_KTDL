@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T11:31:26.896473+00:00",
+  "generated_at": "2026-10-24T15:37:17.964391+00:00",
   "bronze_root": "s3a://lakehouse-bronze/real_estate",
   "expected_sources": {
     "historical": [
@@ -18,7 +18,7 @@
   },
   "branch_totals": {
     "historical": 30317,
-    "snapshots": 258541
+    "snapshots": 262141
   },
   "source_totals": {
     "historical/alonhadat": 1278,
@@ -29,9 +29,9 @@
     "historical/muaban": 363,
     "snapshots/batdongsan": 66000,
     "snapshots/guland": 132514,
-    "snapshots/nhadatvui": 60027
+    "snapshots/nhadatvui": 63627
   },
-  "global_total": 288858,
+  "global_total": 292458,
   "batches": [
     {
       "branch": "historical",
@@ -1425,6 +1425,64 @@
       "branch": "snapshots",
       "source": "nhadatvui",
       "batch_id": "20261002",
+      "source_state": "EXPECTED_AND_FOUND",
+      "status": "READABLE",
+      "row_count": 3600,
+      "column_count": 46,
+      "columns": [
+        "_source",
+        "_source_page",
+        "_scraped_at",
+        "_crawl_url",
+        "listing_id",
+        "title",
+        "product_name",
+        "product_slug",
+        "unit",
+        "area",
+        "price",
+        "min_price",
+        "max_price",
+        "lat",
+        "lng",
+        "province_code",
+        "province_name",
+        "ward_code",
+        "ward_name",
+        "street_code",
+        "address",
+        "is_verified",
+        "is_sponsored",
+        "is_negotiable",
+        "status",
+        "created_at_ms",
+        "public_date_ms",
+        "expired_date_ms",
+        "rooms",
+        "toilets",
+        "floors",
+        "frontage_m",
+        "length_m",
+        "road_width_m",
+        "direction",
+        "legal_document",
+        "property_subtype",
+        "image_count",
+        "first_image_url",
+        "has_content",
+        "_source_name",
+        "_source_file",
+        "_batch_id",
+        "_snapshot_date",
+        "_ingestion_mode",
+        "_ingested_at"
+      ],
+      "error": null
+    },
+    {
+      "branch": "snapshots",
+      "source": "nhadatvui",
+      "batch_id": "20261003",
       "source_state": "EXPECTED_AND_FOUND",
       "status": "READABLE",
       "row_count": 3600,

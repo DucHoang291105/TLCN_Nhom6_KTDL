@@ -357,6 +357,54 @@ def canonical_hcmc_district_from_text(text: str) -> str | None:
     return None
 
 
+# Source values that name no district.
+DISTRICT_PLACEHOLDERS = {"unknown", "khac", "khong xac dinh", "khong ro", "n a", "na", "null", "none", "chua xac dinh"}
+ADMIN_PREFIX_WORDS = r"(?:quan|huyen|thi xa|thanh pho|tp|phuong|xa|thi tran|q|p)"
+# A district field longer than this, or holding digits outside "Quận N", is a
+# fragment of description text cut by the source, not a district name.
+MAX_DISTRICT_FIELD_LENGTH = 40
+
+
+def _bare_hcmc_district_index() -> dict[str, str]:
+    index = {}
+    for district in HCMC_DISTRICTS:
+        key = re.sub(rf"^{ADMIN_PREFIX_WORDS} ", "", match_text(district))
+        if not key.isdigit():
+            index[key] = district
+    return index
+
+
+HCMC_BARE_DISTRICTS = _bare_hcmc_district_index()
+
+
+def normalize_district_field(value: Any, province_name_model: str | None) -> tuple[str | None, str]:
+    """Clean a source district field before inference.
+
+    Returns (district or None, method). Placeholders ("Unknown") and text
+    fragments become None so that address/title rules can still run. In Ho Chi
+    Minh City a bare name ("Bình Tân"), a 2025 ward named after its former
+    district ("Phường Gò Vấp") or a trailing "cũ" maps to the analysis district.
+    """
+
+    current = clean_optional_text(value)
+    if not current:
+        return None, "UNMAPPED"
+    key = match_text(current)
+    if not key or key in DISTRICT_PLACEHOLDERS:
+        return None, "CORE_PLACEHOLDER_DROPPED"
+    if province_name_model == "Hồ Chí Minh":
+        canonical = canonical_hcmc_district_from_text(current)
+        if canonical and len(current) <= MAX_DISTRICT_FIELD_LENGTH:
+            return canonical, "CORE_CANONICALIZED"
+        bare = re.sub(rf"^{ADMIN_PREFIX_WORDS} ", "", key)
+        bare = re.sub(r" cu$", "", bare)
+        if bare in HCMC_BARE_DISTRICTS:
+            return HCMC_BARE_DISTRICTS[bare], "CORE_BARE_NAME"
+    if len(current) > MAX_DISTRICT_FIELD_LENGTH or re.search(r"\d", key) and not re.fullmatch(r"(?:quan|q) \d+", key):
+        return None, "CORE_FRAGMENT_DROPPED"
+    return current, "CORE_PRESERVED"
+
+
 def infer_district_model(
     district_name: Any,
     ward: Any,
@@ -365,13 +413,9 @@ def infer_district_model(
     source_url: Any,
     province_name_model: str | None,
 ) -> tuple[str | None, str]:
-    current = clean_optional_text(district_name)
+    current, method = normalize_district_field(district_name, province_name_model)
     if current:
-        if province_name_model == "Hồ Chí Minh":
-            canonical = canonical_hcmc_district_from_text(current)
-            if canonical:
-                return canonical, "CORE_CANONICALIZED"
-        return current, "CORE_PRESERVED"
+        return current, method
 
     if province_name_model == "Hồ Chí Minh":
         combined = " ".join(

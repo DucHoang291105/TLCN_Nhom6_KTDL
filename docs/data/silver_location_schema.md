@@ -24,7 +24,7 @@ lịch sử và dữ liệu crawl mới có thể dùng chung một schema.
 | district_id | string | Mã quận/huyện nếu Core có |
 | district_name_raw | string | Tên quận/huyện lấy từ Core |
 | district_name_model | string | Nhãn khu vực cấp quận/huyện phục vụ phân tích |
-| district_mapping_method | string | Cách tạo nhãn quận/huyện |
+| district_mapping_method | string | `CORE_CANONICALIZED`, `CORE_BARE_NAME` (tên quận TP.HCM thiếu tiền tố, phường 2025 trùng tên quận cũ, hậu tố "cũ"), `CORE_PRESERVED`, `TEXT_DISTRICT_RULE`, `WARD_ANALYSIS_CROSSWALK`, `UNMAPPED`. Giá trị giữ chỗ ("Unknown") và mảnh văn bản dài bị bỏ trước khi suy luận |
 | district_model_version | string | Phiên bản quy tắc quận/huyện |
 | province_name_raw | string | Tên tỉnh/thành tìm thấy trong dữ liệu nguồn |
 | province_name_model | string | Tỉnh/thành chuẩn theo mô hình 34 đơn vị |

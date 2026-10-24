@@ -13,7 +13,7 @@ from pyspark.storagelevel import StorageLevel
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path: sys.path.insert(0, str(PROJECT_ROOT))
 from src.common.spark_session import build_spark_session, ensure_silver_namespace, write_iceberg_table
-from src.common.utils import CANONICAL_COLUMNS, RECORD_HASH_FIELDS
+from src.common.utils import CANONICAL_COLUMNS, RECORD_HASH_FIELDS, apply_value_plausibility, reconcile_shipped_price
 from src.silver.build_listing_core import OBSERVATION_METADATA_COLUMNS, build_batdongsan_observation, build_guland_observation, build_nhadatvui_observation
 
 SNAPSHOT_ROOT = "s3a://lakehouse-bronze/real_estate/snapshots"
@@ -58,6 +58,18 @@ def _timestamp(column):
             .otherwise(F.to_timestamp(text)))
     return F.when((F.year(parsed)>=2000)&(F.year(parsed)<=2100),parsed).otherwise(F.lit(None).cast("timestamp"))
 
+VALUE_FIX_SCHEMA=T.StructType([T.StructField("price",T.DoubleType()),T.StructField("area",T.DoubleType()),T.StructField("price_m",T.DoubleType()),T.StructField("price_per_m2",T.DoubleType()),T.StructField("reasons",T.ArrayType(T.StringType()))])
+
+def _value_plausibility(row) -> tuple:
+    record=row.asDict()
+    # Historical exports ship a pre-computed price made by an older parser
+    # (muaban: "52m2 giá 2tỷ360triệu" -> 52 tỷ); see reconcile_shipped_price.
+    record["price"]=reconcile_shipped_price(record.get("price"),record.get("price_str"),record.get("area"))
+    fixed,reasons=apply_value_plausibility(record)
+    return (fixed["price"],fixed["area"],fixed["price_m"],fixed["price_per_m2"],reasons)
+
+_value_plausibility_udf=F.udf(_value_plausibility,VALUE_FIX_SCHEMA)
+
 def read_historical_source(spark, source: str) -> tuple[DataFrame,int]:
     path=f"{HISTORICAL_ROOT}/{source}/batch_id=*"
     raw=spark.read.option("basePath",f"{HISTORICAL_ROOT}/{source}").parquet(path).withColumn("_bronze_path",F.input_file_name())
@@ -78,10 +90,13 @@ def read_historical_source(spark, source: str) -> tuple[DataFrame,int]:
     expected_id=F.concat_ws("_",F.col("source"),F.col("ad_id"))
     base=base.withColumn("source_id",F.when(F.col("ad_id").isNotNull(),expected_id).otherwise(F.lit(None).cast("string")))
     base=base.withColumn("snapshot_date",F.to_date(F.col("scraped_at")))
+    # Same price/area plausibility rules as the crawl sources (DQ14-DQ16).
+    base=base.withColumn("_value_fix",_value_plausibility_udf(F.struct("price","price_str","area","title","is_rent")))
+    for column in ("price","area","price_m","price_per_m2"): base=base.withColumn(column,F.col(f"_value_fix.{column}"))
     base=base.withColumn("record_hash",F.sha2(F.to_json(F.struct(*[F.col(c) for c in RECORD_HASH_FIELDS])),256))
-    checks=[(F.col("source").isNull()|F.col("ad_id").isNull()|F.col("title").isNull(),"DQ01"),(F.col("price").isNull(),"DQ04"),(F.col("area").isNull()|(F.col("area")<=0),"DQ08")]
+    checks=[(F.col("source").isNull()|F.col("ad_id").isNull()|F.col("title").isNull(),"DQ01"),(F.col("price").isNull(),"DQ04"),(F.col("area").isNull()|(F.col("area")<=0),"DQ05")]
     reasons=F.array(*[F.when(condition,F.lit(code)) for condition,code in checks])
-    base=base.withColumn("dq_reasons",F.filter(reasons,lambda x:x.isNotNull()))
+    base=base.withColumn("dq_reasons",F.concat(F.filter(reasons,lambda x:x.isNotNull()),F.col("_value_fix.reasons"))).drop("_value_fix")
     base=base.withColumn("dq_status",F.when(F.array_contains(F.col("dq_reasons"),"DQ01"),"REJECT").when(F.size("dq_reasons")>0,"WARN").otherwise("PASS"))
     score_fields=["title","price","area","rooms","address","ward","district_name","category_name","lat","lon","image","ad_url","posted_at"]
     score=sum(F.when(F.col(c).isNotNull(),F.lit(1.0)).otherwise(F.lit(0.0)) for c in score_fields)/F.lit(float(len(score_fields)))

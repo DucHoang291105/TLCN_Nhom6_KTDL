@@ -1,11 +1,11 @@
 {
-  "started_at": "2026-10-24T11:32:12.494231+00:00",
-  "finished_at": "2026-10-24T11:34:38.468180+00:00",
+  "started_at": "2026-10-24T15:37:52.053173+00:00",
+  "finished_at": "2026-10-24T15:40:14.222268+00:00",
   "catalog_namespace": "lakehouse.silver",
   "source_input_rows": {
     "batdongsan": 66000,
     "guland": 132514,
-    "nhadatvui": 60027,
+    "nhadatvui": 63627,
     "chotot": 8152,
     "mogi": 19075,
     "alonhadat": 1278,
@@ -13,11 +13,11 @@
     "muaban": 363,
     "homedy": 566
   },
-  "normalized_rows": 288858,
-  "accepted_before_dedup": 288194,
+  "normalized_rows": 292458,
+  "accepted_before_dedup": 291794,
   "quarantine_rows": 664,
-  "duplicates_dropped": 9207,
-  "observation_rows": 278987,
+  "duplicates_dropped": 9208,
+  "observation_rows": 282586,
   "crawl_current_rows": 107415,
   "historical_current_rows": 30317,
   "final_current_rows": 137732,
@@ -33,12 +33,12 @@
     "homedy": 566
   },
   "dq_status_counts": {
-    "PASS": 180720,
-    "WARN": 98267,
+    "PASS": 183712,
+    "WARN": 98874,
     "REJECT": 664
   },
   "iceberg_readback_counts": {
-    "listing_observation": 278987,
+    "listing_observation": 282586,
     "listing_dq_quarantine": 664,
     "crawl_current_27": 107415,
     "historical_current_27": 30317,

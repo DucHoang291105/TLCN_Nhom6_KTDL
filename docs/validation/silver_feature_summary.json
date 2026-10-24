@@ -1,13 +1,13 @@
 {
-  "started_at": "2026-10-24T11:35:52.127010+00:00",
-  "finished_at": "2026-10-24T11:36:34.929450+00:00",
+  "started_at": "2026-10-24T15:41:41.782598+00:00",
+  "finished_at": "2026-10-24T15:42:23.183462+00:00",
   "inputs": [
     "lakehouse.silver.silver_listings_current_27",
     "lakehouse.silver.listing_location",
     "lakehouse.silver.listing_observation"
   ],
   "output": "lakehouse.silver.listing_feature",
-  "feature_rule_version": "listing_feature_rules_v3",
+  "feature_rule_version": "listing_feature_rules_v4",
   "input_rows": 137732,
   "output_rows": 137732,
   "category_name_counts": {
@@ -41,16 +41,16 @@
     "Căn hộ dịch vụ": 1
   },
   "model_category_counts": {
-    "nha_pho": 80537,
+    "nha_pho": 80560,
     "dat": 7183,
     "phong_tro_khac": 7193,
     "biet_thu": 11757,
-    "can_ho": 30693,
+    "can_ho": 30670,
     "khong_ro": 369
   },
   "model_category_method_counts": {
-    "ENDPOINT_CONTEXT": 27177,
-    "TITLE_OVER_ENDPOINT": 799,
+    "ENDPOINT_CONTEXT": 27200,
+    "TITLE_OVER_ENDPOINT": 776,
     "TITLE_FALLBACK": 1472,
     "CATEGORY_NAME": 107915,
     "UNMAPPED": 369
@@ -60,16 +60,16 @@
     "SOURCE_LABEL": 54725,
     "SOURCE_STRUCTURED": 55031
   },
-  "category_title_conflict_rows": 5080,
+  "category_title_conflict_rows": 4924,
   "category_title_conflict_by_source": {
     "muaban": 93,
     "luachonnhadat": 10,
-    "alonhadat": 232,
-    "batdongsan": 1708,
-    "chotot": 476,
-    "nhadatvui": 640,
-    "guland": 1361,
-    "mogi": 540,
+    "alonhadat": 234,
+    "batdongsan": 1641,
+    "chotot": 463,
+    "nhadatvui": 627,
+    "guland": 1318,
+    "mogi": 518,
     "homedy": 20
   },
   "model_category_unmapped_share": 0.002679,
@@ -79,8 +79,8 @@
     "title_has_frontage": 0.167928,
     "title_has_elevator": 0.040346,
     "title_has_car_access": 0.127516,
-    "price_known": 0.980164,
-    "area_known": 0.999978,
+    "price_known": 0.979613,
+    "area_known": 0.999535,
     "rooms_known": 0.622484,
     "location_known": 0.998817,
     "legal_known": 0.099984
@@ -90,8 +90,8 @@
     "False": 122375
   },
   "dq_status_counts": {
-    "WARN": 45741,
-    "PASS": 91991
+    "WARN": 46092,
+    "PASS": 91640
   },
   "warnings": [],
   "status": "PASS"
