@@ -63,7 +63,8 @@ python -m pytest -q
 ```
 
 Bronze `--skip-existing` chỉ tái sử dụng batch có `_SUCCESS`; batch chưa hoàn
-thành sẽ báo lỗi. Luôn chạy manifest preflight trước ingest: snapshot cũ đã
+thành sẽ báo lỗi. Job cũng tự đối chiếu SHA256 từng CSV với manifest PASS.
+Luôn chạy manifest preflight trước ingest: snapshot cũ đã
 ghi nhận mà đổi SHA256 sẽ bị chặn, không im lặng bỏ qua CSV mới sửa. Nếu thật
 sự sửa dữ liệu nguồn cũ, cần kiểm tra và reload Bronze có chủ đích, rồi cập
 nhật manifest đã được review; không sửa manifest để ép PASS.
