@@ -57,6 +57,12 @@ def test_spark_success(monkeypatch):
     pipeline.run_spark("src/gold/build_listing_lifecycle.py")
 
 
+def test_spark_dependencies_use_the_persistent_named_volume():
+    command = pipeline.spark_command("src/silver/build_listing_history.py")
+    assert "spark.jars.ivy=/home/spark/.ivy2" in command
+    assert "spark.jars.ivy=/tmp/.ivy2" not in command
+
+
 def test_bronze_warn_stops_pipeline(tmp_path, monkeypatch):
     monkeypatch.setattr(pipeline, "PROJECT_ROOT", tmp_path)
     out = tmp_path / "docs/validation/bronze_state_audit.json"
@@ -86,3 +92,18 @@ def test_calendar_uses_only_crawl_and_deduplicates():
                for s in pipeline.SOURCES]
     batches += [batches[0], {"branch": "historical", "source": "mogi", "batch_id": "initial", "status": "READABLE"}]
     assert len(calendar_from_audit({"status": "PASS", "batches": batches})) == 3
+
+
+def test_snapshot_manifest_rejects_changed_existing_csv(tmp_path, monkeypatch):
+    monkeypatch.setattr(pipeline, "PROJECT_ROOT", tmp_path)
+    for source in pipeline.SOURCES:
+        path = pipeline.snapshot_path(source, "20261023")
+        path.parent.mkdir(parents=True)
+        path.write_text("listing_id\n1\n", encoding="utf-8")
+    pipeline.validate_snapshots("20261023")
+    manifest = tmp_path / "docs/validation/snapshot_manifest.json"
+    before = manifest.read_bytes()
+    pipeline.snapshot_path("batdongsan", "20261023").write_text("listing_id\n2\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="snapshot changed"):
+        pipeline.validate_snapshots("20261023")
+    assert manifest.read_bytes() == before

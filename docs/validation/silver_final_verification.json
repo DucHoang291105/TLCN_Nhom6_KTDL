@@ -1,26 +1,27 @@
 {
-  "generated_at": "2026-10-16T16:23:44.991439+00:00",
+  "generated_at": "2026-10-24T11:37:13.434883+00:00",
   "catalog_namespace": "lakehouse.silver",
   "table_counts": {
-    "listing_observation": 263331,
+    "listing_observation": 278987,
     "listing_dq_quarantine": 664,
-    "crawl_current_27": 104303,
+    "crawl_current_27": 107415,
     "historical_current_27": 30317,
-    "silver_listings_current_27": 134620,
-    "listing_history": 148209,
-    "listing_location": 134620,
-    "listing_feature": 134620
+    "silver_listings_current_27": 137732,
+    "listing_history": 151972,
+    "listing_history_state": 137732,
+    "listing_location": 137732,
+    "listing_feature": 137732
   },
   "source_counts": {
-    "guland": 52242,
-    "nhadatvui": 17968,
-    "batdongsan": 34093,
-    "chotot": 8152,
+    "guland": 52384,
+    "batdongsan": 36683,
+    "nhadatvui": 18348,
     "muaban": 363,
-    "alonhadat": 1278,
+    "chotot": 8152,
     "luachonnhadat": 883,
-    "homedy": 566,
-    "mogi": 19075
+    "alonhadat": 1278,
+    "mogi": 19075,
+    "homedy": 566
   },
   "checks": {
     "source_set_9": true,
@@ -44,6 +45,14 @@
     "location_source_id_set_equal": true,
     "observation_category_evidence_valid": true,
     "observation_category_evidence_consistent": true,
+    "history_schema": true,
+    "history_valid_intervals": true,
+    "history_one_current_per_id": true,
+    "history_source_id_set_equal": true,
+    "history_version_key_unique": true,
+    "history_state_keys_equal": true,
+    "history_state_checkpoint_matches": true,
+    "history_partition_snapshot_date": true,
     "tables_in_silver_bucket": true
   },
   "metrics": {
@@ -63,13 +72,13 @@
     "location_missing_ids": 0,
     "observation_bad_category_evidence": 0,
     "observation_category_evidence_mismatch": 0,
-    "model_category_mapped_rate": 0.997274,
+    "model_category_mapped_rate": 0.997321,
     "title_flag_true_rates": {
-      "title_has_legal": 0.098878,
-      "title_has_furnished": 0.082907,
-      "title_has_frontage": 0.16889,
-      "title_has_elevator": 0.040603,
-      "title_has_car_access": 0.128762
+      "title_has_legal": 0.0992,
+      "title_has_furnished": 0.083031,
+      "title_has_frontage": 0.167928,
+      "title_has_elevator": 0.040346,
+      "title_has_car_access": 0.127516
     }
   },
   "warnings": [],
@@ -80,6 +89,7 @@
     "historical_current_27": "s3://lakehouse-silver/real_estate/historical_current_27",
     "silver_listings_current_27": "s3://lakehouse-silver/real_estate/silver_listings_current_27",
     "listing_history": "s3://lakehouse-silver/real_estate/listing_history",
+    "listing_history_state": "s3://lakehouse-silver/real_estate/listing_history_state",
     "listing_location": "s3://lakehouse-silver/real_estate/listing_location",
     "listing_feature": "s3://lakehouse-silver/real_estate/listing_feature"
   },

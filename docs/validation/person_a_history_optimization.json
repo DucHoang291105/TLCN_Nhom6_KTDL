@@ -1,0 +1,312 @@
+{
+  "generated_at": "2026-10-24T10:52:03.206035+00:00",
+  "baseline_commit": "a6909aed578f86cd5c7181e861ed55688c237012",
+  "observation_rows": 278987,
+  "samples": [
+    {
+      "iteration": 1,
+      "order": [
+        "before",
+        "after"
+      ],
+      "before": {
+        "mode": "incremental",
+        "operation": "MERGE_AFFECTED_IDS",
+        "input_source_ids": 137732,
+        "affected_source_ids": 9689,
+        "staged_history_rows": 13884,
+        "history_rows": 151972,
+        "history_table": "lakehouse.smoke_test.history_optimization_before",
+        "state_table": "lakehouse.smoke_test.history_optimization_before_state",
+        "snapshot_before": "6071450020727342248",
+        "snapshot_after": "8193889055896820238",
+        "elapsed_seconds": 19.3661,
+        "partition_by": [
+          "snapshot_date"
+        ],
+        "status": "PASS"
+      },
+      "after": {
+        "mode": "incremental",
+        "operation": "MERGE_AFFECTED_IDS",
+        "input_source_ids": 137732,
+        "affected_source_ids": 9689,
+        "observation_rows": 278987,
+        "staged_history_rows": 4398,
+        "history_rows": 151972,
+        "history_table": "lakehouse.smoke_test.history_optimization_after",
+        "state_table": "lakehouse.smoke_test.history_optimization_after_state",
+        "snapshot_before": "3627660464110664009",
+        "snapshot_after": "8344903193460570738",
+        "elapsed_seconds": 13.9644,
+        "partition_by": [
+          "snapshot_date"
+        ],
+        "status": "PASS"
+      }
+    },
+    {
+      "iteration": 2,
+      "order": [
+        "after",
+        "before"
+      ],
+      "after": {
+        "mode": "incremental",
+        "operation": "MERGE_AFFECTED_IDS",
+        "input_source_ids": 137732,
+        "affected_source_ids": 9689,
+        "observation_rows": 278987,
+        "staged_history_rows": 4398,
+        "history_rows": 151972,
+        "history_table": "lakehouse.smoke_test.history_optimization_after",
+        "state_table": "lakehouse.smoke_test.history_optimization_after_state",
+        "snapshot_before": "389869575996971790",
+        "snapshot_after": "3017459973956810664",
+        "elapsed_seconds": 12.178,
+        "partition_by": [
+          "snapshot_date"
+        ],
+        "status": "PASS"
+      },
+      "before": {
+        "mode": "incremental",
+        "operation": "MERGE_AFFECTED_IDS",
+        "input_source_ids": 137732,
+        "affected_source_ids": 9689,
+        "staged_history_rows": 13884,
+        "history_rows": 151972,
+        "history_table": "lakehouse.smoke_test.history_optimization_before",
+        "state_table": "lakehouse.smoke_test.history_optimization_before_state",
+        "snapshot_before": "8071790988557579419",
+        "snapshot_after": "5195135185815907966",
+        "elapsed_seconds": 13.6399,
+        "partition_by": [
+          "snapshot_date"
+        ],
+        "status": "PASS"
+      }
+    },
+    {
+      "iteration": 3,
+      "order": [
+        "before",
+        "after"
+      ],
+      "before": {
+        "mode": "incremental",
+        "operation": "MERGE_AFFECTED_IDS",
+        "input_source_ids": 137732,
+        "affected_source_ids": 9689,
+        "staged_history_rows": 13884,
+        "history_rows": 151972,
+        "history_table": "lakehouse.smoke_test.history_optimization_before",
+        "state_table": "lakehouse.smoke_test.history_optimization_before_state",
+        "snapshot_before": "809290720186370009",
+        "snapshot_after": "2008174495386848984",
+        "elapsed_seconds": 12.4263,
+        "partition_by": [
+          "snapshot_date"
+        ],
+        "status": "PASS"
+      },
+      "after": {
+        "mode": "incremental",
+        "operation": "MERGE_AFFECTED_IDS",
+        "input_source_ids": 137732,
+        "affected_source_ids": 9689,
+        "observation_rows": 278987,
+        "staged_history_rows": 4398,
+        "history_rows": 151972,
+        "history_table": "lakehouse.smoke_test.history_optimization_after",
+        "state_table": "lakehouse.smoke_test.history_optimization_after_state",
+        "snapshot_before": "4719979962449711237",
+        "snapshot_after": "4215552375565090696",
+        "elapsed_seconds": 12.2343,
+        "partition_by": [
+          "snapshot_date"
+        ],
+        "status": "PASS"
+      }
+    }
+  ],
+  "timings": {
+    "before_merge": {
+      "seconds": [
+        19.3661,
+        13.6399,
+        12.4263
+      ],
+      "median_seconds": 13.6399,
+      "min_seconds": 12.4263,
+      "max_seconds": 19.3661
+    },
+    "after_merge": {
+      "seconds": [
+        13.9644,
+        12.178,
+        12.2343
+      ],
+      "median_seconds": 12.2343,
+      "min_seconds": 12.178,
+      "max_seconds": 13.9644
+    },
+    "before_no_change": {
+      "seconds": [
+        4.4453,
+        3.9842,
+        4.0316
+      ],
+      "median_seconds": 4.0316,
+      "min_seconds": 3.9842,
+      "max_seconds": 4.4453
+    },
+    "after_no_change": {
+      "seconds": [
+        3.7602,
+        3.7314,
+        3.6869
+      ],
+      "median_seconds": 3.7314,
+      "min_seconds": 3.6869,
+      "max_seconds": 3.7602
+    },
+    "full_rebuild": {
+      "seconds": [
+        8.7087,
+        8.743,
+        8.6701
+      ],
+      "median_seconds": 8.7087,
+      "min_seconds": 8.6701,
+      "max_seconds": 8.743
+    },
+    "snapshot_fast_path": {
+      "seconds": [
+        0.0394,
+        0.0362,
+        0.0329
+      ],
+      "median_seconds": 0.0362,
+      "min_seconds": 0.0329,
+      "max_seconds": 0.0394
+    }
+  },
+  "comparisons": [
+    {
+      "merge": {
+        "rows": 151972,
+        "sha256_sorted_row_hashes": "1ffde96c9a09bb0f2b1129532e9103a41beb13a4d6eba5ae5064d996852930d7"
+      },
+      "rebuild": {
+        "rows": 151972,
+        "sha256_sorted_row_hashes": "1ffde96c9a09bb0f2b1129532e9103a41beb13a4d6eba5ae5064d996852930d7"
+      },
+      "merge_only_rows": 0,
+      "rebuild_only_rows": 0,
+      "equal": true
+    },
+    {
+      "merge": {
+        "rows": 151972,
+        "sha256_sorted_row_hashes": "1ffde96c9a09bb0f2b1129532e9103a41beb13a4d6eba5ae5064d996852930d7"
+      },
+      "rebuild": {
+        "rows": 151972,
+        "sha256_sorted_row_hashes": "1ffde96c9a09bb0f2b1129532e9103a41beb13a4d6eba5ae5064d996852930d7"
+      },
+      "merge_only_rows": 0,
+      "rebuild_only_rows": 0,
+      "equal": true
+    },
+    {
+      "merge": {
+        "rows": 151972,
+        "sha256_sorted_row_hashes": "1ffde96c9a09bb0f2b1129532e9103a41beb13a4d6eba5ae5064d996852930d7"
+      },
+      "rebuild": {
+        "rows": 151972,
+        "sha256_sorted_row_hashes": "1ffde96c9a09bb0f2b1129532e9103a41beb13a4d6eba5ae5064d996852930d7"
+      },
+      "merge_only_rows": 0,
+      "rebuild_only_rows": 0,
+      "equal": true
+    }
+  ],
+  "comparison_full_rebuild": {
+    "merge": {
+      "rows": 151972,
+      "sha256_sorted_row_hashes": "1ffde96c9a09bb0f2b1129532e9103a41beb13a4d6eba5ae5064d996852930d7"
+    },
+    "rebuild": {
+      "rows": 151972,
+      "sha256_sorted_row_hashes": "1ffde96c9a09bb0f2b1129532e9103a41beb13a4d6eba5ae5064d996852930d7"
+    },
+    "merge_only_rows": 0,
+    "rebuild_only_rows": 0,
+    "equal": true
+  },
+  "scd2_fixtures": {
+    "collapse_consecutive_hashes": {
+      "status": "PASS",
+      "operation": "FULL_REBUILD",
+      "rows": 2
+    },
+    "a_b_a_is_three_versions": {
+      "status": "PASS",
+      "operation": "MERGE_AFFECTED_IDS",
+      "rows": 4
+    },
+    "late_arrival_resequences_intervals": {
+      "status": "PASS",
+      "operation": "MERGE_AFFECTED_IDS",
+      "rows": 6
+    },
+    "correction_deletes_obsolete_versions": {
+      "status": "PASS",
+      "operation": "MERGE_AFFECTED_IDS",
+      "rows": 2
+    },
+    "metadata_only_correction": {
+      "status": "PASS",
+      "operation": "MERGE_AFFECTED_IDS",
+      "rows": 2
+    },
+    "idempotent_no_new_snapshot": {
+      "status": "PASS"
+    },
+    "stale_checkpoint_recovers": {
+      "status": "PASS"
+    },
+    "invalid_input_does_not_commit": {
+      "status": "PASS"
+    },
+    "missing_observation_time_rejected": {
+      "status": "PASS"
+    },
+    "removed_source_id_deleted": {
+      "status": "PASS",
+      "operation": "MERGE_AFFECTED_IDS",
+      "rows": 1
+    },
+    "empty_input_deletes_all_versions": {
+      "status": "PASS",
+      "operation": "MERGE_AFFECTED_IDS",
+      "rows": 0
+    }
+  },
+  "cache_fixtures": {
+    "unchanged_snapshot_fast_no_write": true,
+    "force_verify_bypasses_cache": true,
+    "new_input_snapshot_invalidates_cache": true,
+    "state_data_change_invalidates_cache": true,
+    "history_data_change_forces_reconcile": true,
+    "checkpoint_property_change_invalidates_cache": true,
+    "input_schema_metadata_change_invalidates_cache": true,
+    "duplicate_input_rejected_before_commit": true,
+    "unexpected_target_schema_fails_closed": true,
+    "valid_input_recovers_after_failure": true
+  },
+  "status": "PASS",
+  "timing_scope": "One Docker Spark app, identical cached observation input, 3 controlled repetitions by default; AB/BA alternating order. Seeding and exact comparisons excluded from timers. Snapshot fast path is a separate unchanged-input case, not new-batch MERGE."
+}

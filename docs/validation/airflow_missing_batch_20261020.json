@@ -1,0 +1,204 @@
+{
+  "dag_id": "lakehouse_pipeline",
+  "run_id": "scheduled__2026-10-20T15:00:00+00:00",
+  "state": "failed",
+  "batch_id": "20261020",
+  "history_mode": "incremental",
+  "start_date": "2026-10-24T09:51:42.280082Z",
+  "end_date": "2026-10-24T10:02:52.643038Z",
+  "schedule": "0 22 * * 2,5",
+  "timezone": "Asia/Ho_Chi_Minh",
+  "tasks": [
+    {
+      "task_id": "acquisition.prepare_guland",
+      "state": "failed",
+      "start_date": "2026-10-24T09:51:42.614800Z",
+      "end_date": "2026-10-24T09:51:54.553670Z",
+      "duration": 11.93887,
+      "try_number": 1
+    },
+    {
+      "task_id": "acquisition.prepare_nhadatvui",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T09:52:43.762767Z",
+      "end_date": "2026-10-24T09:52:43.762767Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "acquisition.wait_batdongsan_csv",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T09:53:45.573810Z",
+      "end_date": "2026-10-24T09:53:45.573810Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "acquisition.validate_snapshot_manifest",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T09:54:47.455660Z",
+      "end_date": "2026-10-24T09:54:47.455660Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "bronze.ingest_snapshots",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T09:55:49.191421Z",
+      "end_date": "2026-10-24T09:55:49.191421Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "bronze.audit_bronze",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T09:56:51.179923Z",
+      "end_date": "2026-10-24T09:56:51.179923Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "silver.iceberg_smoke",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T09:57:52.992660Z",
+      "end_date": "2026-10-24T09:57:52.992660Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "silver.listing_core",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T09:58:55.021574Z",
+      "end_date": "2026-10-24T09:58:55.021574Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "silver.listing_history",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T09:59:56.900308Z",
+      "end_date": "2026-10-24T09:59:56.900308Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "silver.location",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T10:00:58.838600Z",
+      "end_date": "2026-10-24T10:00:58.838600Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "silver.feature",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T10:02:00.758164Z",
+      "end_date": "2026-10-24T10:02:00.758164Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "silver.verify_silver",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T10:02:41.494738Z",
+      "end_date": "2026-10-24T10:02:41.494738Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "gold.dimensions",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T10:02:41.610002Z",
+      "end_date": "2026-10-24T10:02:41.610002Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "gold.fact_listing",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T10:02:43.642780Z",
+      "end_date": "2026-10-24T10:02:43.642780Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "gold.price_benchmark",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T10:02:44.714415Z",
+      "end_date": "2026-10-24T10:02:44.714415Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "gold.budget_tradeoff",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T10:02:45.778318Z",
+      "end_date": "2026-10-24T10:02:45.778318Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "gold.area_substitution",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T10:02:46.829588Z",
+      "end_date": "2026-10-24T10:02:46.829588Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "gold.data_quality",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T10:02:47.891830Z",
+      "end_date": "2026-10-24T10:02:47.891830Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "gold.repricing",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T10:02:48.942207Z",
+      "end_date": "2026-10-24T10:02:48.942207Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "gold.market_overview",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T10:02:49.145850Z",
+      "end_date": "2026-10-24T10:02:49.145850Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "gold.listing_lifecycle",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T10:02:50.203036Z",
+      "end_date": "2026-10-24T10:02:50.203036Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "gold.verify_gold",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T10:02:51.261320Z",
+      "end_date": "2026-10-24T10:02:51.261320Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "publish_evidence",
+      "state": "upstream_failed",
+      "start_date": "2026-10-24T10:02:52.310974Z",
+      "end_date": "2026-10-24T10:02:52.310974Z",
+      "duration": 0.0,
+      "try_number": 0
+    }
+  ],
+  "expected_failure_probe": true,
+  "checks": {
+    "run_failed": true,
+    "first_task_failed": true,
+    "all_downstream_blocked": true
+  },
+  "verification_status": "PASS"
+}

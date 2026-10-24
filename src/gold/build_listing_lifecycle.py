@@ -32,7 +32,10 @@ def build_lifecycle_frame(observations, calendar, sources):
     stats = observations.groupBy("source", "source_id").agg(
         F.min("snapshot_date").alias("first_seen_date"), F.max("snapshot_date").alias("last_seen_date"),
         F.min("batch_id").alias("first_seen_batch_id"), F.max("batch_id").alias("last_seen_batch_id"),
-        F.countDistinct("batch_id").alias("observation_count"), F.collect_set("batch_id").alias("_observed_batches"))
+        F.collect_set("batch_id").alias("_observed_batches"))
+    # The set already contains exactly the distinct non-null batch IDs. Reuse
+    # it instead of a second distinct aggregate/extra shuffle; retain BIGINT.
+    stats = stats.withColumn("observation_count", F.size("_observed_batches").cast("long"))
     ordered = Window.partitionBy("source_id").orderBy(F.col("snapshot_date").asc_nulls_last(),
         F.col("scraped_at").asc_nulls_last(), "batch_id", "record_hash")
     events = observations.withColumn("_previous_price", F.lag("price").over(ordered)).filter(
@@ -68,7 +71,7 @@ def main():
     calendar = spark.createDataFrame(calendar_rows, "source string, batch_id string")
     observations = spark.table(f"{silver}.listing_observation")
     unknown = observations.filter(observations.source.isin(*CRAWL_SOURCES)).select("source", "batch_id").distinct().join(calendar, ["source", "batch_id"], "left_anti")
-    if unknown.count():
+    if unknown.limit(1).count():
         raise RuntimeError("Observation batches missing from Bronze audit; rerun audit")
     frame = build_lifecycle_frame(observations, calendar, spark.table(f"{gold}.dim_source"))
     table = f"{gold}.fact_listing_lifecycle"
@@ -76,7 +79,7 @@ def main():
     written = spark.table(table)
     counts = written.groupBy("source", "lifecycle_status").count().orderBy("source", "lifecycle_status").collect()
     summary = {"generated_at": datetime.now(timezone.utc).isoformat(), "output_table": table,
-        "input_table": f"{silver}.listing_observation", "rows": written.count(), "grain": ["source_id"],
+        "input_table": f"{silver}.listing_observation", "rows": sum(r["count"] for r in counts), "grain": ["source_id"],
         "source_batch_calendar": {s: [b for src, b in calendar_rows if src == s] for s in CRAWL_SOURCES},
         "status_counts": [r.asDict() for r in counts],
         "sample": [json.loads(r) for r in written.orderBy("source", "source_id").limit(20).toJSON().collect()],

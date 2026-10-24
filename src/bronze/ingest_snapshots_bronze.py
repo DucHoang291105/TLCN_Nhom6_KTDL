@@ -1,4 +1,6 @@
 import os
+import argparse
+import hashlib
 import json
 import re
 from datetime import datetime, timezone
@@ -28,6 +30,17 @@ SOURCE_FILES = {
     "guland": "guland_raw.csv",
     "nhadatvui": "nhadatvui_raw.csv",
 }
+
+parser = argparse.ArgumentParser(description="Ingest local snapshot CSVs into Bronze")
+parser.add_argument("--skip-existing", action="store_true", help="Reuse completed immutable Bronze batches")
+args = parser.parse_args()
+manifest_checksums = {}
+if args.skip_existing:
+    manifest_path = Path(PROJECT_ROOT) / "docs/validation/snapshot_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if manifest.get("status") != "PASS":
+        raise RuntimeError("Run snapshot manifest preflight before --skip-existing")
+    manifest_checksums = {(r["source"], r["batch_id"]): r["sha256"] for r in manifest["snapshots"]}
 
 
 # ============================================================
@@ -195,11 +208,31 @@ for source_name, file_name in SOURCE_FILES.items():
             }
             continue
 
+        if args.skip_existing:
+            digest = hashlib.sha256()
+            with input_path.open("rb") as raw_file:
+                for block in iter(lambda: raw_file.read(1024 * 1024), b""):
+                    digest.update(block)
+            if manifest_checksums.get((source_name, batch_id)) != digest.hexdigest():
+                raise RuntimeError(f"CSV checksum not confirmed by manifest: {source_name}/{batch_id}; run preflight and inspect changes")
+
         output_path = (
             f"{BRONZE_ROOT}/"
             f"{source_name}/"
             f"batch_id={batch_id}"
         )
+
+        if args.skip_existing:
+            jpath = spark._jvm.org.apache.hadoop.fs.Path(output_path)
+            fs = jpath.getFileSystem(hadoop_conf)
+            if fs.exists(jpath):
+                success = spark._jvm.org.apache.hadoop.fs.Path(output_path + "/_SUCCESS")
+                if not fs.exists(success):
+                    raise RuntimeError(f"Incomplete existing Bronze batch: {output_path}; inspect before reloading")
+                summary["sources"][source_name][batch_id] = {
+                    "file": file_name, "output_path": output_path, "status": "SKIPPED_EXISTING"}
+                print(f"REUSE {source_name}/{batch_id}: completed Bronze batch")
+                continue
 
         print()
         print("-" * 75)

@@ -34,13 +34,18 @@ def publish():
     save_run_evidence(get_current_context()["run_id"])
 
 
+def run_history():
+    run_spark("src/silver/build_listing_history.py", ("--mode", get_current_context()["params"]["history_mode"]))
+
+
 with DAG(
     dag_id="lakehouse_pipeline", description="CSV → Bronze → Silver → verify → Gold/lifecycle → verify",
     schedule="0 22 * * 2,5", start_date=pendulum.datetime(2026, 10, 16, tz="Asia/Ho_Chi_Minh"),
     catchup=False, max_active_runs=1, max_active_tasks=1,
     default_args={"owner": "group6", "retries": 0, "execution_timeout": timedelta(minutes=45)},
-    params={"batch_id": Param("", type="string", pattern="^([0-9]{8})?$", description="YYYYMMDD; empty uses run date in Vietnam")},
-    tags=["lakehouse", "week1", "pipeline"],
+    params={"batch_id": Param("", type="string", pattern="^([0-9]{8})?$", description="YYYYMMDD; empty uses run date in Vietnam"),
+            "history_mode": Param("incremental", enum=["incremental", "rebuild"], type="string")},
+    tags=["lakehouse", "pipeline"],
 ) as dag:
     with TaskGroup("acquisition") as acquisition:
         guland = PythonOperator(task_id="prepare_guland", python_callable=prepare, op_kwargs={"source": "guland"})
@@ -65,7 +70,11 @@ with DAG(
         with TaskGroup(group) as tasks:
             last = None
             for task_id, app in jobs:
-                task = PythonOperator(task_id=task_id, python_callable=run_spark, op_kwargs={"app": app})
+                kwargs = {"app": app}
+                if task_id == "ingest_snapshots":
+                    kwargs["args"] = ["--skip-existing"]
+                task = PythonOperator(task_id=task_id, python_callable=run_history if task_id == "listing_history" else run_spark,
+                                      op_kwargs={} if task_id == "listing_history" else kwargs)
                 if last is not None:
                     last >> task
                 last = task

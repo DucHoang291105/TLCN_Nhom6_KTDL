@@ -3,6 +3,7 @@ import argparse
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import requests
 
@@ -21,11 +22,12 @@ def session():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("action", choices=("trigger", "status", "export"))
-    parser.add_argument("--batch-id", default="20261016")
+    parser.add_argument("--batch-id", default=datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%Y%m%d"))
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--output", default="airflow_task_states.json")
     parser.add_argument("--concise", action="store_true")
     parser.add_argument("--expect-failure", action="store_true")
+    parser.add_argument("--history-mode", choices=("incremental", "rebuild"), default="incremental")
     args = parser.parse_args()
     client = session()
     root = "http://localhost:8080/api/v2/dags/lakehouse_pipeline"
@@ -33,7 +35,7 @@ def main():
         # Register the manual run before enabling the scheduler; one active run at a time.
         now = datetime.now(timezone.utc).isoformat()
         response = client.post(root + "/dagRuns", json={"dag_run_id": args.run_id, "logical_date": now,
-            "conf": {"batch_id": args.batch_id}}, timeout=30)
+            "conf": {"batch_id": args.batch_id, "history_mode": args.history_mode}}, timeout=30)
         response.raise_for_status()
         response = client.patch(root, json={"is_paused": False}, timeout=30)
         response.raise_for_status()
@@ -43,6 +45,9 @@ def main():
     response = client.get(root + "/dagRuns/" + quote(args.run_id, safe=""), timeout=30)
     response.raise_for_status()
     run = response.json()
+    resolved_batch = run.get("conf", {}).get("batch_id")
+    if not resolved_batch:
+        resolved_batch = datetime.fromisoformat(run["logical_date"].replace("Z", "+00:00")).astimezone(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%Y%m%d")
     response = client.get(root + "/dagRuns/" + quote(args.run_id, safe="") + "/taskInstances?limit=100", timeout=30)
     response.raise_for_status()
     tasks = response.json()["task_instances"]
@@ -52,7 +57,8 @@ def main():
             end = datetime.fromisoformat(task["end_date"].replace("Z", "+00:00"))
             task["duration"] = (end - start).total_seconds()
     payload = {"dag_id": "lakehouse_pipeline", "run_id": args.run_id, "state": run["state"],
-        "batch_id": run.get("conf", {}).get("batch_id"), "start_date": run.get("start_date"), "end_date": run.get("end_date"),
+        "batch_id": resolved_batch, "history_mode": run.get("conf", {}).get("history_mode", "incremental"),
+        "start_date": run.get("start_date"), "end_date": run.get("end_date"),
         "schedule": "0 22 * * 2,5", "timezone": "Asia/Ho_Chi_Minh",
         "tasks": [{k: t.get(k) for k in ("task_id", "state", "start_date", "end_date", "duration", "try_number")} for t in tasks]}
     if args.expect_failure:
@@ -63,10 +69,11 @@ def main():
         if not all(checks.values()):
             raise RuntimeError("Failure-gate probe did not block all downstream tasks")
     if args.action == "export":
+        from src.common.atomic_io import write_json_atomic
         if Path(args.output).name != args.output:
             raise ValueError("Output must be a filename in docs/validation")
         out = Path("/opt/project/docs/validation") / args.output
-        out.write_text(json.dumps(payload, indent=2) + "\n")
+        write_json_atomic(out, payload)
     if args.concise:
         from collections import Counter
         print(json.dumps({"run_id": args.run_id, "state": run["state"], "tasks": dict(Counter(t["state"] for t in tasks))}))

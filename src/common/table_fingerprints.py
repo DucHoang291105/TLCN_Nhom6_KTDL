@@ -12,6 +12,7 @@ Usage (Spark): .\\scripts\\run_spark.ps1 "src\\common\\table_fingerprints.py" <o
 from __future__ import annotations
 
 import json
+import hashlib
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -27,6 +28,7 @@ GRAINS = {
     "silver.historical_current_27": ["source_id"],
     "silver.silver_listings_current_27": ["source_id"],
     "silver.listing_history": ["source_id", "version_number"],
+    "silver.listing_history_state": ["source_id"],
     "silver.listing_location": ["source_id"],
     "silver.listing_feature": ["source_id"],
     "gold.dim_source": ["source_key"],
@@ -57,6 +59,7 @@ def is_build_time(column: str) -> bool:
 
 def main(output: str) -> None:
     from pyspark.sql import functions as F
+    from pyspark.storagelevel import StorageLevel
 
     from src.common.spark_session import CATALOG_NAME, build_spark_session
 
@@ -65,23 +68,28 @@ def main(output: str) -> None:
     for name, grain in GRAINS.items():
         table = spark.table(f"{CATALOG_NAME}.{name}")
         columns = sorted(c for c in table.columns if not is_build_time(c))
-        row_hash = F.sha2(F.to_json(F.struct(*[F.col(c) for c in columns])), 256)
-        stats = table.agg(
+        row_hash = F.sha2(F.to_json(F.struct(*[F.col(c) for c in columns]), {"ignoreNullFields": "false"}), 256)
+        compact = table.select(*grain, row_hash.alias("_row_sha256")).persist(StorageLevel.MEMORY_AND_DISK)
+        stats = compact.agg(
             F.count("*").alias("rows"),
             F.countDistinct(*[F.coalesce(F.col(c).cast("string"), F.lit("<null>")) for c in grain]).alias("keys"),
-            F.sum(F.conv(F.substring(row_hash, 1, 15), 16, 10).cast("decimal(38,0)")).cast("string").alias("content_hash"),
         ).first()
+        digest = hashlib.sha256()
+        for row in compact.select("_row_sha256").orderBy("_row_sha256").toLocalIterator():
+            digest.update(bytes.fromhex(row["_row_sha256"]))
+        compact.unpersist()
         result[name] = {
             "grain": grain,
             "rows": int(stats["rows"]),
             "distinct_keys": int(stats["keys"]),
-            "content_hash": stats["content_hash"],
+            "content_hash": digest.hexdigest(),
+            "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
             "excluded_columns": [c for c in table.columns if is_build_time(c)],
         }
     output_path = Path(output) if Path(output).is_absolute() else PROJECT_ROOT / output
-    payload = {"generated_at": datetime.now(timezone.utc).isoformat(), "tables": result}
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    payload = {"generated_at": datetime.now(timezone.utc).isoformat(), "fingerprint_version": "sha256_multiset_v2", "tables": result}
+    from src.common.atomic_io import write_json_atomic
+    write_json_atomic(output_path, payload)
     print(f"Wrote {output_path}")
     spark.stop()
 

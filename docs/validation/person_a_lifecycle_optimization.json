@@ -1,0 +1,57 @@
+{
+  "generated_at": "2026-10-24T10:56:09.708351+00:00",
+  "input_rows": 278987,
+  "baseline_commit": "a6909aed578f86cd5c7181e861ed55688c237012",
+  "comparisons": [
+    {
+      "iteration": 1,
+      "schema_equal": true,
+      "rows_before": 137732,
+      "rows_after": 137732,
+      "hash_before": "dd0dd4b87ee934b005bfc95f317abffbe313ab9ae8b85adf0841c6cea771e045",
+      "hash_after": "dd0dd4b87ee934b005bfc95f317abffbe313ab9ae8b85adf0841c6cea771e045",
+      "before_only": 0,
+      "after_only": 0
+    },
+    {
+      "iteration": 2,
+      "schema_equal": true,
+      "rows_before": 137732,
+      "rows_after": 137732,
+      "hash_before": "dd0dd4b87ee934b005bfc95f317abffbe313ab9ae8b85adf0841c6cea771e045",
+      "hash_after": "dd0dd4b87ee934b005bfc95f317abffbe313ab9ae8b85adf0841c6cea771e045",
+      "before_only": 0,
+      "after_only": 0
+    },
+    {
+      "iteration": 3,
+      "schema_equal": true,
+      "rows_before": 137732,
+      "rows_after": 137732,
+      "hash_before": "dd0dd4b87ee934b005bfc95f317abffbe313ab9ae8b85adf0841c6cea771e045",
+      "hash_after": "dd0dd4b87ee934b005bfc95f317abffbe313ab9ae8b85adf0841c6cea771e045",
+      "before_only": 0,
+      "after_only": 0
+    }
+  ],
+  "timings": {
+    "before": {
+      "seconds": [
+        8.994,
+        2.8907,
+        2.773
+      ],
+      "median_seconds": 2.8907
+    },
+    "after": {
+      "seconds": [
+        2.6568,
+        2.9848,
+        2.1035
+      ],
+      "median_seconds": 2.6568
+    }
+  },
+  "timing_scope": "Same cached input, one Spark app, alternating AB/BA, three repetitions. Lifecycle calculation plus sandbox Iceberg write; exact comparisons excluded. Only lifecycle_built_at excluded from hashes.",
+  "status": "PASS"
+}

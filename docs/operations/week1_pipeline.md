@@ -1,5 +1,8 @@
 # Pipeline và vận hành — tuần 16–22/10/2026
 
+Tài liệu lưu trạng thái tại batch 20261016. Cách chạy history hiện hành:
+[Iceberg MERGE/SCD2](iceberg_history.md).
+
 ## Nguồn dữ liệu và ngày batch
 
 Pipeline xử lý đủ Batdongsan, Guland và Nhadatvui. Guland/Nhadatvui có crawler Python; Batdongsan được xuất CSV bằng Chrome extension. Đặt CSV vào:

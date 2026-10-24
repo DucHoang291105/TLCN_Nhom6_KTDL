@@ -98,10 +98,24 @@ services:
     mem_limit: 768m
     networks: [tlcn_network]
 
+  spark-ivy-init:
+    image: apache/spark:3.5.9-scala2.12-java17-python3-r-ubuntu
+    user: "0:0"
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["chown 185:185 /cache && chmod 755 /cache"]
+    volumes:
+      - spark_ivy:/cache
+    restart: "no"
+    mem_limit: 64m
+    networks: [tlcn_network]
+
   spark-master:
     <<: *common-restart
     image: apache/spark:3.5.9-scala2.12-java17-python3-r-ubuntu
     container_name: tlcn_spark_master
+    depends_on:
+      spark-ivy-init:
+        condition: service_completed_successfully
     command:
       - /opt/spark/bin/spark-class
       - org.apache.spark.deploy.master.Master
@@ -115,7 +129,9 @@ services:
     volumes:
       - ./:/opt/project
       - spark_ivy:/home/spark/.ivy2
-    mem_limit: 1g
+    # Spark-submit's 1 GiB driver heap shares this container with the master
+    # daemon, Python and JVM native memory. 1 GiB total caused cgroup swapping.
+    mem_limit: 1536m
     networks: [tlcn_network]
 
   spark-worker:

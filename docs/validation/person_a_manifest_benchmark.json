@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-10-24T10:43:06.205878+00:00",
+  "baseline_commit": "a6909aed578f86cd5c7181e861ed55688c237012",
+  "baseline_seconds": 75.3522,
+  "cold_optimized_seconds": 26.3273,
+  "cached_by_hash_workers": {
+    "1": {
+      "seconds": [
+        5.8593,
+        6.1145,
+        6.1371
+      ],
+      "median_seconds": 6.1145
+    },
+    "2": {
+      "seconds": [
+        3.8818,
+        5.5822,
+        5.5978
+      ],
+      "median_seconds": 5.5822
+    },
+    "4": {
+      "seconds": [
+        3.6398,
+        3.3116,
+        4.0916
+      ],
+      "median_seconds": 3.6398
+    }
+  },
+  "snapshot_files": 29,
+  "snapshot_rows": 258541,
+  "total_bytes_rehashed_per_run": 944703384,
+  "checks": {
+    "cold_parse_equals_reference": true,
+    "all_cached_runs_equal_reference_and_rehash_all_files": true
+  },
+  "status": "PASS",
+  "timing_scope": "Same Airflow container, same complete CSV files; baseline full CSV scan once, cached paths three repetitions each. Every cached run still reads and SHA256-checks every byte."
+}
