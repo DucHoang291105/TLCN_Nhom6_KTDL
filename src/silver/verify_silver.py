@@ -16,7 +16,7 @@ EXPECTED={"batdongsan","guland","nhadatvui","chotot","mogi","alonhadat","luachon
 
 def main() -> None:
     spark=build_spark_session("VerifySilver"); ns=ensure_silver_namespace(spark); failures=[]
-    names=["listing_observation","listing_dq_quarantine","crawl_current_27","historical_current_27","silver_listings_current_27","listing_history","listing_location","listing_feature"]
+    names=["listing_observation","listing_dq_quarantine","crawl_current_27","historical_current_27","silver_listings_current_27","listing_history","listing_history_state","listing_location","listing_feature"]
     frames={name:spark.table(f"{ns}.{name}") for name in names}; counts={name:df.count() for name,df in frames.items()}
     current=frames["silver_listings_current_27"]; observation=frames["listing_observation"]; history=frames["listing_history"]; location=frames["listing_location"]; feature=frames["listing_feature"]
     source_counts={str(r["source"]):int(r["count"]) for r in current.groupBy("source").count().collect()}
@@ -54,7 +54,7 @@ def main() -> None:
     history_missing=observation_ids.join(history_ids,"source_id","left_anti").count()
     history_orphans=history_ids.join(observation_ids,"source_id","left_anti").count()
     history_duplicate_keys=history.groupBy("source_id","version_number").count().filter("count>1").count()
-    state=spark.table(f"{ns}.listing_history_state")
+    state=frames["listing_history_state"]
     state_missing=observation_ids.join(state.select("source_id"),"source_id","left_anti").count()
     state_orphans=state.select("source_id").join(observation_ids,"source_id","left_anti").count()
     state_duplicates=state.groupBy("source_id").count().filter("count>1").count()

@@ -27,6 +27,7 @@ GRAINS = {
     "silver.historical_current_27": ["source_id"],
     "silver.silver_listings_current_27": ["source_id"],
     "silver.listing_history": ["source_id", "version_number"],
+    "silver.listing_history_state": ["source_id"],
     "silver.listing_location": ["source_id"],
     "silver.listing_feature": ["source_id"],
     "gold.dim_source": ["source_key"],

@@ -20,6 +20,8 @@ Gold khác vẫn rebuild; **không tuyên bố toàn pipeline đã incremental**
    cả metadata. So sánh với `listing_history_state` để tìm ID bị ảnh hưởng.
 3. Với mỗi ID đó, tính lại timeline từ **toàn bộ** quan sát của ID, không chỉ
    batch mới. Vì vậy xử lý được batch đến muộn, sửa dữ liệu và xóa quan sát.
+   `version_number` là thứ tự timeline, có thể được đánh lại khi sửa lịch sử;
+   Gold repricing được rebuild sau đó, không giữ khóa phiên bản cũ bất biến.
 4. `MERGE INTO` theo khóa history: insert/update phiên bản cần thiết, delete
    phiên bản cũ không còn hợp lệ. So sánh null-safe để tránh update vô ích.
 5. MERGE bảng state **sau** khi history đã commit, sau đó ghi snapshot ID
