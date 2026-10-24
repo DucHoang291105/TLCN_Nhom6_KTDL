@@ -29,15 +29,20 @@ Chỉ cần chỉnh:
     START_PAGE
     PAGES_TO_CRAWL
     DELAY_SECONDS
+    RUN_NAME        -> đặt tên cố định cho thư mục/file output
+    RESUME_RUN_ID   -> để crawl lại từ chỗ dừng nếu bị ngắt giữa chừng
+                       (set = giá trị RUN_NAME của lần chạy trước)
 """
 
 from __future__ import annotations
 
 import csv
 import json
+import logging
 import os
 import random
 import re
+import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -57,14 +62,17 @@ BASE_URL = "https://www.nhadatvui.vn/mua-ban-nha-dat"
 # Trang bắt đầu
 START_PAGE = 1
 
-# Số trang muốn crawl
+# Số trang muốn crawl (site có ~16724 tin, limit=18/trang -> cần ~930 trang).
+# Giữ cố định giữa các lần crawl; đổi qua biến môi trường CRAWL_PAGES.
 PAGES_TO_CRAWL = int(os.getenv("CRAWL_PAGES", "200"))
 
 # Delay cơ bản giữa 2 trang
-DELAY_SECONDS = 2.0
+# Tăng lên so với bản gốc (2.0) vì crawl liên tục ~900+ trang trong 1 lần
+# chạy có rủi ro bị rate-limit/block cao hơn crawl vài chục trang.
+DELAY_SECONDS = 3.5
 
 # Thêm jitter ngẫu nhiên để request không quá đều
-DELAY_JITTER_SECONDS = 0.8
+DELAY_JITTER_SECONDS = 1.2
 
 # Timeout
 REQUEST_TIMEOUT = 30
@@ -72,14 +80,46 @@ REQUEST_TIMEOUT = 30
 # Retry nếu lỗi mạng / 5xx / 429
 MAX_RETRIES = 3
 
+# ------------------------------------------------------------
+# RESUME
+# ------------------------------------------------------------
+# Nếu script bị ngắt giữa chừng (mất mạng, máy sleep, bị kill...),
+# chạy lại với RESUME_RUN_ID = "<run_id của lần chạy trước>"
+# (chính là tên thư mục trong data/incoming/snapshots/nhadatvui/)
+# để tiếp tục từ trang chưa crawl, KHÔNG crawl lại từ đầu.
+#
+# Để trống (None) nếu đây là lần chạy mới.
+RESUME_RUN_ID: str | None = None
+
+# ------------------------------------------------------------
+# TÊN CHẠY (RUN NAME)
+# ------------------------------------------------------------
+# Đặt tên cố định cho lần crawl này thay vì để script tự sinh
+# theo timestamp. Tên này sẽ dùng làm:
+#   - tên thư mục output: data/incoming/snapshots/nhadatvui/<RUN_NAME>/
+#   - tên file: <RUN_NAME>.jsonl, <RUN_NAME>.csv
+#
+# Muốn crawl tiếp (resume) đúng lần chạy này vào lúc khác:
+# set RESUME_RUN_ID = giá trị RUN_NAME này.
+#
+# Để None nếu muốn quay lại kiểu tên tự sinh theo timestamp.
+RUN_NAME: str | None = None
+
 
 # ============================================================
 # OUTPUT
 # ============================================================
 
-RUN_ID = os.getenv("CRAWL_BATCH_ID", datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%Y%m%d"))
+# Thứ tự: RESUME_RUN_ID (crawl tiếp) -> RUN_NAME -> CRAWL_BATCH_ID -> ngày hôm nay
+# (giờ Việt Nam). Tên batch phải là YYYYMMDD để job ingest Bronze nhận được.
+RUN_ID = (
+    RESUME_RUN_ID
+    or RUN_NAME
+    or os.getenv("CRAWL_BATCH_ID", datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%Y%m%d"))
+)
 if not re.fullmatch(r"\d{8}", RUN_ID):
-    raise ValueError("CRAWL_BATCH_ID must be YYYYMMDD")
+    raise ValueError("Batch id (RESUME_RUN_ID / RUN_NAME / CRAWL_BATCH_ID) must be YYYYMMDD")
+IS_RESUME = RESUME_RUN_ID is not None
 
 # File này được đặt tại:
 #   TLCN_BDS_Lakehouse/src/ingestion/nhadatvui/nhadatvui_raw_crawler.py
@@ -99,9 +139,11 @@ OUTPUT_DIR = (
 
 PAGES_DIR = OUTPUT_DIR / "pages"
 
+# Fixed names: the Bronze snapshot ingest reads <source>_raw.csv.
 JSONL_PATH = OUTPUT_DIR / "nhadatvui_raw.jsonl"
 CSV_PATH = OUTPUT_DIR / "nhadatvui_raw.csv"
 SUMMARY_PATH = OUTPUT_DIR / "crawl_summary.json"
+LOG_PATH = OUTPUT_DIR / "crawl.log"
 
 
 # ============================================================
@@ -131,6 +173,42 @@ session.headers.update(
         "Upgrade-Insecure-Requests": "1",
     }
 )
+
+
+# ============================================================
+# LOGGING
+# ============================================================
+# Ghi log ra cả console lẫn file trong OUTPUT_DIR, để nếu chạy
+# qua đêm (đóng terminal / mất SSH) vẫn xem lại được đã crawl
+# tới đâu, lỗi ở trang nào.
+
+logger = logging.getLogger("nhadatvui")
+logger.setLevel(logging.INFO)
+
+
+def setup_logging() -> None:
+    logger.handlers.clear()
+
+    formatter = logging.Formatter(
+        "%(asctime)s [%(levelname)s] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+
+    file_handler = logging.FileHandler(
+        LOG_PATH,
+        encoding="utf-8",
+        mode="a" if IS_RESUME else "w",
+    )
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
+
+def log(msg: str) -> None:
+    logger.info(msg)
 
 
 # ============================================================
@@ -330,7 +408,7 @@ def request_page(
                     DELAY_SECONDS * 4,
                 )
 
-                print(
+                log(
                     f"[WARN] Page {page}: HTTP 429. "
                     f"Chờ {wait_seconds:.1f}s..."
                 )
@@ -346,7 +424,7 @@ def request_page(
             response.raise_for_status()
 
             # Quan trọng:
-            # ép UTF-8 để tránh lỗi kiểu "BÃ¡n nhÃ ..."
+            # ép UTF-8 để tránh lỗi kiểu "BÃ¡n nhÃ ..."
             response.encoding = "utf-8"
 
             return (
@@ -368,13 +446,13 @@ def request_page(
                     * attempt
                 )
 
-                print(
+                log(
                     f"[WARN] Page {page}: "
                     f"lỗi lần {attempt}/{MAX_RETRIES}: "
                     f"{exc}"
                 )
 
-                print(
+                log(
                     f"[WAIT] Retry sau "
                     f"{wait_seconds:.1f}s..."
                 )
@@ -603,7 +681,7 @@ def to_csv_record(
                 record,
                 "Đuong_vao_(m)",
                 "Duong_vao_(m)",
-                "Äuong_vao_(m)",
+                "Äuong_vao_(m)",
             ),
 
         "direction":
@@ -642,15 +720,28 @@ def to_csv_record(
 # SAVE
 # ============================================================
 
+def page_raw_path(page: int) -> Path:
+    return PAGES_DIR / f"page_{page:05d}.txt"
+
+
+def page_already_done(page: int) -> bool:
+    """
+    Dùng cho resume: nếu file raw của page này đã tồn tại và
+    không rỗng, coi như page đã crawl xong ở lần chạy trước
+    (JSONL/CSV cũng đã được ghi cùng lúc với file raw đó).
+    """
+
+    path = page_raw_path(page)
+
+    return path.exists() and path.stat().st_size > 0
+
+
 def save_page_raw(
     page: int,
     response_text: str,
 ) -> None:
 
-    path = (
-        PAGES_DIR
-        / f"page_{page:05d}.txt"
-    )
+    path = page_raw_path(page)
 
     path.write_text(
         response_text,
@@ -721,12 +812,49 @@ def append_csv(
     return True
 
 
+def load_existing_listing_ids() -> set[str]:
+    """
+    Dùng cho resume: đọc lại JSONL cũ (nếu có) để nạp lại
+    seen_listing_ids, giúp summary cuối cùng vẫn đúng dù
+    chạy nhiều lần nối tiếp nhau.
+    """
+
+    ids: set[str] = set()
+
+    if not JSONL_PATH.exists():
+        return ids
+
+    with JSONL_PATH.open(
+        "r",
+        encoding="utf-8",
+    ) as file:
+
+        for line in file:
+            line = line.strip()
+
+            if not line:
+                continue
+
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+            listing_id = record.get("_id")
+
+            if listing_id is not None:
+                ids.add(str(listing_id))
+
+    return ids
+
+
 # ============================================================
 # MAIN
 # ============================================================
 
 def main() -> None:
-    if CSV_PATH.exists():
+    # A new run never overwrites a finished batch; a resume continues it.
+    if CSV_PATH.exists() and not IS_RESUME:
         raise FileExistsError(f"Existing batch is preserved: {CSV_PATH}")
 
     if START_PAGE <= 0:
@@ -754,37 +882,31 @@ def main() -> None:
         exist_ok=True,
     )
 
-    print("=" * 76)
-    print("NHADATVUI.VN RAW CRAWLER")
-    print("=" * 76)
+    setup_logging()
 
-    print(
-        f"Base URL      : {BASE_URL}"
+    csv_had_rows_before = (
+        CSV_PATH.exists()
+        and CSV_PATH.stat().st_size > 0
     )
 
-    print(
-        f"Start page    : {START_PAGE}"
-    )
-
-    print(
-        f"Pages         : {PAGES_TO_CRAWL}"
-    )
-
-    print(
-        f"Delay         : {DELAY_SECONDS}s"
-    )
-
-    print(
-        f"Output        : {OUTPUT_DIR}"
-    )
-
-    print("=" * 76)
+    log("=" * 76)
+    log("NHADATVUI.VN RAW CRAWLER")
+    log("=" * 76)
+    log(f"Run ID        : {RUN_ID}"
+        + (" (RESUME)" if IS_RESUME else " (NEW RUN)"))
+    log(f"Base URL      : {BASE_URL}")
+    log(f"Start page    : {START_PAGE}")
+    log(f"Pages         : {PAGES_TO_CRAWL}")
+    log(f"Delay         : {DELAY_SECONDS}s")
+    log(f"Output        : {OUTPUT_DIR}")
+    log("=" * 76)
 
     total_records = 0
     completed_pages: list[int] = []
     failed_pages: list[dict] = []
-    seen_listing_ids: set[str] = set()
-    header_written = False
+    skipped_pages: list[int] = []
+    seen_listing_ids: set[str] = load_existing_listing_ids()
+    header_written = csv_had_rows_before
 
     site_total: int | None = None
     site_limit: int | None = None
@@ -795,291 +917,294 @@ def main() -> None:
         - 1
     )
 
-    for page in range(
-        START_PAGE,
-        last_page + 1,
-    ):
-        print()
-        print(
-            f"[PAGE {page}] Đang crawl..."
-        )
+    stop_reason = "requested range completed"
+
+    # Toàn bộ vòng crawl bọc trong try/finally để summary luôn
+    # được ghi ra, kể cả khi có lỗi bất ngờ (vd: hết dung lượng
+    # đĩa, Ctrl+C, lỗi không lường trước) khiến vòng lặp dừng
+    # giữa chừng.
+    try:
+        for page in range(
+            START_PAGE,
+            last_page + 1,
+        ):
+            log("")
+
+            # ----- RESUME: bỏ qua page đã crawl xong -----
+            if IS_RESUME and page_already_done(page):
+                skipped_pages.append(page)
+                completed_pages.append(page)
+                log(f"[PAGE {page}] Đã có từ lần chạy trước, bỏ qua.")
+                continue
+
+            log(f"[PAGE {page}] Đang crawl...")
+
+            try:
+                response_text, source_url, status = (
+                    request_page(page)
+                )
+
+                log(f"[HTTP] {status}")
+
+                # Giữ response gốc từng page
+                save_page_raw(
+                    page,
+                    response_text,
+                )
+
+                result = parse_nhadatvui_result(
+                    response_text
+                )
+
+                raw_records = safe_list(
+                    result.get("data")
+                )
+
+                skip = result.get("skip")
+                limit = result.get("limit")
+                total = result.get("total")
+                count = result.get("count")
+
+                if isinstance(total, int):
+                    site_total = total
+
+                if isinstance(limit, int):
+                    site_limit = limit
+
+                records = [
+                    enrich_raw_record(
+                        record=record,
+                        page=page,
+                        source_url=source_url,
+                    )
+                    for record in raw_records
+                    if isinstance(record, dict)
+                ]
+
+                duplicate_count = 0
+
+                for record in records:
+                    listing_id = record.get("_id")
+
+                    if listing_id is None:
+                        continue
+
+                    listing_id = str(
+                        listing_id
+                    )
+
+                    if (
+                        listing_id
+                        in seen_listing_ids
+                    ):
+                        duplicate_count += 1
+
+                    seen_listing_ids.add(
+                        listing_id
+                    )
+
+                # RAW không dedup khỏi output.
+                append_jsonl(records)
+
+                header_written = append_csv(
+                    records,
+                    header_written,
+                )
+
+                total_records += len(records)
+
+                completed_pages.append(
+                    page
+                )
+
+                log(
+                    f"[PAGE {page}] "
+                    f"records={len(records)} "
+                    f"| skip={skip} "
+                    f"| limit={limit} "
+                    f"| total={total} "
+                    f"| count={count} "
+                    f"| duplicate_seen={duplicate_count}"
+                )
+
+                # Hết data
+                if len(records) == 0:
+                    stop_reason = "empty page (no more listings)"
+                    log("[STOP] Trang không còn listing.")
+                    break
+
+                # Theo response hiện tại:
+                # page 2 -> skip 18, limit 18.
+                # Nếu skip + count >= total thì đã tới cuối.
+                if (
+                    isinstance(skip, int)
+                    and isinstance(count, int)
+                    and isinstance(total, int)
+                    and skip + count >= total
+                ):
+                    stop_reason = "reached end of listing (skip+count>=total)"
+                    log("[STOP] Đã tới cuối danh sách.")
+                    break
+
+            except Exception as exc:
+
+                failed_pages.append(
+                    {
+                        "page": page,
+                        "url": build_page_url(
+                            page
+                        ),
+                        "error": str(exc),
+                    }
+                )
+
+                log(
+                    f"[ERROR] Page {page}: "
+                    f"{exc}"
+                )
+
+                # 403 thì dừng, không cố bypass.
+                if "403" in str(exc):
+                    stop_reason = "blocked by site (HTTP 403)"
+                    log(
+                        "[STOP] Website đang chặn "
+                        "request tự động."
+                    )
+                    break
+
+            if (
+                page < last_page
+                and DELAY_SECONDS > 0
+            ):
+                delay = (
+                    DELAY_SECONDS
+                    + random.uniform(
+                        0,
+                        DELAY_JITTER_SECONDS,
+                    )
+                )
+
+                log(f"[WAIT] {delay:.2f}s...")
+
+                time.sleep(delay)
+
+    except KeyboardInterrupt:
+        stop_reason = "interrupted by user (Ctrl+C)"
+        log("[STOP] Bị ngắt bởi người dùng (Ctrl+C).")
+
+    except Exception as exc:
+        stop_reason = f"unexpected error: {exc}"
+        log(f"[FATAL] Lỗi không lường trước: {exc}")
+
+    finally:
+        # ====================================================
+        # SUMMARY - luôn ghi, kể cả khi crawl bị ngắt/lỗi giữa chừng
+        # ====================================================
+
+        summary = {
+            "source":
+                "nhadatvui",
+
+            "base_url":
+                BASE_URL,
+
+            "run_id":
+                RUN_ID,
+
+            "is_resume":
+                IS_RESUME,
+
+            "started_page":
+                START_PAGE,
+
+            "requested_pages":
+                PAGES_TO_CRAWL,
+
+            "completed_pages":
+                completed_pages,
+
+            "skipped_pages_resume":
+                skipped_pages,
+
+            "failed_pages":
+                failed_pages,
+
+            "stop_reason":
+                stop_reason,
+
+            "records_written_this_run":
+                total_records,
+
+            "unique_listing_ids":
+                len(seen_listing_ids),
+
+            "site_total":
+                site_total,
+
+            "site_page_limit":
+                site_limit,
+
+            "delay_seconds":
+                DELAY_SECONDS,
+
+            "finished_at":
+                now_iso(),
+
+            "output_jsonl":
+                str(JSONL_PATH),
+
+            "output_csv":
+                str(CSV_PATH),
+
+            "pages_dir":
+                str(PAGES_DIR),
+
+            "resume_instructions": (
+                f'Nếu cần crawl tiếp: set RESUME_RUN_ID = "{RUN_ID}" '
+                "rồi chạy lại script."
+            ),
+        }
 
         try:
-            response_text, source_url, status = (
-                request_page(page)
-            )
+            with SUMMARY_PATH.open(
+                "w",
+                encoding="utf-8",
+            ) as file:
 
-            print(
-                f"[HTTP] {status}"
-            )
-
-            # Giữ response gốc từng page
-            save_page_raw(
-                page,
-                response_text,
-            )
-
-            result = parse_nhadatvui_result(
-                response_text
-            )
-
-            raw_records = safe_list(
-                result.get("data")
-            )
-
-            skip = result.get("skip")
-            limit = result.get("limit")
-            total = result.get("total")
-            count = result.get("count")
-
-            if isinstance(total, int):
-                site_total = total
-
-            if isinstance(limit, int):
-                site_limit = limit
-
-            records = [
-                enrich_raw_record(
-                    record=record,
-                    page=page,
-                    source_url=source_url,
+                json.dump(
+                    summary,
+                    file,
+                    ensure_ascii=False,
+                    indent=2,
                 )
-                for record in raw_records
-                if isinstance(record, dict)
-            ]
-
-            duplicate_count = 0
-
-            for record in records:
-                listing_id = record.get("_id")
-
-                if listing_id is None:
-                    continue
-
-                listing_id = str(
-                    listing_id
-                )
-
-                if (
-                    listing_id
-                    in seen_listing_ids
-                ):
-                    duplicate_count += 1
-
-                seen_listing_ids.add(
-                    listing_id
-                )
-
-            # RAW không dedup khỏi output.
-            append_jsonl(records)
-
-            header_written = append_csv(
-                records,
-                header_written,
-            )
-
-            total_records += len(records)
-
-            completed_pages.append(
-                page
-            )
-
-            print(
-                f"[PAGE {page}] "
-                f"records={len(records)} "
-                f"| skip={skip} "
-                f"| limit={limit} "
-                f"| total={total} "
-                f"| count={count} "
-                f"| duplicate_seen={duplicate_count}"
-            )
-
-            # Hết data
-            if len(records) == 0:
-                print(
-                    "[STOP] Trang không còn listing."
-                )
-                break
-
-            # Theo response hiện tại:
-            # page 2 -> skip 18, limit 18.
-            # Nếu skip + count >= total thì đã tới cuối.
-            if (
-                isinstance(skip, int)
-                and isinstance(count, int)
-                and isinstance(total, int)
-                and skip + count >= total
-            ):
-                print(
-                    "[STOP] Đã tới cuối danh sách."
-                )
-                break
-
         except Exception as exc:
+            log(f"[ERROR] Không ghi được summary: {exc}")
 
-            failed_pages.append(
-                {
-                    "page": page,
-                    "url": build_page_url(
-                        page
-                    ),
-                    "error": str(exc),
-                }
+        log("")
+        log("=" * 76)
+        log("DONE")
+        log("=" * 76)
+        log(f"Stop reason    : {stop_reason}")
+        log(f"Pages OK       : {len(completed_pages)}")
+        log(f"Pages skipped  : {len(skipped_pages)} (resume)")
+        log(f"Pages failed   : {len(failed_pages)}")
+        log(f"Records (run)  : {total_records}")
+        log(f"Unique IDs     : {len(seen_listing_ids)}")
+        log(f"Site total     : {site_total}")
+        log(f"Page limit     : {site_limit}")
+        log(f"JSONL          : {JSONL_PATH}")
+        log(f"CSV            : {CSV_PATH}")
+        log(f"Raw pages      : {PAGES_DIR}")
+        log(f"Summary        : {SUMMARY_PATH}")
+        log(f"Log file       : {LOG_PATH}")
+        log("=" * 76)
+
+        if failed_pages:
+            log(
+                f"[NOTE] Có {len(failed_pages)} trang lỗi. "
+                f'Xem "failed_pages" trong {SUMMARY_PATH.name} '
+                "để crawl bù."
             )
-
-            print(
-                f"[ERROR] Page {page}: "
-                f"{exc}"
-            )
-
-            # 403 thì dừng, không cố bypass.
-            if "403" in str(exc):
-                print(
-                    "[STOP] Website đang chặn "
-                    "request tự động."
-                )
-                break
-
-        if (
-            page < last_page
-            and DELAY_SECONDS > 0
-        ):
-            delay = (
-                DELAY_SECONDS
-                + random.uniform(
-                    0,
-                    DELAY_JITTER_SECONDS,
-                )
-            )
-
-            print(
-                f"[WAIT] {delay:.2f}s..."
-            )
-
-            time.sleep(delay)
-
-    # ========================================================
-    # SUMMARY
-    # ========================================================
-
-    summary = {
-        "source":
-            "nhadatvui",
-
-        "base_url":
-            BASE_URL,
-
-        "run_id":
-            RUN_ID,
-
-        "started_page":
-            START_PAGE,
-
-        "requested_pages":
-            PAGES_TO_CRAWL,
-
-        "completed_pages":
-            completed_pages,
-
-        "failed_pages":
-            failed_pages,
-
-        "records_written":
-            total_records,
-
-        "unique_listing_ids":
-            len(seen_listing_ids),
-
-        "site_total":
-            site_total,
-
-        "site_page_limit":
-            site_limit,
-
-        "delay_seconds":
-            DELAY_SECONDS,
-
-        "finished_at":
-            now_iso(),
-
-        "output_jsonl":
-            str(JSONL_PATH),
-
-        "output_csv":
-            str(CSV_PATH),
-
-        "pages_dir":
-            str(PAGES_DIR),
-    }
-
-    with SUMMARY_PATH.open(
-        "w",
-        encoding="utf-8",
-    ) as file:
-
-        json.dump(
-            summary,
-            file,
-            ensure_ascii=False,
-            indent=2,
-        )
-
-    print()
-    print("=" * 76)
-    print("DONE")
-    print("=" * 76)
-
-    print(
-        f"Pages OK      : "
-        f"{len(completed_pages)}"
-    )
-
-    print(
-        f"Pages failed  : "
-        f"{len(failed_pages)}"
-    )
-
-    print(
-        f"Records       : "
-        f"{total_records}"
-    )
-
-    print(
-        f"Unique IDs    : "
-        f"{len(seen_listing_ids)}"
-    )
-
-    print(
-        f"Site total    : "
-        f"{site_total}"
-    )
-
-    print(
-        f"Page limit    : "
-        f"{site_limit}"
-    )
-
-    print(
-        f"JSONL         : "
-        f"{JSONL_PATH}"
-    )
-
-    print(
-        f"CSV           : "
-        f"{CSV_PATH}"
-    )
-
-    print(
-        f"Raw pages     : "
-        f"{PAGES_DIR}"
-    )
-
-    print(
-        f"Summary       : "
-        f"{SUMMARY_PATH}"
-    )
-
-    print("=" * 76)
 
 
 if __name__ == "__main__":

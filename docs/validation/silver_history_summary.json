@@ -1,22 +1,22 @@
 {
   "mode": "incremental",
-  "operation": "NO_CHANGE",
-  "input_source_ids": 137732,
-  "affected_source_ids": 0,
-  "observation_rows": 278987,
-  "staged_history_rows": 0,
-  "history_rows": 151972,
+  "operation": "MERGE_AFFECTED_IDS",
+  "input_source_ids": 135000,
+  "affected_source_ids": 201,
+  "observation_rows": 274125,
+  "staged_history_rows": 201,
+  "history_rows": 148601,
   "history_table": "lakehouse.silver.listing_history",
   "state_table": "lakehouse.silver.listing_history_state",
-  "snapshot_before": "5786207415974384285",
-  "snapshot_after": "5786207415974384285",
-  "elapsed_seconds": 15.2974,
+  "snapshot_before": "5256538976427498966",
+  "snapshot_after": "238496018431683293",
+  "elapsed_seconds": 14.2521,
   "partition_by": [
     "snapshot_date"
   ],
   "status": "PASS",
-  "input_metadata": "s3://lakehouse-silver/real_estate/listing_observation/metadata/00005-f8b9b1b0-3b6c-46a7-be9c-6b577071c890.metadata.json",
+  "input_metadata": "s3://lakehouse-silver/real_estate/listing_observation/metadata/00012-da7e2ff1-9b3d-406d-8626-49a19c1dd09e.metadata.json",
   "input_validation": "FULL_INPUT_SCAN",
-  "generated_at": "2026-10-24T11:35:09.907463+00:00",
+  "generated_at": "2026-10-24T13:44:12.037658+00:00",
   "input_table": "lakehouse.silver.listing_observation"
 }

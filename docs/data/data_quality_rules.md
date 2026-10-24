@@ -19,6 +19,9 @@ Các quy tắc này áp dụng khi chuyển dữ liệu từ Bronze sang Silver.
 | DQ11 | Giá/diện tích có dấu hiệu outlier | Không tự động xóa; gắn cờ audit | WARN |
 | DQ12 | Text chứa HTML/control character/khoảng trắng thừa | Chuẩn Unicode, loại control character và gom khoảng trắng | PASS sau chuẩn hóa |
 | DQ13 | `batch_id` snapshot không đúng `YYYYMMDD` | Không ghi vào observation chính | REJECT |
+| DQ14 | Giá ghi đơn vị "tỷ" nhưng con số ≥ 1.000 ("9.630 tỷ", "5800 tỷ", "3150000000 tỷ") | Thử lần lượt: dấu `.`/`,` trước 3 chữ số là thập phân ("2,424 tỷ" = 2,424 tỷ), giữ nguyên, triệu, đồng; lấy cách đầu tiên cho giá/m² trong [20 nghìn; 2 tỷ] | WARN |
+| DQ15 | Diện tích < 10 m² nhưng title ghi rõ diện tích ("1011,8m2", "4x20m"), hoặc title ghi gấp ~1.000 lần trường diện tích ("11.000m2" so với 11) | Lấy diện tích trong title | WARN |
+| DQ16 | Giá trị không thể có của tin bán: diện tích < 10 m² không sửa được; giá < 50 triệu; giá/m² ngoài [20 nghìn; 2 tỷ] | Đặt giá trị đó = NULL, giữ `price_str` để truy vết | WARN |
 
 ## 2. DQ Status và quarantine
 
@@ -81,3 +84,16 @@ Chỉ đặt TRUE khi văn bản có bằng chứng rõ. Không đề cập khô
 ## 8. Outlier và BQ
 
 Silver không kết luận tin “đắt”, “rẻ” hoặc “đáng mua”. Silver chỉ chuẩn hóa và gắn cờ chất lượng. Benchmark giá, mức lệch so với bất động sản tương đồng, trade-off ngân sách và xếp hạng khu vực thay thế thuộc Gold/ML.
+
+
+## Phân biệt DQ11 và DQ14–DQ16
+
+DQ11 là **outlier**: giá trị cực đoan nhưng có thể thật (biệt thự 720 tỷ) – giữ nguyên, chỉ gắn cờ. DQ14–DQ16 là **lỗi parse/nhập liệu**: giá trị không thể có cho một tin rao bán (resort 1 m², nhà phố 3,15 tỷ tỷ). Sửa khi có bằng chứng (DQ14, DQ15), nếu không thì NULL (DQ16). Ngưỡng nằm trong `src/common/utils.py` (`MIN_PLAUSIBLE_*`, `MAX_PLAUSIBLE_PRICE_PER_M2`), áp dụng giống nhau cho nguồn crawl và historical, trước khi tính `record_hash`.
+
+## Quy tắc parse giá (`parse_vietnamese_price`)
+
+- Lấy **con số đứng ngay trước đơn vị** ("tỷ", "triệu", "nghìn"), không lấy con số đầu tiên trong chuỗi: một số nguồn (muaban) đưa cả title vào trường giá ("Bán nhà 52m2 giá 2tỷ360triệu"), nơi số đầu tiên là diện tích.
+- "X tỷ Y triệu" = X tỷ + Y triệu; "X tỷ YYY" với 1–3 chữ số liền sau (không phải "4 lầu", "2 PN", "70%") là phần lẻ: "2 tỷ 290" = 2,29 tỷ, "2tỷ550" = 2,55 tỷ.
+- Con số ≥ 1.000 trước "tỷ" được xử lý theo DQ14.
+- Tin rao tròn đúng 1 tỷ/m² (nhà mặt phố trung tâm, ví dụ "250 tỷ" cho "250 m²", nguồn ghi "1 tỷ/m²") là giá thật, không sửa.
+- File historical đã có cột `price` tính sẵn bằng parser cũ. `reconcile_shipped_price` chọn giá: `price_str` chỉ gồm giá ("8,5 tỷ") thì parse lại; `price_str` là giá/m² hoặc giá/tháng ("180 triệu / m²", "33,399 Triệu/tháng") thì giữ giá có sẵn; `price_str` là title (muaban) thì chỉ sửa đúng lỗi cũ `price = area × 1 tỷ`. Đối chiếu trên dữ liệu hiện có: chỉ 11 tin muaban thay đổi.

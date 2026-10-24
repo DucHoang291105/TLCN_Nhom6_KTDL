@@ -1,0 +1,199 @@
+﻿sample_id,source_id,source,category_name,category_evidence,model_category,model_category_method,category_title_conflict,title_has_legal,title_has_furnished,title_has_frontage,title_has_elevator,title_has_car_access
+L001,alonhadat_14153086,alonhadat,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L002,alonhadat_18730304,alonhadat,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,True
+L003,alonhadat_18756471,alonhadat,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L004,alonhadat_18757569,alonhadat,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L005,alonhadat_18757325,alonhadat,Biệt thự,SOURCE_LABEL,biet_thu,CATEGORY_NAME,False,False,False,False,False,False
+L006,alonhadat_16969261,alonhadat,Căn hộ chung cư,SOURCE_LABEL,can_ho,CATEGORY_NAME,True,False,False,False,False,False
+L007,alonhadat_18649726,alonhadat,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,True,False,False,False,False,False
+L008,alonhadat_16276430,alonhadat,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L009,alonhadat_15214297,alonhadat,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L010,alonhadat_15410302,alonhadat,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L011,alonhadat_18316023,alonhadat,Căn hộ chung cư,SOURCE_LABEL,can_ho,CATEGORY_NAME,True,False,False,False,False,False
+L012,alonhadat_18757351,alonhadat,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,False,False,False
+L013,alonhadat_17864536,alonhadat,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L014,alonhadat_18745360,alonhadat,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,True,False,False,True,False,False
+L015,alonhadat_18143589,alonhadat,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,True,False,False,False,False
+L016,alonhadat_18682487,alonhadat,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,True,False,False,True,False,False
+L017,alonhadat_17417916,alonhadat,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L018,alonhadat_18751827,alonhadat,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L019,alonhadat_18663732,alonhadat,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,True
+L020,alonhadat_18440116,alonhadat,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L021,alonhadat_18575549,alonhadat,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L022,alonhadat_18756989,alonhadat,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L023,batdongsan_45774633,batdongsan,Căn hộ chung cư,SOURCE_STRUCTURED,can_ho,CATEGORY_NAME,False,False,False,False,False,False
+L024,batdongsan_45990694,batdongsan,Căn hộ chung cư,SOURCE_STRUCTURED,can_ho,CATEGORY_NAME,False,False,False,False,False,False
+L025,batdongsan_45961668,batdongsan,Nhà ở,SOURCE_STRUCTURED,nha_pho,CATEGORY_NAME,False,False,False,False,False,True
+L026,batdongsan_45651631,batdongsan,Căn hộ chung cư,SOURCE_STRUCTURED,can_ho,CATEGORY_NAME,False,False,False,False,False,False
+L027,batdongsan_39667992,batdongsan,Biệt thự,SOURCE_STRUCTURED,biet_thu,CATEGORY_NAME,False,False,False,False,False,False
+L028,batdongsan_46310542,batdongsan,Biệt thự,SOURCE_STRUCTURED,biet_thu,CATEGORY_NAME,False,False,False,False,False,False
+L029,batdongsan_46342696,batdongsan,Căn hộ chung cư,SOURCE_STRUCTURED,can_ho,CATEGORY_NAME,False,False,False,False,False,False
+L030,batdongsan_28576784,batdongsan,Căn hộ chung cư,SOURCE_STRUCTURED,can_ho,CATEGORY_NAME,False,False,False,False,False,False
+L031,batdongsan_45168752,batdongsan,Nhà ở,SOURCE_STRUCTURED,nha_pho,CATEGORY_NAME,False,False,False,False,True,False
+L032,batdongsan_42917333,batdongsan,Căn hộ chung cư,SOURCE_STRUCTURED,can_ho,CATEGORY_NAME,False,False,False,False,False,False
+L033,batdongsan_43353097,batdongsan,Căn hộ chung cư,SOURCE_STRUCTURED,can_ho,CATEGORY_NAME,False,False,False,False,False,False
+L034,batdongsan_45274950,batdongsan,Nhà ở,SOURCE_STRUCTURED,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L035,batdongsan_46340326,batdongsan,Nhà ở,SOURCE_STRUCTURED,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L036,batdongsan_46319295,batdongsan,Căn hộ chung cư,SOURCE_STRUCTURED,can_ho,CATEGORY_NAME,False,False,False,False,False,False
+L037,batdongsan_46333448,batdongsan,Căn hộ chung cư,SOURCE_STRUCTURED,can_ho,CATEGORY_NAME,False,False,False,False,False,False
+L038,batdongsan_46187495,batdongsan,Nhà ở,SOURCE_STRUCTURED,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L039,batdongsan_46248597,batdongsan,Nhà ở,SOURCE_STRUCTURED,nha_pho,CATEGORY_NAME,False,False,False,False,False,True
+L040,batdongsan_46408614,batdongsan,Căn hộ chung cư,SOURCE_STRUCTURED,can_ho,CATEGORY_NAME,False,False,False,False,False,False
+L041,batdongsan_46265082,batdongsan,Nhà ở,SOURCE_STRUCTURED,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L042,batdongsan_46407660,batdongsan,Biệt thự,SOURCE_STRUCTURED,biet_thu,CATEGORY_NAME,False,False,True,False,False,False
+L043,batdongsan_46430403,batdongsan,Nhà ở,SOURCE_STRUCTURED,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L044,batdongsan_46341030,batdongsan,Bất động sản thương mại,SOURCE_STRUCTURED,phong_tro_khac,CATEGORY_NAME,False,False,False,True,False,True
+L045,chotot_133023363,chotot,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,False,False,False
+L046,chotot_131036036,chotot,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L047,chotot_131296402,chotot,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,False,True,False,True,False,False
+L048,chotot_132411509,chotot,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L049,chotot_133035729,chotot,Căn hộ/Chung cư,SOURCE_LABEL,can_ho,CATEGORY_NAME,False,False,False,False,False,False
+L050,chotot_132217699,chotot,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,True,False,False
+L051,chotot_132279429,chotot,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,False,False,True
+L052,chotot_132360620,chotot,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,False,False,False
+L053,chotot_132414668,chotot,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,False,False,False
+L054,chotot_131857717,chotot,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L055,chotot_133058363,chotot,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,True
+L056,chotot_132725161,chotot,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,True,False,False
+L057,chotot_132833867,chotot,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,False,False,False
+L058,chotot_133056734,chotot,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,False,False,False
+L059,chotot_132419010,chotot,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L060,chotot_132537538,chotot,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,False,False,False
+L061,chotot_132831449,chotot,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L062,chotot_132553488,chotot,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,True,True,False,False,False,False
+L063,chotot_133030485,chotot,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L064,chotot_132572836,chotot,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,False,False,False
+L065,chotot_133055762,chotot,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L066,chotot_132372991,chotot,Căn hộ/Chung cư,SOURCE_LABEL,can_ho,CATEGORY_NAME,False,False,False,False,False,False
+L067,guland_2357217,guland,Nhà ở,ENDPOINT_CONTEXT,nha_pho,ENDPOINT_CONTEXT,False,False,False,False,False,False
+L068,guland_1823838,guland,Nhà ở,ENDPOINT_CONTEXT,nha_pho,ENDPOINT_CONTEXT,False,False,False,False,False,False
+L069,guland_2573031,guland,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L070,guland_2263493,guland,Nhà ở,ENDPOINT_CONTEXT,nha_pho,ENDPOINT_CONTEXT,False,False,False,False,False,False
+L071,guland_2585905,guland,Nhà ở,ENDPOINT_CONTEXT,nha_pho,ENDPOINT_CONTEXT,False,False,False,False,False,False
+L072,guland_2325960,guland,Nhà ở,ENDPOINT_CONTEXT,nha_pho,ENDPOINT_CONTEXT,False,False,False,False,False,False
+L073,guland_2182414,guland,Nhà ở,ENDPOINT_CONTEXT,nha_pho,ENDPOINT_CONTEXT,False,False,False,False,False,False
+L074,guland_1764301,guland,Nhà ở,ENDPOINT_CONTEXT,nha_pho,ENDPOINT_CONTEXT,False,True,False,False,False,False
+L075,guland_2631279,guland,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L076,guland_2439659,guland,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,True
+L077,guland_2587992,guland,Nhà ở,ENDPOINT_CONTEXT,nha_pho,ENDPOINT_CONTEXT,False,False,False,True,False,False
+L078,guland_1909717,guland,Nhà ở,ENDPOINT_CONTEXT,nha_pho,ENDPOINT_CONTEXT,False,True,False,False,False,True
+L079,guland_2195948,guland,Nhà ở,ENDPOINT_CONTEXT,nha_pho,ENDPOINT_CONTEXT,False,False,False,False,False,True
+L080,guland_2400023,guland,Nhà ở,ENDPOINT_CONTEXT,nha_pho,ENDPOINT_CONTEXT,False,False,True,False,False,False
+L081,guland_1911821,guland,Nhà ở,ENDPOINT_CONTEXT,nha_pho,ENDPOINT_CONTEXT,False,False,False,False,False,False
+L082,guland_2607361,guland,Nhà ở,ENDPOINT_CONTEXT,nha_pho,ENDPOINT_CONTEXT,False,False,False,False,True,True
+L083,guland_2305182,guland,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,True
+L084,guland_2427987,guland,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L085,guland_2715534,guland,Nhà ở,ENDPOINT_CONTEXT,nha_pho,ENDPOINT_CONTEXT,False,False,False,False,False,False
+L086,guland_2279190,guland,Nhà ở,ENDPOINT_CONTEXT,nha_pho,ENDPOINT_CONTEXT,False,False,False,False,False,False
+L087,guland_2320292,guland,Biệt thự,SOURCE_LABEL,biet_thu,CATEGORY_NAME,False,False,False,False,False,False
+L088,guland_2646799,guland,Biệt thự,SOURCE_LABEL,biet_thu,CATEGORY_NAME,False,False,False,True,False,False
+L089,homedy_3197305,homedy,Bất động sản khác,SOURCE_LABEL,nha_pho,TITLE_FALLBACK,False,False,False,True,False,False
+L090,homedy_3200438,homedy,Đất nền,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,False,False,False
+L091,homedy_3206236,homedy,Căn hộ,SOURCE_LABEL,can_ho,CATEGORY_NAME,False,True,True,False,False,False
+L092,homedy_3189677,homedy,Đất nền,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,False,False,False
+L093,homedy_3208350,homedy,Đất nền,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,False,False,False
+L094,homedy_3208035,homedy,Căn hộ,SOURCE_LABEL,can_ho,CATEGORY_NAME,False,False,False,False,False,False
+L095,homedy_2147209,homedy,Căn hộ,SOURCE_LABEL,can_ho,CATEGORY_NAME,True,False,False,False,False,False
+L096,homedy_3207877,homedy,Đất nền,SOURCE_LABEL,dat,CATEGORY_NAME,True,True,False,True,False,False
+L097,homedy_1509457,homedy,Bất động sản khác,SOURCE_LABEL,biet_thu,TITLE_FALLBACK,False,False,False,False,False,False
+L098,homedy_3209366,homedy,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,True,False,False,False,False
+L099,homedy_3207686,homedy,Căn hộ,SOURCE_LABEL,can_ho,CATEGORY_NAME,False,False,False,False,False,False
+L100,homedy_3204953,homedy,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,True,False,True,False,False
+L101,homedy_3207235,homedy,Bất động sản khác,SOURCE_LABEL,khong_ro,UNMAPPED,False,False,False,False,False,False
+L102,homedy_3206955,homedy,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,True,False,False,False,False
+L103,homedy_3197192,homedy,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L104,homedy_3181520,homedy,Bất động sản khác,SOURCE_LABEL,can_ho,TITLE_FALLBACK,False,True,False,False,False,False
+L105,homedy_3207309,homedy,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,True,False,False,False,True
+L106,homedy_3204963,homedy,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L107,homedy_3208753,homedy,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L108,homedy_3208755,homedy,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L109,homedy_3198392,homedy,Phòng/Cho thuê,SOURCE_LABEL,phong_tro_khac,CATEGORY_NAME,False,False,False,False,False,False
+L110,homedy_3208403,homedy,Bất động sản khác,SOURCE_LABEL,can_ho,TITLE_FALLBACK,False,True,False,False,False,False
+L111,luachonnhadat_luachonnhadat_50150,luachonnhadat,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L112,luachonnhadat_luachonnhadat_11683,luachonnhadat,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L113,luachonnhadat_luachonnhadat_50130,luachonnhadat,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L114,luachonnhadat_luachonnhadat_50052,luachonnhadat,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L115,luachonnhadat_luachonnhadat_50081,luachonnhadat,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L116,luachonnhadat_luachonnhadat_50098,luachonnhadat,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,False,False,False
+L117,luachonnhadat_luachonnhadat_49385,luachonnhadat,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L118,luachonnhadat_luachonnhadat_49768,luachonnhadat,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L119,luachonnhadat_luachonnhadat_42479,luachonnhadat,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L120,luachonnhadat_luachonnhadat_48727,luachonnhadat,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,True,False,False
+L121,luachonnhadat_luachonnhadat_49702,luachonnhadat,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L122,luachonnhadat_luachonnhadat_7388,luachonnhadat,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L123,luachonnhadat_luachonnhadat_50025,luachonnhadat,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L124,luachonnhadat_luachonnhadat_10456,luachonnhadat,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L125,luachonnhadat_luachonnhadat_50132,luachonnhadat,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L126,luachonnhadat_luachonnhadat_5456,luachonnhadat,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L127,luachonnhadat_luachonnhadat_43940,luachonnhadat,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L128,luachonnhadat_luachonnhadat_49909,luachonnhadat,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,True,False,False
+L129,luachonnhadat_luachonnhadat_2949,luachonnhadat,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,True,False,False,False,False,True
+L130,luachonnhadat_luachonnhadat_50055,luachonnhadat,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L131,luachonnhadat_luachonnhadat_49737,luachonnhadat,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L132,luachonnhadat_luachonnhadat_41727,luachonnhadat,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L133,mogi_22742178,mogi,Bất động sản khác,SOURCE_LABEL,khong_ro,UNMAPPED,False,False,False,False,False,False
+L134,mogi_22738006,mogi,Căn hộ,SOURCE_LABEL,can_ho,CATEGORY_NAME,False,False,False,False,False,False
+L135,mogi_22728427,mogi,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,True
+L136,mogi_22741936,mogi,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L137,mogi_22730311,mogi,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L138,mogi_22632963,mogi,Bất động sản khác,SOURCE_LABEL,nha_pho,TITLE_FALLBACK,False,False,False,True,False,False
+L139,mogi_21569137,mogi,Đất nền,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,True,False,False
+L140,mogi_22739891,mogi,Bất động sản khác,SOURCE_LABEL,khong_ro,UNMAPPED,False,False,False,False,False,False
+L141,mogi_22739854,mogi,Bất động sản khác,SOURCE_LABEL,khong_ro,UNMAPPED,False,False,False,False,False,False
+L142,mogi_22732040,mogi,Căn hộ,SOURCE_LABEL,can_ho,CATEGORY_NAME,True,False,False,False,False,False
+L143,mogi_22741614,mogi,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L144,mogi_22708538,mogi,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L145,mogi_22741094,mogi,Bất động sản khác,SOURCE_LABEL,nha_pho,TITLE_FALLBACK,False,False,False,False,False,False
+L146,mogi_22670689,mogi,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L147,mogi_22733218,mogi,Căn hộ,SOURCE_LABEL,can_ho,CATEGORY_NAME,False,False,False,False,False,False
+L148,mogi_22739275,mogi,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L149,mogi_22681430,mogi,Đất nền,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,False,False,False
+L150,mogi_22743117,mogi,Bất động sản khác,SOURCE_LABEL,phong_tro_khac,TITLE_FALLBACK,False,False,False,False,False,True
+L151,mogi_22703203,mogi,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L152,mogi_22725629,mogi,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L153,mogi_22733408,mogi,Bất động sản khác,SOURCE_LABEL,dat,TITLE_FALLBACK,False,False,False,False,False,False
+L154,mogi_22742494,mogi,Nhà phố,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L155,muaban_muaban_70922407,muaban,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L156,muaban_muaban_70365851,muaban,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L157,muaban_muaban_70776508,muaban,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,True,True,False,False,False
+L158,muaban_muaban_70734979,muaban,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,True
+L159,muaban_muaban_70946434,muaban,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,False,False,False,False,False,False
+L160,muaban_muaban_70913273,muaban,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L161,muaban_muaban_70942367,muaban,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,True,False,False,True,False,False
+L162,muaban_muaban_70937340,muaban,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L163,muaban_muaban_70945677,muaban,Văn phòng/Mặt bằng,SOURCE_LABEL,phong_tro_khac,CATEGORY_NAME,False,False,False,False,False,False
+L164,muaban_muaban_70939169,muaban,Căn hộ/Chung cư,SOURCE_LABEL,can_ho,CATEGORY_NAME,False,False,False,False,False,False
+L165,muaban_muaban_70885630,muaban,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L166,muaban_muaban_70932831,muaban,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,False,True,False,True,False,True
+L167,muaban_muaban_70944165,muaban,Đất,SOURCE_LABEL,dat,CATEGORY_NAME,True,False,False,False,False,False
+L168,muaban_muaban_70826340,muaban,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,True
+L169,muaban_muaban_70921932,muaban,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L170,muaban_muaban_70868175,muaban,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L171,muaban_muaban_70945597,muaban,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,True,False,False
+L172,muaban_muaban_70944558,muaban,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L173,muaban_muaban_69094476,muaban,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,True,False,False,False,False
+L174,muaban_muaban_70929883,muaban,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L175,muaban_muaban_69301078,muaban,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,True,False,False,False,False
+L176,muaban_muaban_70947240,muaban,Nhà ở,SOURCE_LABEL,nha_pho,CATEGORY_NAME,False,True,True,False,False,False
+L177,nhadatvui_2506942088,nhadatvui,Nhà ở,SOURCE_STRUCTURED,nha_pho,CATEGORY_NAME,False,False,False,False,True,False
+L178,nhadatvui_2838694339,nhadatvui,Căn hộ chung cư,SOURCE_STRUCTURED,can_ho,CATEGORY_NAME,False,True,False,False,False,False
+L179,nhadatvui_4790237214,nhadatvui,Nhà ở,SOURCE_STRUCTURED,nha_pho,CATEGORY_NAME,False,True,False,False,False,False
+L180,nhadatvui_4261208844,nhadatvui,Nhà ở,SOURCE_STRUCTURED,nha_pho,CATEGORY_NAME,False,True,False,False,False,False
+L181,nhadatvui_3328338287,nhadatvui,Căn hộ chung cư,SOURCE_STRUCTURED,can_ho,CATEGORY_NAME,False,False,True,False,False,False
+L182,nhadatvui_1059496229,nhadatvui,Nhà ở,SOURCE_STRUCTURED,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L183,nhadatvui_4363212302,nhadatvui,Nhà ở,SOURCE_STRUCTURED,nha_pho,CATEGORY_NAME,False,False,False,False,False,True
+L184,nhadatvui_1068693838,nhadatvui,Căn hộ chung cư,SOURCE_STRUCTURED,can_ho,CATEGORY_NAME,False,True,False,False,False,False
+L185,nhadatvui_7288226154,nhadatvui,Shophouse,SOURCE_STRUCTURED,biet_thu,CATEGORY_NAME,False,False,False,False,False,False
+L186,nhadatvui_1878687832,nhadatvui,Nhà ở,SOURCE_STRUCTURED,nha_pho,CATEGORY_NAME,False,False,False,False,False,True
+L187,nhadatvui_1881232423,nhadatvui,Căn hộ chung cư,SOURCE_STRUCTURED,can_ho,CATEGORY_NAME,False,True,True,False,False,False
+L188,nhadatvui_7439385461,nhadatvui,Đất,SOURCE_STRUCTURED,dat,CATEGORY_NAME,False,False,False,False,False,False
+L189,nhadatvui_6293694329,nhadatvui,Căn hộ chung cư,SOURCE_STRUCTURED,can_ho,CATEGORY_NAME,False,True,False,False,False,False
+L190,nhadatvui_8443052598,nhadatvui,Nhà ở,SOURCE_STRUCTURED,nha_pho,CATEGORY_NAME,False,False,False,False,False,False
+L191,nhadatvui_9269091015,nhadatvui,Nhà ở,SOURCE_STRUCTURED,nha_pho,CATEGORY_NAME,False,False,True,False,False,True
+L192,nhadatvui_1376390205,nhadatvui,Nhà ở,SOURCE_STRUCTURED,nha_pho,CATEGORY_NAME,False,False,True,False,False,False
+L193,nhadatvui_9489704337,nhadatvui,Nhà ở,SOURCE_STRUCTURED,nha_pho,CATEGORY_NAME,False,False,True,False,False,False
+L194,nhadatvui_1861686976,nhadatvui,Đất,SOURCE_STRUCTURED,dat,CATEGORY_NAME,False,False,False,False,False,False
+L195,nhadatvui_5119750025,nhadatvui,Đất,SOURCE_STRUCTURED,dat,CATEGORY_NAME,False,False,False,False,False,True
+L196,nhadatvui_4658930473,nhadatvui,Căn hộ chung cư,SOURCE_STRUCTURED,can_ho,CATEGORY_NAME,False,False,True,False,False,False
+L197,nhadatvui_8205381094,nhadatvui,Đất,SOURCE_STRUCTURED,dat,CATEGORY_NAME,True,False,False,False,False,False
+L198,nhadatvui_5366122545,nhadatvui,Đất,SOURCE_STRUCTURED,dat,CATEGORY_NAME,False,False,False,False,False,False

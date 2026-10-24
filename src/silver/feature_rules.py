@@ -13,7 +13,7 @@ import unicodedata
 from collections.abc import Mapping
 from typing import Any
 
-FEATURE_RULE_VERSION = "listing_feature_rules_v3"
+FEATURE_RULE_VERSION = "listing_feature_rules_v4"
 
 MODEL_CATEGORIES = ("nha_pho", "can_ho", "biet_thu", "dat", "phong_tro_khac", "khong_ro")
 
@@ -271,6 +271,13 @@ def category_from_label(category_name: Any) -> str | None:
     return None
 
 
+# A property type named after a proximity word describes a nearby landmark.
+PROXIMITY_LANDMARK = re.compile(
+    r"(?:^| )(?:gan|ngay|canh|ben canh|doi dien|sat|ke|view|nhin ra|huong ra|cach(?: \d+ ?(?:m|km|phut))?)"
+    r" (?:khu |toa |du an )?(?:chung cu|can ho|cc|biet thu|villa|shop ?house)(?= |$)"
+)
+
+
 def category_from_title(title: Any) -> tuple[str | None, str | None]:
     """(model_category, "STRONG"/"WEAK") read from a title, or (None, None).
 
@@ -281,6 +288,8 @@ def category_from_title(title: Any) -> tuple[str | None, str | None]:
     folded = fold_text(title)
     if not folded:
         return None, None
+    # "gần chung cư SCREC", "đối diện căn hộ Masteri": a landmark, not the type.
+    folded = PROXIMITY_LANDMARK.sub(" ", folded)
     strong = {name for name, patterns in _TITLE_STRONG_INDEX if any(p.search(folded) for p in patterns)}
     if strong:
         return next(name for name in TITLE_PRECEDENCE if name in strong), "STRONG"

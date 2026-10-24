@@ -1,0 +1,82 @@
+{
+  "generated_at": "2026-10-24T13:57:18.535938+00:00",
+  "engine": "Trino (docker, single node)",
+  "runs_per_query": 5,
+  "method": "1 warm-up + median of RUNS wall-clock runs incl. fetching all rows; Silver queries approximate Gold logic (lower bound on its cost)",
+  "queries": {
+    "market_overview_province": {
+      "question": "Mặt bằng giá theo loại hình tại TP.HCM",
+      "gold": {
+        "median_seconds": 0.096,
+        "min_seconds": 0.092,
+        "rows": 6
+      },
+      "silver": {
+        "median_seconds": 0.752,
+        "min_seconds": 0.693,
+        "rows": 6
+      },
+      "speedup": 7.83
+    },
+    "bq1_budget_tradeoff": {
+      "question": "BQ1 – Nhà phố 3–5 tỷ tại TP.HCM: diện tích, giá/m² theo quận",
+      "gold": {
+        "median_seconds": 0.102,
+        "min_seconds": 0.1,
+        "rows": 33
+      },
+      "silver": {
+        "median_seconds": 0.45,
+        "min_seconds": 0.445,
+        "rows": 33
+      },
+      "speedup": 4.41
+    },
+    "bq2_listing_position": {
+      "question": "BQ2 – Vị trí giá/m² của từng căn hộ TP.HCM trong nhóm (quận, band diện tích)",
+      "gold": {
+        "median_seconds": 0.149,
+        "min_seconds": 0.147,
+        "rows": 17201
+      },
+      "silver": {
+        "median_seconds": 0.945,
+        "min_seconds": 0.821,
+        "rows": 8592
+      },
+      "speedup": 6.34
+    },
+    "bq3_area_substitution": {
+      "question": "BQ3 – Quận thay thế rẻ hơn cho nhà phố 50–80 m² tại TP.HCM",
+      "gold": {
+        "median_seconds": 0.105,
+        "min_seconds": 0.102,
+        "rows": 236
+      },
+      "silver": {
+        "median_seconds": 0.666,
+        "min_seconds": 0.648,
+        "rows": 260
+      },
+      "speedup": 6.34
+    }
+  },
+  "sql": {
+    "market_overview_province": {
+      "gold": "SELECT c.category_label, o.n_listings, o.median_price_per_m2 FROM iceberg.gold.agg_market_overview o JOIN iceberg.gold.dim_property_category c ON c.property_category_key = o.property_category_key WHERE o.province_name = 'Hồ Chí Minh'",
+      "silver": "SELECT f.model_category, count(*) AS n_listings, approx_percentile(c.price_per_m2, 0.5) AS median_price_per_m2 FROM iceberg.silver.silver_listings_current_27 c JOIN iceberg.silver.listing_feature f ON f.source_id = c.source_id JOIN iceberg.silver.listing_location l ON l.source_id = c.source_id WHERE c.is_rent = false AND f.dq_status <> 'REJECT' AND l.province_name_model = 'Hồ Chí Minh' GROUP BY f.model_category"
+    },
+    "bq1_budget_tradeoff": {
+      "gold": "SELECT l.district_name, t.n_listings, t.median_area, t.median_price_per_m2, t.share_frontage FROM iceberg.gold.agg_budget_tradeoff t JOIN iceberg.gold.dim_location l ON l.location_key = t.location_key JOIN iceberg.gold.dim_property_category c ON c.property_category_key = t.property_category_key WHERE l.province_name = 'Hồ Chí Minh' AND c.model_category = 'nha_pho' AND t.price_band_key = 4",
+      "silver": "SELECT l.district_name_model, count(*) AS n_listings, approx_percentile(c.area, 0.5) AS median_area, approx_percentile(c.price_per_m2, 0.5) AS median_price_per_m2, avg(CAST(f.title_has_frontage AS double)) AS share_frontage FROM iceberg.silver.silver_listings_current_27 c JOIN iceberg.silver.listing_feature f ON f.source_id = c.source_id JOIN iceberg.silver.listing_location l ON l.source_id = c.source_id WHERE c.is_rent = false AND f.dq_status <> 'REJECT' AND l.province_name_model = 'Hồ Chí Minh' AND f.model_category = 'nha_pho' AND c.price >= 3e9 AND c.price < 5e9 GROUP BY l.district_name_model"
+    },
+    "bq2_listing_position": {
+      "gold": "SELECT a.source_id, a.price_per_m2, a.peer_median_price_per_m2, a.price_position FROM iceberg.gold.fact_listing_price_assessment a JOIN iceberg.gold.dim_location l ON l.location_key = a.location_key JOIN iceberg.gold.dim_property_category c ON c.property_category_key = a.property_category_key WHERE l.province_name = 'Hồ Chí Minh' AND c.model_category = 'can_ho'",
+      "silver": "WITH base AS ( SELECT c.source_id, c.price_per_m2, l.district_name_model AS district, CASE WHEN c.area < 30 THEN 1 WHEN c.area < 50 THEN 2 WHEN c.area < 80 THEN 3 WHEN c.area < 120 THEN 4 WHEN c.area < 200 THEN 5 ELSE 6 END AS area_band FROM iceberg.silver.silver_listings_current_27 c JOIN iceberg.silver.listing_feature f ON f.source_id = c.source_id JOIN iceberg.silver.listing_location l ON l.source_id = c.source_id WHERE c.is_rent = false AND f.dq_status <> 'REJECT' AND l.province_name_model = 'Hồ Chí Minh' AND f.model_category = 'can_ho' AND c.price_per_m2 > 0), peer AS ( SELECT district, area_band, approx_percentile(price_per_m2, 0.25) p25, approx_percentile(price_per_m2, 0.5) p50, approx_percentile(price_per_m2, 0.75) p75 FROM base GROUP BY district, area_band HAVING count(*) >= 5) SELECT b.source_id, b.price_per_m2, p.p50, CASE WHEN b.price_per_m2 < p.p25 THEN 'duoi_p25' WHEN b.price_per_m2 > p.p75 THEN 'tren_p75' ELSE 'p25_p75' END FROM base b JOIN peer p ON p.district = b.district AND p.area_band = b.area_band"
+    },
+    "bq3_area_substitution": {
+      "gold": "SELECT o.district_name AS origin, a.district_name AS alternative, s.price_gap_pct FROM iceberg.gold.agg_area_substitution s JOIN iceberg.gold.dim_location o ON o.location_key = s.origin_location_key JOIN iceberg.gold.dim_location a ON a.location_key = s.alternative_location_key JOIN iceberg.gold.dim_property_category c ON c.property_category_key = s.property_category_key WHERE o.province_name = 'Hồ Chí Minh' AND c.model_category = 'nha_pho' AND s.area_band_key = 3",
+      "silver": "WITH g AS ( SELECT l.district_name_model AS district, approx_percentile(c.price_per_m2, 0.5) AS p50, avg(CAST(f.title_has_frontage AS double)) AS frontage, count(*) AS n FROM iceberg.silver.silver_listings_current_27 c JOIN iceberg.silver.listing_feature f ON f.source_id = c.source_id JOIN iceberg.silver.listing_location l ON l.source_id = c.source_id WHERE c.is_rent = false AND f.dq_status <> 'REJECT' AND l.province_name_model = 'Hồ Chí Minh' AND f.model_category = 'nha_pho' AND c.area >= 50 AND c.area < 80 AND c.price_per_m2 > 0 GROUP BY l.district_name_model HAVING count(*) >= 5) SELECT o.district, a.district, 1 - a.p50 / o.p50 FROM g o JOIN g a ON a.district <> o.district AND a.p50 < o.p50 AND abs(a.frontage - o.frontage) <= 0.3"
+    }
+  }
+}

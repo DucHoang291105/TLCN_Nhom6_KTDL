@@ -8,3 +8,8 @@
 # dash
 # plotly
 # dash-leaflet
+
+pytest>=8.0,<10
+python-docx>=1.1,<2
+matplotlib>=3.8,<4
+trino>=0.330,<1

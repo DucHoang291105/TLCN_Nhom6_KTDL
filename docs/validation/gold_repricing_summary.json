@@ -1,36 +1,36 @@
 {
-  "started_at": "2026-10-24T11:40:31.011454+00:00",
-  "finished_at": "2026-10-24T11:40:42.417384+00:00",
-  "price_change_events": 1766,
-  "listings_with_change": 1589,
+  "started_at": "2026-10-24T13:54:06.152871+00:00",
+  "finished_at": "2026-10-24T13:54:12.614789+00:00",
+  "price_change_events": 1473,
+  "listings_with_change": 1354,
   "direction_counts": {
-    "giam": 1376,
-    "tang": 390
+    "giam": 1161,
+    "tang": 312
   },
   "median_price_change_pct": {
-    "giam": -0.047366500000000006,
-    "tang": 0.0754985
+    "giam": -0.046771,
+    "tang": 0.06689049999999999
   },
   "price_drop_by_current_position": {
     "p25_p75": {
-      "listings": 58077,
-      "with_price_drop": 679,
-      "share": 0.011691
+      "listings": 56745,
+      "with_price_drop": 567,
+      "share": 0.009992
     },
     "khong_du_du_lieu": {
-      "listings": 3613,
-      "with_price_drop": 6,
-      "share": 0.001661
+      "listings": 3524,
+      "with_price_drop": 5,
+      "share": 0.001419
     },
     "duoi_p25": {
-      "listings": 29738,
-      "with_price_drop": 302,
-      "share": 0.010155
+      "listings": 29047,
+      "with_price_drop": 269,
+      "share": 0.009261
     },
     "tren_p75": {
-      "listings": 29954,
-      "with_price_drop": 287,
-      "share": 0.009581
+      "listings": 29305,
+      "with_price_drop": 246,
+      "share": 0.008394
     }
   },
   "status": "PASS"
