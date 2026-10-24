@@ -1,6 +1,6 @@
 # TLCN Nhóm 6 — Data Lakehouse bất động sản Việt Nam
 
-[![Tests](https://github.com/DucHoang291105/TLCN_Nhom6_KTDL/actions/workflows/tests.yml/badge.svg?branch=feature%2Fperson-a-week2-iceberg)](https://github.com/DucHoang291105/TLCN_Nhom6_KTDL/actions/workflows/tests.yml?query=branch%3Afeature%2Fperson-a-week2-iceberg)
+[![Tests](https://github.com/DucHoang291105/TLCN_Nhom6_KTDL/actions/workflows/tests.yml/badge.svg)](https://github.com/DucHoang291105/TLCN_Nhom6_KTDL/actions/workflows/tests.yml)
 
 Xây dựng Data Lakehouse phục vụ thu thập, chuẩn hóa, kiểm soát chất lượng và phân tích dữ liệu thị trường bất động sản tại Việt Nam.
 

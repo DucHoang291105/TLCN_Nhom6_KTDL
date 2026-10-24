@@ -99,3 +99,5 @@ dữ liệu tổng hợp vào Silver/Gold production.
 Tham khảo kỹ thuật: [Iceberg Spark writes](https://iceberg.apache.org/docs/latest/spark-writes/),
 [Spark DDL](https://iceberg.apache.org/docs/latest/spark-ddl/),
 [Spark queries](https://iceberg.apache.org/docs/latest/spark-queries/).
+Badge CI dùng hành vi mặc định của [GitHub workflow status badge](https://docs.github.com/en/actions/how-tos/monitor-workflows/add-a-status-badge),
+không gắn cứng với nhánh feature sẽ bị xóa sau merge.
