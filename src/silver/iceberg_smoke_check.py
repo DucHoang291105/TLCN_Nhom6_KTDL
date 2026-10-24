@@ -21,7 +21,11 @@ def main() -> None:
     summary = {"generated_at":datetime.now(timezone.utc).isoformat(),"table":table,"location":table_location(table),"row_count":count,"columns":read_back.columns,"spark_version":spark.version,"status":"PASS"}
     for out in (PROJECT_ROOT/"outputs/validation",PROJECT_ROOT/"docs/validation"):
         out.mkdir(parents=True,exist_ok=True); (out/"iceberg_smoke_test.json").write_text(json.dumps(summary,indent=2)+"\n",encoding="utf-8")
-    print(json.dumps(summary,indent=2)); spark.sql(f"DROP TABLE IF EXISTS {table} PURGE"); spark.sql(f"DROP NAMESPACE IF EXISTS {namespace}"); spark.stop()
+    print(json.dumps(summary,indent=2))
+    # The namespace is shared with retained feature demos and benchmarks.
+    # Only this smoke test's own disposable table belongs to its cleanup.
+    spark.sql(f"DROP TABLE IF EXISTS {table} PURGE")
+    spark.stop()
 
 if __name__ == "__main__": main()
 
