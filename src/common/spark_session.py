@@ -33,6 +33,7 @@ def build_spark_session(app_name: str) -> SparkSession:
     spark = (
         SparkSession.builder.appName(app_name)
         .config("spark.sql.session.timeZone", "Asia/Ho_Chi_Minh")
+        .config("spark.sql.shuffle.partitions", os.getenv("SPARK_SHUFFLE_PARTITIONS", "16"))
         .config("spark.executorEnv.PYTHONPATH", str(PROJECT_ROOT))
         .config("spark.executorEnv.AWS_REGION", "us-east-1")
         .config("spark.executorEnv.AWS_ACCESS_KEY_ID", access_key)

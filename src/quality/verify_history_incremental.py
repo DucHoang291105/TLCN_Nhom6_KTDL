@@ -67,6 +67,7 @@ def fixture_checks(spark, ns):
                 assert current.is_current_version == (following is None)
         assert compare(spark.table(target), history_from(frame))["equal"]
         checks[name] = {"status": "PASS", "operation": result["operation"], "rows": len(actual)}
+        print(f"SCD2 fixture PASS: {name}", flush=True)
         return frame, result
 
     initial = [row("x", "20261016", "A"), row("x", "20261020", "A"), row("y", "20261016", "Q")]
@@ -100,6 +101,15 @@ def fixture_checks(spark, ns):
     else:
         raise AssertionError("Duplicate input was accepted")
     checks["invalid_input_does_not_commit"] = {"status": "PASS"}
+    invalid_time = spark.createDataFrame([row("z", "20261023", "Z", snapshot_date=None, scraped_at=None, bronze_ingested_at=None)], OBSERVATION_SCHEMA)
+    try:
+        sync_history(spark, invalid_time, target, state)
+    except ValueError as error:
+        assert "observation time" in str(error)
+        assert snapshot_id(spark, target) == before
+    else:
+        raise AssertionError("Undated observation was accepted")
+    checks["missing_observation_time_rejected"] = {"status": "PASS"}
     exercise("removed_source_id_deleted", [r for r in metadata_fix if r["source_id"] != "y"], [("x", "A", "2026-10-16")])
     exercise("empty_input_deletes_all_versions", [], [])
     return checks
@@ -123,8 +133,11 @@ def main():
                                        (F.col("batch_id") <= args.baseline_batch))
         merge_table, reference = f"{ns}.history_merge_benchmark", f"{ns}.history_rebuild_benchmark"
         seed = sync_history(spark, baseline, merge_table, merge_table + "_state", "rebuild")
+        print("Baseline history built", flush=True)
         merged = sync_history(spark, observations, merge_table, merge_table + "_state")
+        print("Incremental MERGE completed: " + json.dumps(merged), flush=True)
         rebuilt = sync_history(spark, observations, reference, reference + "_state", "rebuild")
+        print("Full rebuild completed: " + json.dumps(rebuilt), flush=True)
         comparison = compare(spark.table(merge_table), spark.table(reference))
         retry = sync_history(spark, observations, merge_table, merge_table + "_state")
         checks = {"identical_content": comparison["equal"],

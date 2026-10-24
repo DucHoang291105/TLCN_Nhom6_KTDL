@@ -1,5 +1,7 @@
 # TLCN Nhóm 6 — Data Lakehouse bất động sản Việt Nam
 
+[![Tests](https://github.com/DucHoang291105/TLCN_Nhom6_KTDL/actions/workflows/tests.yml/badge.svg?branch=feature%2Fperson-a-week2-iceberg)](https://github.com/DucHoang291105/TLCN_Nhom6_KTDL/actions/workflows/tests.yml?query=branch%3Afeature%2Fperson-a-week2-iceberg)
+
 Xây dựng Data Lakehouse phục vụ thu thập, chuẩn hóa, kiểm soát chất lượng và phân tích dữ liệu thị trường bất động sản tại Việt Nam.
 
 Thành viên:
@@ -14,6 +16,7 @@ Thành viên:
 - Nạp dữ liệu vào Bronze trên MinIO dưới dạng Parquet, giữ metadata nguồn và batch.
 - Chuẩn hóa Silver về schema chung 27 cột; phân loại PASS/WARN/REJECT, loại trùng trong batch và lưu quarantine.
 - Lưu các lần quan sát, phiên bản thay đổi và bản ghi mới nhất đã quan sát của từng listing.
+- Cập nhật lịch sử SCD2 bằng Iceberg `MERGE INTO`, partition theo `snapshot_date`; hỗ trợ batch đến muộn, dữ liệu sửa lại và chạy lại không tạo phiên bản thừa.
 - Chuẩn hóa vị trí, phân loại bất động sản và trích xuất các đặc điểm từ tiêu đề.
 - Xây Gold gồm 9 dimension, bảng fact listing và các bảng phân tích theo Business Question.
 - Theo dõi vòng đời quan sát: first/last seen, số lần quan sát, khoảng ngày quan sát, số lần đổi giá và trạng thái vắng hai batch.
@@ -116,7 +119,20 @@ Kết quả kiểm định:
 
 Silver Current là bản ghi **mới nhất đã quan sát**, không xác nhận listing vẫn còn hiển thị. Cờ vắng hai batch không đồng nghĩa đã bán; `listed_days` là khoảng thời gian quan sát, không phải thời gian tới khi bán. Nguồn historical có trạng thái lifecycle `NOT_APPLICABLE`.
 
-Các nhóm nghi trùng cross-source được gắn cờ theo luật; chưa bảo đảm mỗi nhóm tương ứng đúng một bất động sản thực. BQ2 hiện là benchmark mô tả, không phải mô hình định giá hedonic. Pipeline hiện rebuild đầy đủ từ Bronze.
+Các nhóm nghi trùng cross-source được gắn cờ theo luật; chưa bảo đảm mỗi nhóm tương ứng đúng một bất động sản thực. BQ2 hiện là benchmark mô tả, không phải mô hình định giá hedonic. Silver Core và Gold vẫn rebuild từ Bronze; riêng `listing_history` cập nhật incremental qua MERGE và bảng state phục hồi được. Bronze tái sử dụng các batch đã hoàn tất.
+
+## Iceberg history và kiểm thử tự động
+
+Hướng dẫn chạy, quy tắc SCD2, checkpoint/retry và cách kiểm chứng: [Vận hành Iceberg history](docs/operations/iceberg_history.md).
+
+```powershell
+./scripts/run_spark.ps1 src/silver/build_listing_history.py --mode incremental
+./scripts/run_spark.ps1 src/quality/verify_history_incremental.py --baseline-batch 20261016
+./scripts/run_spark.ps1 src/quality/demo_iceberg_features.py
+python -m pytest -q
+```
+
+Workflow GitHub Actions `Tests` chạy pytest trên Python 3.10/3.12 khi push hoặc tạo pull request. Kiểm thử Spark/Iceberg chạy thực tế trong Docker và xuất [JSON kiểm chứng](docs/validation/); các bảng demo nằm riêng trong namespace `smoke_test`.
 
 ## Khởi động môi trường
 
