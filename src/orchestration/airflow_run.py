@@ -3,6 +3,7 @@ import argparse
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import requests
 
@@ -21,7 +22,7 @@ def session():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("action", choices=("trigger", "status", "export"))
-    parser.add_argument("--batch-id", default="20261016")
+    parser.add_argument("--batch-id", default=datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%Y%m%d"))
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--output", default="airflow_task_states.json")
     parser.add_argument("--concise", action="store_true")
@@ -44,6 +45,9 @@ def main():
     response = client.get(root + "/dagRuns/" + quote(args.run_id, safe=""), timeout=30)
     response.raise_for_status()
     run = response.json()
+    resolved_batch = run.get("conf", {}).get("batch_id")
+    if not resolved_batch:
+        resolved_batch = datetime.fromisoformat(run["logical_date"].replace("Z", "+00:00")).astimezone(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%Y%m%d")
     response = client.get(root + "/dagRuns/" + quote(args.run_id, safe="") + "/taskInstances?limit=100", timeout=30)
     response.raise_for_status()
     tasks = response.json()["task_instances"]
@@ -53,7 +57,7 @@ def main():
             end = datetime.fromisoformat(task["end_date"].replace("Z", "+00:00"))
             task["duration"] = (end - start).total_seconds()
     payload = {"dag_id": "lakehouse_pipeline", "run_id": args.run_id, "state": run["state"],
-        "batch_id": run.get("conf", {}).get("batch_id"), "history_mode": run.get("conf", {}).get("history_mode", "incremental"),
+        "batch_id": resolved_batch, "history_mode": run.get("conf", {}).get("history_mode", "incremental"),
         "start_date": run.get("start_date"), "end_date": run.get("end_date"),
         "schedule": "0 22 * * 2,5", "timezone": "Asia/Ho_Chi_Minh",
         "tasks": [{k: t.get(k) for k in ("task_id", "state", "start_date", "end_date", "duration", "try_number")} for t in tasks]}

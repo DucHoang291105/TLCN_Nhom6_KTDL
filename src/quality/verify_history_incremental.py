@@ -54,6 +54,9 @@ def fixture_checks(spark, ns):
     def exercise(name, rows, expected, mode="incremental"):
         frame = spark.createDataFrame(rows, OBSERVATION_SCHEMA)
         result = sync_history(spark, frame, target, state, mode)
+        # Date conversion must use Spark's configured Vietnam timezone, not the
+        # Python driver's UTC-naive timestamp representation returned by collect.
+        assert spark.table(target).filter(~F.to_date("valid_from").eqNullSafe(F.col("snapshot_date"))).limit(1).count() == 0
         actual = spark.table(target).orderBy("source_id", "version_number").collect()
         timeline = [(r.source_id, r.record_hash, r.snapshot_date.isoformat()) for r in actual]
         assert timeline == expected, (name, timeline, expected)
@@ -62,7 +65,6 @@ def fixture_checks(spark, ns):
             for i, current in enumerate(versions):
                 following = versions[i+1] if i+1 < len(versions) else None
                 assert current.version_number == i + 1
-                assert current.valid_from.date() == current.snapshot_date
                 assert current.valid_to == (following.valid_from if following else None)
                 assert current.is_current_version == (following is None)
         assert compare(spark.table(target), history_from(frame))["equal"]
