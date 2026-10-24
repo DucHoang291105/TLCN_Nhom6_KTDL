@@ -56,6 +56,9 @@ def require_bronze_pass():
 
 def validate_snapshots(batch):
     csv.field_size_limit(2**31 - 1)
+    out = PROJECT_ROOT / "docs/validation/snapshot_manifest.json"
+    previous = json.loads(out.read_text(encoding="utf-8")) if out.exists() else {}
+    known = {(r["source"], r["batch_id"]): r["sha256"] for r in previous.get("snapshots", [])}
     entries = []
     for source in SOURCES:
         if not snapshot_path(source, batch).is_file():
@@ -89,11 +92,12 @@ def validate_snapshots(batch):
             with path.open("rb") as handle:
                 for block in iter(lambda: handle.read(1024 * 1024), b""):
                     checksum.update(block)
+            if known.get((source, folder.name), checksum.hexdigest()) != checksum.hexdigest():
+                raise ValueError(f"Previously recorded snapshot changed: {source}/{folder.name}; inspect and explicitly reload Bronze")
             entries.append({"source": source, "batch_id": folder.name, "rows": n, "columns": len(reader.fieldnames),
                             "max_source_page": max_page, "sha256": checksum.hexdigest(), "size_bytes": path.stat().st_size})
     payload = {"generated_at": datetime.now(timezone.utc).isoformat(), "expected_batch_id": batch,
                "snapshots": entries, "snapshot_rows": sum(r["rows"] for r in entries), "status": "PASS"}
-    out = PROJECT_ROOT / "docs/validation/snapshot_manifest.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     print(f"Snapshot manifest PASS: {len(entries)} files, {payload['snapshot_rows']:,} rows")

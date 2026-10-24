@@ -26,6 +26,7 @@ def main():
     parser.add_argument("--output", default="airflow_task_states.json")
     parser.add_argument("--concise", action="store_true")
     parser.add_argument("--expect-failure", action="store_true")
+    parser.add_argument("--history-mode", choices=("incremental", "rebuild"), default="incremental")
     args = parser.parse_args()
     client = session()
     root = "http://localhost:8080/api/v2/dags/lakehouse_pipeline"
@@ -33,7 +34,7 @@ def main():
         # Register the manual run before enabling the scheduler; one active run at a time.
         now = datetime.now(timezone.utc).isoformat()
         response = client.post(root + "/dagRuns", json={"dag_run_id": args.run_id, "logical_date": now,
-            "conf": {"batch_id": args.batch_id}}, timeout=30)
+            "conf": {"batch_id": args.batch_id, "history_mode": args.history_mode}}, timeout=30)
         response.raise_for_status()
         response = client.patch(root, json={"is_paused": False}, timeout=30)
         response.raise_for_status()
@@ -52,7 +53,8 @@ def main():
             end = datetime.fromisoformat(task["end_date"].replace("Z", "+00:00"))
             task["duration"] = (end - start).total_seconds()
     payload = {"dag_id": "lakehouse_pipeline", "run_id": args.run_id, "state": run["state"],
-        "batch_id": run.get("conf", {}).get("batch_id"), "start_date": run.get("start_date"), "end_date": run.get("end_date"),
+        "batch_id": run.get("conf", {}).get("batch_id"), "history_mode": run.get("conf", {}).get("history_mode", "incremental"),
+        "start_date": run.get("start_date"), "end_date": run.get("end_date"),
         "schedule": "0 22 * * 2,5", "timezone": "Asia/Ho_Chi_Minh",
         "tasks": [{k: t.get(k) for k in ("task_id", "state", "start_date", "end_date", "duration", "try_number")} for t in tasks]}
     if args.expect_failure:

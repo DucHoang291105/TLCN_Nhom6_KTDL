@@ -93,7 +93,7 @@ def _current_location(spark: SparkSession, table: str) -> str | None:
     return rows[0]["data_type"].rstrip("/") if rows else None
 
 
-def write_iceberg_table(frame: DataFrame, table: str) -> None:
+def write_iceberg_table(frame: DataFrame, table: str, partition_by: tuple[str, ...] = ()) -> None:
     """Create or replace an Iceberg v2 table in its layer bucket.
 
     A replace keeps the old table location, so a table still stored elsewhere
@@ -105,9 +105,11 @@ def write_iceberg_table(frame: DataFrame, table: str) -> None:
     current = _current_location(spark, table)
     if current is not None and current != location:
         spark.sql(f"DROP TABLE {table} PURGE")
-    (
+    writer = (
         frame.writeTo(table).using("iceberg")
         .tableProperty("format-version", "2")
         .tableProperty("location", location)
-        .createOrReplace()
     )
+    if partition_by:
+        writer = writer.partitionedBy(*partition_by)
+    writer.createOrReplace()

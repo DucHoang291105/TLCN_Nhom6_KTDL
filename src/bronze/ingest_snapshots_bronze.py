@@ -1,4 +1,5 @@
 import os
+import argparse
 import json
 import re
 from datetime import datetime, timezone
@@ -28,6 +29,10 @@ SOURCE_FILES = {
     "guland": "guland_raw.csv",
     "nhadatvui": "nhadatvui_raw.csv",
 }
+
+parser = argparse.ArgumentParser(description="Ingest local snapshot CSVs into Bronze")
+parser.add_argument("--skip-existing", action="store_true", help="Reuse completed immutable Bronze batches")
+args = parser.parse_args()
 
 
 # ============================================================
@@ -200,6 +205,18 @@ for source_name, file_name in SOURCE_FILES.items():
             f"{source_name}/"
             f"batch_id={batch_id}"
         )
+
+        if args.skip_existing:
+            jpath = spark._jvm.org.apache.hadoop.fs.Path(output_path)
+            fs = jpath.getFileSystem(hadoop_conf)
+            if fs.exists(jpath):
+                success = spark._jvm.org.apache.hadoop.fs.Path(output_path + "/_SUCCESS")
+                if not fs.exists(success):
+                    raise RuntimeError(f"Incomplete existing Bronze batch: {output_path}; inspect before reloading")
+                summary["sources"][source_name][batch_id] = {
+                    "file": file_name, "output_path": output_path, "status": "SKIPPED_EXISTING"}
+                print(f"REUSE {source_name}/{batch_id}: completed Bronze batch")
+                continue
 
         print()
         print("-" * 75)

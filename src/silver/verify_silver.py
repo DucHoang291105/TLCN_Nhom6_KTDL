@@ -10,6 +10,7 @@ PROJECT_ROOT=Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path: sys.path.insert(0,str(PROJECT_ROOT))
 from src.common.spark_session import build_spark_session,ensure_silver_namespace,table_location
 from src.common.utils import CANONICAL_COLUMNS
+from src.silver.history import HISTORY_COLUMNS, snapshot_id, snapshot_marker
 
 EXPECTED={"batdongsan","guland","nhadatvui","chotot","mogi","alonhadat","luachonnhadat","muaban","homedy"}
 
@@ -44,8 +45,28 @@ def main() -> None:
     hist_window=Window.partitionBy("source_id").orderBy("version_number")
     history_duplicate_hashes=history.withColumn("prev",F.lag("record_hash").over(hist_window)).filter(F.col("prev")==F.col("record_hash")).count()
     history_bad_sequence=(history.groupBy("source_id").agg(F.min("version_number").alias("min"),F.max("version_number").alias("max"),F.count("*").alias("n")).filter("min<>1 OR max<>n").count())
+    intervals=history.withColumn("_next",F.lead("valid_from").over(hist_window))
+    bad_intervals=intervals.filter(F.col("valid_from").isNull() | ~F.col("valid_to").eqNullSafe(F.col("_next")) |
+        ~F.col("is_current_version").eqNullSafe(F.col("valid_to").isNull()) |
+        (F.col("valid_to")<F.col("valid_from"))).count()
+    bad_current=history.groupBy("source_id").agg(F.sum(F.col("is_current_version").cast("int")).alias("n")).filter("n<>1").count()
+    observation_ids=observation.select("source_id").distinct(); history_ids=history.select("source_id").distinct()
+    history_missing=observation_ids.join(history_ids,"source_id","left_anti").count()
+    history_orphans=history_ids.join(observation_ids,"source_id","left_anti").count()
+    history_duplicate_keys=history.groupBy("source_id","version_number").count().filter("count>1").count()
+    state=spark.table(f"{ns}.listing_history_state")
+    state_missing=observation_ids.join(state.select("source_id"),"source_id","left_anti").count()
+    state_orphans=state.select("source_id").join(observation_ids,"source_id","left_anti").count()
+    state_duplicates=state.groupBy("source_id").count().filter("count>1").count()
+    history_spec=str(spark._jvm.org.apache.iceberg.spark.Spark3Util.loadIcebergTable(spark._jsparkSession,f"{ns}.listing_history").spec())
     checks={"source_set_9":set(source_counts)==EXPECTED,"schema_exact_27":current.columns==CANONICAL_COLUMNS,"source_id_not_null":null_ids==0,"source_id_unique":duplicate_ids==0,"source_id_convention":bad_prefix==0,"observation_grain_unique":observation_duplicates==0,"current_union_count":counts["silver_listings_current_27"]==counts["crawl_current_27"]+counts["historical_current_27"],"location_coverage":counts["listing_location"]==counts["silver_listings_current_27"],"location_unique":location_duplicates==0,"location_fk":location_orphans==0,"history_no_consecutive_duplicate":history_duplicate_hashes==0,"history_version_sequence":history_bad_sequence==0,"feature_coverage":counts["listing_feature"]==counts["silver_listings_current_27"],"feature_source_id_not_null":feature_null_ids==0,"feature_unique":feature_duplicates==0,"feature_fk":feature_orphans==0,"feature_score_range":feature_bad_scores==0,"feature_source_id_set_equal":feature_missing==0 and feature_orphans==0,"location_source_id_set_equal":location_missing==0 and location_orphans==0,"observation_category_evidence_valid":bad_evidence==0,"observation_category_evidence_consistent":evidence_mismatch==0}
     locations={name:spark.sql(f"DESCRIBE TABLE EXTENDED {ns}.{name}").filter("col_name='Location'").first()["data_type"].rstrip("/") for name in names}
+    checks.update(history_schema=history.columns==HISTORY_COLUMNS,history_valid_intervals=bad_intervals==0,
+        history_one_current_per_id=bad_current==0,history_source_id_set_equal=history_missing==history_orphans==0,
+        history_version_key_unique=history_duplicate_keys==0,
+        history_state_keys_equal=state_missing==state_orphans==state_duplicates==0,
+        history_state_checkpoint_matches=snapshot_marker(spark,f"{ns}.listing_history_state")==snapshot_id(spark,f"{ns}.listing_history"),
+        history_partition_snapshot_date="snapshot_date" in history_spec and "identity(" in history_spec)
     checks["tables_in_silver_bucket"]=all(loc==table_location(f"{ns}.{name}") for name,loc in locations.items())
     failures.extend(name for name,passed in checks.items() if not passed)
     summary={"generated_at":datetime.now(timezone.utc).isoformat(),"catalog_namespace":ns,"table_counts":counts,"source_counts":source_counts,"checks":checks,"metrics":{"null_source_ids":null_ids,"duplicate_source_ids":duplicate_ids,"bad_source_id_prefix":bad_prefix,"observation_duplicate_keys":observation_duplicates,"location_duplicate_ids":location_duplicates,"location_orphans":location_orphans,"history_consecutive_duplicate_hashes":history_duplicate_hashes,"history_bad_version_sequences":history_bad_sequence,"feature_null_ids":feature_null_ids,"feature_duplicate_ids":feature_duplicates,"feature_orphans":feature_orphans,"feature_bad_scores":feature_bad_scores,"feature_missing_ids":feature_missing,"location_missing_ids":location_missing,"observation_bad_category_evidence":bad_evidence,"observation_category_evidence_mismatch":evidence_mismatch,"model_category_mapped_rate":mapped_category_rate,"title_flag_true_rates":flag_rates},"warnings":warnings,"table_locations":locations,"status":"PASS" if not failures else "FAIL","failures":failures}
