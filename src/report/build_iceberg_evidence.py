@@ -37,6 +37,7 @@ def main():
     if tests is None or int(tests.get("failures", 0)) or int(tests.get("errors", 0)) or int(tests.get("skipped", 0)):
         raise RuntimeError("Unit test evidence is not fully PASS")
     checksum_checks = []
+    new_entries = [r for r in manifest["snapshots"] if r["batch_id"] > history["baseline_batch"]]
     for entry in manifest["snapshots"]:
         path = ROOT / f"data/incoming/snapshots/{entry['source']}/{entry['batch_id']}/{entry['source']}_raw.csv"
         digest = hashlib.sha256()
@@ -100,6 +101,8 @@ Sinh từ JSON kiểm chứng ngày {datetime.now(timezone.utc).isoformat()}. Kh
 | Chỉ tiêu | Kết quả |
 |---|---:|
 | Snapshot CSV | {len(manifest['snapshots'])} |
+| CSV mới sau baseline {history['baseline_batch']} | {len(new_entries)} |
+| Dòng raw mới trong các CSV đó | {sum(r['rows'] for r in new_entries):,} |
 | Dòng snapshot Bronze | {manifest['snapshot_rows']:,} |
 | Silver observation | {silver['table_counts']['listing_observation']:,} |
 | Silver current | {silver['table_counts']['silver_listings_current_27']:,} |

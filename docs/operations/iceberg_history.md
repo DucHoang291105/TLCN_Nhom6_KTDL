@@ -69,6 +69,10 @@ ghi nhận mà đổi SHA256 sẽ bị chặn, không im lặng bỏ qua CSV m�
 sự sửa dữ liệu nguồn cũ, cần kiểm tra và reload Bronze có chủ đích, rồi cập
 nhật manifest đã được review; không sửa manifest để ép PASS.
 
+`bronze_snapshot_ingestion_summary.json.total_output_rows` là số dòng **mới
+ghi trong lần chạy đó**, không phải tổng Bronze. Khi tái sử dụng toàn bộ batch,
+giá trị 0 là bình thường; tổng dữ liệu nằm trong `bronze_state_audit.json`.
+
 ## Xem kết quả ở đâu
 
 - `docs/validation/history_incremental_verification.json`: số dòng, SHA256
