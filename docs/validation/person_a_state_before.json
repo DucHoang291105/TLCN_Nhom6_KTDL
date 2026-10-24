@@ -1,0 +1,302 @@
+{
+  "generated_at": "2026-10-24T10:53:50.001874+00:00",
+  "fingerprint_version": "sha256_multiset_v2",
+  "tables": {
+    "silver.listing_observation": {
+      "grain": [
+        "source_id",
+        "batch_id"
+      ],
+      "rows": 278987,
+      "distinct_keys": 278987,
+      "content_hash": "e8046de4bac6b4f54537ec0257e9837195a8391b166fe1ddc2e7112382548688",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "silver.listing_dq_quarantine": {
+      "grain": [
+        "bronze_path",
+        "source_id",
+        "batch_id",
+        "record_hash"
+      ],
+      "rows": 664,
+      "distinct_keys": 1,
+      "content_hash": "90c98861c36bc497ab792938314beeeac9f8e0d33c83651f762d011df8c9a69c",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "silver.crawl_current_27": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 107415,
+      "distinct_keys": 107415,
+      "content_hash": "5ef13f98b933bc9dacbefd016ac32249bd5c11c4ef5aa7fcb6482553d0191512",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "silver.historical_current_27": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 30317,
+      "distinct_keys": 30317,
+      "content_hash": "4e3bab510d67c856531afda55f73621dd6284d32aba879733509ead1d91ed107",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "silver.silver_listings_current_27": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 137732,
+      "distinct_keys": 137732,
+      "content_hash": "38ee50c7a2e68e491fff37005c3b1cc746de2d0258becaed919fdd255c8710bd",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "silver.listing_history": {
+      "grain": [
+        "source_id",
+        "version_number"
+      ],
+      "rows": 151972,
+      "distinct_keys": 151972,
+      "content_hash": "7b0d91341d1c45f737b13648ecf1c5046d4aa6be478b8ad0922cf8843a815c59",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "silver.listing_history_state": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 137732,
+      "distinct_keys": 137732,
+      "content_hash": "0838d4a5170b205a054cf3df6459467192012b5f384af5be9780706fd31080e7",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "silver.listing_location": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 137732,
+      "distinct_keys": 137732,
+      "content_hash": "f4dc15e31ebaf24d9628bdcaca8fb37b4305a42a063531232342365429a0f108",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "silver.listing_feature": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 137732,
+      "distinct_keys": 137732,
+      "content_hash": "349f147dd6ecf1615b32cdede55b83e8c7248bcdd94d3d139fcb03e1ceb47af6",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": [
+        "feature_built_at"
+      ]
+    },
+    "gold.dim_source": {
+      "grain": [
+        "source_key"
+      ],
+      "rows": 10,
+      "distinct_keys": 10,
+      "content_hash": "512dc91d7b7b8f5a8fefb2b051c879c3112be37b098b40f113a99a05593e31c4",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "gold.dim_date": {
+      "grain": [
+        "date_key"
+      ],
+      "rows": 2694,
+      "distinct_keys": 2694,
+      "content_hash": "9ce57f3592d1960076d6f2e36443c7cc386be492d8bb5963d03de1fbf38aafa3",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "gold.dim_location": {
+      "grain": [
+        "location_key"
+      ],
+      "rows": 275,
+      "distinct_keys": 275,
+      "content_hash": "eb39d38cb6e623625102344a1f4a90652791e808d67b07d1af35893c849a92b6",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "gold.dim_property_category": {
+      "grain": [
+        "property_category_key"
+      ],
+      "rows": 6,
+      "distinct_keys": 6,
+      "content_hash": "f29e522eb8d2a5775bf2a610557e9b6cb5c770a130f1a9ff77ad21b85478ba63",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "gold.dim_price_band": {
+      "grain": [
+        "band_key"
+      ],
+      "rows": 9,
+      "distinct_keys": 9,
+      "content_hash": "a93082f05671da885d431f0f7dd51ee0e72f7877da111e0feb9e7e9d2e767393",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "gold.dim_area_band": {
+      "grain": [
+        "band_key"
+      ],
+      "rows": 7,
+      "distinct_keys": 7,
+      "content_hash": "b3033011bffd6f8f6bbe2b0d0e970ff8e65d32b5796f9737af7f1bbf11d332a0",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "gold.dim_unit_price_band": {
+      "grain": [
+        "band_key"
+      ],
+      "rows": 8,
+      "distinct_keys": 8,
+      "content_hash": "62ca05732e2229d13954de4413c5e1a1a10659bbebfa51aa73d75c7372ed3f54",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "gold.dim_room_band": {
+      "grain": [
+        "band_key"
+      ],
+      "rows": 6,
+      "distinct_keys": 6,
+      "content_hash": "3b5a815361f6204955cc35996adac1474244a2dacd607d678819ea8c191f6fb2",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "gold.dim_dq_status": {
+      "grain": [
+        "dq_status_key"
+      ],
+      "rows": 3,
+      "distinct_keys": 3,
+      "content_hash": "477e7a6b2eb406318a5c633fa2bfc2a60ae73dc18eac78c8735676eafbdff52e",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "gold.fact_listing": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 122375,
+      "distinct_keys": 122375,
+      "content_hash": "f0f1fb5980f504b848c0bdf98dba4815776df7b89b6c3cc8a44d3ce6928ae75f",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "gold.fact_listing_lifecycle": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 137732,
+      "distinct_keys": 137732,
+      "content_hash": "dd0dd4b87ee934b005bfc95f317abffbe313ab9ae8b85adf0841c6cea771e045",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": [
+        "lifecycle_built_at"
+      ]
+    },
+    "gold.agg_peer_group_benchmark": {
+      "grain": [
+        "peer_group_id"
+      ],
+      "rows": 2705,
+      "distinct_keys": 2705,
+      "content_hash": "0e057931fd0e4e091e85f1d1f8ca89ac9ab6a9c0a8bd2293e2a5d86e0c4271ec",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "gold.fact_listing_price_assessment": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 121382,
+      "distinct_keys": 121382,
+      "content_hash": "3d18abd2198cd27dabbd93073fd294fca4e039e491ff1c0671176f0ddf0ac69f",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "gold.agg_budget_tradeoff": {
+      "grain": [
+        "price_band_key",
+        "location_key",
+        "property_category_key"
+      ],
+      "rows": 2529,
+      "distinct_keys": 2529,
+      "content_hash": "ceda57e06efe87349da6b2986244f77d3fd12942f789a59bf63d4c67135db05a",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "gold.fact_budget_pareto": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 118647,
+      "distinct_keys": 118647,
+      "content_hash": "4fc2e713d6df9b521cb3a19c2e4a730e57e0860570e2022186fddd5e4d3681c0",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "gold.agg_area_substitution": {
+      "grain": [
+        "origin_location_key",
+        "alternative_location_key",
+        "property_category_key",
+        "area_band_key"
+      ],
+      "rows": 3555,
+      "distinct_keys": 3555,
+      "content_hash": "d13404e9a7420a462b6a9736ab5aa6e8c29f88251cc62a8d25d42cca32fa80e7",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "gold.agg_dq_kpi": {
+      "grain": [
+        "source_key"
+      ],
+      "rows": 9,
+      "distinct_keys": 9,
+      "content_hash": "9f9857163d6761c6ed42c9528d7177b411ae56f2398cc825c91af7422d434cc1",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "gold.fact_listing_price_change": {
+      "grain": [
+        "source_id",
+        "version_number"
+      ],
+      "rows": 1766,
+      "distinct_keys": 1766,
+      "content_hash": "fc9014c00d66d2e35dbbc175bd682ecf1e1c72cf968fe0b66bb65b7e0a24e510",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    },
+    "gold.agg_market_overview": {
+      "grain": [
+        "province_name",
+        "property_category_key"
+      ],
+      "rows": 149,
+      "distinct_keys": 149,
+      "content_hash": "a45ceea2dbf837654711b252ddb5ccfe949966d710566e2049f9749c758f26dc",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
+      "excluded_columns": []
+    }
+  }
+}

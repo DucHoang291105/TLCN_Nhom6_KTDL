@@ -69,10 +69,11 @@ def main():
         if not all(checks.values()):
             raise RuntimeError("Failure-gate probe did not block all downstream tasks")
     if args.action == "export":
+        from src.common.atomic_io import write_json_atomic
         if Path(args.output).name != args.output:
             raise ValueError("Output must be a filename in docs/validation")
         out = Path("/opt/project/docs/validation") / args.output
-        out.write_text(json.dumps(payload, indent=2) + "\n")
+        write_json_atomic(out, payload)
     if args.concise:
         from collections import Counter
         print(json.dumps({"run_id": args.run_id, "state": run["state"], "tasks": dict(Counter(t["state"] for t in tasks))}))

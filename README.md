@@ -79,7 +79,7 @@ Dữ liệu historical đặt trong `data/incoming/historical/<nguồn>/`, theo 
 
 ## Kết quả đã kiểm chứng
 
-Số liệu dưới đây thuộc lần chạy thành công trên dữ liệu tới batch **20261023**. Nguồn đối chiếu: [các JSON kiểm chứng](docs/validation/) và [bộ minh chứng Iceberg/pipeline](docs/evidence/iceberg_20261023/).
+Số liệu dưới đây được kiểm chứng trên dữ liệu tới batch **20261023**. Lượt chạy gần nhất: `person_a_resource_tuned_20261023`. Nguồn đối chiếu: [kết quả Airflow](docs/validation/person_a_airflow_run_final.json), [các JSON kiểm định](docs/validation/) và [bộ minh chứng Iceberg](docs/evidence/iceberg_20261023/).
 
 | Đầu ra | Số dòng |
 |---|---:|
@@ -102,16 +102,30 @@ Kết quả kiểm định:
 
 - Silver: **30/30 PASS**.
 - Gold: **92/92 PASS**.
-- Unit tests: **199 PASS**, CI Python 3.10 và 3.12 đều xanh.
+- Unit tests: **239 PASS tại máy local**; GitHub Actions chạy kiểm thử trên Python 3.10 và 3.12.
 - Kiểm thử Spark SCD2: **11/11 PASS**; demo Iceberg: **6/6 PASS**.
 - Kiểm thử Spark cho lifecycle: **12/12 PASS**.
-- Airflow: **23/23 task SUCCESS**, thời gian chạy khoảng **12,94 phút**, run `incremental_verified_20261023`.
+- Airflow: **23/23 task SUCCESS**, thời gian chạy khoảng **12,79 phút**, run `person_a_resource_tuned_20261023`.
 - Kiểm thử lỗi: một task thất bại, 22 task downstream bị chặn.
 - Checksum của 29 CSV gốc giữ nguyên sau khi chạy pipeline.
 
-MERGE và full rebuild đều tạo **151.972 dòng history**, cùng SHA256 và không có khác biệt khi `EXCEPT ALL` hai chiều. MERGE chỉ tính lại timeline của **9.689/137.732 listing ID**. Lần đo local cùng input đã cache: MERGE **19,37 giây**, full rebuild **11,39 giây**; không khẳng định incremental luôn nhanh hơn trên tập dữ liệu nhỏ. Retry trả `NO_CHANGE` và không tạo snapshot history mới.
+MERGE và full rebuild đều tạo **151.972 dòng history**, cùng SHA256 và không có khác biệt khi `EXCEPT ALL` hai chiều. MERGE chỉ tính lại timeline của **9.689/137.732 listing ID**, staging còn **4.398 dòng** thực sự thay đổi. Trung vị ba lượt local cùng input đã cache: MERGE **12,23 giây**, full rebuild **8,71 giây**; không khẳng định incremental luôn nhanh hơn trên tập dữ liệu nhỏ. Retry không đổi input không tạo data snapshot history mới.
 
-## Các đầu ra phục vụ phân tích
+## An toàn vận hành và hiệu năng
+
+- Manifest tái sử dụng kết quả parse CSV nhưng luôn SHA256 toàn bộ mọi file; chặn snapshot cũ bị sửa/xóa, CSV lỗi và LFS pointer chưa tải. Hash song song mặc định 4 worker.
+- History chỉ MERGE các dòng thực sự đổi; có khóa writer local, kiểm tra location/schema, checkpoint phục hồi và fast path cho snapshot đã xác minh không đổi. Dùng `--force-verify` để bỏ fast path.
+- Manifest, summary history và công cụ kiểm chứng ghi JSON nguyên tử, đọc được giữa UID Airflow/Spark. Runner không xóa thư mục app đang chạy.
+- Giới hạn container master 1536 MiB để chừa bộ nhớ ngoài heap driver; Ivy cache nằm đúng named volume, có init quyền cho lần tạo volume đầu.
+- Benchmark local cùng input: manifest cached trung vị 3,64 giây (vẫn rehash 29 CSV); history MERGE trung vị 13,64 → 12,23 giây; lifecycle 2,89 → 2,66 giây. Chỉ history incremental, không khẳng định cả pipeline nhanh theo cùng tỷ lệ. MERGE vẫn chậm hơn rebuild trên tập đối chứng nhỏ này.
+- Đối chiếu **28/28 bảng Silver/Gold** trước/sau tối ưu: cùng số dòng, grain và SHA256 nội dung nghiệp vụ; chỉ bỏ cột ghi thời điểm build.
+
+Kết quả kỹ thuật: [đối chiếu 28 bảng](docs/validation/person_a_output_equivalence.json),
+[benchmark history](docs/validation/person_a_history_optimization.json),
+[benchmark manifest](docs/validation/person_a_manifest_benchmark.json).
+Chi tiết lệnh và giới hạn vận hành: [Iceberg history](docs/operations/iceberg_history.md).
+
+## Bảng dữ liệu phục vụ phân tích
 
 | Bảng Gold | Nội dung |
 |---|---|

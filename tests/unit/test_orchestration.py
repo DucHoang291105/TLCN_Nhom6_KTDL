@@ -57,6 +57,12 @@ def test_spark_success(monkeypatch):
     pipeline.run_spark("src/gold/build_listing_lifecycle.py")
 
 
+def test_spark_dependencies_use_the_persistent_named_volume():
+    command = pipeline.spark_command("src/silver/build_listing_history.py")
+    assert "spark.jars.ivy=/home/spark/.ivy2" in command
+    assert "spark.jars.ivy=/tmp/.ivy2" not in command
+
+
 def test_bronze_warn_stops_pipeline(tmp_path, monkeypatch):
     monkeypatch.setattr(pipeline, "PROJECT_ROOT", tmp_path)
     out = tmp_path / "docs/validation/bronze_state_audit.json"

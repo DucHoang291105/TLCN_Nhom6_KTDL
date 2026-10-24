@@ -73,7 +73,63 @@ nhật manifest đã được review; không sửa manifest để ép PASS.
 ghi trong lần chạy đó**, không phải tổng Bronze. Khi tái sử dụng toàn bộ batch,
 giá trị 0 là bình thường; tổng dữ liệu nằm trong `bronze_state_audit.json`.
 
-## Xem kết quả ở đâu
+## Tối ưu và cơ chế bảo vệ bổ sung
+
+Manifest vẫn đọc và SHA256 **toàn bộ byte của mọi CSV** mỗi lần chạy. Chỉ phần
+parse/đếm CSV được tái sử dụng khi SHA256, kích thước và phiên bản parser khớp.
+Không dựa vào mtime để bỏ kiểm tra. Snapshot cũ bị sửa/xóa, CSV lỗi hoặc Git LFS
+pointer chưa tải đều làm preflight thất bại; file manifest cũ không bị ghi dở.
+Mặc định hash bằng 4 worker, có thể đặt `SNAPSHOT_HASH_WORKERS` từ 1 đến 8.
+
+```powershell
+# Buộc parse lại mọi CSV, không bỏ bảo vệ checksum snapshot cũ:
+python -c "from src.orchestration.pipeline import validate_snapshots; validate_snapshots('20261023', force_rescan=True)"
+# Bỏ cache metadata của history, kiểm tra signature đầy đủ:
+./scripts/run_spark.ps1 src/silver/build_listing_history.py --mode incremental --force-verify
+```
+
+History chỉ bỏ scan input khi input/history metadata, state snapshot/schema,
+logic, timezone, checkpoint và row count metadata đều trùng cache đã xác minh.
+Nếu bất kỳ điều kiện nào khác hoặc cache hỏng, job quay về kiểm tra đầy đủ.
+Fast path này không có nghĩa mọi DAG đều hit cache: Core vẫn rebuild observation.
+`outputs/locks` chứa khóa OS theo bảng history; file tồn tại không đồng nghĩa khóa
+đang được giữ. Không xóa file khóa khi có writer. Khóa dùng chung filesystem local,
+không phải distributed lock. Các bảng khác vẫn phải tránh manual job chạy chồng DAG.
+
+Manifest, summary history và công cụ kiểm chứng dùng temp file + replace nguyên tử và quyền `0644` để Airflow
+UID 50000 và Spark UID 185 đọc chéo. **Không dùng quyền này cho secret**; secret
+phải nằm ở private directory/quyền `0600`, không ghi vào artifact hoặc Git.
+Runner không xóa rộng `app-*`; Spark worker tự dọn app đã kết thúc, giữ app đang chạy.
+
+### Tài nguyên driver và dependency bền vững
+
+Spark driver chạy client mode trong container master. Heap driver 1 GiB không phải
+toàn bộ bộ nhớ container: còn master daemon, Python và JVM native memory. Cấu hình
+master hiện có giới hạn **1536 MiB**, worker vẫn 2 core/2 GiB executor memory và
+giới hạn container worker giữ nguyên. Đây là headroom local, không phải tăng heap
+hay mở rộng cả cluster. Máy phải đủ RAM trước khi tăng thêm.
+
+`spark.jars.ivy=/home/spark/.ivy2` trỏ đúng named volume `spark_ivy`. Init service
+`spark-ivy-init` chuẩn bị quyền UID/GID 185 cho volume mới trước khi master chạy.
+Không xóa volume MinIO/catalog khi cập nhật container Spark. Lần tải dependency
+đầu vẫn cần mạng, các lần sau tái sử
+dụng cache nếu không đổi package/version và không xóa volume.
+
+```powershell
+docker compose config --quiet
+docker compose up -d spark-master spark-worker
+```
+
+Đã đọc cgroup `memory.events`, `memory.peak`, `memory.swap.current` trước/sau;
+số đếm sự kiện là tích lũy theo vòng đời container, không dùng để kết luận một task
+cụ thể gây toàn bộ áp lực. Xem [probe bộ nhớ](../validation/person_a_driver_memory.json)
+và [lượt chạy Airflow](../validation/person_a_airflow_run_final.json) để đối chiếu số đo thực tế.
+
+Nguồn kỹ thuật: [Spark 3.5.9 configuration](https://spark.apache.org/docs/3.5.9/configuration.html),
+[Linux cgroup v2 memory controller](https://docs.kernel.org/admin-guide/cgroup-v2.html),
+[Docker resource constraints](https://docs.docker.com/engine/containers/resource_constraints/).
+
+## Kết quả kiểm chứng
 
 - `docs/validation/history_incremental_verification.json`: số dòng, SHA256
   của toàn bộ multiset row hash, `EXCEPT ALL` hai chiều, thời gian thực đo,
@@ -89,8 +145,8 @@ giá trị 0 là bình thường; tổng dữ liệu nằm trong `bronze_state_a
   giả lập rằng CI đã chạy Spark. Spark/Iceberg integration chạy bằng Docker
   tại máy và lưu bằng chứng JSON riêng.
 
-Benchmark là một lần đo trên máy local, cùng input đã cache, tính cả kiểm tra,
-signature và ghi history/state. MERGE có thể chậm hơn rebuild trên tập nhỏ;
+Benchmark cũ là một lần đo; benchmark tối ưu mới chạy 3 lượt AB/BA trên cùng input
+đã cache, tính cả kiểm tra, signature và ghi history/state. MERGE có thể chậm hơn rebuild trên tập nhỏ;
 điều kiện bắt buộc là kết quả giống nhau và retry an toàn, không ép kết quả
 thời gian để chứng minh nhanh hơn.
 
@@ -100,8 +156,15 @@ Spark mặc định 16 shuffle partition cho cụm local 2 core; có thể đổ
 Các bảng benchmark/fixture ở namespace `lakehouse.smoke_test`; không union
 dữ liệu tổng hợp vào Silver/Gold production.
 
+Các file `person_a_*` trong `docs/validation` ghi benchmark mới, so sánh toàn bộ
+28 bảng và kết quả vận hành. Fingerprint v2 là SHA256 trên multiset full row
+SHA256 đã sắp thứ tự; không so trực tiếp với fingerprint tổng rút gọn của bản cũ.
+Chỉ cột thời gian build bị loại, không bỏ cột nghiệp vụ để ép kết quả giống nhau.
+Xem [đối chiếu nội dung](../validation/person_a_output_equivalence.json),
+[benchmark history](../validation/person_a_history_optimization.json),
+[benchmark lifecycle](../validation/person_a_lifecycle_optimization.json) và
+[benchmark manifest](../validation/person_a_manifest_benchmark.json).
+
 Tham khảo kỹ thuật: [Iceberg Spark writes](https://iceberg.apache.org/docs/latest/spark-writes/),
 [Spark DDL](https://iceberg.apache.org/docs/latest/spark-ddl/),
 [Spark queries](https://iceberg.apache.org/docs/latest/spark-queries/).
-Badge CI dùng hành vi mặc định của [GitHub workflow status badge](https://docs.github.com/en/actions/how-tos/monitor-workflows/add-a-status-badge),
-không gắn cứng với nhánh feature sẽ bị xóa sau merge.

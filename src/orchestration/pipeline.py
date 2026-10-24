@@ -1,7 +1,5 @@
 """Run Spark in the existing Docker cluster and propagate failures to Airflow."""
 from __future__ import annotations
-import csv
-import hashlib
 import json
 import os
 import subprocess
@@ -54,60 +52,17 @@ def require_bronze_pass():
         raise RuntimeError("Bronze audit is not PASS")
 
 
-def validate_snapshots(batch):
-    csv.field_size_limit(2**31 - 1)
-    out = PROJECT_ROOT / "docs/validation/snapshot_manifest.json"
-    previous = json.loads(out.read_text(encoding="utf-8")) if out.exists() else {}
-    known = {(r["source"], r["batch_id"]): r["sha256"] for r in previous.get("snapshots", [])}
-    entries = []
-    for source in SOURCES:
-        if not snapshot_path(source, batch).is_file():
-            raise FileNotFoundError(f"Missing {source}/{batch}; export the manual CSV before continuing")
-        for folder in sorted(snapshot_path(source, batch).parent.parent.iterdir()):
-            if not folder.is_dir() or not folder.name.isdigit() or len(folder.name) != 8:
-                continue
-            path = snapshot_path(source, folder.name)
-            with path.open(encoding="utf-8-sig", newline="") as handle:
-                if handle.readline().startswith("version https://git-lfs.github.com/spec/v1"):
-                    raise RuntimeError(f"LFS pointer only: run git lfs pull ({path})")
-                handle.seek(0)
-                reader = csv.DictReader(handle)
-                if "listing_id" not in (reader.fieldnames or []):
-                    raise ValueError(f"Missing listing_id column: {path}")
-                n = 0
-                max_page = None
-                for row in reader:
-                    if None in row:
-                        raise ValueError(f"Malformed CSV record in {path} near row {n+2}")
-                    n += 1
-                    page = row.get("_source_page") or row.get("source_page") or row.get("page_number_attr")
-                    try:
-                        page = int(page)
-                        max_page = max(max_page or 0, page)
-                    except (TypeError, ValueError):
-                        pass
-            if n == 0:
-                raise ValueError(f"Empty snapshot: {path}")
-            checksum = hashlib.sha256()
-            with path.open("rb") as handle:
-                for block in iter(lambda: handle.read(1024 * 1024), b""):
-                    checksum.update(block)
-            if known.get((source, folder.name), checksum.hexdigest()) != checksum.hexdigest():
-                raise ValueError(f"Previously recorded snapshot changed: {source}/{folder.name}; inspect and explicitly reload Bronze")
-            entries.append({"source": source, "batch_id": folder.name, "rows": n, "columns": len(reader.fieldnames),
-                            "max_source_page": max_page, "sha256": checksum.hexdigest(), "size_bytes": path.stat().st_size})
-    payload = {"generated_at": datetime.now(timezone.utc).isoformat(), "expected_batch_id": batch,
-               "snapshots": entries, "snapshot_rows": sum(r["rows"] for r in entries), "status": "PASS"}
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-    print(f"Snapshot manifest PASS: {len(entries)} files, {payload['snapshot_rows']:,} rows")
+def validate_snapshots(batch, force_rescan=False):
+    from src.orchestration.snapshot_manifest import build_manifest
+    return build_manifest(PROJECT_ROOT, SOURCES, batch, force_rescan=force_rescan,
+                          workers=int(os.getenv("SNAPSHOT_HASH_WORKERS", "4")))
 
 
 def spark_command(app, args=()):
     relative = Path(app)
     if relative.is_absolute() or ".." in relative.parts or not app.startswith("src/") or not app.endswith(".py"):
         raise ValueError("Spark app must be a relative src/*.py path")
-    return ["/opt/spark/bin/spark-submit", "--master", "spark://spark-master:7077", "--conf", "spark.jars.ivy=/tmp/.ivy2",
+    return ["/opt/spark/bin/spark-submit", "--master", "spark://spark-master:7077", "--conf", "spark.jars.ivy=/home/spark/.ivy2",
             "--conf", "spark.executorEnv.PYTHONPATH=/opt/project", "--packages", PACKAGES, "/opt/project/" + app, *args]
 
 
@@ -129,6 +84,7 @@ def run_spark(app, args=()):
 
 
 def save_run_evidence(run_id):
+    from src.common.atomic_io import write_json_atomic
     results = {}
     for name in ("snapshot_manifest", "bronze_state_audit", "silver_final_verification", "gold_verification", "gold_listing_lifecycle_summary"):
         payload = json.loads((PROJECT_ROOT / f"docs/validation/{name}.json").read_text(encoding="utf-8"))
@@ -137,4 +93,4 @@ def save_run_evidence(run_id):
         results[name] = {"status": payload["status"], "generated_at": payload.get("generated_at"), "checks": len(payload.get("checks", {}))}
     evidence = {"generated_at": datetime.now(timezone.utc).isoformat(), "dag_id": "lakehouse_pipeline", "run_id": run_id,
                 "checks": results, "status": "PASS"}
-    (PROJECT_ROOT / "docs/validation/airflow_pipeline_run.json").write_text(json.dumps(evidence, indent=2) + "\n", encoding="utf-8")
+    write_json_atomic(PROJECT_ROOT / "docs/validation/airflow_pipeline_run.json", evidence)

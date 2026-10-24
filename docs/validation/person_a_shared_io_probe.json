@@ -1,0 +1,7 @@
+{
+  "airflow_uid": 50000,
+  "phase": "spark_to_airflow",
+  "spark_uid": 185,
+  "both_directions_verified": true,
+  "status": "PASS"
+}
