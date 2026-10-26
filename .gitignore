@@ -16,10 +16,14 @@ venv/
 .DS_Store
 Thumbs.db
 
-# Local data - không commit dữ liệu lớn
+# Pipeline inputs; generated/raw archives stay local (CSV inputs use Git LFS).
 data/incoming/**
 !data/incoming/**/.gitkeep
 !data/incoming/**/README.md
+# Historical CSV files consumed by src/bronze/ingest_bronze.py.
+!data/incoming/historical/
+!data/incoming/historical/*/
+!data/incoming/historical/*/*_schema_chuan.csv
 # Snapshot batches: every source, every YYYYMMDD batch, only <source>_raw.csv
 # (CSV goes through Git LFS, see .gitattributes). Temporary crawl folders such
 # as 20261003_150728/ do not match and stay local.
