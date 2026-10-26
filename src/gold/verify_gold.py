@@ -16,6 +16,8 @@ BQ_GRAINS={"agg_peer_group_benchmark":["peer_group_id"],"fact_listing_price_asse
 BAND_VALUES={"price_band_key":("price","dim_price_band"),"area_band_key":("area","dim_area_band"),"unit_price_band_key":("price_per_m2","dim_unit_price_band"),"room_band_key":("rooms","dim_room_band")}
 FLAGS=["title_has_legal","title_has_furnished","title_has_frontage","title_has_elevator","title_has_car_access"]
 BQ_GRAINS["fact_listing_lifecycle"]=["source_id"]
+BQ_GRAINS["fact_listing_price_model"]=["source_id"]
+BQ_GRAINS["agg_price_model_coefficient"]=["property_category_key","factor","level"]
 BQ_FKS={"date_key":"dim_date","location_key":"dim_location","origin_location_key":"dim_location","alternative_location_key":"dim_location","property_category_key":"dim_property_category","area_band_key":"dim_area_band","room_band_key":"dim_room_band","price_band_key":"dim_price_band","source_key":"dim_source"}
 FACT_FKS={"source_key":"dim_source","date_key":"dim_date","posted_date_key":"dim_date","location_key":"dim_location","property_category_key":"dim_property_category","price_band_key":"dim_price_band","area_band_key":"dim_area_band","unit_price_band_key":"dim_unit_price_band","room_band_key":"dim_room_band","dq_status_key":"dim_dq_status"}
 
@@ -129,6 +131,9 @@ def main() -> None:
     from src.gold.verify_listing_lifecycle import verify_lifecycle
     lifecycle_checks,lifecycle_metrics=verify_lifecycle(spark,silver,gold)
     checks.update(lifecycle_checks); metrics.update(lifecycle_metrics)
+    from src.gold.verify_price_model import verify_price_model
+    model_checks,model_metrics=verify_price_model(spark,gold)
+    checks.update(model_checks); metrics.update(model_metrics)
     failures=[name for name,passed in checks.items() if not passed]
     summary={"generated_at":datetime.now(timezone.utc).isoformat(),"namespace":gold,"table_counts":counts,"checks":checks,"metrics":metrics,"table_locations":locations,"status":"PASS" if not failures else "FAIL","failures":failures}
     for out in (PROJECT_ROOT/"outputs/validation",PROJECT_ROOT/"docs/validation"):

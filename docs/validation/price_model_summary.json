@@ -1,0 +1,415 @@
+{
+  "started_at": "2026-10-26T06:44:38.471958+00:00",
+  "finished_at": "2026-10-26T06:45:15.863679+00:00",
+  "output_tables": [
+    "lakehouse.gold.fact_listing_price_model",
+    "lakehouse.gold.agg_price_model_coefficient"
+  ],
+  "model_version": "hedonic_ols_v1",
+  "method": "OLS on log(price_per_m2) per property category, ridge on non-intercept terms, normal equations + Cholesky",
+  "regressors": [
+    "district (pooled if rare)",
+    "area band",
+    "room band (unknown = own level)",
+    "title_has_legal",
+    "title_has_furnished",
+    "title_has_frontage",
+    "title_has_elevator",
+    "title_has_car_access"
+  ],
+  "settings": {
+    "split": "pmod(xxhash64(42, source_id), 100) < 80 -> train",
+    "split_seed": 42,
+    "train_percent": 80,
+    "min_level_train_rows": 20,
+    "ridge_lambda": 1.0,
+    "trim_quantiles_log_price_per_m2": [
+      0.01,
+      0.99
+    ],
+    "baseline": "median price/m2 of train peer group: LOC_CAT_AREA_ROOM -> LOC_CAT_AREA -> LOC_CAT (>= 5 listings) -> category median"
+  },
+  "scope": {
+    "representative_listings": 121338,
+    "excluded_category_not_modelled": 953,
+    "excluded_location_not_district": 51456,
+    "excluded_no_price_per_m2_or_area_band": 263,
+    "listings_in_scope": 68666
+  },
+  "rows": {
+    "train_fit": 53765,
+    "train_trimmed": 1099,
+    "test_evaluated": 13527,
+    "test_outside_trim_range": 275,
+    "rows_with_unseen_level": 0,
+    "location_terms_pooled": 1758
+  },
+  "test_baseline_level_counts": {
+    "LOC_CAT_AREA": 5722,
+    "LOC_CAT": 246,
+    "LOC_CAT_AREA_ROOM": 7474,
+    "CAT": 85
+  },
+  "overall_test": {
+    "model": {
+      "n": 13527,
+      "mae": 43507694.36,
+      "mape": 0.385028,
+      "median_ape": 0.248045,
+      "r2_log": 0.725407
+    },
+    "baseline": {
+      "n": 13527,
+      "mae": 44873758.58,
+      "mape": 0.42546,
+      "median_ape": 0.235556,
+      "r2_log": 0.683381
+    },
+    "model_beats_baseline_mae": true
+  },
+  "by_category": {
+    "nha_pho": {
+      "category_label": "Nhà phố / nhà riêng",
+      "fit_rows": 42153,
+      "test_rows": 10573,
+      "model_terms": 87,
+      "reference_levels": [
+        "location=d:119",
+        "area_band=3",
+        "room_band=-1"
+      ],
+      "train_r2_log": 0.682747,
+      "test_model": {
+        "n": 10573,
+        "mae": 46510795.56,
+        "mape": 0.367571,
+        "median_ape": 0.233852,
+        "r2_log": 0.688647
+      },
+      "test_baseline": {
+        "n": 10573,
+        "mae": 48456888.45,
+        "mape": 0.408782,
+        "median_ape": 0.224008,
+        "r2_log": 0.638676
+      },
+      "model_beats_baseline_mae": true,
+      "flags": {
+        "title_has_car_access": {
+          "train_rows_with_flag": 9599,
+          "coefficient": 0.031405,
+          "std_error": 0.005397,
+          "premium_pct": 0.0319,
+          "ci95_premium_pct": [
+            0.021,
+            0.0429
+          ],
+          "significant_at_5pct": true
+        },
+        "title_has_elevator": {
+          "train_rows_with_flag": 2123,
+          "coefficient": 0.272602,
+          "std_error": 0.010962,
+          "premium_pct": 0.3134,
+          "ci95_premium_pct": [
+            0.2855,
+            0.3419
+          ],
+          "significant_at_5pct": true
+        },
+        "title_has_frontage": {
+          "train_rows_with_flag": 9073,
+          "coefficient": 0.397081,
+          "std_error": 0.005655,
+          "premium_pct": 0.4875,
+          "ci95_premium_pct": [
+            0.4711,
+            0.5041
+          ],
+          "significant_at_5pct": true
+        },
+        "title_has_furnished": {
+          "train_rows_with_flag": 1563,
+          "coefficient": 0.047468,
+          "std_error": 0.011416,
+          "premium_pct": 0.0486,
+          "ci95_premium_pct": [
+            0.0254,
+            0.0723
+          ],
+          "significant_at_5pct": true
+        },
+        "title_has_legal": {
+          "train_rows_with_flag": 2818,
+          "coefficient": -0.320313,
+          "std_error": 0.0088,
+          "premium_pct": -0.2741,
+          "ci95_premium_pct": [
+            -0.2865,
+            -0.2614
+          ],
+          "significant_at_5pct": true
+        }
+      }
+    },
+    "can_ho": {
+      "category_label": "Căn hộ chung cư",
+      "fit_rows": 6942,
+      "test_rows": 1833,
+      "model_terms": 41,
+      "reference_levels": [
+        "location=d:124",
+        "area_band=3",
+        "room_band=2"
+      ],
+      "train_r2_log": 0.447462,
+      "test_model": {
+        "n": 1833,
+        "mae": 23063660.36,
+        "mape": 0.399314,
+        "median_ape": 0.316021,
+        "r2_log": 0.416809
+      },
+      "test_baseline": {
+        "n": 1833,
+        "mae": 23896381.18,
+        "mape": 0.407964,
+        "median_ape": 0.294554,
+        "r2_log": 0.261448
+      },
+      "model_beats_baseline_mae": true,
+      "flags": {
+        "title_has_car_access": {
+          "train_rows_with_flag": 59,
+          "coefficient": 0.374034,
+          "std_error": 0.065901,
+          "premium_pct": 0.4536,
+          "ci95_premium_pct": [
+            0.2775,
+            0.654
+          ],
+          "significant_at_5pct": true
+        },
+        "title_has_elevator": {
+          "train_rows_with_flag": 78,
+          "coefficient": 0.353909,
+          "std_error": 0.059059,
+          "premium_pct": 0.4246,
+          "ci95_premium_pct": [
+            0.2689,
+            0.5995
+          ],
+          "significant_at_5pct": true
+        },
+        "title_has_frontage": {
+          "train_rows_with_flag": 211,
+          "coefficient": 0.175769,
+          "std_error": 0.03393,
+          "premium_pct": 0.1922,
+          "ci95_premium_pct": [
+            0.1155,
+            0.2741
+          ],
+          "significant_at_5pct": true
+        },
+        "title_has_furnished": {
+          "train_rows_with_flag": 1514,
+          "coefficient": -0.21561,
+          "std_error": 0.014127,
+          "premium_pct": -0.194,
+          "ci95_premium_pct": [
+            -0.216,
+            -0.1713
+          ],
+          "significant_at_5pct": true
+        },
+        "title_has_legal": {
+          "train_rows_with_flag": 2368,
+          "coefficient": -0.273198,
+          "std_error": 0.012447,
+          "premium_pct": -0.2391,
+          "ci95_premium_pct": [
+            -0.2574,
+            -0.2203
+          ],
+          "significant_at_5pct": true
+        }
+      }
+    },
+    "biet_thu": {
+      "category_label": "Biệt thự / liền kề / shophouse",
+      "fit_rows": 1852,
+      "test_rows": 426,
+      "model_terms": 43,
+      "reference_levels": [
+        "location=d:124",
+        "area_band=6",
+        "room_band=-1"
+      ],
+      "train_r2_log": 0.733924,
+      "test_model": {
+        "n": 426,
+        "mae": 75800314.95,
+        "mape": 0.516089,
+        "median_ape": 0.328932,
+        "r2_log": 0.707388
+      },
+      "test_baseline": {
+        "n": 426,
+        "mae": 68728615.94,
+        "mape": 0.730979,
+        "median_ape": 0.283968,
+        "r2_log": 0.680646
+      },
+      "model_beats_baseline_mae": false,
+      "flags": {
+        "title_has_car_access": {
+          "train_rows_with_flag": 143,
+          "coefficient": -0.132733,
+          "std_error": 0.056721,
+          "premium_pct": -0.1243,
+          "ci95_premium_pct": [
+            -0.2164,
+            -0.0213
+          ],
+          "significant_at_5pct": true
+        },
+        "title_has_elevator": {
+          "train_rows_with_flag": 158,
+          "coefficient": 0.227558,
+          "std_error": 0.054246,
+          "premium_pct": 0.2555,
+          "ci95_premium_pct": [
+            0.1289,
+            0.3964
+          ],
+          "significant_at_5pct": true
+        },
+        "title_has_frontage": {
+          "train_rows_with_flag": 366,
+          "coefficient": 0.173595,
+          "std_error": 0.03779,
+          "premium_pct": 0.1896,
+          "ci95_premium_pct": [
+            0.1046,
+            0.281
+          ],
+          "significant_at_5pct": true
+        },
+        "title_has_furnished": {
+          "train_rows_with_flag": 80,
+          "coefficient": 0.071881,
+          "std_error": 0.072473,
+          "premium_pct": 0.0745,
+          "ci95_premium_pct": [
+            -0.0678,
+            0.2385
+          ],
+          "significant_at_5pct": false
+        },
+        "title_has_legal": {
+          "train_rows_with_flag": 87,
+          "coefficient": -0.145874,
+          "std_error": 0.069834,
+          "premium_pct": -0.1357,
+          "ci95_premium_pct": [
+            -0.2463,
+            -0.009
+          ],
+          "significant_at_5pct": true
+        }
+      }
+    },
+    "dat": {
+      "category_label": "Đất",
+      "fit_rows": 2818,
+      "test_rows": 695,
+      "model_terms": 40,
+      "reference_levels": [
+        "location=d:124",
+        "area_band=4",
+        "room_band=-1"
+      ],
+      "train_r2_log": 0.739492,
+      "test_model": {
+        "n": 695,
+        "mae": 31947218.02,
+        "mape": 0.532587,
+        "median_ape": 0.294418,
+        "r2_log": 0.743201
+      },
+      "test_baseline": {
+        "n": 695,
+        "mae": 31067904.48,
+        "mape": 0.538058,
+        "median_ape": 0.24154,
+        "r2_log": 0.758307
+      },
+      "model_beats_baseline_mae": false,
+      "flags": {
+        "title_has_car_access": {
+          "train_rows_with_flag": 377,
+          "coefficient": -0.001611,
+          "std_error": 0.035777,
+          "premium_pct": -0.0016,
+          "ci95_premium_pct": [
+            -0.0692,
+            0.0709
+          ],
+          "significant_at_5pct": false
+        },
+        "title_has_elevator": {
+          "train_rows_with_flag": 11,
+          "coefficient": 0.142979,
+          "std_error": 0.180022,
+          "premium_pct": 0.1537,
+          "ci95_premium_pct": [
+            -0.1893,
+            0.6418
+          ],
+          "significant_at_5pct": false
+        },
+        "title_has_frontage": {
+          "train_rows_with_flag": 778,
+          "coefficient": 0.302052,
+          "std_error": 0.027295,
+          "premium_pct": 0.3526,
+          "ci95_premium_pct": [
+            0.2822,
+            0.427
+          ],
+          "significant_at_5pct": true
+        },
+        "title_has_furnished": {
+          "train_rows_with_flag": 3,
+          "coefficient": -0.219211,
+          "std_error": 0.309574,
+          "premium_pct": -0.1968,
+          "ci95_premium_pct": [
+            -0.5622,
+            0.4734
+          ],
+          "significant_at_5pct": false
+        },
+        "title_has_legal": {
+          "train_rows_with_flag": 261,
+          "coefficient": -0.129885,
+          "std_error": 0.040946,
+          "premium_pct": -0.1218,
+          "ci95_premium_pct": [
+            -0.1895,
+            -0.0484
+          ],
+          "significant_at_5pct": true
+        }
+      }
+    }
+  },
+  "interpretation": [
+    "premium_pct = exp(coefficient) - 1: price/m2 difference vs. the reference, other terms held fixed.",
+    "Flags only mean the title mentions a feature; FALSE means not mentioned, not absent.",
+    "Coefficients are associations in asking prices, not causal effects or transaction prices.",
+    "Test metrics exclude test rows outside the train trim range (reported separately)."
+  ],
+  "status": "PASS"
+}

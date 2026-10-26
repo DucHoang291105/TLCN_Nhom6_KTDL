@@ -18,9 +18,9 @@ def main():
     run, silver, gold = read("integration_airflow_run"), read("silver_final_verification"), read("gold_verification")
     dashboard = read("superset_dashboard_check")
     checks = {
-        "airflow_23_tasks": run["state"] == "success" and len(run["tasks"]) == 23 and all(t["state"] == "success" for t in run["tasks"]),
+        "airflow_24_tasks": run["state"] == "success" and len(run["tasks"]) == 24 and all(t["state"] == "success" for t in run["tasks"]),
         "silver_30": silver["status"] == "PASS" and len(silver["checks"]) == 30 and all(silver["checks"].values()),
-        "gold_92": gold["status"] == "PASS" and len(gold["checks"]) == 92 and all(gold["checks"].values()),
+        "gold_107": gold["status"] == "PASS" and len(gold["checks"]) == 107 and all(gold["checks"].values()),
         "dashboard_29_charts": dashboard["status"] == "PASS" and len(dashboard["chart_checks"]) == 29 and all(c["match"] for c in dashboard["chart_checks"]),
         "dashboards_checked_after_dag": datetime.fromisoformat(dashboard["generated_at"]) >= datetime.fromisoformat(run["end_date"].replace("Z", "+00:00")),
     }
@@ -29,7 +29,7 @@ def main():
         for table, expected in tables.items():
             actual = int(trino_rows(f"SELECT COUNT(*) FROM iceberg.{layer}.{table}")[0][0])
             counts[f"{layer}.{table}"] = {"expected": expected, "actual": actual}
-    checks["all_28_trino_counts_match_spark"] = len(counts) == 28 and all(c["expected"] == c["actual"] for c in counts.values())
+    checks["all_30_trino_counts_match_spark"] = len(counts) == 30 and all(c["expected"] == c["actual"] for c in counts.values())
     api = Superset()
     dashboards = []
     for spec in DASHBOARDS:

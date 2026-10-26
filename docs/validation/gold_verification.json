@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T15:48:20.225690+00:00",
+  "generated_at": "2026-10-26T06:48:47.403153+00:00",
   "namespace": "lakehouse.gold",
   "table_counts": {
     "dim_source": 10,
@@ -20,7 +20,9 @@
     "agg_dq_kpi": 9,
     "fact_listing_price_change": 1732,
     "agg_market_overview": 149,
-    "fact_listing_lifecycle": 137732
+    "fact_listing_lifecycle": 137732,
+    "fact_listing_price_model": 68666,
+    "agg_price_model_coefficient": 223
   },
   "checks": {
     "dim_source_one_unknown_row": true,
@@ -87,6 +89,10 @@
     "agg_market_overview_fk_valid": true,
     "fact_listing_lifecycle_grain_unique": true,
     "fact_listing_lifecycle_fk_valid": true,
+    "fact_listing_price_model_grain_unique": true,
+    "fact_listing_price_model_fk_valid": true,
+    "agg_price_model_coefficient_grain_unique": true,
+    "agg_price_model_coefficient_fk_valid": true,
     "benchmark_min_group_size": true,
     "benchmark_counts_match_fact": true,
     "assessment_covers_representatives": true,
@@ -114,7 +120,18 @@
     "lifecycle_sale_changes_match_repricing_events": true,
     "lifecycle_historical_not_evaluated": true,
     "lifecycle_disappearance_and_status_recomputed": true,
-    "lifecycle_per_source_batch_calendar_correct": true
+    "lifecycle_per_source_batch_calendar_correct": true,
+    "price_model_covers_scope": true,
+    "price_model_values_valid": true,
+    "price_model_residual_consistent": true,
+    "price_model_split_recomputed": true,
+    "price_model_test_share_near_20pct": true,
+    "price_model_coefficients_cover_categories": true,
+    "price_model_one_intercept_per_category": true,
+    "price_model_references_are_zero": true,
+    "price_model_premium_consistent": true,
+    "price_model_flag_errors_present": true,
+    "price_model_summary_matches_table": true
   },
   "metrics": {
     "source_key_unknown": 0,
@@ -153,7 +170,9 @@
     "lifecycle_status_mismatches": 0,
     "lifecycle_price_count_mismatches": 0,
     "lifecycle_calendar_mismatches": 0,
-    "lifecycle_disappeared_rows": 89892
+    "lifecycle_disappeared_rows": 89892,
+    "price_model_rows": 68666,
+    "price_model_test_share": 0.201002
   },
   "table_locations": {
     "dim_source": "s3://lakehouse-gold/real_estate/dim_source",
@@ -174,7 +193,9 @@
     "agg_dq_kpi": "s3://lakehouse-gold/real_estate/agg_dq_kpi",
     "fact_listing_price_change": "s3://lakehouse-gold/real_estate/fact_listing_price_change",
     "agg_market_overview": "s3://lakehouse-gold/real_estate/agg_market_overview",
-    "fact_listing_lifecycle": "s3://lakehouse-gold/real_estate/fact_listing_lifecycle"
+    "fact_listing_lifecycle": "s3://lakehouse-gold/real_estate/fact_listing_lifecycle",
+    "fact_listing_price_model": "s3://lakehouse-gold/real_estate/fact_listing_price_model",
+    "agg_price_model_coefficient": "s3://lakehouse-gold/real_estate/agg_price_model_coefficient"
   },
   "status": "PASS",
   "failures": []
