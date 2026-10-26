@@ -6,6 +6,7 @@ $jobs = @(
     "src\gold\build_dimensions.py",
     "src\gold\build_fact_listing.py",
     "src\gold\build_price_benchmark.py",
+    "src\gold\build_price_model.py",
     "src\gold\build_budget_tradeoff.py",
     "src\gold\build_area_substitution.py",
     "src\gold\build_data_quality.py",

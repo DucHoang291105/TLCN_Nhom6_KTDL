@@ -95,17 +95,19 @@ Số liệu dưới đây được kiểm chứng sau tích hợp pipeline và d
 | Gold `fact_listing` — tin bán | 122.375 |
 | Gold `fact_listing_lifecycle` | 137.732 |
 | Gold `fact_listing_price_change` — sự kiện đổi giá tin bán | 1.732 |
+| Gold `fact_listing_price_model` — dự đoán giá/m² của mô hình hedonic BQ2 | 68.666 |
+| Gold `agg_price_model_coefficient` — hệ số mô hình hedonic | 223 |
 
 Guland không có batch 20261020; pipeline giữ đúng lịch quan sát riêng của từng nguồn, không tạo batch thay thế.
 
 Kết quả kiểm định:
 
 - Silver: **30/30 PASS**.
-- Gold: **92/92 PASS**.
-- Unit tests: **315 PASS tại máy local**; GitHub Actions chạy kiểm thử trên Python 3.10 và 3.12.
+- Gold: **107/107 PASS** (thêm 15 check cho mô hình hedonic BQ2, chạy lại ngày 26/10).
+- Unit tests: **331 PASS tại máy local**; GitHub Actions chạy kiểm thử trên Python 3.10 và 3.12.
 - Kiểm thử Spark SCD2: **11/11 PASS**; demo Iceberg: **6/6 PASS**.
 - Kiểm thử Spark cho lifecycle: **12/12 PASS**.
-- Airflow: **23/23 task SUCCESS**, thời gian chạy khoảng **12,48 phút**, run `integration_ac_20261024`.
+- Airflow: **23/23 task SUCCESS**, thời gian chạy khoảng **12,48 phút**, run `integration_ac_20261024`. DAG hiện có 24 task (thêm `gold.price_model`), chưa chạy lại qua Airflow.
 - Kiểm thử lỗi: một task thất bại, 22 task downstream bị chặn.
 - Checksum 29 CSV đã có giữ nguyên; bổ sung đúng batch Nhadatvui 03/10, nâng tổng lên 30 CSV.
 
@@ -132,6 +134,7 @@ Chi tiết lệnh và giới hạn vận hành: [Iceberg history](docs/operation
 | `fact_listing` và 9 dimension | Tin bán cùng khóa nguồn, thời gian, vị trí, loại hình và các nhóm giá/diện tích |
 | `agg_budget_tradeoff`, `fact_budget_pareto` | BQ1: lựa chọn theo ngân sách, diện tích và đặc điểm |
 | `agg_peer_group_benchmark`, `fact_listing_price_assessment` | BQ2: so sánh giá/m² với nhóm listing tương đồng |
+| `fact_listing_price_model`, `agg_price_model_coefficient` | BQ2: mô hình hedonic giải thích giá/m² theo quận, diện tích, số phòng và 5 cờ đặc điểm; so với baseline trung vị nhóm |
 | `agg_area_substitution` | BQ3: khu vực thay thế trong cùng tỉnh với chi phí thấp hơn cho cùng diện tích |
 | `fact_listing_price_change` | Các sự kiện thay đổi giá đã quan sát |
 | `fact_listing_lifecycle` | Vòng đời quan sát của listing theo từng nguồn |
@@ -139,7 +142,7 @@ Chi tiết lệnh và giới hạn vận hành: [Iceberg history](docs/operation
 
 Silver Current là bản ghi **mới nhất đã quan sát**, không xác nhận listing vẫn còn hiển thị. Cờ vắng hai batch không đồng nghĩa đã bán; `listed_days` là khoảng thời gian quan sát, không phải thời gian tới khi bán. Nguồn historical có trạng thái lifecycle `NOT_APPLICABLE`.
 
-Các nhóm nghi trùng cross-source được gắn cờ theo luật; chưa bảo đảm mỗi nhóm tương ứng đúng một bất động sản thực. BQ2 hiện là benchmark mô tả, không phải mô hình định giá hedonic. Silver Core và Gold vẫn rebuild từ Bronze; riêng `listing_history` cập nhật incremental qua MERGE và bảng state phục hồi được. Bronze tái sử dụng các batch đã hoàn tất.
+Các nhóm nghi trùng cross-source được gắn cờ theo luật; chưa bảo đảm mỗi nhóm tương ứng đúng một bất động sản thực. BQ2 gồm benchmark mô tả (P25–P75) và mô hình hedonic `hedonic_ols_v1`. Trên tập test, mô hình có R² log 0,73 so với 0,68 của baseline và MAE thấp hơn 3%, nhưng chỉ tốt hơn baseline ở 2/4 loại bất động sản. Hệ số là tương quan trên giá chào bán, không phải tác động nhân quả; chi tiết tại [tiêu chí chấp nhận BQ](docs/business/bq_acceptance_criteria.md). Silver Core và Gold vẫn rebuild từ Bronze; riêng `listing_history` cập nhật incremental qua MERGE và bảng state phục hồi được. Bronze tái sử dụng các batch đã hoàn tất.
 
 ## Iceberg history và kiểm thử tự động
 
