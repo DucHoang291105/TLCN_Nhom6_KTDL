@@ -237,6 +237,12 @@ PRICE_POSITIONS = ("duoi_p25", "p25_p75", "tren_p75", "khong_du_du_lieu")
 MIN_SUBSTITUTION_SIMILARITY = 0.8
 MAX_FLAG_SHARE_GAP = 0.3
 FEATURE_FLAGS = ("legal", "furnished", "frontage", "elevator", "car_access")
+# Area substitution: the alternative's typical listing may be at most this many
+# km farther from the province centre than the origin's (median distance of
+# each group). Distance to the centre is a remoteness proxy: there are no
+# district centroids, so two districts on opposite sides of the centre can
+# pass even though they are far apart. Pairs with unknown distance are dropped.
+MAX_DISTANCE_DIFF_KM = 10.0
 
 
 def price_position(value: Any, p25: Any, p75: Any) -> str:
@@ -309,6 +315,18 @@ def feature_similarity(left: Mapping[str, float], right: Mapping[str, float]) ->
 
 def max_flag_share_gap(left: Mapping[str, float], right: Mapping[str, float]) -> float:
     return round(max(abs((left.get(f) or 0.0) - (right.get(f) or 0.0)) for f in FEATURE_FLAGS), 6)
+
+
+def distance_allowed(distance_diff_km: Any) -> bool:
+    """Alternative no more than MAX_DISTANCE_DIFF_KM farther from the centre."""
+
+    if distance_diff_km is None:
+        return False
+    try:
+        value = float(distance_diff_km)
+    except (TypeError, ValueError):
+        return False
+    return math.isfinite(value) and value <= MAX_DISTANCE_DIFF_KM
 
 
 def cost_at_target_area(median_price_per_m2: float, target_area: float) -> float:

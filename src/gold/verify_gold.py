@@ -8,7 +8,7 @@ from pyspark.sql import functions as F
 PROJECT_ROOT=Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path: sys.path.insert(0,str(PROJECT_ROOT))
 from src.common.spark_session import build_spark_session,ensure_gold_namespace,ensure_silver_namespace,table_location
-from src.gold.gold_rules import MAX_FLAG_SHARE_GAP,MIN_PEER_GROUP_SIZE,MIN_SUBSTITUTION_SIMILARITY,UNKNOWN_KEY,load_bands
+from src.gold.gold_rules import MAX_DISTANCE_DIFF_KM,MAX_FLAG_SHARE_GAP,MIN_PEER_GROUP_SIZE,MIN_SUBSTITUTION_SIMILARITY,UNKNOWN_KEY,load_bands
 
 DIMENSIONS={"dim_source":"source_key","dim_date":"date_key","dim_location":"location_key","dim_property_category":"property_category_key","dim_price_band":"band_key","dim_area_band":"band_key","dim_unit_price_band":"band_key","dim_room_band":"band_key","dim_dq_status":"dq_status_key"}
 BAND_TABLES={"price":"dim_price_band","area":"dim_area_band","unit_price":"dim_unit_price_band","room":"dim_room_band"}
@@ -115,6 +115,7 @@ def main() -> None:
     checks["pareto_every_group_has_frontier"]=pareto.groupBy("price_band_key","location_key","property_category_key").agg(F.max(F.col("is_pareto_efficient").cast("int")).alias("m")).filter("m<>1").count()==0
     sub=bq["agg_area_substitution"]; districts=dims["dim_location"].select("location_key","province_name")
     checks["substitution_cheaper_at_target_area"]=sub.filter(F.col("estimated_cost_alternative_at_target_area")>=F.col("estimated_cost_origin_at_target_area")).count()==0
+    checks["substitution_distance_cap"]=sub.filter(F.col("distance_diff_km").isNull()|(F.col("distance_diff_km")>MAX_DISTANCE_DIFF_KM+1e-3)).count()==0
     checks["substitution_similarity_and_flag_cap"]=sub.filter((F.col("feature_similarity")<MIN_SUBSTITUTION_SIMILARITY)|(F.col("max_flag_share_gap")>MAX_FLAG_SHARE_GAP)).count()==0
     # Target area = origin group's median area, recomputed from the benchmark.
     origin_groups=peer.filter("benchmark_level='LOC_CAT_AREA'").select(F.col("location_key").alias("origin_location_key"),"property_category_key","area_band_key",F.col("median_area").alias("m_area"))

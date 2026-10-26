@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-26T06:48:47.403153+00:00",
+  "generated_at": "2026-10-26T08:45:20.059506+00:00",
   "namespace": "lakehouse.gold",
   "table_counts": {
     "dim_source": 10,
@@ -16,7 +16,7 @@
     "fact_listing_price_assessment": 121338,
     "agg_budget_tradeoff": 2464,
     "fact_budget_pareto": 118487,
-    "agg_area_substitution": 3387,
+    "agg_area_substitution": 2596,
     "agg_dq_kpi": 9,
     "fact_listing_price_change": 1732,
     "agg_market_overview": 149,
@@ -105,6 +105,7 @@
     "pareto_labels_recomputed": true,
     "pareto_every_group_has_frontier": true,
     "substitution_cheaper_at_target_area": true,
+    "substitution_distance_cap": true,
     "substitution_similarity_and_flag_cap": true,
     "substitution_target_area_is_origin_median": true,
     "substitution_same_province": true,
