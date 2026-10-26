@@ -13,8 +13,13 @@ need a larger budget. ``median_total_price_diff`` is kept for reading only.
 Similarity rule: ``feature_similarity`` (1 - mean absolute difference of the
 five title-flag shares) >= MIN_SUBSTITUTION_SIMILARITY and no single flag
 share differs by more than MAX_FLAG_SHARE_GAP. It compares how often titles
-mention features, not the properties themselves. Rooms and distance are not
-conditions; distance is reported for the reader.
+mention features, not the properties themselves. Rooms are not a condition.
+
+Distance rule: the alternative's median distance to the province centre may
+exceed the origin's by at most MAX_DISTANCE_DIFF_KM; pairs with unknown
+distance are dropped. Without it the top suggestion was often a far suburb
+(cheaper mainly because it is remote). Distance to the centre is a remoteness
+proxy, not the distance between the two districts.
 """
 
 from __future__ import annotations
@@ -28,7 +33,9 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.gold.gold_common import write_summary
-from src.gold.gold_rules import FEATURE_FLAGS, MAX_FLAG_SHARE_GAP, MIN_PEER_GROUP_SIZE, MIN_SUBSTITUTION_SIMILARITY
+from src.gold.gold_rules import (
+    FEATURE_FLAGS, MAX_DISTANCE_DIFF_KM, MAX_FLAG_SHARE_GAP, MIN_PEER_GROUP_SIZE, MIN_SUBSTITUTION_SIMILARITY,
+)
 
 
 def main() -> None:
@@ -64,7 +71,12 @@ def main() -> None:
         .withColumn("max_flag_share_gap", F.round(max_gap, 6))
         .filter(F.col("feature_similarity") >= MIN_SUBSTITUTION_SIMILARITY)
         .filter(F.col("max_flag_share_gap") <= MAX_FLAG_SHARE_GAP)
+        .withColumn("_distance_diff", F.col("a_median_distance_km") - F.col("o_median_distance_km"))
     )
+    similar_pairs = pairs.count()
+    distance_unknown = pairs.filter(F.col("_distance_diff").isNull()).count()
+    too_far = pairs.filter(F.col("_distance_diff") > MAX_DISTANCE_DIFF_KM).count()
+    pairs = pairs.filter(F.col("_distance_diff").isNotNull() & (F.col("_distance_diff") <= MAX_DISTANCE_DIFF_KM))
     rank = Window.partitionBy("origin_location_key", "property_category_key", "area_band_key").orderBy(
         F.desc("price_gap_pct"), F.col("alternative_location_key")
     )
@@ -96,6 +108,11 @@ def main() -> None:
         "min_feature_similarity": MIN_SUBSTITUTION_SIMILARITY,
         "max_flag_share_gap": MAX_FLAG_SHARE_GAP,
         "budget_rule": "estimated cost at the origin's median area",
+        "max_distance_diff_km": MAX_DISTANCE_DIFF_KM,
+        "pairs_cheaper_and_similar_before_distance_rule": similar_pairs,
+        "pairs_dropped_distance_unknown": distance_unknown,
+        "pairs_dropped_too_far": too_far,
+        "rank1_max_distance_diff_km": written.filter("substitution_rank = 1").agg(F.max("distance_diff_km")).first()[0],
         "pairs_where_median_total_price_not_lower": written.filter("median_total_price_diff <= 0").count(),
         "district_groups": groups.count(),
         "substitution_pairs": written.count(),

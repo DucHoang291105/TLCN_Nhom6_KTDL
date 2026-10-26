@@ -15,7 +15,7 @@ Trạng thái:
 
 | Mã | Tiêu chí | Ngưỡng | Minh chứng | Trạng thái |
 |---|---|---|---|---|
-| G1 | Gold kiểm định đầy đủ | `verify_gold` status PASS, không check nào FAIL | `gold_verification.json` | Đạt (107/107 sau khi thêm mô hình, chạy 26/10) |
+| G1 | Gold kiểm định đầy đủ | `verify_gold` status PASS, không check nào FAIL | `gold_verification.json` | Đạt (108/108 sau khi thêm mô hình và điều kiện khoảng cách BQ3, chạy 26/10) |
 | G2 | Chỉ dùng tin đại diện, tin nghi trùng chỉ đếm một lần | Các check `dup_*`, `non_suspect_is_representative` PASS | `gold_verification.json` | Đạt |
 | G3 | Kết quả tái lập được | Rebuild hai lần cho cùng nội dung bảng | `deterministic_rebuild.json` | Đạt |
 | G4 | Độ chính xác của 5 cờ đặc điểm và phân loại BĐS được đo | Có precision/recall cho từng cờ trên mẫu gán nhãn ≥ 150 tin; precision mỗi cờ ≥ 0,80 | `label_accuracy.json` | Chưa đo (`labelled_rows = 0`, việc của vai C) |
@@ -80,7 +80,25 @@ Nếu B2.6 không đạt (mô hình không tốt hơn baseline), vẫn báo cáo
 
 | Mã | Tiêu chí | Ngưỡng | Minh chứng | Trạng thái |
 |---|---|---|---|---|
-| B2.10 | Vị trí giá có ý nghĩa với hành vi thị trường | So sánh tỷ lệ giảm giá và số ngày quan sát giữa nhóm `tren_p75` (hoặc `residual_pct` lớn) và phần còn lại; kiểm định khác biệt p < 0,05 | `bq2_backtest.json` | Chưa đo. Số batch còn ít nên ghi là kết quả sơ bộ |
+| B2.10 | Vị trí giá có ý nghĩa với hành vi thị trường | So sánh tỷ lệ giảm giá và số ngày quan sát giữa nhóm `tren_p75` (hoặc `residual_pct` lớn) và phần còn lại; kiểm định khác biệt p < 0,05 | `bq2_backtest.json` | Chưa đạt (sơ bộ): có xu hướng cùng chiều nhưng không còn ý nghĩa sau khi kiểm soát nguồn. Xem mục 3.4 |
+
+### 3.4. Kết quả backtest lần chạy 26/10 (sơ bộ)
+
+Nguồn: `docs/validation/bq2_backtest.json`, script `src/quality/bq2_backtest.py`. Đối tượng: 57.227 tin đại diện của 3 nguồn crawl, quan sát ít nhất 2 batch, từ 22/09 đến 23/10/2026. Vị trí giá tính theo **giá lúc mới đăng** (phiên bản đầu trong `listing_history`), vì giá hiện tại đã bao gồm lần giảm giá.
+
+| Vị trí lúc mới đăng | Số tin | Tỷ lệ có giảm giá |
+|---|---:|---:|
+| Dưới P25 | 14.869 | 1,44% |
+| P25–P75 | 27.859 | 2,34% |
+| Trên P75 | 13.067 | 2,93% |
+
+- **H1 (trên P75 giảm giá nhiều hơn):** chưa khẳng định. Chưa kiểm soát nguồn thì nhóm trên P75 giảm giá nhiều gấp 1,44 lần (p < 0,001). Kiểm soát theo nguồn bằng CMH thì tỷ số odds chỉ còn 1,12 (p = 0,08), không đạt mức 5%. Phần lớn khác biệt đến từ việc các nguồn có tỷ lệ giảm giá và cơ cấu tin khác nhau.
+- **H2 (phần dư mô hình cao giảm giá nhiều hơn):** chưa khẳng định. Tỷ lệ tăng từ 0,87% (Q1) lên 1,56% (Q5), nhưng kiểm soát nguồn thì p = 0,83. Xét riêng tập test cũng không có ý nghĩa.
+- **H3 (tin đắt được quan sát lâu hơn):** không. Trung vị mọi nhóm là 3 ngày; khác biệt có ý nghĩa thống kê nhưng gần bằng 0 (xác suất trội 0,49) và ngược chiều.
+- **Độ lệch khi dùng giá hiện tại được xác nhận:** nếu xếp theo giá hiện tại, nhóm trên P75 chỉ còn 2,17% giảm giá thay vì 2,93%.
+- **Chỉ số "biến mất" chưa dùng được:** khoảng 77% số tin vắng ở 2 batch gần nhất, quá cao để là tin đã bán; nhiều khả năng do crawler chỉ lấy một số trang đầu.
+
+Giới hạn: khoảng 1 tháng dữ liệu, 1.262 tin từng giảm giá; cần thêm batch để kiểm định có đủ độ mạnh.
 
 ## 4. BQ3 – Khu vực thay thế cùng tỉnh
 
@@ -92,8 +110,8 @@ Câu hỏi: khu vực nào cùng tỉnh có nhóm bất động sản tương t�
 | B3.2 | Cùng tỉnh | Check `substitution_same_province` | `gold_verification.json` | Đạt |
 | B3.3 | Hồ sơ đặc điểm tương tự | Độ tương đồng ≥ 0,8 và mỗi cờ lệch ≤ 0,3 (check `substitution_similarity_and_flag_cap`) | `gold_verification.json` | Đạt có điều kiện: tương đồng về *tần suất tiêu đề nêu đặc điểm*, phụ thuộc G4 |
 | B3.4 | Hai phía đủ dữ liệu | Cả nhóm gốc và nhóm thay thế có ≥ 5 tin | Dựng từ nhóm công bố của `agg_peer_group_benchmark` | Đạt. Đề xuất hiển thị n hai phía trên dashboard |
-| B3.5 | Gợi ý thay thế phải gần | Gợi ý xếp hạng 1 có `distance_diff_km` ≤ 10 km, hoặc xếp hạng có tính khoảng cách | `agg_area_substitution` | Chưa đạt: xếp hạng hiện chỉ theo mức rẻ hơn, ví dụ trong dữ liệu báo cáo ngày 09/10: Bình Tân → Củ Chi rẻ hơn 77,6% nhưng xa trung tâm hơn khoảng 15 km. Việc của vai B tuần 2 |
-| B3.6 | Chênh lệch tổng giá được giải thích | Ghi rõ số cặp mà tổng giá trung vị phía thay thế không thấp hơn | `gold_area_substitution_summary.json`: 159/3.387 cặp | Đạt có điều kiện: so sánh dựa trên chi phí ở cùng diện tích, không dựa trên tổng giá trung vị |
+| B3.5 | Gợi ý thay thế phải gần | Gợi ý xếp hạng 1 có `distance_diff_km` ≤ 10 km, hoặc xếp hạng có tính khoảng cách | `agg_area_substitution`, check `substitution_distance_cap` | Đạt: từ 26/10 phương án thay thế phải không xa trung tâm tỉnh hơn quá 10 km; gợi ý hạng 1 xa hơn tối đa 9,995 km. Đổi lại còn 2.596/3.387 cặp (loại 529 cặp quá xa, 262 cặp không biết khoảng cách) và 443 thay vì 514 nhóm gốc có phương án |
+| B3.6 | Chênh lệch tổng giá được giải thích | Ghi rõ số cặp mà tổng giá trung vị phía thay thế không thấp hơn | `gold_area_substitution_summary.json`: 133/2.596 cặp | Đạt có điều kiện: so sánh dựa trên chi phí ở cùng diện tích, không dựa trên tổng giá trung vị |
 
 ## 5. Giới hạn diễn giải áp dụng cho mọi BQ
 

@@ -20,7 +20,7 @@ def main():
     checks = {
         "airflow_24_tasks": run["state"] == "success" and len(run["tasks"]) == 24 and all(t["state"] == "success" for t in run["tasks"]),
         "silver_30": silver["status"] == "PASS" and len(silver["checks"]) == 30 and all(silver["checks"].values()),
-        "gold_107": gold["status"] == "PASS" and len(gold["checks"]) == 107 and all(gold["checks"].values()),
+        "gold_108": gold["status"] == "PASS" and len(gold["checks"]) == 108 and all(gold["checks"].values()),
         "dashboard_29_charts": dashboard["status"] == "PASS" and len(dashboard["chart_checks"]) == 29 and all(c["match"] for c in dashboard["chart_checks"]),
         "dashboards_checked_after_dag": datetime.fromisoformat(dashboard["generated_at"]) >= datetime.fromisoformat(run["end_date"].replace("Z", "+00:00")),
     }

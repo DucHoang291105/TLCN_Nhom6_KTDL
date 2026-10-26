@@ -118,3 +118,10 @@ def test_similarity_threshold_alone_admits_opposite_frontage():
     left,right={"frontage":1.0},{"frontage":0.0}
     assert feature_similarity(left,right)==0.8   # passes the 0.8 similarity bar
     assert max_flag_share_gap(left,right)>MAX_FLAG_SHARE_GAP  # rejected by the per-flag cap
+
+
+def test_distance_allowed_cap_and_unknown():
+    from src.gold.gold_rules import MAX_DISTANCE_DIFF_KM, distance_allowed
+    assert distance_allowed(MAX_DISTANCE_DIFF_KM) and distance_allowed(-25.0)
+    assert not distance_allowed(MAX_DISTANCE_DIFF_KM + 0.01)
+    assert not distance_allowed(None) and not distance_allowed(float("nan")) and not distance_allowed("x")
