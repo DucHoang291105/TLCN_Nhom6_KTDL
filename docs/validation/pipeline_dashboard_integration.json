@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-10-24T15:55:16.231465+00:00",
-  "run_id": "integration_ac_20261024",
+  "generated_at": "2026-10-28T14:57:58.534273+00:00",
+  "run_id": "person_a_week3_20261028_incremental",
   "checks": {
-    "airflow_23_tasks": true,
+    "airflow_24_tasks": true,
     "silver_30": true,
-    "gold_92": true,
+    "gold_108": true,
     "dashboard_29_charts": true,
     "dashboards_checked_after_dag": true,
-    "all_28_trino_counts_match_spark": true,
+    "all_30_trino_counts_match_spark": true,
     "tlcn-tong-quan": true,
     "tlcn-bq1": true,
     "tlcn-bq2": true,
@@ -109,8 +109,8 @@
       "actual": 118487
     },
     "gold.agg_area_substitution": {
-      "expected": 3387,
-      "actual": 3387
+      "expected": 2596,
+      "actual": 2596
     },
     "gold.agg_dq_kpi": {
       "expected": 9,
@@ -127,6 +127,14 @@
     "gold.fact_listing_lifecycle": {
       "expected": 137732,
       "actual": 137732
+    },
+    "gold.fact_listing_price_model": {
+      "expected": 68666,
+      "actual": 68666
+    },
+    "gold.agg_price_model_coefficient": {
+      "expected": 223,
+      "actual": 223
     }
   },
   "dashboards": [

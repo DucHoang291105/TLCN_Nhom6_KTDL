@@ -46,6 +46,10 @@ KTDL_*.pdf
 /docs/validation/person_a_pre_fix_permissions_failure.json
 /docs/validation/person_a_airflow_run.json
 /docs/validation/person_a_pytest.xml
+/docs/validation/person_a_week3_verification.json
+/docs/validation/scheduled_run_missing_batch.json
+/docs/evidence/personA_20261028/
+/minio.tar
 
 # Runtime / outputs
 outputs/**

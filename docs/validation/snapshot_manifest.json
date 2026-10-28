@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T15:36:12.683556+00:00",
+  "generated_at": "2026-10-28T14:07:43.053683+00:00",
   "expected_batch_id": "20261023",
   "snapshots": [
     {
@@ -307,10 +307,10 @@
   "status": "PASS",
   "verification": {
     "sha256_files_checked": 30,
-    "csv_profiles_reused": 29,
-    "csv_profiles_parsed": 1,
+    "csv_profiles_reused": 30,
+    "csv_profiles_parsed": 0,
     "force_rescan": false,
     "workers": 4,
-    "elapsed_seconds": 6.1157
+    "elapsed_seconds": 5.544
   }
 }

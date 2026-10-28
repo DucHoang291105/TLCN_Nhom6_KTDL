@@ -1,5 +1,10 @@
 name: tlcn_bds_lakehouse
 
+# Defense scope: MinIO -> Spark/Iceberg -> Trino -> Superset, orchestrated by Airflow.
+# Hadoop/YARN (profile hadoop) and FastAPI/web-ui (profile application) are
+# optional experiments outside this pipeline. Do not use profile full for the
+# defense: start orchestration for Spark writes, then query/dashboard for reads.
+
 x-common-restart: &common-restart
   restart: unless-stopped
 

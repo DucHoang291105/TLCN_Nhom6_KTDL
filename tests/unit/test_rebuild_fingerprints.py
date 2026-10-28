@@ -36,3 +36,40 @@ def test_two_legacy_hash_files_are_not_mislabeled_as_full_sha256(tmp_path, monke
     second.write_text(json.dumps(payload(version="legacy")))
     with pytest.raises(SystemExit):
         comparison.main(str(first), str(second))
+
+
+@pytest.mark.parametrize("case", ["empty", "duplicate_grain", "schema_change", "missing_table"])
+def test_incomplete_or_invalid_rebuilds_cannot_pass(tmp_path, monkeypatch, case):
+    monkeypatch.setattr(comparison, "PROJECT_ROOT", tmp_path)
+    (tmp_path / "docs/validation").mkdir(parents=True)
+    left, right = payload(), payload()
+    name = "silver.listing_history"
+    if case == "empty":
+        left["tables"] = right["tables"] = {}
+    elif case == "duplicate_grain":
+        left["tables"][name]["distinct_keys"] = right["tables"][name]["distinct_keys"] = 1
+    elif case == "schema_change":
+        left["tables"][name]["schema"] = [{"name": "price", "type": "double"}]
+        right["tables"][name]["schema"] = [{"name": "price", "type": "string"}]
+    else:
+        right["tables"] = {}
+    first, second = tmp_path / "a.json", tmp_path / "b.json"
+    first.write_text(json.dumps(left)); second.write_text(json.dumps(right))
+    with pytest.raises(SystemExit):
+        comparison.main(str(first), str(second))
+    assert json.loads((tmp_path / "docs/validation/deterministic_rebuild.json").read_text())["status"] == "FAIL"
+
+
+def test_quarantine_keeps_repeated_rejected_raw_observations(tmp_path, monkeypatch):
+    monkeypatch.setattr(comparison, "PROJECT_ROOT", tmp_path)
+    left = payload()
+    row = left["tables"].pop("silver.listing_history")
+    row["distinct_keys"] = 1
+    left["tables"]["silver.listing_dq_quarantine"] = row
+    first, second = tmp_path / "a.json", tmp_path / "b.json"
+    first.write_text(json.dumps(left)); second.write_text(json.dumps(left))
+    comparison.main(str(first), str(second))
+    result = json.loads((tmp_path / "docs/validation/deterministic_rebuild.json").read_text())
+    assert result["status"] == "PASS"
+    assert not result["tables"][0]["grain_unique"]
+    assert not result["tables"][0]["grain_uniqueness_required"]

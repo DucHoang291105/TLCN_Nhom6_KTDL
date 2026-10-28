@@ -12,6 +12,7 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from src.common.table_fingerprints import MULTISET_TABLES
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -29,12 +30,21 @@ def main(run1: str, run2: str) -> None:
             "rows_run1": a.get("rows"), "rows_run2": b.get("rows"),
             "rows_equal": a.get("rows") == b.get("rows"),
             "keys_equal": a.get("distinct_keys") == b.get("distinct_keys"),
-            "grain_unique": a.get("distinct_keys") == a.get("rows"),
+            "grain_unique": (a.get("rows") is not None and b.get("rows") is not None
+                             and a.get("distinct_keys") == a.get("rows")
+                             and b.get("distinct_keys") == b.get("rows")),
+            "grain_uniqueness_required": table not in MULTISET_TABLES,
+            "schema_equal": a.get("schema") == b.get("schema"),
             "content_equal": version_equal and a.get("hash_method") == b.get("hash_method") and a.get("content_hash") is not None and a.get("content_hash") == b.get("content_hash"),
             "excluded_columns": a.get("excluded_columns", []),
         }
         rows.append(row)
-    mismatches = [r["table"] for r in rows if not (r["rows_equal"] and r["keys_equal"] and r["content_equal"])]
+    mismatches = [r["table"] for r in rows if not (
+        r["rows_equal"] and r["keys_equal"]
+        and (r["grain_unique"] or not r["grain_uniqueness_required"])
+        and r["schema_equal"] and r["content_equal"])]
+    if not rows:
+        mismatches.append("<no tables compared>")
     summary = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "method": "Compare two materialized Silver/Gold states: row count, distinct grain keys and full multiset SHA256; build-time columns excluded. Both files must use the same fingerprint version.",
@@ -45,7 +55,8 @@ def main(run1: str, run2: str) -> None:
         "mismatches": mismatches,
     }
     out = PROJECT_ROOT / "docs/validation/deterministic_rebuild.json"
-    out.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    from src.common.atomic_io import write_json_atomic
+    write_json_atomic(out, summary)
     print(json.dumps({k: v for k, v in summary.items() if k != "tables"}, ensure_ascii=False, indent=2))
     if mismatches:
         raise SystemExit(f"Rebuilds differ: {mismatches}")
