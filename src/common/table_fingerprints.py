@@ -42,6 +42,8 @@ GRAINS = {
     "gold.dim_dq_status": ["dq_status_key"],
     "gold.fact_listing": ["source_id"],
     "gold.fact_listing_lifecycle": ["source_id"],
+    "gold.fact_listing_price_model": ["source_id"],
+    "gold.agg_price_model_coefficient": ["property_category_key", "factor", "level"],
     "gold.agg_peer_group_benchmark": ["peer_group_id"],
     "gold.fact_listing_price_assessment": ["source_id"],
     "gold.agg_budget_tradeoff": ["price_band_key", "location_key", "property_category_key"],
@@ -51,6 +53,10 @@ GRAINS = {
     "gold.fact_listing_price_change": ["source_id", "version_number"],
     "gold.agg_market_overview": ["province_name", "property_category_key"],
 }
+
+# Quarantine preserves every rejected observation, including identical raw rows.
+# Its listed columns are comparison keys, not a uniqueness constraint.
+MULTISET_TABLES = frozenset({"silver.listing_dq_quarantine"})
 
 
 def is_build_time(column: str) -> bool:
@@ -64,6 +70,16 @@ def main(output: str) -> None:
     from src.common.spark_session import CATALOG_NAME, build_spark_session
 
     spark = build_spark_session("TableFingerprints")
+    # Refuse an incomplete release check when a new production table is added.
+    actual = {
+        f"{layer}.{row.tableName}"
+        for layer in ("silver", "gold")
+        for row in spark.sql(f"SHOW TABLES IN {CATALOG_NAME}.{layer}").collect()
+        if not row.isTemporary
+    }
+    expected = set(GRAINS)
+    if actual != expected:
+        raise RuntimeError(f"Fingerprint coverage mismatch: missing={sorted(expected - actual)}, unregistered={sorted(actual - expected)}")
     result = {}
     for name, grain in GRAINS.items():
         table = spark.table(f"{CATALOG_NAME}.{name}")
@@ -85,6 +101,9 @@ def main(output: str) -> None:
             "content_hash": digest.hexdigest(),
             "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2",
             "excluded_columns": [c for c in table.columns if is_build_time(c)],
+            "schema": [{"name": field.name, "type": field.dataType.simpleString(), "nullable": field.nullable}
+                       for field in sorted(table.schema.fields, key=lambda field: field.name)
+                       if not is_build_time(field.name)],
         }
     output_path = Path(output) if Path(output).is_absolute() else PROJECT_ROOT / output
     payload = {"generated_at": datetime.now(timezone.utc).isoformat(), "fingerprint_version": "sha256_multiset_v2", "tables": result}

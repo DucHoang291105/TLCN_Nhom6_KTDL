@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-10-24T15:37:52.053173+00:00",
-  "finished_at": "2026-10-24T15:40:14.222268+00:00",
+  "started_at": "2026-10-28T14:40:17.299664+00:00",
+  "finished_at": "2026-10-28T14:42:35.127260+00:00",
   "catalog_namespace": "lakehouse.silver",
   "source_input_rows": {
     "batdongsan": 66000,

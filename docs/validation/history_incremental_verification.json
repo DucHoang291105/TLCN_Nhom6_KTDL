@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T15:51:57.672004+00:00",
+  "generated_at": "2026-10-28T14:54:30.545062+00:00",
   "baseline_batch": "20261016",
   "observation_rows": 282586,
   "seed": {
@@ -12,9 +12,9 @@
     "history_rows": 148219,
     "history_table": "lakehouse.smoke_test.history_merge_benchmark",
     "state_table": "lakehouse.smoke_test.history_merge_benchmark_state",
-    "snapshot_before": "3316152510388855432",
-    "snapshot_after": "4129651444067100595",
-    "elapsed_seconds": 15.6588,
+    "snapshot_before": "4518206666264387676",
+    "snapshot_after": "2537895327348818558",
+    "elapsed_seconds": 17.0578,
     "partition_by": [
       "snapshot_date"
     ],
@@ -30,9 +30,9 @@
     "history_rows": 151982,
     "history_table": "lakehouse.smoke_test.history_merge_benchmark",
     "state_table": "lakehouse.smoke_test.history_merge_benchmark_state",
-    "snapshot_before": "4129651444067100595",
-    "snapshot_after": "4518206666264387676",
-    "elapsed_seconds": 14.913,
+    "snapshot_before": "2537895327348818558",
+    "snapshot_after": "530531977247739877",
+    "elapsed_seconds": 15.9653,
     "partition_by": [
       "snapshot_date"
     ],
@@ -48,9 +48,9 @@
     "history_rows": 151982,
     "history_table": "lakehouse.smoke_test.history_rebuild_benchmark",
     "state_table": "lakehouse.smoke_test.history_rebuild_benchmark_state",
-    "snapshot_before": "7695806893158289051",
-    "snapshot_after": "3028878492686928804",
-    "elapsed_seconds": 9.2999,
+    "snapshot_before": "3028878492686928804",
+    "snapshot_after": "4803236086553668366",
+    "elapsed_seconds": 9.9361,
     "partition_by": [
       "snapshot_date"
     ],
@@ -79,9 +79,9 @@
     "history_rows": 151982,
     "history_table": "lakehouse.smoke_test.history_merge_benchmark",
     "state_table": "lakehouse.smoke_test.history_merge_benchmark_state",
-    "snapshot_before": "4518206666264387676",
-    "snapshot_after": "4518206666264387676",
-    "elapsed_seconds": 3.5414,
+    "snapshot_before": "530531977247739877",
+    "snapshot_after": "530531977247739877",
+    "elapsed_seconds": 3.6615,
     "partition_by": [
       "snapshot_date"
     ],
@@ -97,9 +97,9 @@
     "history_rows": 151982,
     "history_table": "lakehouse.silver.listing_history",
     "state_table": "lakehouse.silver.listing_history_state",
-    "snapshot_before": "1773964880044068178",
-    "snapshot_after": "1773964880044068178",
-    "elapsed_seconds": 3.5426,
+    "snapshot_before": "4865173184173958303",
+    "snapshot_after": "4865173184173958303",
+    "elapsed_seconds": 3.7477,
     "partition_by": [
       "snapshot_date"
     ],
