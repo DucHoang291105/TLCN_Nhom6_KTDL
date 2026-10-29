@@ -199,11 +199,17 @@ def _sync_history(spark, observations, target, state, mode="incremental"):
                 operation = "NO_CHANGE"
                 if not trusted:
                     mark_state(spark, target, state)
+        # Copy-on-write snapshots expose an exact row count without another scan.
+        # Merge-on-read deletes or incomplete metadata require the full count.
+        written = iceberg_table(spark, target)
+        history_rows = metadata_count(written)
+        if history_rows is None:
+            history_rows = spark.table(target).count()
         elapsed = time.perf_counter() - started
         return {"mode": mode, "operation": operation, "input_source_ids": input_ids,
             "affected_source_ids": affected_count, "observation_rows": stats.rows or 0, "staged_history_rows": staged_rows,
-            "history_rows": spark.table(target).count(), "history_table": target, "state_table": state,
-            "snapshot_before": before, "snapshot_after": snapshot_id(spark, target),
+            "history_rows": history_rows, "history_table": target, "state_table": state,
+            "snapshot_before": before, "snapshot_after": table_snapshot(written),
             "elapsed_seconds": round(elapsed, 4), "partition_by": ["snapshot_date"], "status": "PASS"}
     finally:
         for frame in (stage, desired, affected, summary):
@@ -232,9 +238,18 @@ def metadata_count(table):
     if current is None:
         return 0
     props = current.summary()
-    if any(int(props.get(k) or "0") for k in ("total-position-deletes", "total-equality-deletes")):
+    try:
+        # total-records counts physical data rows, before applying delete files.
+        # Missing metrics do not certify that the snapshot is free of deletes.
+        if props.get("total-delete-files") is None:
+            return None
+        if any(int(props.get(k) or "0") for k in
+               ("total-delete-files", "total-position-deletes", "total-equality-deletes")):
+            return None
+        count = int(props.get("total-records"))
+    except (ValueError, TypeError):
         return None
-    return int(props.get("total-records")) if props.get("total-records") is not None else None
+    return count if count >= 0 else None
 
 
 def cache_hit(cached, expected, counts):

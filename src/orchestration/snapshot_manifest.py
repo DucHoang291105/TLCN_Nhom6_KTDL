@@ -2,14 +2,20 @@
 from __future__ import annotations
 import csv
 import hashlib
+import io
 import json
 import time
+from itertools import chain
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 from src.common.atomic_io import write_json_atomic
 
 PARSER_VERSION = "csv_contract_v2"
+
+
+def _file_version(stat):
+    return stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns
 
 
 def file_checksum(path):
@@ -19,35 +25,77 @@ def file_checksum(path):
         for block in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(block)
     after = path.stat()
-    if (before.st_size, before.st_mtime_ns) != (after.st_size, after.st_mtime_ns):
+    if _file_version(before) != _file_version(after):
         raise ValueError(f"Snapshot changed while hashing: {path}")
     return digest.hexdigest(), after.st_size
 
 
+def _profile_stream(handle, path):
+    first_line = handle.readline()
+    if first_line.startswith("version https://git-lfs.github.com/spec/v1"):
+        raise RuntimeError(f"LFS pointer only: run git lfs pull ({path})")
+    reader = csv.DictReader(chain((first_line,), handle))
+    columns = reader.fieldnames or []
+    if "listing_id" not in columns:
+        raise ValueError(f"Missing listing_id column: {path}")
+    if len(set(columns)) != len(columns) or any(not c.strip() for c in columns):
+        raise ValueError(f"Duplicate or empty CSV header: {path}")
+    n, max_page = 0, None
+    for row in reader:
+        if None in row or any(value is None for value in row.values()):
+            raise ValueError(f"Malformed CSV record in {path} near row {n+2}")
+        n += 1
+        value = row.get("_source_page") or row.get("source_page") or row.get("page_number_attr")
+        try:
+            max_page = max(max_page or 0, int(value))
+        except (TypeError, ValueError):
+            pass
+    if not n:
+        raise ValueError(f"Empty snapshot: {path}")
+    return {"rows": n, "columns": len(columns), "max_source_page": max_page}
+
+
 def profile_csv(path):
     with path.open(encoding="utf-8-sig", newline="") as handle:
-        if handle.readline().startswith("version https://git-lfs.github.com/spec/v1"):
-            raise RuntimeError(f"LFS pointer only: run git lfs pull ({path})")
-        handle.seek(0)
-        reader = csv.DictReader(handle)
-        columns = reader.fieldnames or []
-        if "listing_id" not in columns:
-            raise ValueError(f"Missing listing_id column: {path}")
-        if len(set(columns)) != len(columns) or any(not c.strip() for c in columns):
-            raise ValueError(f"Duplicate or empty CSV header: {path}")
-        n, max_page = 0, None
-        for row in reader:
-            if None in row or any(value is None for value in row.values()):
-                raise ValueError(f"Malformed CSV record in {path} near row {n+2}")
-            n += 1
-            value = row.get("_source_page") or row.get("source_page") or row.get("page_number_attr")
-            try:
-                max_page = max(max_page or 0, int(value))
-            except (TypeError, ValueError):
-                pass
-        if not n:
-            raise ValueError(f"Empty snapshot: {path}")
-        return {"rows": n, "columns": len(columns), "max_source_page": max_page}
+        return _profile_stream(handle, path)
+
+
+class _HashingReader(io.RawIOBase):
+    """Hash the exact bytes consumed by the buffered UTF-8 CSV reader."""
+
+    def __init__(self, raw, digest):
+        super().__init__()
+        self.raw, self.digest = raw, digest
+
+    def readable(self):
+        return True
+
+    def readinto(self, buffer):
+        size = self.raw.readinto(buffer)
+        if size:
+            self.digest.update(memoryview(buffer)[:size])
+        return size
+
+
+class _CSVBuffer(io.BufferedReader):
+    def read1(self, size=-1):
+        # TextIOWrapper requests small read1 chunks; fill the larger buffer so
+        # SHA256 and the underlying file are handled in blocks rather than lines.
+        return self.read(size)
+
+
+def profile_csv_with_checksum(path):
+    """Profile new/invalidated CSVs and SHA256 them in one bounded-memory pass."""
+    before = path.stat()
+    digest = hashlib.sha256()
+    with path.open("rb", buffering=0) as raw:
+        with io.TextIOWrapper(_CSVBuffer(_HashingReader(raw, digest), buffer_size=1024 * 1024),
+                              encoding="utf-8-sig", newline="") as handle:
+            profile = _profile_stream(handle, path)
+    after = path.stat()
+    if _file_version(before) != _file_version(after):
+        raise ValueError(f"Snapshot changed while parsing: {path}")
+    return profile, digest.hexdigest(), after.st_size
 
 
 def reusable_profile(entry):
@@ -110,15 +158,19 @@ def build_manifest(root, sources, batch, force_rescan=False, workers=4, output=N
 
     def inspect(item):
         source, folder, path = item
-        digest, size = file_checksum(path)
         old = known.get((source, folder), {})
+        cached = not force_rescan and reusable_profile(old) and bool(old.get("sha256"))
+        if cached:
+            digest, size = file_checksum(path)
+            if old["sha256"] != digest:
+                raise ValueError(f"Previously recorded snapshot changed: {source}/{folder}; inspect and explicitly reload Bronze")
+            cached = old.get("size_bytes") == size
+        if cached:
+            profile = {k: old[k] for k in ("rows", "columns", "max_source_page")}
+        else:
+            profile, digest, size = profile_csv_with_checksum(path)
         if old.get("sha256", digest) != digest:
             raise ValueError(f"Previously recorded snapshot changed: {source}/{folder}; inspect and explicitly reload Bronze")
-        cached = (not force_rescan and reusable_profile(old) and
-                  old.get("sha256") == digest and old.get("size_bytes") == size)
-        profile = {k: old[k] for k in ("rows", "columns", "max_source_page")} if cached else profile_csv(path)
-        if not cached and file_checksum(path) != (digest, size):
-            raise ValueError(f"Snapshot changed while parsing: {path}")
         return ({"source": source, "batch_id": folder, **profile, "sha256": digest,
                  "size_bytes": size, "parser_version": PARSER_VERSION}, cached)
 

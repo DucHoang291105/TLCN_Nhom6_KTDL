@@ -29,22 +29,24 @@ def calendar_from_audit(audit: dict) -> list[tuple[str, str]]:
 
 def build_lifecycle_frame(observations, calendar, sources):
     from pyspark.sql import Window, functions as F
-    stats = observations.groupBy("source", "source_id").agg(
+    ordered = Window.partitionBy("source_id").orderBy(F.col("snapshot_date").asc_nulls_last(),
+        F.col("scraped_at").asc_nulls_last(), "batch_id", "record_hash")
+    observed = observations.withColumn("_previous_price", F.lag("price").over(ordered))
+    price_changed = ((F.col("price") > 0) & (F.col("_previous_price") > 0) &
+                     (F.col("price") != F.col("_previous_price")))
+    # One observation scan and aggregate replace the separate event branch/join.
+    # NULL/invalid prices still break a sequence; never bridge missing prices.
+    stats = observed.groupBy("source", "source_id").agg(
         F.min("snapshot_date").alias("first_seen_date"), F.max("snapshot_date").alias("last_seen_date"),
         F.min("batch_id").alias("first_seen_batch_id"), F.max("batch_id").alias("last_seen_batch_id"),
-        F.collect_set("batch_id").alias("_observed_batches"))
+        F.collect_set("batch_id").alias("_observed_batches"),
+        F.sum(F.when(price_changed, 1).otherwise(0)).alias("price_change_count"))
     # The set already contains exactly the distinct non-null batch IDs. Reuse
     # it instead of a second distinct aggregate/extra shuffle; retain BIGINT.
     stats = stats.withColumn("observation_count", F.size("_observed_batches").cast("long"))
-    ordered = Window.partitionBy("source_id").orderBy(F.col("snapshot_date").asc_nulls_last(),
-        F.col("scraped_at").asc_nulls_last(), "batch_id", "record_hash")
-    events = observations.withColumn("_previous_price", F.lag("price").over(ordered)).filter(
-        (F.col("price") > 0) & (F.col("_previous_price") > 0) & (F.col("price") != F.col("_previous_price"))
-    ).groupBy("source_id").agg(F.count("*").alias("price_change_count"))
     batches = calendar.groupBy("source").agg(F.sort_array(F.collect_set("batch_id"), asc=False).alias("_source_batches"))
     batches = batches.withColumn("_latest_two", F.slice("_source_batches", 1, 2))
-    frame = stats.join(events, "source_id", "left").fillna(0, subset=["price_change_count"])
-    frame = frame.join(F.broadcast(batches), "source", "left").join(F.broadcast(sources.select("source", "source_key")), "source", "left")
+    frame = stats.join(F.broadcast(batches), "source", "left").join(F.broadcast(sources.select("source", "source_key")), "source", "left")
     crawl = F.col("source").isin(*CRAWL_SOURCES)
     frame = (frame.withColumn("listed_days", F.datediff("last_seen_date", "first_seen_date"))
         .withColumn("source_batch_count", F.when(crawl, F.size("_source_batches")).otherwise(F.lit(None).cast("int")))

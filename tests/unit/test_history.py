@@ -51,3 +51,28 @@ def test_noop_cache_requires_real_iceberg_metadata_counts(bad):
 @pytest.mark.parametrize("cached", [None, [], "bad", {"guard": {}, "result": None}, {"guard": {}, "result": []}])
 def test_malformed_cache_falls_back_to_validation(cached):
     assert cache_hit(cached, {}, {"observation_rows": 1, "input_source_ids": 1, "history_rows": 1}) is None
+
+
+@pytest.mark.parametrize("summary, expected", [
+    ({"total-records": "154343", "total-delete-files": "0"}, 154343),
+    ({"total-records": "0", "total-delete-files": "0"}, 0),
+    ({"total-records": "10", "total-delete-files": "0", "total-position-deletes": "1"}, None),
+    ({"total-records": "10", "total-delete-files": "0", "total-equality-deletes": "1"}, None),
+    ({"total-records": "10", "total-delete-files": "1"}, None),
+    ({"total-records": "-1", "total-delete-files": "0"}, None),
+    ({"total-records": "broken", "total-delete-files": "0"}, None),
+    ({"total-records": "10", "total-delete-files": "broken"}, None),
+    ({}, None),
+    ({"total-records": "10"}, None),
+])
+def test_metadata_count_only_uses_safe_physical_record_counts(summary, expected):
+    from types import SimpleNamespace
+    from src.silver.history import metadata_count
+    table = SimpleNamespace(currentSnapshot=lambda: SimpleNamespace(summary=lambda: summary))
+    assert metadata_count(table) == expected
+
+
+def test_empty_iceberg_table_has_zero_rows():
+    from types import SimpleNamespace
+    from src.silver.history import metadata_count
+    assert metadata_count(SimpleNamespace(currentSnapshot=lambda: None)) == 0
