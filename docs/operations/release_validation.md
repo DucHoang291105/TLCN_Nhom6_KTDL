@@ -66,7 +66,8 @@ nằm tại `outputs/determinism/run1.json` và `run2.json`; kết quả đối 
 ```
 
 Lệnh này dùng đúng batch thật đã có đủ ba nguồn. Suite kiểm tra manifest, chạy
-pytest và compileall, đợi Airflow, thử chặn downstream khi lỗi, chạy hai rebuild,
+pytest và compileall, thử chặn downstream khi lỗi rồi chạy DAG bình thường đến
+SUCCESS để trạng thái run mới nhất xanh; sau đó chạy hai rebuild,
 MERGE/SCD2, lifecycle và demo Iceberg; sau đó chuyển sang query/dashboard, sao
 lưu và refresh dashboard, đối chiếu Trino, biểu đồ và bộ lọc. Log và bản sao
 minh chứng nằm trong `outputs/defense/<run_id>/`; dữ liệu raw không bị ghi đè.

@@ -44,6 +44,7 @@ def wait_run(work, run_id, output, expect_failure=False):
         status = json.loads(response.stdout)
         if status != previous:
             print(json.dumps(status), flush=True)
+            write_json_atomic(work / "progress.json", {"stage": output, **status})
             previous = status
         if status["state"] in {"success", "failed"}:
             extra = ["--expect-failure"] if expect_failure else []
@@ -77,13 +78,17 @@ def suite(batch, run_id, attach=False):
     execute(work, "unit-tests", [sys.executable, "-m", "pytest", "-q", f"--junitxml={work / 'unit-tests.xml'}"])
     execute(work, "compile", [sys.executable, "-m", "compileall", "-q", "src", "dags", "tests"])
     execute(work, "compose-config", ["docker", "compose", "config", "--quiet"])
+    failure = run_id + "_failure_gate"
     if not attach:
         execute(work, "write-window", [sys.executable, "-m", "src.orchestration.environment", "write"])
+        # Fault injection runs first so the latest normal DAG finishes green.
+        execute(work, "failure-trigger", airflow("trigger", failure, "--batch-id", "20000101"))
+        wait_run(work, failure, "airflow_failure_gate", expect_failure=True)
         execute(work, "trigger", airflow("trigger", run_id, "--batch-id", batch, "--history-mode", "incremental"))
     wait_run(work, run_id, "integration_airflow_run")
-    failure = run_id + "_failure_gate"
-    execute(work, "failure-trigger", airflow("trigger", failure, "--batch-id", "20000101"))
-    wait_run(work, failure, "airflow_failure_gate", expect_failure=True)
+    if attach:
+        execute(work, "failure-trigger", airflow("trigger", failure, "--batch-id", "20000101"))
+        wait_run(work, failure, "airflow_failure_gate", expect_failure=True)
     # Also exercise current manual-ingest preflight after an attached run.
     ps = ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File"]
     execute(work, "bronze-preflight", [*ps, "scripts/run_spark.ps1", "src/bronze/ingest_snapshots_bronze.py", "--skip-existing"])
