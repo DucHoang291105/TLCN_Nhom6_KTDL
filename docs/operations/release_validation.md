@@ -2,6 +2,8 @@
 
 ## Kiến trúc đang vận hành
 
+Sơ đồ triển khai và phạm vi dịch vụ: [kiến trúc pipeline](../architecture.md).
+
 ```mermaid
 flowchart TD
     CSV[CSV snapshot: Batdongsan, Guland, Nhadatvui] --> Bronze[Bronze Parquet trên MinIO]
@@ -56,6 +58,36 @@ docker stop tlcn_superset tlcn_trino
 Script dừng ngay nếu build, verify hoặc fingerprint lỗi. Hai file fingerprint
 nằm tại `outputs/determinism/run1.json` và `run2.json`; kết quả đối chiếu tại
 `docs/validation/deterministic_rebuild.json`.
+
+## Chạy trọn bộ kiểm chứng
+
+```powershell
+./scripts/validate_defense.ps1 -BatchId 20261027
+```
+
+Lệnh này dùng đúng batch thật đã có đủ ba nguồn. Suite kiểm tra manifest, chạy
+pytest và compileall, thử chặn downstream khi lỗi rồi chạy DAG bình thường đến
+SUCCESS để trạng thái run mới nhất xanh; sau đó chạy hai rebuild,
+MERGE/SCD2, lifecycle và demo Iceberg; sau đó chuyển sang query/dashboard, sao
+lưu và refresh dashboard, đối chiếu Trino, biểu đồ và bộ lọc. Log và bản sao
+minh chứng nằm trong `outputs/defense/<run_id>/`; dữ liệu raw không bị ghi đè.
+
+Không thêm, xóa hoặc sửa CSV trong lúc suite chạy. Bronze kiểm tra toàn bộ tập
+input trước ghi và kiểm tra lại cuối job; thay đổi đầu vào làm suite dừng.
+Bronze commit theo từng batch; batch đã ghi thành công được giữ để retry,
+không tuyên bố giao dịch nguyên tử cho toàn pipeline.
+
+Nhật ký crawl được sinh từ file thật và manifest, gồm các batch thiếu đã khai
+báo. Guland 20/10/2026 thiếu do lỗi website; không tạo batch giả để lấp lịch.
+
+Sau khi commit/push bản đã kiểm chứng và CI xanh trên đúng commit:
+
+```powershell
+python -m src.quality.tag_defense --tag v1.0-bao-ve --push
+```
+
+Lệnh tag từ chối nếu code, input hoặc file minh chứng thay đổi sau test, hoặc
+CI chỉ thuộc một commit khác. Tag đã tồn tại ở commit khác sẽ không bị ghi đè.
 
 ## Điều kiện chốt
 

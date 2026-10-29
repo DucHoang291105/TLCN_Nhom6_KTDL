@@ -1,10 +1,10 @@
 {
-  "started_at": "2026-10-28T14:47:51.455231+00:00",
-  "finished_at": "2026-10-28T14:48:05.779511+00:00",
-  "tradeoff_groups": 2464,
-  "tradeoff_listings": 118530,
-  "pareto_rows": 118487,
-  "pareto_efficient_rows": 20543,
-  "groups_with_ge_5_listings": 1131,
+  "started_at": "2026-10-29T04:50:22.225640+00:00",
+  "finished_at": "2026-10-29T04:50:37.908045+00:00",
+  "tradeoff_groups": 2469,
+  "tradeoff_listings": 120160,
+  "pareto_rows": 120115,
+  "pareto_efficient_rows": 20640,
+  "groups_with_ge_5_listings": 1133,
   "status": "PASS"
 }

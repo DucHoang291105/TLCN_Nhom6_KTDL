@@ -1,19 +1,19 @@
 {
-  "started_at": "2026-10-28T14:48:34.667870+00:00",
-  "finished_at": "2026-10-28T14:48:54.344636+00:00",
+  "started_at": "2026-10-29T04:51:08.718307+00:00",
+  "finished_at": "2026-10-29T04:51:30.080420+00:00",
   "rows": 9,
   "totals": {
-    "bronze_rows": 292458,
-    "accepted_rows": 291794,
+    "bronze_rows": 301408,
+    "accepted_rows": 300744,
     "reject_rows": 664,
-    "duplicate_rows_dropped": 9208,
-    "observation_rows": 282586,
-    "current_rows": 137732,
-    "fact_rows": 122375,
-    "representative_rows": 121338,
-    "pass_rows": 183712,
-    "warn_rows": 98874,
-    "dup_suspect_rows": 2051
+    "duplicate_rows_dropped": 9599,
+    "observation_rows": 291145,
+    "current_rows": 139477,
+    "fact_rows": 124120,
+    "representative_rows": 123066,
+    "pass_rows": 191284,
+    "warn_rows": 99861,
+    "dup_suspect_rows": 2085
   },
   "status": "PASS"
 }

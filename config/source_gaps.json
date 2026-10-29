@@ -1,0 +1,10 @@
+{
+  "known_gaps": [
+    {
+      "source": "guland",
+      "batch_id": "20261020",
+      "reason": "Website error prevented crawling; confirmed by the data owner on 2026-10-29.",
+      "action": "Keep the source-specific observation calendar; do not fabricate a replacement batch."
+    }
+  ]
+}

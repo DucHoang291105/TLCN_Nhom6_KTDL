@@ -48,7 +48,7 @@ KTDL_*.pdf
 /docs/validation/person_a_pytest.xml
 /docs/validation/person_a_week3_verification.json
 /docs/validation/scheduled_run_missing_batch.json
-/docs/evidence/personA_20261028/
+/docs/evidence/personA_*/
 /minio.tar
 
 # Runtime / outputs

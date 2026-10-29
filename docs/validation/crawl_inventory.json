@@ -1,0 +1,65 @@
+{
+  "latest_by_source": {
+    "batdongsan": "20261027",
+    "guland": "20261027",
+    "nhadatvui": "20261027"
+  },
+  "batches_by_source": {
+    "batdongsan": [
+      "20260922",
+      "20260925",
+      "20260929",
+      "20261002",
+      "20261006",
+      "20261009",
+      "20261013",
+      "20261016",
+      "20261020",
+      "20261023",
+      "20261027"
+    ],
+    "guland": [
+      "20260922",
+      "20260925",
+      "20260929",
+      "20261002",
+      "20261006",
+      "20261009",
+      "20261013",
+      "20261016",
+      "20261023",
+      "20261027"
+    ],
+    "nhadatvui": [
+      "20260922",
+      "20260925",
+      "20260929",
+      "20261002",
+      "20261003",
+      "20261006",
+      "20261009",
+      "20261013",
+      "20261016",
+      "20261020",
+      "20261023",
+      "20261027"
+    ]
+  },
+  "missing_scheduled_batches": [
+    {
+      "source": "guland",
+      "batch_id": "20261020",
+      "declared": true,
+      "reason": "Website error prevented crawling; confirmed by the data owner on 2026-10-29."
+    }
+  ],
+  "all_gaps_declared": true,
+  "known_gaps": [
+    {
+      "source": "guland",
+      "batch_id": "20261020",
+      "reason": "Website error prevented crawling; confirmed by the data owner on 2026-10-29.",
+      "action": "Keep the source-specific observation calendar; do not fabricate a replacement batch."
+    }
+  ]
+}
