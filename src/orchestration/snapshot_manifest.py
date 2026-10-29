@@ -57,6 +57,33 @@ def reusable_profile(entry):
             "max_source_page" in entry)
 
 
+def confirm_inventory(root, sources, manifest):
+    """Check the complete pinned input set before any Bronze writes and at end."""
+    from src.orchestration.pipeline import validate_batch
+    if manifest.get("status") != "PASS":
+        raise RuntimeError("Snapshot manifest is not PASS")
+    rows = manifest.get("snapshots", [])
+    expected = {(row["source"], row["batch_id"]): row["sha256"] for row in rows}
+    if not expected or len(rows) != len(expected):
+        raise RuntimeError("Empty or duplicate snapshot manifest entries")
+    paths = {}
+    for source in sources:
+        directory = Path(root) / "data/incoming/snapshots" / source
+        for folder in directory.iterdir():
+            if folder.is_dir() and folder.name.isdigit() and len(folder.name) == 8:
+                validate_batch(folder.name)
+                paths[(source, folder.name)] = folder / f"{source}_raw.csv"
+    if set(paths) != set(expected):
+        raise RuntimeError("Snapshot inventory changed after preflight; freeze inputs and rebuild the manifest before Bronze writes")
+    def check(item):
+        key, path = item
+        if file_checksum(path)[0] != expected[key]:
+            raise RuntimeError(f"Snapshot bytes changed after preflight: {key}; inspect before reloading Bronze")
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        list(pool.map(check, paths.items()))
+    return len(paths)
+
+
 def build_manifest(root, sources, batch, force_rescan=False, workers=4, output=None):
     from src.orchestration.pipeline import validate_batch
     validate_batch(batch)

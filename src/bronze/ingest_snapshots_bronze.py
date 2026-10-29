@@ -41,6 +41,8 @@ if args.skip_existing:
     if manifest.get("status") != "PASS":
         raise RuntimeError("Run snapshot manifest preflight before --skip-existing")
     manifest_checksums = {(r["source"], r["batch_id"]): r["sha256"] for r in manifest["snapshots"]}
+    from src.orchestration.snapshot_manifest import confirm_inventory
+    confirm_inventory(PROJECT_ROOT, SOURCE_FILES, manifest)
 
 
 # ============================================================
@@ -375,6 +377,9 @@ for source_name, file_name in SOURCE_FILES.items():
 # ============================================================
 # FINAL VALIDATION
 # ============================================================
+
+if args.skip_existing:
+    confirm_inventory(PROJECT_ROOT, SOURCE_FILES, manifest)
 
 print()
 print("=" * 75)
