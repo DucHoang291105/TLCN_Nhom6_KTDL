@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-28T14:07:43.053683+00:00",
-  "expected_batch_id": "20261023",
+  "generated_at": "2026-10-29T04:04:55.841532+00:00",
+  "expected_batch_id": "20261027",
   "snapshots": [
     {
       "source": "batdongsan",
@@ -103,6 +103,16 @@
       "parser_version": "csv_contract_v2"
     },
     {
+      "source": "batdongsan",
+      "batch_id": "20261027",
+      "rows": 4000,
+      "columns": 42,
+      "max_source_page": 200,
+      "sha256": "c9173a0aa040989f5b47ff540806cdfa6a1a75b638a7b33375fdcc2d482f1d3c",
+      "size_bytes": 5565807,
+      "parser_version": "csv_contract_v2"
+    },
+    {
       "source": "guland",
       "batch_id": "20260922",
       "rows": 45664,
@@ -190,6 +200,16 @@
       "max_source_page": 30,
       "sha256": "90e57530b6f603c5d1d5158d911ff66315fc24018d7df8e76a646b6721be0f9c",
       "size_bytes": 9992511,
+      "parser_version": "csv_contract_v2"
+    },
+    {
+      "source": "guland",
+      "batch_id": "20261027",
+      "rows": 1350,
+      "columns": 22,
+      "max_source_page": 30,
+      "sha256": "ad7ac8645e06b8083d4b91c71189e5fe8acaae0a336e7b7a2d902cc8efe93aec",
+      "size_bytes": 9527803,
       "parser_version": "csv_contract_v2"
     },
     {
@@ -301,16 +321,26 @@
       "sha256": "a6b14fc93c20b07135bd38177e79e4383d326a5a3dc575488520191b86204fb4",
       "size_bytes": 2109996,
       "parser_version": "csv_contract_v2"
+    },
+    {
+      "source": "nhadatvui",
+      "batch_id": "20261027",
+      "rows": 3600,
+      "columns": 40,
+      "max_source_page": 200,
+      "sha256": "70acb85d763d9eeb6708f384814b76df0b27f11cfb2d2735f4495493a25267f8",
+      "size_bytes": 2111503,
+      "parser_version": "csv_contract_v2"
     }
   ],
-  "snapshot_rows": 262141,
+  "snapshot_rows": 271091,
   "status": "PASS",
   "verification": {
-    "sha256_files_checked": 30,
-    "csv_profiles_reused": 30,
+    "sha256_files_checked": 33,
+    "csv_profiles_reused": 33,
     "csv_profiles_parsed": 0,
     "force_rescan": false,
     "workers": 4,
-    "elapsed_seconds": 5.544
+    "elapsed_seconds": 4.2936
   }
 }

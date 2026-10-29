@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-10-28T14:45:18.738536+00:00",
-  "finished_at": "2026-10-28T14:45:33.344583+00:00",
+  "started_at": "2026-10-29T04:47:50.312586+00:00",
+  "finished_at": "2026-10-29T04:48:04.038636+00:00",
   "namespace": "lakehouse.gold",
   "table_counts": {
     "dim_source": 10,
