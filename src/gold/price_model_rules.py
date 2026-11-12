@@ -46,11 +46,18 @@ OTHER_LOCATION = "other"
 
 
 def location_level(district_train_rows: int, pooled_province_train_rows: int,
-                   location_key: int, province_name: str | None) -> str:
-    """District level if it has enough training rows, else pooled province, else other."""
+                   location_key: int, province_name: str | None,
+                   province_only: bool = False) -> str:
+    """Own level if it has enough training rows, else pooled province, else other.
+
+    ``province_only`` marks listings whose location is known down to the
+    province but not the district (dim_location level PROVINCE). They get their
+    own ``prov:`` level, kept apart from ``d:`` so a district coefficient is
+    never mixed with a province-wide average of listings without a district.
+    """
 
     if district_train_rows >= MIN_LEVEL_TRAIN_ROWS:
-        return f"d:{location_key}"
+        return f"prov:{location_key}" if province_only else f"d:{location_key}"
     if province_name and pooled_province_train_rows >= MIN_LEVEL_TRAIN_ROWS:
         return f"p:{province_name}"
     return OTHER_LOCATION
