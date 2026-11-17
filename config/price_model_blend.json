@@ -1,0 +1,12 @@
+{
+  "description": "Blend of the hedonic model and the peer-group baseline, per property category: log(prediction) = w*log(model) + (1-w)*log(baseline). Values are COPIED from the configuration chosen by 5-fold cross-validation on the train split (blend_selection in docs/validation/price_model_selection.json); do not edit by hand: re-run src/quality/price_model_selection.py and copy the new values.",
+  "source": "docs/validation/price_model_selection.json",
+  "selection": "lowest out-of-fold MAE on the train split; the plain model (ridge 1, w 1, no pooled rule) is kept unless beaten by 0.1%",
+  "selected_on": "2026-11-17",
+  "categories": {
+    "1": {"label": "nha_pho", "ridge": 1.0, "weight": 0.7, "pooled_to_baseline": false},
+    "2": {"label": "can_ho", "ridge": 1.0, "weight": 0.9, "pooled_to_baseline": true},
+    "3": {"label": "biet_thu", "ridge": 1.0, "weight": 0.5, "pooled_to_baseline": false},
+    "4": {"label": "dat", "ridge": 1.0, "weight": 0.6, "pooled_to_baseline": false}
+  }
+}

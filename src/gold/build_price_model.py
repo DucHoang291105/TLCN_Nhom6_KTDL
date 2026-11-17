@@ -1,7 +1,7 @@
 """BQ2 – hedonic price model: what explains a listing's price per m².
 
 One OLS model per property category on ``log(price_per_m2)`` with district,
-area band, room band, the five title flags and (v2, B2) distance-to-centre
+area band, room band, the five title flags and distance-to-centre
 band, district x size-group interaction and ward (rules and solver in
 ``price_model_rules.py``). Fitted on a deterministic 80% train split and
 compared on the 20% test split with a baseline that predicts the median
@@ -9,7 +9,8 @@ price/m² of the listing's peer group (same three levels as BQ2, computed on
 train rows only, then the category median).
 
 ``fact_listing_price_model``: one row per listing in scope with its split,
-prediction, residual and baseline. A large positive ``residual_pct`` means the
+final prediction (log-space blend of the model and the baseline, weights in
+``config/price_model_blend.json``), pure model prediction, residual and baseline. A large positive ``residual_pct`` means the
 asking price/m² is above what district, size, rooms and title flags predict;
 it is the input for the BQ2 backtest.
 
@@ -44,9 +45,9 @@ if str(PROJECT_ROOT) not in sys.path:
 from src.gold.gold_common import FLAG_COLUMNS, representatives, write_summary
 from src.gold.gold_rules import MIN_PEER_GROUP_SIZE, MODEL_CATEGORY_LABELS, UNKNOWN_KEY, UNKNOWN_LABEL, load_bands
 from src.gold.price_model_rules import (
-    DISTANCE_EDGES_KM, INTERCEPT, MIN_LEVEL_TRAIN_ROWS, MODEL_CATEGORY_KEYS, MODEL_VERSION, OTHER_LOCATION, RIDGE_LAMBDA,
+    BLEND_CONFIG_PATH, DISTANCE_EDGES_KM, INTERCEPT, MIN_LEVEL_TRAIN_ROWS, MODEL_CATEGORY_KEYS, MODEL_VERSION, OTHER_LOCATION, RIDGE_LAMBDA,
     SPLIT_SEED, TRAIN_PERCENT, TRIM_QUANTILES, build_vocabulary, design_indices, fit_ridge, inverse_diagonal,
-    listing_terms, location_level, normal_equation_entries, predict_log, premium_pct, regression_metrics,
+    listing_terms, load_blend_config, location_level, normal_equation_entries, predict_log, premium_pct, regression_metrics,
     term_factor, term_level,
 )
 
@@ -149,7 +150,7 @@ def main() -> None:
     scope["listings_in_scope_district"] = n_priced_district
     scope["listings_in_scope_province_only"] = n_priced - n_priced_district
     scope["coverage_share_of_representative"] = round(n_priced / scope["representative_listings"], 6) if scope["representative_listings"] else None
-    # Same filter as hedonic_ols_v1 before B1 (district only), for before/after.
+    # Share of representative listings with a known district (before province-only listings were added).
     scope["coverage_share_district_only"] = round(n_priced_district / scope["representative_listings"], 6) if scope["representative_listings"] else None
 
     base = (
@@ -229,14 +230,38 @@ def main() -> None:
     medians = [F.col(f"_median_{index}") for index in range(len(BASELINE_LEVELS))]
     baseline_level = F.coalesce(*[F.when(median.isNotNull(), F.lit(level)) for median, (level, _) in zip(medians, BASELINE_LEVELS)])
 
-    predicted = F.exp(F.col("predicted_log"))
+    # Final prediction: log-space blend of the model and the peer-group baseline
+    # (weights from config/price_model_blend.json, chosen by cross-validation on
+    # train). Pooled-province / "other" rows may use the baseline alone.
+    blend_rules = load_blend_config()
+    category_col = F.col("property_category_key")
+
+    def per_category_value(value_of) -> Any:
+        expression = None
+        for key, rule in sorted(blend_rules.items()):
+            expression = (F.when(category_col == key, F.lit(value_of(rule))) if expression is None
+                          else expression.when(category_col == key, F.lit(value_of(rule))))
+        return expression
+
+    model_price = F.exp(F.col("predicted_log"))
+    baseline_price = F.coalesce(*medians)
+    weight = per_category_value(lambda rule: float(rule.weight))
+    pooled_rule = per_category_value(lambda rule: bool(rule.pooled_to_baseline))
+    pooled_location = F.col("model_location_term").startswith("p:") | (F.col("model_location_term") == OTHER_LOCATION)
+    baseline_only = pooled_rule & pooled_location
+    predicted = F.when(baseline_only, baseline_price).otherwise(
+        F.exp(weight * F.col("predicted_log") + (F.lit(1.0) - weight) * F.log(baseline_price))
+    )
     fact = assessed.select(
         "source_id", "property_category_key", "location_key", "location_level", "area_band_key", "room_band_key",
         "split", "is_outlier_trimmed", "model_location_term", "price_per_m2",
         F.round(predicted, 2).alias("predicted_price_per_m2"),
-        F.round(F.col("log_price_per_m2") - F.col("predicted_log"), 6).alias("residual_log"),
+        F.round(model_price, 2).alias("model_price_per_m2"),
+        weight.alias("blend_weight"),
+        baseline_only.alias("blend_baseline_only"),
+        F.round(F.col("log_price_per_m2") - F.log(predicted), 6).alias("residual_log"),
         F.round(F.col("price_per_m2") / predicted - 1, 6).alias("residual_pct"),
-        F.round(F.coalesce(*medians), 2).alias("baseline_price_per_m2"),
+        F.round(baseline_price, 2).alias("baseline_price_per_m2"),
         baseline_level.alias("baseline_level"),
         "n_unseen_terms",
         F.lit(MODEL_VERSION).alias("model_version"),
@@ -247,7 +272,7 @@ def main() -> None:
     # ---- Evaluation (computed from the published table) --------------------
     rows = written.select(
         "property_category_key", "split", "is_outlier_trimmed", "price_per_m2", "predicted_price_per_m2", "baseline_price_per_m2",
-        "location_level",
+        "location_level", "model_price_per_m2",
     ).rdd.map(tuple).collect()
     clean = [row for row in rows if not row[2]]
 
@@ -305,6 +330,7 @@ def main() -> None:
                     "significant_at_5pct": abs(coefficient) > 1.96 * std_error,
                 }
         model_test, baseline_test = metrics(test_rows, 4), metrics(test_rows, 5)
+        model_only_test = metrics(test_rows, 7)
         by_category[code] = {
             "category_label": label,
             "fit_rows": len(fit_rows),
@@ -312,7 +338,9 @@ def main() -> None:
             "model_terms": vocab.size,
             "reference_levels": list(vocab.references),
             "train_r2_log": metrics(fit_rows, 4)["r2_log"],
+            "blend": {"weight": blend_rules[category].weight, "pooled_to_baseline": blend_rules[category].pooled_to_baseline},
             "test_model": model_test,
+            "test_model_only": model_only_test,
             "test_baseline": baseline_test,
             "model_beats_baseline_mae": model_test["mae"] is not None and baseline_test["mae"] is not None and model_test["mae"] < baseline_test["mae"],
             "flags": flags,
@@ -337,6 +365,7 @@ def main() -> None:
 
     all_test = [row for row in clean if row[1] == "test"]
     overall_model, overall_baseline = metrics(all_test, 4), metrics(all_test, 5)
+    overall_model_only = metrics(all_test, 7)
     by_location_level = {}
     for level in MODELLED_LOCATION_LEVELS:
         selected = [row for row in all_test if row[6] == level]
@@ -353,7 +382,12 @@ def main() -> None:
         "finished_at": datetime.now(timezone.utc).isoformat(),
         "output_tables": ["lakehouse.gold.fact_listing_price_model", "lakehouse.gold.agg_price_model_coefficient"],
         "model_version": MODEL_VERSION,
-        "method": "OLS on log(price_per_m2) per property category, ridge on non-intercept terms, normal equations + Cholesky",
+        "method": "OLS on log(price_per_m2) per property category (ridge, normal equations + Cholesky), blended in log space with the peer-group baseline",
+        "blend": {
+            "formula": "log(prediction) = w*log(model) + (1-w)*log(baseline); baseline alone for pooled-province/other locations where pooled_to_baseline",
+            "config": str(BLEND_CONFIG_PATH.relative_to(PROJECT_ROOT)),
+            "by_category": {CATEGORIES[key][0]: {"weight": rule.weight, "pooled_to_baseline": rule.pooled_to_baseline} for key, rule in sorted(blend_rules.items())},
+        },
         "regressors": ["location: district, or province-wide level for province-only listings (pooled if rare)", "area band", "room band (unknown = own level)", *FLAG_COLUMNS,
                        "distance-to-centre band (unknown = own level)", "district x size group", "ward within district"],
         "settings": {
@@ -383,6 +417,7 @@ def main() -> None:
         },
         "overall_test": {
             "model": overall_model,
+            "model_only": overall_model_only,
             "baseline": overall_baseline,
             "model_beats_baseline_mae": overall_model["mae"] is not None and overall_baseline["mae"] is not None and overall_model["mae"] < overall_baseline["mae"],
         },
@@ -394,6 +429,8 @@ def main() -> None:
             "Flags only mean the title mentions a feature; FALSE means not mentioned, not absent.",
             "Coefficients are associations in asking prices, not causal effects or transaction prices.",
             "Test metrics exclude test rows outside the train trim range (reported separately).",
+            "predicted_price_per_m2 is the blended price; model_price_per_m2 is the pure model. Coefficients describe the model component only.",
+            "test_model is the final (blended) prediction; test_model_only is the pure model, for comparison.",
         ],
         "status": "PASS",
     }

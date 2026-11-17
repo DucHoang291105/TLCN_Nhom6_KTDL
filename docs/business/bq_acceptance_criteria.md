@@ -90,37 +90,40 @@ Phương pháp (nhóm thống nhất ngày 29/10): kế hoạch ban đầu dùng
 | Mã | Tiêu chí | Ngưỡng | Minh chứng | Trạng thái |
 |---|---|---|---|---|
 | B2.5 | Đánh giá trên dữ liệu chưa dùng để huấn luyện | Chia train/test 80/20 cố định theo hash của `source_id`; check `price_model_split_recomputed` | `price_model_summary.json` (`settings.split`), `gold_verification.json` | Đạt: 93.281 tin huấn luyện, 23.410 tin test; tỷ lệ test 20,1% (sau khi thêm tin chỉ có tỉnh) |
-| B2.6 | Mô hình tốt hơn baseline trung vị nhóm | Trên tập test: MAE của mô hình < MAE baseline, cho toàn bộ và cho ít nhất 3/4 loại BĐS | `price_model_summary.json` (`overall_test`, `by_category.*.model_beats_baseline_mae`) | Chưa đạt (cải thiện ở `hedonic_ols_v2`): toàn bộ thắng (MAE 41,9 so với 44,6 triệu/m², −6,1%; v1: −0,9%); theo loại thắng 2/4 (nhà phố, căn hộ; v1: 1/4), vẫn thua ở biệt thự (64,4 so với 63,3) và đất (23,4 so với 22,4). Tin cấp tỉnh (`prov:`) và cấp quận đều thắng baseline (42,9 so với 44,7 và 41,1 so với 44,6; v1: tin cấp tỉnh thua) |
-| B2.7 | Mô hình giải thích được phần lớn biến thiên giá | R² trên thang log, tập test, ≥ 0,50 cho nhà phố và căn hộ | `price_model_summary.json` (`by_category.*.test_model.r2_log`) | Đạt ở `hedonic_ols_v2`: nhà phố 0,69; căn hộ 0,52 (v1: 0,66 và 0,39, căn hộ dưới ngưỡng). Toàn bộ 0,73 so với baseline 0,68 |
+| B2.6 | Mô hình tốt hơn baseline trung vị nhóm | Trên tập test: MAE của mô hình < MAE baseline, cho toàn bộ và cho ít nhất 3/4 loại BĐS | `price_model_summary.json` (`overall_test`, `by_category.*.model_beats_baseline_mae`), `price_model_selection.json` (`blend_selection`) | Đạt về số, thống kê một phần: toàn bộ thắng (MAE 41,2 so với 44,6 triệu/m², −7,6%, khoảng tin cậy 95% của chênh lệch không chứa 0); theo loại MAE thấp hơn ở 4/4, nhưng chỉ nhà phố và căn hộ khác biệt có ý nghĩa thống kê. Biệt thự (62,9 so với 63,3) và đất (22,0 so với 22,4) khoảng tin cậy chứa 0 nên báo cáo là ngang baseline, không phải tốt hơn. Tin cấp tỉnh và cấp quận đều thắng baseline (42,6 so với 44,7 và 40,2 so với 44,6) |
+| B2.7 | Mô hình giải thích được phần lớn biến thiên giá | R² trên thang log, tập test, ≥ 0,50 cho nhà phố và căn hộ | `price_model_summary.json` (`by_category.*.test_model.r2_log`) | Đạt: nhà phố 0,69; căn hộ 0,51. Toàn bộ 0,74 so với baseline 0,68 |
 | B2.8 | Hệ số từng cờ được báo cáo kèm độ bất định | Mỗi cờ có `premium_pct` và khoảng tin cậy 95%; chỉ kết luận với cờ có `significant_at_5pct = true` | `price_model_summary.json` (`by_category.*.flags`), `agg_price_model_coefficient` | Đạt: 17/20 hệ số cờ có ý nghĩa ở mức 5%. 3 hệ số không có ý nghĩa: biệt thự – ô tô tiếp cận (239 tin); đất – thang máy (10 tin); đất – nội thất (5 tin). Cả 3 đều có rất ít tin mang cờ hoặc khoảng tin cậy chứa 0 |
 | B2.9 | Không có tin nào thiếu dự đoán | Check `price_model_values_valid`, `price_model_covers_scope` | `gold_verification.json` | Đạt |
-| B2.11 | Mô hình phủ phần lớn tin đại diện | `listings_in_scope` ≥ 80% số tin đại diện | `price_model_summary.json` (`scope`) | Đạt: 119.043/123.066 = 96,7% (trước đó 56,1%). 50.044 tin chỉ có tỉnh được đưa vào với mức vị trí cấp tỉnh `prov:`, tách khỏi hệ số quận `d:`; 181 tin bị loại vì không rõ vị trí. Đánh đổi: tin cấp tỉnh kém chính xác hơn (R² log 0,70 so với 0,76 ở cấp quận, `hedonic_ols_v2`) |
+| B2.11 | Mô hình phủ phần lớn tin đại diện | `listings_in_scope` ≥ 80% số tin đại diện | `price_model_summary.json` (`scope`) | Đạt: 119.043/123.066 = 96,7% (trước đó 56,1%). 50.044 tin chỉ có tỉnh được đưa vào với mức vị trí cấp tỉnh `prov:`, tách khỏi hệ số quận `d:`; 181 tin bị loại vì không rõ vị trí. Đánh đổi: tin cấp tỉnh kém chính xác hơn (R² log 0,70 so với 0,76 ở cấp quận) |
 
-Kết quả trên dữ liệu tới batch 20261027, tập test 23.410 tin (cùng tập train/test, cùng baseline cho mọi phiên bản). `hedonic_ols_v2` (B2, 17/11) thêm ba nhóm biến vào v1 (quận, nhóm diện tích, nhóm số phòng, 5 cờ): nhóm khoảng cách tới trung tâm tỉnh/thành, tương tác quận × nhóm diện tích (<50, 50–120, ≥120 m²) và phường trong quận (thay thế cho dự án/tòa nhà, vốn không quan sát được).
+Kết quả trên dữ liệu tới batch 20261027, tập test 23.410 tin (cùng tập train/test và cùng baseline ở mọi bước so sánh). Giá dự đoán cuối cùng là **mô hình kết hợp**: trung bình trong không gian log của mô hình hedonic và baseline, `log(giá dự đoán) = w·log(mô hình) + (1−w)·log(baseline)`, w riêng cho từng loại BĐS. Mô hình hedonic gồm quận, nhóm diện tích, nhóm số phòng, 5 cờ, cộng ba nhóm biến mở rộng: khoảng cách tới trung tâm tỉnh/thành, tương tác quận × nhóm diện tích (<50, 50–120, ≥120 m²) và phường trong quận (thay thế cho dự án/tòa nhà, vốn không quan sát được).
 
-| | v1 | **v2** | Baseline trung vị nhóm |
-|---|---:|---:|---:|
-| MAE (triệu đồng/m²) | 44,2 | **41,9** | 44,6 |
-| MAPE | 44,2% | **40,9%** | 45,9% |
-| Trung vị sai số % | 27,6% | **25,6%** | 25,8% |
-| R² (thang log) | 0,70 | **0,73** | 0,68 |
+Cách chọn tham số (`src/quality/price_model_selection.py`, kết quả `docs/validation/price_model_selection.json`): w (0 đến 1), mức ridge và việc tin vị trí gộp cấp tỉnh có dùng riêng baseline hay không được chọn bằng kiểm định chéo 5 phần **chỉ trên tập huấn luyện** (tiêu chí MAE ngoài mẫu; giữ mô hình thuần trừ khi lựa chọn khác tốt hơn ít nhất 0,1%). Tập test chỉ dùng một lần để đánh giá. Giá trị đã chọn nằm trong `config/price_model_blend.json` (nhà phố w = 0,7; căn hộ w = 0,9 và tin gộp cấp tỉnh dùng baseline; biệt thự w = 0,5; đất w = 0,6) và được kiểm tra khớp với kết quả chọn bởi `verify_price_model.py` và test đơn vị. Script chọn cũng tự kiểm tra rằng huấn luyện lại mô hình thuần tái tạo đúng dự đoán trong Gold.
 
-Theo loại bất động sản (MAE triệu đồng/m², R² thang log):
+| | Mô hình cơ sở | Mô hình mở rộng | **Mô hình kết hợp** | Baseline trung vị nhóm |
+|---|---:|---:|---:|---:|
+| MAE (triệu đồng/m²) | 44,2 | 41,9 | **41,2** | 44,6 |
+| MAPE | 44,2% | 40,9% | **40,5%** | 45,9% |
+| Trung vị sai số % | 27,6% | 25,6% | **24,3%** | 25,8% |
+| R² (thang log) | 0,70 | 0,73 | **0,74** | 0,68 |
 
-| Loại | Số tin test | MAE v1 | MAE v2 | MAE baseline | R² v1 | R² v2 | R² baseline | v2 thắng baseline (MAE) |
-|---|---:|---:|---:|---:|---:|---:|---:|---|
-| Nhà phố | 14.878 | 51,0 | 48,4 | 52,3 | 0,66 | 0,69 | 0,62 | Có |
-| Căn hộ | 5.313 | 22,5 | 20,5 | 22,5 | 0,39 | 0,52 | 0,33 | Có (v1: không) |
-| Biệt thự | 1.849 | 65,2 | 64,4 | 63,3 | 0,58 | 0,60 | 0,57 | Không |
-| Đất | 1.370 | 26,3 | 23,4 | 22,4 | 0,67 | 0,72 | 0,69 | Không |
+Theo loại bất động sản (MAE triệu đồng/m²; R² thang log; chênh lệch sai số tuyệt đối so với baseline, khoảng tin cậy 95% bootstrap ghép cặp 2.000 lần):
 
-Đóng góp từng nhóm biến (thử riêng trên cùng tập test, `docs/validation/price_model_experiment.json`, MAE toàn bộ triệu đồng/m²): chỉ thêm khoảng cách 43,5; chỉ thêm quận × diện tích 43,4; chỉ thêm phường 43,3; thêm cả ba 41,9 (v1: 44,2). Khoảng cách giúp căn hộ nhiều nhất (MAE 22,5 → 21,4), phường và quận × diện tích giúp nhà phố nhiều hơn. Giới hạn: chỉ 41% tin có khoảng cách (cần tọa độ) và 68% có phường, phần còn lại rơi vào mức "không rõ". Biệt thự và đất vẫn thua baseline ở MAE và ở trung vị sai số % (31,2% so với 28,1% và 31,5% so với 28,0%), nên với hai loại này vẫn ưu tiên benchmark mô tả.
+| Loại | Số tin test | MAE kết hợp | MAE baseline | R² kết hợp | R² baseline | Baseline − kết hợp (triệu/m²), KTC 95% | Kết luận |
+|---|---:|---:|---:|---:|---:|---|---|
+| Nhà phố | 14.878 | 47,7 | 52,3 | 0,69 | 0,62 | 4,54 (4,08 đến 4,97) | Tốt hơn, có ý nghĩa |
+| Căn hộ | 5.313 | 20,5 | 22,5 | 0,51 | 0,33 | 1,98 (1,66 đến 2,30) | Tốt hơn, có ý nghĩa |
+| Biệt thự | 1.849 | 62,9 | 63,3 | 0,61 | 0,57 | 0,35 (−0,58 đến 1,33) | Ngang baseline |
+| Đất | 1.370 | 22,0 | 22,4 | 0,73 | 0,69 | 0,41 (−0,28 đến 1,11) | Ngang baseline |
+| Toàn bộ | 23.410 | 41,2 | 44,6 | 0,74 | 0,68 | 3,38 (3,10 đến 3,68) | Tốt hơn, có ý nghĩa |
 
-Mô hình giảm sai số lớn (MAE, MAPE thấp hơn); với tin điển hình, v2 ngang baseline toàn bộ (25,6% so với 25,8%), tốt hơn ở căn hộ (24,2% so với 26,8%) nhưng baseline vẫn sát hơn ở nhà phố (25,1% so với 24,9%, gần như hòa), biệt thự và đất. Baseline dùng nhóm quận × diện tích × số phòng nên bắt được tương tác giữa các yếu tố, còn mô hình chỉ có tương tác quận × nhóm diện tích.
+Đóng góp từng nhóm biến (so trên cùng tập test, MAE toàn bộ triệu đồng/m²): mô hình cơ sở 44,2; thêm riêng khoảng cách 43,5; thêm riêng quận × diện tích 43,4; thêm riêng phường 43,3; thêm cả ba 41,9. Khoảng cách giúp căn hộ nhiều nhất (MAE 22,5 → 21,4), phường và quận × diện tích giúp nhà phố nhiều hơn. Kết hợp với baseline giảm thêm 41,9 → 41,2, chủ yếu ở nhà phố, biệt thự và đất; ở căn hộ mô hình thuần đã ngang bản kết hợp (20,47 so với 20,48). Giới hạn: chỉ 41% tin có khoảng cách (cần tọa độ) và 68% có phường, phần còn lại rơi vào mức "không rõ".
 
-Hệ số cờ ở nhà phố (v2; mức chênh giá/m², khoảng tin cậy 95%): mặt tiền +50,1% (+48,6% đến +51,7%), thang máy +29,0%, ô tô tiếp cận +6,9%, nội thất +3,0% (+1,0% đến +5,0%), pháp lý −25,4%. Hệ số pháp lý âm ở cả 4 loại và nội thất âm ở căn hộ (−9,6%) là dấu hiệu **gây nhiễu**: tin rẻ, ở khu vực xa hoặc căn hộ bình dân hay nhấn mạnh "sổ hồng", "full nội thất" trong tiêu đề. Không diễn giải các hệ số này là "có sổ làm giảm giá".
+Điểm cần nói rõ khi báo cáo: (1) với biệt thự và đất, mô hình kết hợp chỉ ngang baseline; chênh lệch MAE nhỏ hơn độ bất định của phép đo, nên với hai loại này benchmark mô tả vẫn là kết quả chính. (2) Trung vị sai số % của biệt thự vẫn cao hơn baseline (29,4% so với 28,1%); nhà phố (23,6% so với 24,9%), căn hộ (24,2% so với 26,8%) và đất (27,2% so với 28,0%) thấp hơn. (3) Các nhóm biến và loại hình kết hợp được cân nhắc trên cùng tập test nên con số trên có thể hơi lạc quan; phép kiểm chứng độc lập là đánh giá trên các tin ở batch mới hơn khi Gold được dựng lại.
 
-Nếu B2.6 không đạt (mô hình không tốt hơn baseline), vẫn báo cáo trung thực theo phương án trong bảng rủi ro của kế hoạch: giữ benchmark mô tả làm kết quả chính, phân tích nguyên nhân (thiếu biến dự án, độ rộng hẻm, pháp lý thực tế; cờ chưa kiểm chứng độ chính xác).
+Hệ số cờ ở nhà phố (phần mô hình hedonic; mức chênh giá/m², khoảng tin cậy 95%): mặt tiền +50,1% (+48,6% đến +51,7%), thang máy +29,0%, ô tô tiếp cận +6,9%, nội thất +3,0% (+1,0% đến +5,0%), pháp lý −25,4%. Hệ số pháp lý âm ở cả 4 loại và nội thất âm ở căn hộ (−9,6%) là dấu hiệu **gây nhiễu**: tin rẻ, ở khu vực xa hoặc căn hộ bình dân hay nhấn mạnh "sổ hồng", "full nội thất" trong tiêu đề. Không diễn giải các hệ số này là "có sổ làm giảm giá".
+
+Nếu một loại bất động sản không tốt hơn baseline có ý nghĩa thống kê, vẫn báo cáo trung thực theo phương án trong bảng rủi ro của kế hoạch: giữ benchmark mô tả làm kết quả chính, phân tích nguyên nhân (thiếu biến dự án, độ rộng hẻm, pháp lý thực tế; cờ chưa kiểm chứng độ chính xác).
 
 ### 3.3. Backtest (tuần 2)
 
