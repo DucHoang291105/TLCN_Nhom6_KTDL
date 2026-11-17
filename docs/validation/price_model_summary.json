@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-10-29T04:49:41.114767+00:00",
-  "finished_at": "2026-10-29T04:50:14.481620+00:00",
+  "started_at": "2026-11-12T10:19:18.014799+00:00",
+  "finished_at": "2026-11-12T10:20:01.347042+00:00",
   "output_tables": [
     "lakehouse.gold.fact_listing_price_model",
     "lakehouse.gold.agg_price_model_coefficient"
@@ -8,7 +8,7 @@
   "model_version": "hedonic_ols_v1",
   "method": "OLS on log(price_per_m2) per property category, ridge on non-intercept terms, normal equations + Cholesky",
   "regressors": [
-    "district (pooled if rare)",
+    "location: district, or province-wide level for province-only listings (pooled if rare)",
     "area band",
     "room band (unknown = own level)",
     "title_has_legal",
@@ -32,121 +32,125 @@
   "scope": {
     "representative_listings": 123066,
     "excluded_category_not_modelled": 965,
-    "excluded_location_not_district": 52833,
-    "excluded_no_price_per_m2_or_area_band": 269,
-    "listings_in_scope": 68999
+    "excluded_location_unknown": 181,
+    "excluded_no_price_per_m2_or_area_band": 2877,
+    "listings_in_scope": 119043,
+    "listings_in_scope_district": 68999,
+    "listings_in_scope_province_only": 50044,
+    "coverage_share_of_representative": 0.96731,
+    "coverage_share_district_only": 0.560667
   },
   "rows": {
-    "train_fit": 54013,
-    "train_trimmed": 1108,
-    "test_evaluated": 13598,
-    "test_outside_trim_range": 280,
+    "train_fit": 93281,
+    "train_trimmed": 1874,
+    "test_evaluated": 23410,
+    "test_outside_trim_range": 478,
     "rows_with_unseen_level": 0,
-    "location_terms_pooled": 1773
+    "location_terms_pooled": 2208
   },
   "test_baseline_level_counts": {
-    "LOC_CAT_AREA": 5742,
-    "LOC_CAT": 246,
-    "LOC_CAT_AREA_ROOM": 7525,
-    "CAT": 85
+    "LOC_CAT_AREA": 9017,
+    "LOC_CAT": 334,
+    "LOC_CAT_AREA_ROOM": 13956,
+    "CAT": 103
   },
   "overall_test": {
     "model": {
-      "n": 13598,
-      "mae": 43411965.8,
-      "mape": 0.38497,
-      "median_ape": 0.247731,
-      "r2_log": 0.725307
+      "n": 23410,
+      "mae": 44216516.22,
+      "mape": 0.441931,
+      "median_ape": 0.275671,
+      "r2_log": 0.700705
     },
     "baseline": {
-      "n": 13598,
-      "mae": 44777754.07,
-      "mape": 0.425472,
-      "median_ape": 0.235981,
-      "r2_log": 0.683116
+      "n": 23410,
+      "mae": 44612361.95,
+      "mape": 0.459072,
+      "median_ape": 0.257722,
+      "r2_log": 0.68065
     },
     "model_beats_baseline_mae": true
   },
   "by_category": {
     "nha_pho": {
       "category_label": "Nhà phố / nhà riêng",
-      "fit_rows": 42444,
-      "test_rows": 10641,
-      "model_terms": 87,
+      "fit_rows": 59686,
+      "test_rows": 14878,
+      "model_terms": 108,
       "reference_levels": [
-        "location=d:119",
+        "location=prov:94",
         "area_band=3",
         "room_band=-1"
       ],
-      "train_r2_log": 0.681852,
+      "train_r2_log": 0.652548,
       "test_model": {
-        "n": 10641,
-        "mae": 46426215.96,
-        "mape": 0.367326,
-        "median_ape": 0.233821,
-        "r2_log": 0.688325
+        "n": 14878,
+        "mae": 51003705.35,
+        "mape": 0.434673,
+        "median_ape": 0.260989,
+        "r2_log": 0.655937
       },
       "test_baseline": {
-        "n": 10641,
-        "mae": 48351102.41,
-        "mape": 0.407516,
-        "median_ape": 0.223514,
-        "r2_log": 0.639217
+        "n": 14878,
+        "mae": 52251596.87,
+        "mape": 0.466938,
+        "median_ape": 0.249369,
+        "r2_log": 0.624104
       },
       "model_beats_baseline_mae": true,
       "flags": {
         "title_has_car_access": {
-          "train_rows_with_flag": 9660,
-          "coefficient": 0.030492,
-          "std_error": 0.005376,
-          "premium_pct": 0.031,
+          "train_rows_with_flag": 12625,
+          "coefficient": 0.057846,
+          "std_error": 0.005314,
+          "premium_pct": 0.0596,
           "ci95_premium_pct": [
-            0.0202,
-            0.0419
+            0.0486,
+            0.0706
           ],
           "significant_at_5pct": true
         },
         "title_has_elevator": {
-          "train_rows_with_flag": 2126,
-          "coefficient": 0.272688,
-          "std_error": 0.010947,
-          "premium_pct": 0.3135,
+          "train_rows_with_flag": 3430,
+          "coefficient": 0.273375,
+          "std_error": 0.009757,
+          "premium_pct": 0.3144,
           "ci95_premium_pct": [
-            0.2856,
-            0.342
+            0.2895,
+            0.3398
           ],
           "significant_at_5pct": true
         },
         "title_has_frontage": {
-          "train_rows_with_flag": 9109,
-          "coefficient": 0.395763,
-          "std_error": 0.005638,
-          "premium_pct": 0.4855,
+          "train_rows_with_flag": 12704,
+          "coefficient": 0.43113,
+          "std_error": 0.005435,
+          "premium_pct": 0.539,
           "ci95_premium_pct": [
-            0.4692,
-            0.502
+            0.5227,
+            0.5555
           ],
           "significant_at_5pct": true
         },
         "title_has_furnished": {
-          "train_rows_with_flag": 1571,
-          "coefficient": 0.047017,
-          "std_error": 0.011382,
-          "premium_pct": 0.0481,
+          "train_rows_with_flag": 2620,
+          "coefficient": 0.019538,
+          "std_error": 0.010173,
+          "premium_pct": 0.0197,
           "ci95_premium_pct": [
-            0.025,
-            0.0718
+            -0.0004,
+            0.0403
           ],
-          "significant_at_5pct": true
+          "significant_at_5pct": false
         },
         "title_has_legal": {
-          "train_rows_with_flag": 2833,
-          "coefficient": -0.319329,
-          "std_error": 0.008771,
-          "premium_pct": -0.2734,
+          "train_rows_with_flag": 4466,
+          "coefficient": -0.3206,
+          "std_error": 0.008051,
+          "premium_pct": -0.2743,
           "ci95_premium_pct": [
-            -0.2857,
-            -0.2608
+            -0.2856,
+            -0.2627
           ],
           "significant_at_5pct": true
         }
@@ -154,83 +158,83 @@
     },
     "can_ho": {
       "category_label": "Căn hộ chung cư",
-      "fit_rows": 6984,
-      "test_rows": 1848,
-      "model_terms": 40,
+      "fit_rows": 20810,
+      "test_rows": 5313,
+      "model_terms": 56,
       "reference_levels": [
-        "location=d:124",
+        "location=prov:94",
         "area_band=3",
         "room_band=2"
       ],
-      "train_r2_log": 0.444308,
+      "train_r2_log": 0.390756,
       "test_model": {
-        "n": 1848,
-        "mae": 22976906.79,
-        "mape": 0.399341,
-        "median_ape": 0.317422,
-        "r2_log": 0.417661
+        "n": 5313,
+        "mae": 22515214.92,
+        "mape": 0.358848,
+        "median_ape": 0.289018,
+        "r2_log": 0.393715
       },
       "test_baseline": {
-        "n": 1848,
-        "mae": 23858673.57,
-        "mape": 0.411842,
-        "median_ape": 0.295199,
-        "r2_log": 0.25753
+        "n": 5313,
+        "mae": 22459714.76,
+        "mape": 0.358996,
+        "median_ape": 0.268172,
+        "r2_log": 0.328906
       },
-      "model_beats_baseline_mae": true,
+      "model_beats_baseline_mae": false,
       "flags": {
         "title_has_car_access": {
-          "train_rows_with_flag": 58,
-          "coefficient": 0.3554,
-          "std_error": 0.06632,
-          "premium_pct": 0.4268,
+          "train_rows_with_flag": 105,
+          "coefficient": 0.148204,
+          "std_error": 0.044162,
+          "premium_pct": 0.1598,
           "ci95_premium_pct": [
-            0.2528,
-            0.6248
+            0.0636,
+            0.2646
           ],
           "significant_at_5pct": true
         },
         "title_has_elevator": {
-          "train_rows_with_flag": 76,
-          "coefficient": 0.378696,
-          "std_error": 0.058498,
-          "premium_pct": 0.4604,
+          "train_rows_with_flag": 115,
+          "coefficient": 0.374505,
+          "std_error": 0.041718,
+          "premium_pct": 0.4543,
           "ci95_premium_pct": [
-            0.3022,
-            0.6378
+            0.3401,
+            0.5782
           ],
           "significant_at_5pct": true
         },
         "title_has_frontage": {
-          "train_rows_with_flag": 212,
-          "coefficient": 0.172495,
-          "std_error": 0.033856,
-          "premium_pct": 0.1883,
+          "train_rows_with_flag": 418,
+          "coefficient": 0.086162,
+          "std_error": 0.0219,
+          "premium_pct": 0.09,
           "ci95_premium_pct": [
-            0.112,
-            0.2698
+            0.0442,
+            0.1378
           ],
           "significant_at_5pct": true
         },
         "title_has_furnished": {
-          "train_rows_with_flag": 1523,
-          "coefficient": -0.218788,
-          "std_error": 0.014086,
-          "premium_pct": -0.1965,
+          "train_rows_with_flag": 4506,
+          "coefficient": -0.188225,
+          "std_error": 0.007514,
+          "premium_pct": -0.1716,
           "ci95_premium_pct": [
-            -0.2184,
-            -0.174
+            -0.1837,
+            -0.1593
           ],
           "significant_at_5pct": true
         },
         "title_has_legal": {
-          "train_rows_with_flag": 2382,
-          "coefficient": -0.274906,
-          "std_error": 0.01242,
-          "premium_pct": -0.2404,
+          "train_rows_with_flag": 4768,
+          "coefficient": -0.250339,
+          "std_error": 0.007616,
+          "premium_pct": -0.2215,
           "ci95_premium_pct": [
-            -0.2586,
-            -0.2216
+            -0.233,
+            -0.2098
           ],
           "significant_at_5pct": true
         }
@@ -238,83 +242,83 @@
     },
     "biet_thu": {
       "category_label": "Biệt thự / liền kề / shophouse",
-      "fit_rows": 1767,
-      "test_rows": 415,
-      "model_terms": 43,
+      "fit_rows": 7308,
+      "test_rows": 1849,
+      "model_terms": 61,
       "reference_levels": [
-        "location=d:124",
-        "area_band=6",
+        "location=prov:40",
+        "area_band=5",
         "room_band=-1"
       ],
-      "train_r2_log": 0.736633,
+      "train_r2_log": 0.594687,
       "test_model": {
-        "n": 415,
-        "mae": 76247876.25,
-        "mape": 0.525471,
-        "median_ape": 0.341347,
-        "r2_log": 0.709382
+        "n": 1849,
+        "mae": 65244521.19,
+        "mape": 0.509855,
+        "median_ape": 0.311,
+        "r2_log": 0.579173
       },
       "test_baseline": {
-        "n": 415,
-        "mae": 69196087.32,
-        "mape": 0.756678,
-        "median_ape": 0.286957,
-        "r2_log": 0.676633
+        "n": 1849,
+        "mae": 63270380.77,
+        "mape": 0.544489,
+        "median_ape": 0.281036,
+        "r2_log": 0.571531
       },
       "model_beats_baseline_mae": false,
       "flags": {
         "title_has_car_access": {
-          "train_rows_with_flag": 131,
-          "coefficient": -0.117688,
-          "std_error": 0.060373,
-          "premium_pct": -0.111,
+          "train_rows_with_flag": 239,
+          "coefficient": 0.009161,
+          "std_error": 0.039367,
+          "premium_pct": 0.0092,
           "ci95_premium_pct": [
-            -0.2102,
-            0.0006
+            -0.0657,
+            0.0902
           ],
           "significant_at_5pct": false
         },
         "title_has_elevator": {
-          "train_rows_with_flag": 159,
-          "coefficient": 0.223241,
-          "std_error": 0.055044,
-          "premium_pct": 0.2501,
+          "train_rows_with_flag": 354,
+          "coefficient": 0.267074,
+          "std_error": 0.0323,
+          "premium_pct": 0.3061,
           "ci95_premium_pct": [
-            0.1223,
-            0.3925
+            0.226,
+            0.3915
           ],
           "significant_at_5pct": true
         },
         "title_has_frontage": {
-          "train_rows_with_flag": 347,
-          "coefficient": 0.165164,
-          "std_error": 0.039306,
-          "premium_pct": 0.1796,
+          "train_rows_with_flag": 922,
+          "coefficient": 0.127581,
+          "std_error": 0.020571,
+          "premium_pct": 0.1361,
           "ci95_premium_pct": [
-            0.0921,
-            0.2741
+            0.0912,
+            0.1828
           ],
           "significant_at_5pct": true
         },
         "title_has_furnished": {
-          "train_rows_with_flag": 79,
-          "coefficient": 0.070672,
-          "std_error": 0.074121,
-          "premium_pct": 0.0732,
+          "train_rows_with_flag": 347,
+          "coefficient": 0.123766,
+          "std_error": 0.031956,
+          "premium_pct": 0.1318,
           "ci95_premium_pct": [
-            -0.0719,
-            0.241
+            0.063,
+            0.2049
           ],
-          "significant_at_5pct": false
+          "significant_at_5pct": true
         },
         "title_has_legal": {
-          "train_rows_with_flag": 87,
-          "coefficient": -0.155209,
-          "std_error": 0.071211,
-          "premium_pct": -0.1438,
+          "train_rows_with_flag": 542,
+          "coefficient": -0.092049,
+          "std_error": 0.025708,
+          "premium_pct": -0.0879,
           "ci95_premium_pct": [
-            -0.2553,
-            -0.0155
+            -0.1328,
+            -0.0408
           ],
           "significant_at_5pct": true
         }
@@ -322,90 +326,127 @@
     },
     "dat": {
       "category_label": "Đất",
-      "fit_rows": 2818,
-      "test_rows": 694,
-      "model_terms": 40,
+      "fit_rows": 5477,
+      "test_rows": 1370,
+      "model_terms": 51,
       "reference_levels": [
-        "location=d:124",
+        "location=prov:208",
         "area_band=4",
         "room_band=-1"
       ],
-      "train_r2_log": 0.7395,
+      "train_r2_log": 0.677209,
       "test_model": {
-        "n": 694,
-        "mae": 31974574.29,
-        "mape": 0.53322,
-        "median_ape": 0.295954,
-        "r2_log": 0.74291
+        "n": 1370,
+        "mae": 26288365.01,
+        "mape": 0.751286,
+        "median_ape": 0.364606,
+        "r2_log": 0.672574
       },
       "test_baseline": {
-        "n": 694,
-        "mae": 31090222.04,
-        "mape": 0.539036,
-        "median_ape": 0.242403,
-        "r2_log": 0.757936
+        "n": 1370,
+        "mae": 22380099.55,
+        "mape": 0.646475,
+        "median_ape": 0.27955,
+        "r2_log": 0.69338
       },
       "model_beats_baseline_mae": false,
       "flags": {
         "title_has_car_access": {
-          "train_rows_with_flag": 377,
-          "coefficient": -0.001624,
-          "std_error": 0.035777,
-          "premium_pct": -0.0016,
+          "train_rows_with_flag": 509,
+          "coefficient": 0.104189,
+          "std_error": 0.038372,
+          "premium_pct": 0.1098,
           "ci95_premium_pct": [
-            -0.0692,
-            0.0709
+            0.0294,
+            0.1965
           ],
-          "significant_at_5pct": false
+          "significant_at_5pct": true
         },
         "title_has_elevator": {
-          "train_rows_with_flag": 11,
-          "coefficient": 0.14303,
-          "std_error": 0.180022,
-          "premium_pct": 0.1538,
+          "train_rows_with_flag": 10,
+          "coefficient": 0.090383,
+          "std_error": 0.235374,
+          "premium_pct": 0.0946,
           "ci95_premium_pct": [
-            -0.1893,
-            0.6419
+            -0.3099,
+            0.7362
           ],
           "significant_at_5pct": false
         },
         "title_has_frontage": {
-          "train_rows_with_flag": 779,
-          "coefficient": 0.301895,
-          "std_error": 0.027281,
-          "premium_pct": 0.3524,
+          "train_rows_with_flag": 1239,
+          "coefficient": 0.316354,
+          "std_error": 0.025982,
+          "premium_pct": 0.3721,
           "ci95_premium_pct": [
-            0.282,
-            0.4267
+            0.304,
+            0.4438
           ],
           "significant_at_5pct": true
         },
         "title_has_furnished": {
-          "train_rows_with_flag": 3,
-          "coefficient": -0.219229,
-          "std_error": 0.309573,
-          "premium_pct": -0.1969,
+          "train_rows_with_flag": 5,
+          "coefficient": -0.717832,
+          "std_error": 0.315238,
+          "premium_pct": -0.5122,
           "ci95_premium_pct": [
-            -0.5622,
-            0.4733
+            -0.737,
+            -0.0951
           ],
-          "significant_at_5pct": false
+          "significant_at_5pct": true
         },
         "title_has_legal": {
-          "train_rows_with_flag": 260,
-          "coefficient": -0.129512,
-          "std_error": 0.041012,
-          "premium_pct": -0.1215,
+          "train_rows_with_flag": 618,
+          "coefficient": -0.161964,
+          "std_error": 0.035315,
+          "premium_pct": -0.1495,
           "ci95_premium_pct": [
-            -0.1893,
-            -0.0479
+            -0.2064,
+            -0.0886
           ],
           "significant_at_5pct": true
         }
       }
     }
   },
+  "by_location_level": {
+    "DISTRICT": {
+      "test_model": {
+        "n": 13582,
+        "mae": 43643391.23,
+        "mape": 0.388922,
+        "median_ape": 0.252621,
+        "r2_log": 0.726329
+      },
+      "test_baseline": {
+        "n": 13582,
+        "mae": 44553664.83,
+        "mape": 0.419022,
+        "median_ape": 0.235343,
+        "r2_log": 0.691456
+      },
+      "model_beats_baseline_mae": true
+    },
+    "PROVINCE": {
+      "test_model": {
+        "n": 9828,
+        "mae": 45008557.71,
+        "mape": 0.515188,
+        "median_ape": 0.312823,
+        "r2_log": 0.660095
+      },
+      "test_baseline": {
+        "n": 9828,
+        "mae": 44693479.59,
+        "mape": 0.514421,
+        "median_ape": 0.293283,
+        "r2_log": 0.655324
+      },
+      "model_beats_baseline_mae": false
+    }
+  },
   "interpretation": [
+    "Province-only listings use a province-wide level (prov:), less precise than a district level; see by_location_level.",
     "premium_pct = exp(coefficient) - 1: price/m2 difference vs. the reference, other terms held fixed.",
     "Flags only mean the title mentions a feature; FALSE means not mentioned, not absent.",
     "Coefficients are associations in asking prices, not causal effects or transaction prices.",

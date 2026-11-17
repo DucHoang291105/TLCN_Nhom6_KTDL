@@ -34,7 +34,7 @@ PAGES_TO_CRAWL = int(os.getenv("CRAWL_PAGES", "200"))
 # Delay giữa 2 request, đơn vị giây.
 DELAY_SECONDS = 2.0
 
-REQUEST_TIMEOUT = 30
+REQUEST_TIMEOUT = 200
 MAX_RETRIES = 3
 
 # ============================================================
