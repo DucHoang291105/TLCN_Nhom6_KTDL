@@ -4,7 +4,7 @@ The model is ordinary least squares on ``log(price_per_m2)`` with a small ridge
 penalty, fitted separately for each property category:
 
     log(price_per_m2) = intercept + district + area band + room band + 5 title flags
-                        + distance-to-centre band + district x size group + ward   (v2)
+                        + distance-to-centre band + district x size group + ward
 
 Every regressor is a 0/1 indicator, so the normal equations X'X are plain
 co-occurrence counts. Spark sums X'X and X'y over the training rows; the small
@@ -20,12 +20,14 @@ causal value of the feature itself.
 
 from __future__ import annotations
 
+import json
 import math
 from collections.abc import Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from functools import cached_property
+from pathlib import Path
 
-MODEL_VERSION = "hedonic_ols_v2"
+MODEL_VERSION = "hedonic_ols_blend"
 # Deterministic train/test split: hash(SPLIT_SEED, source_id) mod 100 < TRAIN_PERCENT.
 SPLIT_SEED = 42
 TRAIN_PERCENT = 80
@@ -43,7 +45,7 @@ RIDGE_LAMBDA = 1.0
 TRIM_QUANTILES = (0.01, 0.99)
 # Factors with a dropped reference level (the most frequent one).
 FACTORS = ("location", "area_band", "room_band", "dist_band")
-# v2 terms. Distance to the province centre is NULL for ~60% of listings (no
+# Extended terms. Distance to the province centre is NULL for ~60% of listings (no
 # coordinates), so "na" is its own level. The district x size and ward terms
 # are 0/1 columns kept only with enough training rows; they are the only
 # stand-in for project/building, which is not observed.
@@ -53,6 +55,48 @@ MIN_EXTRA_TERM_TRAIN_ROWS = 30
 EXTRA_FACTORS = ("loc_size", "ward")
 INTERCEPT = "intercept"
 OTHER_LOCATION = "other"
+BLEND_CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "price_model_blend.json"
+
+
+@dataclass(frozen=True)
+class BlendRule:
+    """How one category's final prediction mixes the model and the baseline."""
+
+    weight: float
+    pooled_to_baseline: bool
+
+
+def load_blend_config(path: Path = BLEND_CONFIG_PATH) -> dict[int, BlendRule]:
+    """Per-category blend rules from config/price_model_blend.json (validated)."""
+
+    raw = json.loads(path.read_text(encoding="utf-8"))["categories"]
+    rules: dict[int, BlendRule] = {}
+    for key, item in raw.items():
+        weight = float(item["weight"])
+        if not 0.0 <= weight <= 1.0:
+            raise ValueError(f"Blend weight out of range for category {key}: {weight}")
+        if float(item["ridge"]) != RIDGE_LAMBDA:
+            raise ValueError(f"Category {key} was selected with ridge {item['ridge']}, but the model is fitted with {RIDGE_LAMBDA}")
+        rules[int(key)] = BlendRule(weight, bool(item["pooled_to_baseline"]))
+    missing = set(MODEL_CATEGORY_KEYS) - set(rules)
+    if missing:
+        raise ValueError(f"Blend config lacks categories: {sorted(missing)}")
+    return rules
+
+
+def is_pooled_location_term(term: str) -> bool:
+    """True for a pooled-province (``p:``) or ``other`` location level."""
+
+    return term.startswith("p:") or term == OTHER_LOCATION
+
+
+def blend_prediction(model: float, baseline: float, rule: BlendRule, location_term: str) -> float:
+    """Final price/m2: baseline alone for pooled locations when the rule says so,
+    else the geometric (log-space) mix of model and baseline."""
+
+    if rule.pooled_to_baseline and is_pooled_location_term(location_term):
+        return baseline
+    return math.exp(rule.weight * math.log(model) + (1 - rule.weight) * math.log(baseline))
 
 
 def location_level(district_train_rows: int, pooled_province_train_rows: int,
@@ -89,7 +133,7 @@ def listing_terms(location: str, area_band_key: int, room_band_key: int,
                   ward: str | None = None, extras: bool = False) -> list[str]:
     """Terms present for one listing. Unknown room band (-1) is its own level.
 
-    With ``extras`` (v2) the distance band, the district x size-group
+    With ``extras`` the distance band, the district x size-group
     interaction and the ward are added. A ward name repeats across districts
     ("Phường 1"), so it is keyed by the district. Province-level and pooled
     locations get no ward; pooled locations get no interaction either.
@@ -141,7 +185,7 @@ def build_vocabulary(term_counts: Mapping[str, int]) -> Vocabulary:
     """Drop one reference level per factor (the most frequent, ties by name).
 
     Flags have no reference: absence is 0. A flag never set in training gets
-    no column. Extra v2 terms (district x size, ward) are kept only with
+    no column. Extra terms (district x size, ward) are kept only with
     MIN_EXTRA_TERM_TRAIN_ROWS training rows.
     """
 

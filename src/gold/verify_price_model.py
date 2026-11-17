@@ -9,7 +9,7 @@ def verify_price_model(spark, gold):
 
     from src.gold.build_price_model import split_expression
     from src.gold.gold_rules import UNKNOWN_KEY
-    from src.gold.price_model_rules import INTERCEPT, MODEL_CATEGORY_KEYS, MODEL_VERSION
+    from src.gold.price_model_rules import INTERCEPT, MODEL_CATEGORY_KEYS, MODEL_VERSION, load_blend_config
 
     model = spark.table(f"{gold}.fact_listing_price_model")
     coefficients = spark.table(f"{gold}.agg_price_model_coefficient")
@@ -45,6 +45,29 @@ def verify_price_model(spark, gold):
     checks["price_model_residual_consistent"] = model.filter(
         F.abs(F.col("residual_log") - (F.log("price_per_m2") - F.log("predicted_price_per_m2"))) > 1e-4
     ).count() == 0
+    # Blend: weights come from config/price_model_blend.json; the final price lies
+    # between the pure model and the baseline (log-space mix, w in [0, 1]), or
+    # equals the baseline for pooled-location rows under the pooled rule.
+    rules = load_blend_config()
+    weight_mismatch = sum(
+        model.filter((F.col("property_category_key") == key) & (F.abs(F.col("blend_weight") - rule.weight) > 1e-9)).count()
+        for key, rule in rules.items()
+    )
+    metrics["price_model_blend_weight_mismatch"] = weight_mismatch
+    checks["price_model_blend_weights_match_config"] = weight_mismatch == 0
+    outside = model.filter(
+        (F.col("model_price_per_m2") <= 0)
+        | (F.col("predicted_price_per_m2") < F.least("model_price_per_m2", "baseline_price_per_m2") * 0.999)
+        | (F.col("predicted_price_per_m2") > F.greatest("model_price_per_m2", "baseline_price_per_m2") * 1.001)
+    ).count()
+    metrics["price_model_blend_outside_model_baseline_range"] = outside
+    checks["price_model_blend_between_model_and_baseline"] = outside == 0
+    pooled_term = F.col("model_location_term").startswith("p:") | (F.col("model_location_term") == "other")
+    pooled_categories = [key for key, rule in rules.items() if rule.pooled_to_baseline]
+    expected_baseline_only = (F.col("property_category_key").isin(*pooled_categories) & pooled_term) if pooled_categories else F.lit(False)
+    wrong_baseline_only = model.filter(F.col("blend_baseline_only") != expected_baseline_only).count()
+    metrics["price_model_blend_baseline_only_mismatch"] = wrong_baseline_only
+    checks["price_model_blend_baseline_only_rule"] = wrong_baseline_only == 0
     checks["price_model_split_recomputed"] = model.filter(F.col("split") != split_expression()).count() == 0
     test_share = model.filter("split = 'test'").count() / rows if rows else 0.0
     metrics["price_model_test_share"] = round(test_share, 6)

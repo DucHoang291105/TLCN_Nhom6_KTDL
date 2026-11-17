@@ -169,11 +169,65 @@ def test_job_row_terms_and_labels():
     assert level_label("ward=d:9|Phường 1", {9: "Quận Hải Châu"}, bands) == ("Quận Hải Châu – Phường 1", 9)
 
 
-def test_listing_terms_v1_unchanged_and_v2_extras():
+def test_listing_terms_without_and_with_extra_terms():
     flags = {"title_has_legal": True}
     assert listing_terms("d:7", 3, 2, flags) == ["location=d:7", "area_band=3", "room_band=2", "flag=title_has_legal"]
-    v2 = listing_terms("d:7", 3, 2, flags, distance_km=5.0, ward="P1", extras=True)
-    assert v2[-3:] == ["dist_band=1", "loc_size=d:7|M", "ward=d:7|P1"]
+    extended = listing_terms("d:7", 3, 2, flags, distance_km=5.0, ward="P1", extras=True)
+    assert extended[-3:] == ["dist_band=1", "loc_size=d:7|M", "ward=d:7|P1"]
     province = listing_terms("prov:4", 6, 2, {}, distance_km=20.0, ward="P1", extras=True)
     assert province[-2:] == ["dist_band=3", "loc_size=prov:4|L"]
     assert listing_terms("other", 3, 2, {}, extras=True)[-1] == "dist_band=na"
+
+
+def test_blend_config_is_valid_and_matches_selection_result():
+    import json
+
+    from src.gold.price_model_rules import BLEND_CONFIG_PATH, MODEL_CATEGORY_KEYS, RIDGE_LAMBDA, load_blend_config
+
+    rules = load_blend_config()
+    assert set(rules) == set(MODEL_CATEGORY_KEYS)
+    assert all(0.0 <= rule.weight <= 1.0 for rule in rules.values())
+    raw = json.loads(BLEND_CONFIG_PATH.read_text(encoding="utf-8"))["categories"]
+    assert all(item["ridge"] == RIDGE_LAMBDA for item in raw.values())
+    # The config must equal what the cross-validation chose (no hand edits).
+    result_path = BLEND_CONFIG_PATH.parents[1] / "docs" / "validation" / "price_model_selection.json"
+    if result_path.is_file():
+        chosen = json.loads(result_path.read_text(encoding="utf-8"))["blend_selection"]["by_category"]
+        for item in raw.values():
+            selected = chosen[item["label"]]["selection"]["chosen"]
+            assert (item["weight"], item["pooled_to_baseline"], item["ridge"]) == (selected["weight"], selected["pooled_to_baseline"], selected["ridge"])
+
+
+def test_load_blend_config_rejects_bad_values(tmp_path):
+    import json
+
+    import pytest
+
+    from src.gold.price_model_rules import load_blend_config
+
+    def write(categories):
+        path = tmp_path / "blend.json"
+        path.write_text(json.dumps({"categories": categories}), encoding="utf-8")
+        return path
+
+    good = {str(key): {"label": "x", "ridge": 1.0, "weight": 0.5, "pooled_to_baseline": False} for key in (1, 2, 3, 4)}
+    assert load_blend_config(write(good))[1].weight == 0.5
+    with pytest.raises(ValueError):
+        load_blend_config(write({**good, "1": {**good["1"], "weight": 1.5}}))
+    with pytest.raises(ValueError):
+        load_blend_config(write({**good, "2": {**good["2"], "ridge": 5.0}}))
+    with pytest.raises(ValueError):
+        load_blend_config(write({key: value for key, value in good.items() if key != "4"}))
+
+
+def test_blend_prediction_and_pooled_terms():
+    import math
+
+    from src.gold.price_model_rules import BlendRule, blend_prediction, is_pooled_location_term
+
+    assert [is_pooled_location_term(t) for t in ("d:1", "prov:2", "p:Hue", "other")] == [False, False, True, True]
+    assert math.isclose(blend_prediction(100.0, 400.0, BlendRule(0.5, False), "d:1"), 200.0)
+    assert math.isclose(blend_prediction(120.0, 80.0, BlendRule(1.0, False), "d:1"), 120.0)
+    assert blend_prediction(120.0, 80.0, BlendRule(0.5, True), "p:Hue") == 80.0
+    assert blend_prediction(120.0, 80.0, BlendRule(0.5, True), "other") == 80.0
+    assert math.isclose(blend_prediction(100.0, 400.0, BlendRule(0.5, True), "d:1"), 200.0)

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-17T04:05:47.215572+00:00",
+  "generated_at": "2026-11-17T04:56:16.809703+00:00",
   "namespace": "lakehouse.gold",
   "table_counts": {
     "dim_source": 10,
@@ -127,6 +127,9 @@
     "price_model_province_only_use_province_term": true,
     "price_model_values_valid": true,
     "price_model_residual_consistent": true,
+    "price_model_blend_weights_match_config": true,
+    "price_model_blend_between_model_and_baseline": true,
+    "price_model_blend_baseline_only_rule": true,
     "price_model_split_recomputed": true,
     "price_model_test_share_near_20pct": true,
     "price_model_coefficients_cover_categories": true,
@@ -176,6 +179,9 @@
     "lifecycle_disappeared_rows": 97518,
     "price_model_rows": 119043,
     "price_model_coverage_share": 0.96731,
+    "price_model_blend_weight_mismatch": 0,
+    "price_model_blend_outside_model_baseline_range": 0,
+    "price_model_blend_baseline_only_mismatch": 0,
     "price_model_test_share": 0.200667
   },
   "table_locations": {
