@@ -53,10 +53,33 @@ Câu hỏi: giá/m² của tin nằm ở đâu trong nhóm bất động sản t
 
 | Mã | Tiêu chí | Ngưỡng | Minh chứng | Trạng thái |
 |---|---|---|---|---|
-| B2.1 | Nhóm tương đồng đủ lớn | Mọi nhóm công bố có ≥ 5 tin (check `benchmark_min_group_size`) | `gold_verification.json` | Đạt. Đề xuất chạy thêm độ nhạy với ngưỡng 10 |
+| B2.1 | Nhóm tương đồng đủ lớn | Mọi nhóm công bố có ≥ 5 tin (check `benchmark_min_group_size`) | `gold_verification.json` | Đạt. Đã chạy độ nhạy với ngưỡng 10 (mục 3.1.1): kết luận không đổi |
 | B2.2 | Độ phủ | Tỷ lệ tin `khong_du_du_lieu` ≤ 5% số tin đại diện | `gold_price_benchmark_summary.json`: 3.807/123.066 = 3,1% | Đạt |
 | B2.3 | Vị trí giá tính đúng | Checks `assessment_position_recomputed`, `assessment_peer_values_match_benchmark` | `gold_verification.json` | Đạt |
 | B2.4 | Cờ cảnh báo phải phân biệt được | `is_low_price_missing_legal` bật cho ≤ 50% tin dưới P25 | `gold_price_benchmark_summary.json`: 24.767/30.094 = 82% | Chưa đạt: cờ pháp lý chỉ đọc từ tiêu đề nên quá thưa. Không trình bày như tín hiệu rủi ro; ghi là "tiêu đề không nêu pháp lý" |
+
+#### 3.1.1. Độ nhạy theo ngưỡng cỡ nhóm (B4)
+
+Tính lại benchmark trong bộ nhớ với ngưỡng nhóm tối thiểu 5 (đang dùng) và 10, không ghi bảng Gold (`src/quality/benchmark_sensitivity.py`, kết quả `docs/validation/benchmark_sensitivity.json`, 123.066 tin đại diện). Kết quả với ngưỡng 5 khớp từng tin với `fact_listing_price_assessment` (0 tin lệch).
+
+| | Ngưỡng 5 | Ngưỡng 10 |
+|---|---:|---:|
+| Nhóm `LOC_CAT_AREA_ROOM` | 1.348 | 896 |
+| Nhóm `LOC_CAT_AREA` | 973 | 721 |
+| Nhóm `LOC_CAT` | 364 | 286 |
+| Tin không đủ dữ liệu (`khong_du_du_lieu`) | 3.807 (3,09%) | 4.345 (3,53%) |
+| Dưới P25 | 30.094 (24,5%) | 29.964 (24,3%) |
+| P25–P75 | 58.773 (47,8%) | 58.429 (47,5%) |
+| Trên P75 | 30.392 (24,7%) | 30.328 (24,6%) |
+| Tin xếp ở mức nhóm mịn nhất (`LOC_CAT_AREA_ROOM`) | 72.361 | 69.425 |
+| Cỡ nhóm trung vị mà tin được so sánh | 223 | 228 |
+
+Chuyển từ 5 lên 10:
+- 1.981 tin (1,6%) đổi vị trí giá. Trong đó 538 tin mất nhóm tương đồng (thành `khong_du_du_lieu`) và 1.443 tin đổi vị trí trong số 118.721 tin có nhóm ở cả hai ngưỡng (1,2%).
+- 4.724 tin (3,8%) bị đẩy sang mức nhóm thô hơn do nhóm mịn không đủ 10 tin.
+- Độ phủ giảm nhẹ (tin thiếu dữ liệu tăng từ 3,1% lên 3,5%), vẫn đạt B2.2 (≤ 5%). Tỷ lệ tin ở từng vị trí giá gần như không đổi (chênh dưới 0,3 điểm phần trăm).
+
+Kết luận: benchmark ổn định theo ngưỡng cỡ nhóm; giữ ngưỡng 5 vì độ phủ cao hơn và kết quả gần như không khác. Phép đo này chỉ cho thấy kết quả không nhạy với ngưỡng, không chứng minh vị trí giá phản ánh giá hợp lý (xem mục 5).
 
 ### 3.2. Mô hình hedonic (giải thích chênh lệch giá)
 
