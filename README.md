@@ -96,7 +96,7 @@ Số liệu dưới đây được kiểm chứng sau tích hợp pipeline và d
 | Gold `fact_listing_lifecycle` | 137.732 |
 | Gold `fact_listing_price_change` — sự kiện đổi giá tin bán | 1.732 |
 | Gold `fact_listing_price_model` — dự đoán giá/m² của mô hình hedonic BQ2 | 119.043 |
-| Gold `agg_price_model_coefficient` — hệ số mô hình hedonic | 288 |
+| Gold `agg_price_model_coefficient` — hệ số mô hình hedonic | 959 |
 
 Guland không có batch 20261020; pipeline giữ đúng lịch quan sát riêng của từng nguồn, không tạo batch thay thế.
 
@@ -134,7 +134,7 @@ Chi tiết lệnh và giới hạn vận hành: [Iceberg history](docs/operation
 | `fact_listing` và 9 dimension | Tin bán cùng khóa nguồn, thời gian, vị trí, loại hình và các nhóm giá/diện tích |
 | `agg_budget_tradeoff`, `fact_budget_pareto` | BQ1: lựa chọn theo ngân sách, diện tích và đặc điểm |
 | `agg_peer_group_benchmark`, `fact_listing_price_assessment` | BQ2: so sánh giá/m² với nhóm listing tương đồng |
-| `fact_listing_price_model`, `agg_price_model_coefficient` | BQ2: mô hình hedonic giải thích giá/m² theo quận, diện tích, số phòng và 5 cờ đặc điểm; so với baseline trung vị nhóm |
+| `fact_listing_price_model`, `agg_price_model_coefficient` | BQ2: mô hình hedonic giải thích giá/m² theo quận, diện tích, số phòng, 5 cờ đặc điểm, khoảng cách tới trung tâm và phường; so với baseline trung vị nhóm |
 | `agg_area_substitution` | BQ3: khu vực thay thế trong cùng tỉnh với chi phí thấp hơn cho cùng diện tích, không xa trung tâm tỉnh hơn quá 10 km |
 | `fact_listing_price_change` | Các sự kiện thay đổi giá đã quan sát |
 | `fact_listing_lifecycle` | Vòng đời quan sát của listing theo từng nguồn |
@@ -142,7 +142,7 @@ Chi tiết lệnh và giới hạn vận hành: [Iceberg history](docs/operation
 
 Silver Current là bản ghi **mới nhất đã quan sát**, không xác nhận listing vẫn còn hiển thị. Cờ vắng hai batch không đồng nghĩa đã bán; `listed_days` là khoảng thời gian quan sát, không phải thời gian tới khi bán. Nguồn historical có trạng thái lifecycle `NOT_APPLICABLE`.
 
-Các nhóm nghi trùng cross-source được gắn cờ theo luật; chưa bảo đảm mỗi nhóm tương ứng đúng một bất động sản thực. BQ2 gồm benchmark mô tả (P25–P75) và mô hình hedonic `hedonic_ols_v1`. Trên tập test (dữ liệu tới batch 20261027), mô hình (đã thêm tin chỉ có tỉnh, phủ 96,7% tin đại diện) có R² log 0,70 so với 0,68 của baseline và MAE thấp hơn 0,9%, nhưng chỉ tốt hơn baseline ở 1/4 loại bất động sản (nhà phố); tin cấp tỉnh kém chính xác hơn tin cấp quận. Hệ số là tương quan trên giá chào bán, không phải tác động nhân quả; chi tiết tại [tiêu chí chấp nhận BQ](docs/business/bq_acceptance_criteria.md). Backtest sơ bộ (`src/quality/bq2_backtest.py`, [kết quả](docs/validation/bq2_backtest.json), dữ liệu 22/09–27/10): tin trên P75 lúc mới đăng có tỷ lệ giảm giá 3,26% so với 2,15% của các tin còn lại, vẫn có ý nghĩa sau khi kiểm soát theo nguồn (p = 0,006); phần dư mô hình hedonic chưa cho tín hiệu có ý nghĩa. Với dữ liệu tới 23/10 kết quả H1 chưa đạt (p = 0,08), nên cần thêm batch để khẳng định. Silver Core và Gold vẫn rebuild từ Bronze; riêng `listing_history` cập nhật incremental qua MERGE và bảng state phục hồi được. Bronze tái sử dụng các batch đã hoàn tất.
+Các nhóm nghi trùng cross-source được gắn cờ theo luật; chưa bảo đảm mỗi nhóm tương ứng đúng một bất động sản thực. BQ2 gồm benchmark mô tả (P25–P75) và mô hình hedonic `hedonic_ols_v2`. Trên tập test (dữ liệu tới batch 20261027), mô hình (phủ 96,7% tin đại diện) có R² log 0,73 so với 0,68 của baseline và MAE thấp hơn 6,1% (v1: 0,70 và 0,9%), tốt hơn baseline ở 2/4 loại bất động sản (nhà phố, căn hộ), còn thua ở biệt thự và đất; tin cấp tỉnh kém chính xác hơn tin cấp quận. Hệ số là tương quan trên giá chào bán, không phải tác động nhân quả; chi tiết tại [tiêu chí chấp nhận BQ](docs/business/bq_acceptance_criteria.md). Backtest sơ bộ (`src/quality/bq2_backtest.py`, [kết quả](docs/validation/bq2_backtest.json), dữ liệu 22/09–27/10): tin trên P75 lúc mới đăng có tỷ lệ giảm giá 3,26% so với 2,15% của các tin còn lại, vẫn có ý nghĩa sau khi kiểm soát theo nguồn (p = 0,006); phần dư mô hình hedonic chưa cho tín hiệu có ý nghĩa. Với dữ liệu tới 23/10 kết quả H1 chưa đạt (p = 0,08), nên cần thêm batch để khẳng định. Silver Core và Gold vẫn rebuild từ Bronze; riêng `listing_history` cập nhật incremental qua MERGE và bảng state phục hồi được. Bronze tái sử dụng các batch đã hoàn tất.
 
 ## Iceberg history và kiểm thử tự động
 

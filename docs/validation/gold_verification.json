@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-17T03:13:18.104825+00:00",
+  "generated_at": "2026-11-17T04:05:47.215572+00:00",
   "namespace": "lakehouse.gold",
   "table_counts": {
     "dim_source": 10,
@@ -22,7 +22,7 @@
     "agg_market_overview": 149,
     "fact_listing_lifecycle": 139477,
     "fact_listing_price_model": 119043,
-    "agg_price_model_coefficient": 288
+    "agg_price_model_coefficient": 959
   },
   "checks": {
     "dim_source_one_unknown_row": true,

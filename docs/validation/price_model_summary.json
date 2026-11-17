@@ -1,11 +1,11 @@
 {
-  "started_at": "2026-11-12T10:19:18.014799+00:00",
-  "finished_at": "2026-11-12T10:20:01.347042+00:00",
+  "started_at": "2026-11-17T04:01:46.945422+00:00",
+  "finished_at": "2026-11-17T04:02:57.376351+00:00",
   "output_tables": [
     "lakehouse.gold.fact_listing_price_model",
     "lakehouse.gold.agg_price_model_coefficient"
   ],
-  "model_version": "hedonic_ols_v1",
+  "model_version": "hedonic_ols_v2",
   "method": "OLS on log(price_per_m2) per property category, ridge on non-intercept terms, normal equations + Cholesky",
   "regressors": [
     "location: district, or province-wide level for province-only listings (pooled if rare)",
@@ -15,7 +15,10 @@
     "title_has_furnished",
     "title_has_frontage",
     "title_has_elevator",
-    "title_has_car_access"
+    "title_has_car_access",
+    "distance-to-centre band (unknown = own level)",
+    "district x size group",
+    "ward within district"
   ],
   "settings": {
     "split": "pmod(xxhash64(42, source_id), 100) < 80 -> train",
@@ -45,7 +48,7 @@
     "train_trimmed": 1874,
     "test_evaluated": 23410,
     "test_outside_trim_range": 478,
-    "rows_with_unseen_level": 0,
+    "rows_with_unseen_level": 17369,
     "location_terms_pooled": 2208
   },
   "test_baseline_level_counts": {
@@ -57,10 +60,10 @@
   "overall_test": {
     "model": {
       "n": 23410,
-      "mae": 44216516.22,
-      "mape": 0.441931,
-      "median_ape": 0.275671,
-      "r2_log": 0.700705
+      "mae": 41874158.8,
+      "mape": 0.408869,
+      "median_ape": 0.255785,
+      "r2_log": 0.734833
     },
     "baseline": {
       "n": 23410,
@@ -76,19 +79,20 @@
       "category_label": "Nhà phố / nhà riêng",
       "fit_rows": 59686,
       "test_rows": 14878,
-      "model_terms": 108,
+      "model_terms": 570,
       "reference_levels": [
         "location=prov:94",
         "area_band=3",
-        "room_band=-1"
+        "room_band=-1",
+        "dist_band=na"
       ],
-      "train_r2_log": 0.652548,
+      "train_r2_log": 0.688856,
       "test_model": {
         "n": 14878,
-        "mae": 51003705.35,
-        "mape": 0.434673,
-        "median_ape": 0.260989,
-        "r2_log": 0.655937
+        "mae": 48417421.07,
+        "mape": 0.406531,
+        "median_ape": 0.250805,
+        "r2_log": 0.688355
       },
       "test_baseline": {
         "n": 14878,
@@ -101,56 +105,56 @@
       "flags": {
         "title_has_car_access": {
           "train_rows_with_flag": 12625,
-          "coefficient": 0.057846,
-          "std_error": 0.005314,
-          "premium_pct": 0.0596,
+          "coefficient": 0.066533,
+          "std_error": 0.005121,
+          "premium_pct": 0.0688,
           "ci95_premium_pct": [
-            0.0486,
-            0.0706
+            0.0581,
+            0.0796
           ],
           "significant_at_5pct": true
         },
         "title_has_elevator": {
           "train_rows_with_flag": 3430,
-          "coefficient": 0.273375,
-          "std_error": 0.009757,
-          "premium_pct": 0.3144,
+          "coefficient": 0.254753,
+          "std_error": 0.009449,
+          "premium_pct": 0.2901,
           "ci95_premium_pct": [
-            0.2895,
-            0.3398
+            0.2665,
+            0.3143
           ],
           "significant_at_5pct": true
         },
         "title_has_frontage": {
           "train_rows_with_flag": 12704,
-          "coefficient": 0.43113,
-          "std_error": 0.005435,
-          "premium_pct": 0.539,
+          "coefficient": 0.406144,
+          "std_error": 0.005264,
+          "premium_pct": 0.501,
           "ci95_premium_pct": [
-            0.5227,
-            0.5555
+            0.4856,
+            0.5166
           ],
           "significant_at_5pct": true
         },
         "title_has_furnished": {
           "train_rows_with_flag": 2620,
-          "coefficient": 0.019538,
-          "std_error": 0.010173,
-          "premium_pct": 0.0197,
+          "coefficient": 0.029249,
+          "std_error": 0.009742,
+          "premium_pct": 0.0297,
           "ci95_premium_pct": [
-            -0.0004,
-            0.0403
+            0.0102,
+            0.0495
           ],
-          "significant_at_5pct": false
+          "significant_at_5pct": true
         },
         "title_has_legal": {
           "train_rows_with_flag": 4466,
-          "coefficient": -0.3206,
-          "std_error": 0.008051,
-          "premium_pct": -0.2743,
+          "coefficient": -0.292608,
+          "std_error": 0.007743,
+          "premium_pct": -0.2537,
           "ci95_premium_pct": [
-            -0.2856,
-            -0.2627
+            -0.2649,
+            -0.2423
           ],
           "significant_at_5pct": true
         }
@@ -160,19 +164,20 @@
       "category_label": "Căn hộ chung cư",
       "fit_rows": 20810,
       "test_rows": 5313,
-      "model_terms": 56,
+      "model_terms": 160,
       "reference_levels": [
         "location=prov:94",
         "area_band=3",
-        "room_band=2"
+        "room_band=2",
+        "dist_band=na"
       ],
-      "train_r2_log": 0.390756,
+      "train_r2_log": 0.513518,
       "test_model": {
         "n": 5313,
-        "mae": 22515214.92,
-        "mape": 0.358848,
-        "median_ape": 0.289018,
-        "r2_log": 0.393715
+        "mae": 20467235.33,
+        "mape": 0.313321,
+        "median_ape": 0.241883,
+        "r2_log": 0.516073
       },
       "test_baseline": {
         "n": 5313,
@@ -181,60 +186,60 @@
         "median_ape": 0.268172,
         "r2_log": 0.328906
       },
-      "model_beats_baseline_mae": false,
+      "model_beats_baseline_mae": true,
       "flags": {
         "title_has_car_access": {
           "train_rows_with_flag": 105,
-          "coefficient": 0.148204,
-          "std_error": 0.044162,
-          "premium_pct": 0.1598,
+          "coefficient": 0.214379,
+          "std_error": 0.039936,
+          "premium_pct": 0.2391,
           "ci95_premium_pct": [
-            0.0636,
-            0.2646
+            0.1458,
+            0.34
           ],
           "significant_at_5pct": true
         },
         "title_has_elevator": {
           "train_rows_with_flag": 115,
-          "coefficient": 0.374505,
-          "std_error": 0.041718,
-          "premium_pct": 0.4543,
+          "coefficient": 0.377111,
+          "std_error": 0.037591,
+          "premium_pct": 0.4581,
           "ci95_premium_pct": [
-            0.3401,
-            0.5782
+            0.3545,
+            0.5696
           ],
           "significant_at_5pct": true
         },
         "title_has_frontage": {
           "train_rows_with_flag": 418,
-          "coefficient": 0.086162,
-          "std_error": 0.0219,
-          "premium_pct": 0.09,
+          "coefficient": 0.103864,
+          "std_error": 0.020107,
+          "premium_pct": 0.1094,
           "ci95_premium_pct": [
-            0.0442,
-            0.1378
+            0.0666,
+            0.154
           ],
           "significant_at_5pct": true
         },
         "title_has_furnished": {
           "train_rows_with_flag": 4506,
-          "coefficient": -0.188225,
-          "std_error": 0.007514,
-          "premium_pct": -0.1716,
+          "coefficient": -0.101211,
+          "std_error": 0.006902,
+          "premium_pct": -0.0963,
           "ci95_premium_pct": [
-            -0.1837,
-            -0.1593
+            -0.1084,
+            -0.0839
           ],
           "significant_at_5pct": true
         },
         "title_has_legal": {
           "train_rows_with_flag": 4768,
-          "coefficient": -0.250339,
-          "std_error": 0.007616,
-          "premium_pct": -0.2215,
+          "coefficient": -0.152406,
+          "std_error": 0.007068,
+          "premium_pct": -0.1414,
           "ci95_premium_pct": [
-            -0.233,
-            -0.2098
+            -0.1532,
+            -0.1294
           ],
           "significant_at_5pct": true
         }
@@ -244,19 +249,20 @@
       "category_label": "Biệt thự / liền kề / shophouse",
       "fit_rows": 7308,
       "test_rows": 1849,
-      "model_terms": 61,
+      "model_terms": 102,
       "reference_levels": [
         "location=prov:40",
         "area_band=5",
-        "room_band=-1"
+        "room_band=-1",
+        "dist_band=na"
       ],
-      "train_r2_log": 0.594687,
+      "train_r2_log": 0.61301,
       "test_model": {
         "n": 1849,
-        "mae": 65244521.19,
-        "mape": 0.509855,
-        "median_ape": 0.311,
-        "r2_log": 0.579173
+        "mae": 64398376.61,
+        "mape": 0.494552,
+        "median_ape": 0.312061,
+        "r2_log": 0.597253
       },
       "test_baseline": {
         "n": 1849,
@@ -269,56 +275,56 @@
       "flags": {
         "title_has_car_access": {
           "train_rows_with_flag": 239,
-          "coefficient": 0.009161,
-          "std_error": 0.039367,
-          "premium_pct": 0.0092,
+          "coefficient": 0.027633,
+          "std_error": 0.039102,
+          "premium_pct": 0.028,
           "ci95_premium_pct": [
-            -0.0657,
-            0.0902
+            -0.0478,
+            0.1099
           ],
           "significant_at_5pct": false
         },
         "title_has_elevator": {
           "train_rows_with_flag": 354,
-          "coefficient": 0.267074,
-          "std_error": 0.0323,
-          "premium_pct": 0.3061,
+          "coefficient": 0.256599,
+          "std_error": 0.031809,
+          "premium_pct": 0.2925,
           "ci95_premium_pct": [
-            0.226,
-            0.3915
+            0.2144,
+            0.3757
           ],
           "significant_at_5pct": true
         },
         "title_has_frontage": {
           "train_rows_with_flag": 922,
-          "coefficient": 0.127581,
-          "std_error": 0.020571,
-          "premium_pct": 0.1361,
+          "coefficient": 0.131142,
+          "std_error": 0.020235,
+          "premium_pct": 0.1401,
           "ci95_premium_pct": [
-            0.0912,
-            0.1828
+            0.0958,
+            0.1863
           ],
           "significant_at_5pct": true
         },
         "title_has_furnished": {
           "train_rows_with_flag": 347,
-          "coefficient": 0.123766,
-          "std_error": 0.031956,
-          "premium_pct": 0.1318,
+          "coefficient": 0.134503,
+          "std_error": 0.031413,
+          "premium_pct": 0.144,
           "ci95_premium_pct": [
-            0.063,
-            0.2049
+            0.0757,
+            0.2166
           ],
           "significant_at_5pct": true
         },
         "title_has_legal": {
           "train_rows_with_flag": 542,
-          "coefficient": -0.092049,
-          "std_error": 0.025708,
-          "premium_pct": -0.0879,
+          "coefficient": -0.087805,
+          "std_error": 0.02532,
+          "premium_pct": -0.0841,
           "ci95_premium_pct": [
-            -0.1328,
-            -0.0408
+            -0.1284,
+            -0.0375
           ],
           "significant_at_5pct": true
         }
@@ -328,19 +334,20 @@
       "category_label": "Đất",
       "fit_rows": 5477,
       "test_rows": 1370,
-      "model_terms": 51,
+      "model_terms": 111,
       "reference_levels": [
         "location=prov:208",
         "area_band=4",
-        "room_band=-1"
+        "room_band=-1",
+        "dist_band=3"
       ],
-      "train_r2_log": 0.677209,
+      "train_r2_log": 0.72734,
       "test_model": {
         "n": 1370,
-        "mae": 26288365.01,
-        "mape": 0.751286,
-        "median_ape": 0.364606,
-        "r2_log": 0.672574
+        "mae": 23434048.97,
+        "mape": 0.689162,
+        "median_ape": 0.314517,
+        "r2_log": 0.720805
       },
       "test_baseline": {
         "n": 1370,
@@ -353,56 +360,56 @@
       "flags": {
         "title_has_car_access": {
           "train_rows_with_flag": 509,
-          "coefficient": 0.104189,
-          "std_error": 0.038372,
-          "premium_pct": 0.1098,
+          "coefficient": 0.07918,
+          "std_error": 0.035923,
+          "premium_pct": 0.0824,
           "ci95_premium_pct": [
-            0.0294,
-            0.1965
+            0.0088,
+            0.1614
           ],
           "significant_at_5pct": true
         },
         "title_has_elevator": {
           "train_rows_with_flag": 10,
-          "coefficient": 0.090383,
-          "std_error": 0.235374,
-          "premium_pct": 0.0946,
+          "coefficient": 0.224063,
+          "std_error": 0.218744,
+          "premium_pct": 0.2511,
           "ci95_premium_pct": [
-            -0.3099,
-            0.7362
+            -0.1851,
+            0.9209
           ],
           "significant_at_5pct": false
         },
         "title_has_frontage": {
           "train_rows_with_flag": 1239,
-          "coefficient": 0.316354,
-          "std_error": 0.025982,
-          "premium_pct": 0.3721,
+          "coefficient": 0.301297,
+          "std_error": 0.024259,
+          "premium_pct": 0.3516,
           "ci95_premium_pct": [
-            0.304,
-            0.4438
+            0.2888,
+            0.4174
           ],
           "significant_at_5pct": true
         },
         "title_has_furnished": {
           "train_rows_with_flag": 5,
-          "coefficient": -0.717832,
-          "std_error": 0.315238,
-          "premium_pct": -0.5122,
+          "coefficient": -0.471237,
+          "std_error": 0.295154,
+          "premium_pct": -0.3758,
           "ci95_premium_pct": [
-            -0.737,
-            -0.0951
+            -0.65,
+            0.1132
           ],
-          "significant_at_5pct": true
+          "significant_at_5pct": false
         },
         "title_has_legal": {
           "train_rows_with_flag": 618,
-          "coefficient": -0.161964,
-          "std_error": 0.035315,
-          "premium_pct": -0.1495,
+          "coefficient": -0.142155,
+          "std_error": 0.033451,
+          "premium_pct": -0.1325,
           "ci95_premium_pct": [
-            -0.2064,
-            -0.0886
+            -0.1876,
+            -0.0737
           ],
           "significant_at_5pct": true
         }
@@ -413,10 +420,10 @@
     "DISTRICT": {
       "test_model": {
         "n": 13582,
-        "mae": 43643391.23,
-        "mape": 0.388922,
-        "median_ape": 0.252621,
-        "r2_log": 0.726329
+        "mae": 41133903.64,
+        "mape": 0.362947,
+        "median_ape": 0.231653,
+        "r2_log": 0.755746
       },
       "test_baseline": {
         "n": 13582,
@@ -430,10 +437,10 @@
     "PROVINCE": {
       "test_model": {
         "n": 9828,
-        "mae": 45008557.71,
-        "mape": 0.515188,
-        "median_ape": 0.312823,
-        "r2_log": 0.660095
+        "mae": 42897169.13,
+        "mape": 0.472332,
+        "median_ape": 0.287508,
+        "r2_log": 0.700802
       },
       "test_baseline": {
         "n": 9828,
@@ -442,7 +449,7 @@
         "median_ape": 0.293283,
         "r2_log": 0.655324
       },
-      "model_beats_baseline_mae": false
+      "model_beats_baseline_mae": true
     }
   },
   "interpretation": [

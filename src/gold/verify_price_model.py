@@ -58,7 +58,7 @@ def verify_price_model(spark, gold):
     ).collect()
     checks["price_model_coefficients_cover_categories"] = sorted(r["property_category_key"] for r in per_category) == sorted(categories)
     checks["price_model_one_intercept_per_category"] = all(r["intercepts"] == 1 for r in per_category)
-    checks["price_model_references_are_zero"] = all(r["bad_references"] == 0 and 1 <= r["references"] <= 3 for r in per_category)
+    checks["price_model_references_are_zero"] = all(r["bad_references"] == 0 and 1 <= r["references"] <= 4 for r in per_category)
     # Both values are rounded to 6 decimals, so compare with a relative tolerance.
     # The intercept has no % premium (it is the reference log price itself).
     terms = coefficients.filter(F.col("factor") != INTERCEPT)

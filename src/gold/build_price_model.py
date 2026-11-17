@@ -1,7 +1,8 @@
 """BQ2 – hedonic price model: what explains a listing's price per m².
 
 One OLS model per property category on ``log(price_per_m2)`` with district,
-area band, room band and the five title flags (rules and solver in
+area band, room band, the five title flags and (v2, B2) distance-to-centre
+band, district x size-group interaction and ward (rules and solver in
 ``price_model_rules.py``). Fitted on a deterministic 80% train split and
 compared on the 20% test split with a baseline that predicts the median
 price/m² of the listing's peer group (same three levels as BQ2, computed on
@@ -43,7 +44,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from src.gold.gold_common import FLAG_COLUMNS, representatives, write_summary
 from src.gold.gold_rules import MIN_PEER_GROUP_SIZE, MODEL_CATEGORY_LABELS, UNKNOWN_KEY, UNKNOWN_LABEL, load_bands
 from src.gold.price_model_rules import (
-    INTERCEPT, MIN_LEVEL_TRAIN_ROWS, MODEL_CATEGORY_KEYS, MODEL_VERSION, OTHER_LOCATION, RIDGE_LAMBDA,
+    DISTANCE_EDGES_KM, INTERCEPT, MIN_LEVEL_TRAIN_ROWS, MODEL_CATEGORY_KEYS, MODEL_VERSION, OTHER_LOCATION, RIDGE_LAMBDA,
     SPLIT_SEED, TRAIN_PERCENT, TRIM_QUANTILES, build_vocabulary, design_indices, fit_ridge, inverse_diagonal,
     listing_terms, location_level, normal_equation_entries, predict_log, premium_pct, regression_metrics,
     term_factor, term_level,
@@ -65,7 +66,7 @@ BASELINE_LEVELS = (
 )
 MODELLED_LOCATION_LEVELS = ("DISTRICT", "PROVINCE")
 TERM_COLUMNS = ["property_category_key", "location_key", "province_name", "location_level", "area_band_key", "room_band_key",
-                "district_train_rows", "pooled_train_rows", *FLAG_COLUMNS]
+                "district_train_rows", "pooled_train_rows", "distance_to_center_km", "ward", *FLAG_COLUMNS]
 
 
 def split_expression():
@@ -81,7 +82,8 @@ def row_terms(row: Any) -> list[str]:
     location = location_level(row["district_train_rows"], row["pooled_train_rows"], row["location_key"],
                               row["province_name"], province_only=row["location_level"] == "PROVINCE")
     flags = {column: bool(row[column]) for column in FLAG_COLUMNS}
-    return listing_terms(location, row["area_band_key"], row["room_band_key"], flags)
+    return listing_terms(location, row["area_band_key"], row["room_band_key"], flags,
+                         distance_km=row["distance_to_center_km"], ward=row["ward"], extras=True)
 
 
 def level_label(term: str, districts: dict[int, str], band_labels: dict[str, dict[int, str]],
@@ -99,6 +101,20 @@ def level_label(term: str, districts: dict[int, str], band_labels: dict[str, dic
         if level.startswith("p:"):
             return f"Quận/huyện ít tin – {level[2:]}", None
         return "Khu vực ít tin khác (gộp)", None
+    if factor == "dist_band":
+        edges = DISTANCE_EDGES_KM
+        names = {"na": "Không rõ khoảng cách", "0": f"< {edges[0]:g} km", str(len(edges)): f">= {edges[-1]:g} km"}
+        names.update({str(i): f"{edges[i - 1]:g} - {edges[i]:g} km" for i in range(1, len(edges))})
+        return f"Cách trung tâm: {names.get(level, level)}", None
+    if factor == "loc_size":
+        place, _, size = level.partition("|")
+        key = int(place.split(":")[1]) if ":" in place else None
+        name = districts.get(key) if place.startswith("d:") else (provinces or {}).get(key)
+        return f"{name or place} × nhóm diện tích {size}", key
+    if factor == "ward":
+        place, _, ward = level.partition("|")
+        key = int(place.split(":")[1]) if ":" in place else None
+        return f"{districts.get(key, place)} – {ward}", key
     if factor in ("area_band", "room_band"):
         dimension = "area" if factor == "area_band" else "room"
         return band_labels[dimension].get(int(level), level), None
@@ -110,15 +126,16 @@ def main() -> None:
     from pyspark.sql import types as T
     from pyspark.storagelevel import StorageLevel
 
-    from src.common.spark_session import build_spark_session, ensure_gold_namespace, write_iceberg_table
+    from src.common.spark_session import build_spark_session, ensure_gold_namespace, ensure_silver_namespace, write_iceberg_table
 
     spark = build_spark_session("GoldPriceModel")
-    gold = ensure_gold_namespace(spark)
+    gold, silver = ensure_gold_namespace(spark), ensure_silver_namespace(spark)
     started_at = datetime.now(timezone.utc)
 
     # ---- Scope -------------------------------------------------------------
     locations = spark.table(f"{gold}.dim_location").select("location_key", "province_name", "district_name", "location_level")
-    reps = representatives(spark, gold).join(locations, "location_key", "left")
+    wards = spark.table(f"{silver}.listing_location").select("source_id", "ward")
+    reps = representatives(spark, gold).join(locations, "location_key", "left").join(wards, "source_id", "left")
     scope = {"representative_listings": reps.count()}
     in_category = reps.filter(F.col("property_category_key").isin(*MODEL_CATEGORY_KEYS))
     in_location = in_category.filter(F.col("location_level").isin(*MODELLED_LOCATION_LEVELS) & F.col("province_name").isNotNull())
@@ -137,7 +154,7 @@ def main() -> None:
 
     base = (
         priced.select("source_id", "property_category_key", "location_key", "province_name", "location_level", "area_band_key",
-                      "room_band_key", "price_per_m2", *FLAG_COLUMNS)
+                      "room_band_key", "price_per_m2", "distance_to_center_km", "ward", *FLAG_COLUMNS)
         .withColumn("split", split_expression())
         .withColumn("log_price_per_m2", F.log("price_per_m2"))
     )
@@ -337,7 +354,8 @@ def main() -> None:
         "output_tables": ["lakehouse.gold.fact_listing_price_model", "lakehouse.gold.agg_price_model_coefficient"],
         "model_version": MODEL_VERSION,
         "method": "OLS on log(price_per_m2) per property category, ridge on non-intercept terms, normal equations + Cholesky",
-        "regressors": ["location: district, or province-wide level for province-only listings (pooled if rare)", "area band", "room band (unknown = own level)", *FLAG_COLUMNS],
+        "regressors": ["location: district, or province-wide level for province-only listings (pooled if rare)", "area band", "room band (unknown = own level)", *FLAG_COLUMNS,
+                       "distance-to-centre band (unknown = own level)", "district x size group", "ward within district"],
         "settings": {
             "split": f"pmod(xxhash64({SPLIT_SEED}, source_id), 100) < {TRAIN_PERCENT} -> train",
             "split_seed": SPLIT_SEED,

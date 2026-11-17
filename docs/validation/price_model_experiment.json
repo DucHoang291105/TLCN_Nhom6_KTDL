@@ -1,0 +1,700 @@
+{
+  "started_at": "2026-11-17T03:56:35.861763+00:00",
+  "finished_at": "2026-11-17T03:57:06.327368+00:00",
+  "split": "same as hedonic_ols_v1 (published split, trimmed rows removed)",
+  "ridge_lambda": 1.0,
+  "min_extra_term_train_rows": 30,
+  "distance_band_edges_km": [
+    3.0,
+    7.0,
+    15.0
+  ],
+  "coverage": {
+    "test_rows": 23410,
+    "train_rows": 93281,
+    "distance_known_share": 0.4095,
+    "ward_known_share": 0.6824
+  },
+  "published_v1_overall_test": {
+    "n": 23410,
+    "mae": 44216516.22,
+    "mape": 0.441931,
+    "median_ape": 0.275671,
+    "r2_log": 0.700705
+  },
+  "variants": {
+    "v1_refit": {
+      "features": [],
+      "model_terms": {
+        "nha_pho": 108,
+        "can_ho": 56,
+        "biet_thu": 61,
+        "dat": 51
+      },
+      "overall": {
+        "model": {
+          "n": 23410,
+          "mae": 44216516.22,
+          "mape": 0.441931,
+          "median_ape": 0.275671,
+          "r2_log": 0.700705
+        },
+        "baseline": {
+          "n": 23410,
+          "mae": 44612361.95,
+          "mape": 0.459072,
+          "median_ape": 0.257722,
+          "r2_log": 0.68065
+        },
+        "model_beats_baseline_mae": true
+      },
+      "by_category": {
+        "nha_pho": {
+          "model": {
+            "n": 14878,
+            "mae": 51003705.35,
+            "mape": 0.434673,
+            "median_ape": 0.260989,
+            "r2_log": 0.655937
+          },
+          "baseline": {
+            "n": 14878,
+            "mae": 52251596.87,
+            "mape": 0.466938,
+            "median_ape": 0.249369,
+            "r2_log": 0.624104
+          },
+          "model_beats_baseline_mae": true
+        },
+        "can_ho": {
+          "model": {
+            "n": 5313,
+            "mae": 22515214.92,
+            "mape": 0.358848,
+            "median_ape": 0.289018,
+            "r2_log": 0.393715
+          },
+          "baseline": {
+            "n": 5313,
+            "mae": 22459714.76,
+            "mape": 0.358996,
+            "median_ape": 0.268172,
+            "r2_log": 0.328906
+          },
+          "model_beats_baseline_mae": false
+        },
+        "biet_thu": {
+          "model": {
+            "n": 1849,
+            "mae": 65244521.19,
+            "mape": 0.509855,
+            "median_ape": 0.311,
+            "r2_log": 0.579173
+          },
+          "baseline": {
+            "n": 1849,
+            "mae": 63270380.77,
+            "mape": 0.544489,
+            "median_ape": 0.281036,
+            "r2_log": 0.571531
+          },
+          "model_beats_baseline_mae": false
+        },
+        "dat": {
+          "model": {
+            "n": 1370,
+            "mae": 26288365.01,
+            "mape": 0.751286,
+            "median_ape": 0.364606,
+            "r2_log": 0.672574
+          },
+          "baseline": {
+            "n": 1370,
+            "mae": 22380099.55,
+            "mape": 0.646475,
+            "median_ape": 0.27955,
+            "r2_log": 0.69338
+          },
+          "model_beats_baseline_mae": false
+        }
+      },
+      "by_location_level": {
+        "DISTRICT": {
+          "model": {
+            "n": 13582,
+            "mae": 43643391.23,
+            "mape": 0.388922,
+            "median_ape": 0.252621,
+            "r2_log": 0.726329
+          },
+          "baseline": {
+            "n": 13582,
+            "mae": 44553664.83,
+            "mape": 0.419022,
+            "median_ape": 0.235343,
+            "r2_log": 0.691456
+          },
+          "model_beats_baseline_mae": true
+        },
+        "PROVINCE": {
+          "model": {
+            "n": 9828,
+            "mae": 45008557.71,
+            "mape": 0.515188,
+            "median_ape": 0.312823,
+            "r2_log": 0.660095
+          },
+          "baseline": {
+            "n": 9828,
+            "mae": 44693479.59,
+            "mape": 0.514421,
+            "median_ape": 0.293283,
+            "r2_log": 0.655324
+          },
+          "model_beats_baseline_mae": false
+        }
+      }
+    },
+    "dist": {
+      "features": [
+        "dist"
+      ],
+      "model_terms": {
+        "nha_pho": 112,
+        "can_ho": 60,
+        "biet_thu": 65,
+        "dat": 55
+      },
+      "overall": {
+        "model": {
+          "n": 23410,
+          "mae": 43462867.03,
+          "mape": 0.426527,
+          "median_ape": 0.269363,
+          "r2_log": 0.717525
+        },
+        "baseline": {
+          "n": 23410,
+          "mae": 44612361.95,
+          "mape": 0.459072,
+          "median_ape": 0.257722,
+          "r2_log": 0.68065
+        },
+        "model_beats_baseline_mae": true
+      },
+      "by_category": {
+        "nha_pho": {
+          "model": {
+            "n": 14878,
+            "mae": 50448336.53,
+            "mape": 0.426052,
+            "median_ape": 0.260631,
+            "r2_log": 0.66583
+          },
+          "baseline": {
+            "n": 14878,
+            "mae": 52251596.87,
+            "mape": 0.466938,
+            "median_ape": 0.249369,
+            "r2_log": 0.624104
+          },
+          "model_beats_baseline_mae": true
+        },
+        "can_ho": {
+          "model": {
+            "n": 5313,
+            "mae": 21432019.28,
+            "mape": 0.330763,
+            "median_ape": 0.268424,
+            "r2_log": 0.468065
+          },
+          "baseline": {
+            "n": 5313,
+            "mae": 22459714.76,
+            "mape": 0.358996,
+            "median_ape": 0.268172,
+            "r2_log": 0.328906
+          },
+          "model_beats_baseline_mae": true
+        },
+        "biet_thu": {
+          "model": {
+            "n": 1849,
+            "mae": 64594658.14,
+            "mape": 0.501219,
+            "median_ape": 0.307663,
+            "r2_log": 0.59074
+          },
+          "baseline": {
+            "n": 1849,
+            "mae": 63270380.77,
+            "mape": 0.544489,
+            "median_ape": 0.281036,
+            "r2_log": 0.571531
+          },
+          "model_beats_baseline_mae": false
+        },
+        "dat": {
+          "model": {
+            "n": 1370,
+            "mae": 24519361.21,
+            "mape": 0.702273,
+            "median_ape": 0.347168,
+            "r2_log": 0.711857
+          },
+          "baseline": {
+            "n": 1370,
+            "mae": 22380099.55,
+            "mape": 0.646475,
+            "median_ape": 0.27955,
+            "r2_log": 0.69338
+          },
+          "model_beats_baseline_mae": false
+        }
+      },
+      "by_location_level": {
+        "DISTRICT": {
+          "model": {
+            "n": 13582,
+            "mae": 43427677.61,
+            "mape": 0.38819,
+            "median_ape": 0.25226,
+            "r2_log": 0.727461
+          },
+          "baseline": {
+            "n": 13582,
+            "mae": 44553664.83,
+            "mape": 0.419022,
+            "median_ape": 0.235343,
+            "r2_log": 0.691456
+          },
+          "model_beats_baseline_mae": true
+        },
+        "PROVINCE": {
+          "model": {
+            "n": 9828,
+            "mae": 43511497.74,
+            "mape": 0.479509,
+            "median_ape": 0.296117,
+            "r2_log": 0.694713
+          },
+          "baseline": {
+            "n": 9828,
+            "mae": 44693479.59,
+            "mape": 0.514421,
+            "median_ape": 0.293283,
+            "r2_log": 0.655324
+          },
+          "model_beats_baseline_mae": true
+        }
+      }
+    },
+    "loc_size": {
+      "features": [
+        "loc_size"
+      ],
+      "model_terms": {
+        "nha_pho": 261,
+        "can_ho": 105,
+        "biet_thu": 98,
+        "dat": 93
+      },
+      "overall": {
+        "model": {
+          "n": 23410,
+          "mae": 43357220.19,
+          "mape": 0.432232,
+          "median_ape": 0.268753,
+          "r2_log": 0.710214
+        },
+        "baseline": {
+          "n": 23410,
+          "mae": 44612361.95,
+          "mape": 0.459072,
+          "median_ape": 0.257722,
+          "r2_log": 0.68065
+        },
+        "model_beats_baseline_mae": true
+      },
+      "by_category": {
+        "nha_pho": {
+          "model": {
+            "n": 14878,
+            "mae": 49852366.77,
+            "mape": 0.422519,
+            "median_ape": 0.254633,
+            "r2_log": 0.669552
+          },
+          "baseline": {
+            "n": 14878,
+            "mae": 52251596.87,
+            "mape": 0.466938,
+            "median_ape": 0.249369,
+            "r2_log": 0.624104
+          },
+          "model_beats_baseline_mae": true
+        },
+        "can_ho": {
+          "model": {
+            "n": 5313,
+            "mae": 22366923.51,
+            "mape": 0.35592,
+            "median_ape": 0.285268,
+            "r2_log": 0.401461
+          },
+          "baseline": {
+            "n": 5313,
+            "mae": 22459714.76,
+            "mape": 0.358996,
+            "median_ape": 0.268172,
+            "r2_log": 0.328906
+          },
+          "model_beats_baseline_mae": true
+        },
+        "biet_thu": {
+          "model": {
+            "n": 1849,
+            "mae": 65026318.68,
+            "mape": 0.502481,
+            "median_ape": 0.319219,
+            "r2_log": 0.586001
+          },
+          "baseline": {
+            "n": 1849,
+            "mae": 63270380.77,
+            "mape": 0.544489,
+            "median_ape": 0.281036,
+            "r2_log": 0.571531
+          },
+          "model_beats_baseline_mae": false
+        },
+        "dat": {
+          "model": {
+            "n": 1370,
+            "mae": 24978017.56,
+            "mape": 0.738855,
+            "median_ape": 0.328985,
+            "r2_log": 0.682786
+          },
+          "baseline": {
+            "n": 1370,
+            "mae": 22380099.55,
+            "mape": 0.646475,
+            "median_ape": 0.27955,
+            "r2_log": 0.69338
+          },
+          "model_beats_baseline_mae": false
+        }
+      },
+      "by_location_level": {
+        "DISTRICT": {
+          "model": {
+            "n": 13582,
+            "mae": 42684149.83,
+            "mape": 0.378677,
+            "median_ape": 0.245876,
+            "r2_log": 0.738053
+          },
+          "baseline": {
+            "n": 13582,
+            "mae": 44553664.83,
+            "mape": 0.419022,
+            "median_ape": 0.235343,
+            "r2_log": 0.691456
+          },
+          "model_beats_baseline_mae": true
+        },
+        "PROVINCE": {
+          "model": {
+            "n": 9828,
+            "mae": 44287383.16,
+            "mape": 0.506245,
+            "median_ape": 0.307511,
+            "r2_log": 0.667597
+          },
+          "baseline": {
+            "n": 9828,
+            "mae": 44693479.59,
+            "mape": 0.514421,
+            "median_ape": 0.293283,
+            "r2_log": 0.655324
+          },
+          "model_beats_baseline_mae": true
+        }
+      }
+    },
+    "ward": {
+      "features": [
+        "ward"
+      ],
+      "model_terms": {
+        "nha_pho": 413,
+        "can_ho": 107,
+        "biet_thu": 61,
+        "dat": 65
+      },
+      "overall": {
+        "model": {
+          "n": 23410,
+          "mae": 43286181.02,
+          "mape": 0.431082,
+          "median_ape": 0.265588,
+          "r2_log": 0.711609
+        },
+        "baseline": {
+          "n": 23410,
+          "mae": 44612361.95,
+          "mape": 0.459072,
+          "median_ape": 0.257722,
+          "r2_log": 0.68065
+        },
+        "model_beats_baseline_mae": true
+      },
+      "by_category": {
+        "nha_pho": {
+          "model": {
+            "n": 14878,
+            "mae": 49845150.3,
+            "mape": 0.423491,
+            "median_ape": 0.253643,
+            "r2_log": 0.669315
+          },
+          "baseline": {
+            "n": 14878,
+            "mae": 52251596.87,
+            "mape": 0.466938,
+            "median_ape": 0.249369,
+            "r2_log": 0.624104
+          },
+          "model_beats_baseline_mae": true
+        },
+        "can_ho": {
+          "model": {
+            "n": 5313,
+            "mae": 21678092.58,
+            "mape": 0.343448,
+            "median_ape": 0.262228,
+            "r2_log": 0.437023
+          },
+          "baseline": {
+            "n": 5313,
+            "mae": 22459714.76,
+            "mape": 0.358996,
+            "median_ape": 0.268172,
+            "r2_log": 0.328906
+          },
+          "model_beats_baseline_mae": true
+        },
+        "biet_thu": {
+          "model": {
+            "n": 1849,
+            "mae": 65244521.19,
+            "mape": 0.509855,
+            "median_ape": 0.311,
+            "r2_log": 0.579173
+          },
+          "baseline": {
+            "n": 1849,
+            "mae": 63270380.77,
+            "mape": 0.544489,
+            "median_ape": 0.281036,
+            "r2_log": 0.571531
+          },
+          "model_beats_baseline_mae": false
+        },
+        "dat": {
+          "model": {
+            "n": 1370,
+            "mae": 26219361.91,
+            "mape": 0.747064,
+            "median_ape": 0.356208,
+            "r2_log": 0.675303
+          },
+          "baseline": {
+            "n": 1370,
+            "mae": 22380099.55,
+            "mape": 0.646475,
+            "median_ape": 0.27955,
+            "r2_log": 0.69338
+          },
+          "model_beats_baseline_mae": false
+        }
+      },
+      "by_location_level": {
+        "DISTRICT": {
+          "model": {
+            "n": 13582,
+            "mae": 42014787.87,
+            "mape": 0.370841,
+            "median_ape": 0.232102,
+            "r2_log": 0.747554
+          },
+          "baseline": {
+            "n": 13582,
+            "mae": 44553664.83,
+            "mape": 0.419022,
+            "median_ape": 0.235343,
+            "r2_log": 0.691456
+          },
+          "model_beats_baseline_mae": true
+        },
+        "PROVINCE": {
+          "model": {
+            "n": 9828,
+            "mae": 45043208.05,
+            "mape": 0.514333,
+            "median_ape": 0.311926,
+            "r2_log": 0.660223
+          },
+          "baseline": {
+            "n": 9828,
+            "mae": 44693479.59,
+            "mape": 0.514421,
+            "median_ape": 0.293283,
+            "r2_log": 0.655324
+          },
+          "model_beats_baseline_mae": false
+        }
+      }
+    },
+    "all": {
+      "features": [
+        "dist",
+        "loc_size",
+        "ward"
+      ],
+      "model_terms": {
+        "nha_pho": 570,
+        "can_ho": 160,
+        "biet_thu": 102,
+        "dat": 111
+      },
+      "overall": {
+        "model": {
+          "n": 23410,
+          "mae": 41874158.8,
+          "mape": 0.408869,
+          "median_ape": 0.255785,
+          "r2_log": 0.734833
+        },
+        "baseline": {
+          "n": 23410,
+          "mae": 44612361.95,
+          "mape": 0.459072,
+          "median_ape": 0.257722,
+          "r2_log": 0.68065
+        },
+        "model_beats_baseline_mae": true
+      },
+      "by_category": {
+        "nha_pho": {
+          "model": {
+            "n": 14878,
+            "mae": 48417421.07,
+            "mape": 0.406531,
+            "median_ape": 0.250805,
+            "r2_log": 0.688355
+          },
+          "baseline": {
+            "n": 14878,
+            "mae": 52251596.87,
+            "mape": 0.466938,
+            "median_ape": 0.249369,
+            "r2_log": 0.624104
+          },
+          "model_beats_baseline_mae": true
+        },
+        "can_ho": {
+          "model": {
+            "n": 5313,
+            "mae": 20467235.33,
+            "mape": 0.313321,
+            "median_ape": 0.241883,
+            "r2_log": 0.516073
+          },
+          "baseline": {
+            "n": 5313,
+            "mae": 22459714.76,
+            "mape": 0.358996,
+            "median_ape": 0.268172,
+            "r2_log": 0.328906
+          },
+          "model_beats_baseline_mae": true
+        },
+        "biet_thu": {
+          "model": {
+            "n": 1849,
+            "mae": 64398376.61,
+            "mape": 0.494552,
+            "median_ape": 0.312061,
+            "r2_log": 0.597253
+          },
+          "baseline": {
+            "n": 1849,
+            "mae": 63270380.77,
+            "mape": 0.544489,
+            "median_ape": 0.281036,
+            "r2_log": 0.571531
+          },
+          "model_beats_baseline_mae": false
+        },
+        "dat": {
+          "model": {
+            "n": 1370,
+            "mae": 23434048.97,
+            "mape": 0.689162,
+            "median_ape": 0.314517,
+            "r2_log": 0.720805
+          },
+          "baseline": {
+            "n": 1370,
+            "mae": 22380099.55,
+            "mape": 0.646475,
+            "median_ape": 0.27955,
+            "r2_log": 0.69338
+          },
+          "model_beats_baseline_mae": false
+        }
+      },
+      "by_location_level": {
+        "DISTRICT": {
+          "model": {
+            "n": 13582,
+            "mae": 41133903.64,
+            "mape": 0.362947,
+            "median_ape": 0.231653,
+            "r2_log": 0.755746
+          },
+          "baseline": {
+            "n": 13582,
+            "mae": 44553664.83,
+            "mape": 0.419022,
+            "median_ape": 0.235343,
+            "r2_log": 0.691456
+          },
+          "model_beats_baseline_mae": true
+        },
+        "PROVINCE": {
+          "model": {
+            "n": 9828,
+            "mae": 42897169.13,
+            "mape": 0.472332,
+            "median_ape": 0.287508,
+            "r2_log": 0.700802
+          },
+          "baseline": {
+            "n": 9828,
+            "mae": 44693479.59,
+            "mape": 0.514421,
+            "median_ape": 0.293283,
+            "r2_log": 0.655324
+          },
+          "model_beats_baseline_mae": true
+        }
+      }
+    }
+  },
+  "reproduces_published_v1": true,
+  "r2_log_difference_vs_published_v1": 0.0,
+  "status": "PASS"
+}

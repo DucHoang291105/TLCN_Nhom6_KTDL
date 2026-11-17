@@ -4,6 +4,7 @@ The model is ordinary least squares on ``log(price_per_m2)`` with a small ridge
 penalty, fitted separately for each property category:
 
     log(price_per_m2) = intercept + district + area band + room band + 5 title flags
+                        + distance-to-centre band + district x size group + ward   (v2)
 
 Every regressor is a 0/1 indicator, so the normal equations X'X are plain
 co-occurrence counts. Spark sums X'X and X'y over the training rows; the small
@@ -24,7 +25,7 @@ from collections.abc import Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from functools import cached_property
 
-MODEL_VERSION = "hedonic_ols_v1"
+MODEL_VERSION = "hedonic_ols_v2"
 # Deterministic train/test split: hash(SPLIT_SEED, source_id) mod 100 < TRAIN_PERCENT.
 SPLIT_SEED = 42
 TRAIN_PERCENT = 80
@@ -40,7 +41,16 @@ RIDGE_LAMBDA = 1.0
 # Training rows outside these quantiles of log(price_per_m2), per category,
 # are not used to fit (mis-typed prices). They still get a prediction.
 TRIM_QUANTILES = (0.01, 0.99)
-FACTORS = ("location", "area_band", "room_band")
+# Factors with a dropped reference level (the most frequent one).
+FACTORS = ("location", "area_band", "room_band", "dist_band")
+# v2 terms. Distance to the province centre is NULL for ~60% of listings (no
+# coordinates), so "na" is its own level. The district x size and ward terms
+# are 0/1 columns kept only with enough training rows; they are the only
+# stand-in for project/building, which is not observed.
+DISTANCE_EDGES_KM = (3.0, 7.0, 15.0)
+SIZE_GROUP_OF_AREA_BAND = {1: "S", 2: "S", 3: "M", 4: "M", 5: "L", 6: "L"}
+MIN_EXTRA_TERM_TRAIN_ROWS = 30
+EXTRA_FACTORS = ("loc_size", "ward")
 INTERCEPT = "intercept"
 OTHER_LOCATION = "other"
 
@@ -63,12 +73,38 @@ def location_level(district_train_rows: int, pooled_province_train_rows: int,
     return OTHER_LOCATION
 
 
+def distance_band(distance_km: float | None) -> str:
+    """Band of the distance to the province centre; ``na`` when unknown."""
+
+    if distance_km is None:
+        return "na"
+    for index, edge in enumerate(DISTANCE_EDGES_KM):
+        if distance_km < edge:
+            return str(index)
+    return str(len(DISTANCE_EDGES_KM))
+
+
 def listing_terms(location: str, area_band_key: int, room_band_key: int,
-                  flags: Mapping[str, bool]) -> list[str]:
-    """Terms present for one listing. Unknown room band (-1) is its own level."""
+                  flags: Mapping[str, bool], distance_km: float | None = None,
+                  ward: str | None = None, extras: bool = False) -> list[str]:
+    """Terms present for one listing. Unknown room band (-1) is its own level.
+
+    With ``extras`` (v2) the distance band, the district x size-group
+    interaction and the ward are added. A ward name repeats across districts
+    ("Phường 1"), so it is keyed by the district. Province-level and pooled
+    locations get no ward; pooled locations get no interaction either.
+    """
 
     terms = [f"location={location}", f"area_band={area_band_key}", f"room_band={room_band_key}"]
     terms += [f"flag={name}" for name, value in sorted(flags.items()) if value]
+    if extras:
+        terms.append(f"dist_band={distance_band(distance_km)}")
+        has_own_level = location.startswith(("d:", "prov:"))
+        group = SIZE_GROUP_OF_AREA_BAND.get(area_band_key)
+        if has_own_level and group:
+            terms.append(f"loc_size={location}|{group}")
+        if ward and location.startswith("d:"):
+            terms.append(f"ward={location}|{ward}")
     return terms
 
 
@@ -105,7 +141,8 @@ def build_vocabulary(term_counts: Mapping[str, int]) -> Vocabulary:
     """Drop one reference level per factor (the most frequent, ties by name).
 
     Flags have no reference: absence is 0. A flag never set in training gets
-    no column.
+    no column. Extra v2 terms (district x size, ward) are kept only with
+    MIN_EXTRA_TERM_TRAIN_ROWS training rows.
     """
 
     references = []
@@ -118,8 +155,12 @@ def build_vocabulary(term_counts: Mapping[str, int]) -> Vocabulary:
         references.append(reference)
         kept += [term for term, _ in levels if term != reference]
     flags = sorted(term for term, count in term_counts.items() if term_factor(term) == "flag" and count > 0)
+    extras = sorted(
+        term for term, count in term_counts.items()
+        if term_factor(term) in EXTRA_FACTORS and count >= MIN_EXTRA_TERM_TRAIN_ROWS
+    )
     return Vocabulary(
-        terms=(INTERCEPT, *kept, *flags),
+        terms=(INTERCEPT, *kept, *flags, *extras),
         references=tuple(references),
         train_rows=tuple(sorted(term_counts.items())),
     )

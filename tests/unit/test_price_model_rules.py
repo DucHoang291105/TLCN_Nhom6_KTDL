@@ -151,8 +151,8 @@ def test_job_row_terms_and_labels():
     from src.gold.gold_common import FLAG_COLUMNS
 
     row = {"district_train_rows": 3, "pooled_train_rows": 40, "location_key": 9, "province_name": "Đà Nẵng",
-           "location_level": "DISTRICT", "area_band_key": 2, "room_band_key": -1, **{column: column == "title_has_frontage" for column in FLAG_COLUMNS}}
-    assert row_terms(row) == ["location=p:Đà Nẵng", "area_band=2", "room_band=-1", "flag=title_has_frontage"]
+           "location_level": "DISTRICT", "area_band_key": 2, "room_band_key": -1, "distance_to_center_km": None, "ward": None, **{column: column == "title_has_frontage" for column in FLAG_COLUMNS}}
+    assert row_terms(row) == ["location=p:Đà Nẵng", "area_band=2", "room_band=-1", "flag=title_has_frontage", "dist_band=na"]
     bands = {"area": {2: "30 - 50 m²"}, "room": {-1: "Không rõ"}}
     assert level_label("location=d:9", {9: "Quận Hải Châu"}, bands) == ("Quận Hải Châu", 9)
     province_row = {**row, "district_train_rows": 30, "location_key": 4, "location_level": "PROVINCE"}
@@ -162,3 +162,18 @@ def test_job_row_terms_and_labels():
     assert level_label("room_band=-1", {}, bands) == ("Không rõ", None)
     assert level_label("flag=title_has_frontage", {}, bands)[0] == "Mặt tiền được nêu"
     assert level_label("intercept", {}, bands)[1] is None
+    assert level_label("dist_band=0", {}, bands)[0] == "Cách trung tâm: < 3 km"
+    assert level_label("dist_band=3", {}, bands)[0] == "Cách trung tâm: >= 15 km"
+    assert level_label("dist_band=na", {}, bands)[0] == "Cách trung tâm: Không rõ khoảng cách"
+    assert level_label("loc_size=d:9|S", {9: "Quận Hải Châu"}, bands) == ("Quận Hải Châu × nhóm diện tích S", 9)
+    assert level_label("ward=d:9|Phường 1", {9: "Quận Hải Châu"}, bands) == ("Quận Hải Châu – Phường 1", 9)
+
+
+def test_listing_terms_v1_unchanged_and_v2_extras():
+    flags = {"title_has_legal": True}
+    assert listing_terms("d:7", 3, 2, flags) == ["location=d:7", "area_band=3", "room_band=2", "flag=title_has_legal"]
+    v2 = listing_terms("d:7", 3, 2, flags, distance_km=5.0, ward="P1", extras=True)
+    assert v2[-3:] == ["dist_band=1", "loc_size=d:7|M", "ward=d:7|P1"]
+    province = listing_terms("prov:4", 6, 2, {}, distance_km=20.0, ward="P1", extras=True)
+    assert province[-2:] == ["dist_band=3", "loc_size=prov:4|L"]
+    assert listing_terms("other", 3, 2, {}, extras=True)[-1] == "dist_band=na"
