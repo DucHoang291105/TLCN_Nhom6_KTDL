@@ -24,6 +24,19 @@ MinIO. Hadoop/YARN, FastAPI và web-ui thuộc các profile thử nghiệm `hado
 `application`, ngoài phạm vi pipeline bảo vệ. Không cần bật các dịch vụ này.
 Không dùng profile `full` vì sẽ khởi động đồng thời writer và query engine.
 
+Khi chuyển sang write mode, `src.orchestration.environment` kiểm tra không có
+writer/run đang hoạt động, dừng Superset/Trino, rồi mở lại các kết nối của
+Iceberg REST trước khi chờ dịch vụ healthy. Lượt chạy ngày 17/11 phát hiện
+SQLite read transaction còn giữ trong pool REST sau query window; chỉ dừng
+Trino chưa đủ ở trường hợp đó. Khởi động lại REST giữ nguyên catalog volume,
+không xóa database hoặc file dữ liệu. Lỗi commit không rõ trạng thái phải
+được kiểm tra trước khi chạy lại; không tự purge orphan files của nghiệp vụ.
+
+Client Airflow chỉ retry thêm một lần đối với GET/HEAD trả 403, sau một giây,
+để xử lý clock jitter làm JWT `iat` chưa hợp lệ. Server vẫn kiểm tra token;
+lỗi phân quyền thực vẫn thất bại. POST/PATCH/DELETE không được retry tự động,
+tránh nộp DAG hoặc thay trạng thái nhiều lần.
+
 Catalog SQLite hiện yêu cầu tách cửa sổ ghi Spark và cửa sổ đọc Trino/Superset.
 Airflow và runner Spark thủ công đều chặn ghi khi Trino đang hoạt động. Đây
 không phải kiểm chứng đọc/ghi đồng thời hoặc catalog nhiều writer.

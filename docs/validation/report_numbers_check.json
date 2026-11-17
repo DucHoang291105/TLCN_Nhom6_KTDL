@@ -1,0 +1,81 @@
+{
+  "generated_at": "2026-11-17T15:24:04.060517+00:00",
+  "scope": "README headline table and selected disclosures vs saved JSON; not a live pipeline acceptance",
+  "checks": {
+    "headline_counts_match_json": true,
+    "source_json_statuses_pass": true,
+    "silver_current_location_feature_counts_equal": true,
+    "silver_check_count_documented": true,
+    "gold_check_count_documented": true,
+    "acceptance_scope_disclosed": true,
+    "runtime_mismatch_disclosed": true
+  },
+  "metrics": {
+    "Bronze historical": {
+      "expected": 30317,
+      "actual": 30317,
+      "match": true
+    },
+    "Bronze snapshot — 48 CSV": {
+      "expected": 316241,
+      "actual": 316241,
+      "match": true
+    },
+    "Tổng Bronze": {
+      "expected": 346558,
+      "actual": 346558,
+      "match": true
+    },
+    "Silver `listing_observation`": {
+      "expected": 334820,
+      "actual": 334820,
+      "match": true
+    },
+    "Silver `listing_dq_quarantine`": {
+      "expected": 664,
+      "actual": 664,
+      "match": true
+    },
+    "Silver Current / Location / Feature": {
+      "expected": 150017,
+      "actual": 150017,
+      "match": true
+    },
+    "Silver `listing_history`": {
+      "expected": 167794,
+      "actual": 167794,
+      "match": true
+    },
+    "Silver `listing_history_state`": {
+      "expected": 150017,
+      "actual": 150017,
+      "match": true
+    },
+    "Gold `fact_listing`": {
+      "expected": 134660,
+      "actual": 134660,
+      "match": true
+    },
+    "Gold `fact_listing_lifecycle`": {
+      "expected": 150017,
+      "actual": 150017,
+      "match": true
+    },
+    "Gold `fact_listing_price_change`": {
+      "expected": 3021,
+      "actual": 3021,
+      "match": true
+    },
+    "Gold `fact_listing_price_model`": {
+      "expected": 128853,
+      "actual": 128853,
+      "match": true
+    },
+    "Gold `agg_price_model_coefficient`": {
+      "expected": 971,
+      "actual": 971,
+      "match": true
+    }
+  },
+  "status": "PASS"
+}

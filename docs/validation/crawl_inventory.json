@@ -1,8 +1,8 @@
 {
   "latest_by_source": {
-    "batdongsan": "20261027",
-    "guland": "20261027",
-    "nhadatvui": "20261027"
+    "batdongsan": "20261117",
+    "guland": "20261117",
+    "nhadatvui": "20261117"
   },
   "batches_by_source": {
     "batdongsan": [
@@ -16,7 +16,13 @@
       "20261016",
       "20261020",
       "20261023",
-      "20261027"
+      "20261027",
+      "20261030",
+      "20261103",
+      "20261106",
+      "20261110",
+      "20261113",
+      "20261117"
     ],
     "guland": [
       "20260922",
@@ -28,7 +34,12 @@
       "20261013",
       "20261016",
       "20261023",
-      "20261027"
+      "20261027",
+      "20261103",
+      "20261106",
+      "20261110",
+      "20261113",
+      "20261117"
     ],
     "nhadatvui": [
       "20260922",
@@ -42,7 +53,11 @@
       "20261016",
       "20261020",
       "20261023",
-      "20261027"
+      "20261027",
+      "20261103",
+      "20261106",
+      "20261113",
+      "20261117"
     ]
   },
   "missing_scheduled_batches": [
@@ -51,6 +66,24 @@
       "batch_id": "20261020",
       "declared": true,
       "reason": "Website error prevented crawling; confirmed by the data owner on 2026-10-29."
+    },
+    {
+      "source": "guland",
+      "batch_id": "20261030",
+      "declared": true,
+      "reason": "No CSV available for this scheduled collection date; data owner authorized accepting the missing batch on 2026-11-17."
+    },
+    {
+      "source": "nhadatvui",
+      "batch_id": "20261030",
+      "declared": true,
+      "reason": "No CSV available for this scheduled collection date; data owner authorized accepting the missing batch on 2026-11-17."
+    },
+    {
+      "source": "nhadatvui",
+      "batch_id": "20261110",
+      "declared": true,
+      "reason": "No CSV available for this scheduled collection date; data owner authorized accepting the missing batch on 2026-11-17."
     }
   ],
   "all_gaps_declared": true,
@@ -60,6 +93,24 @@
       "batch_id": "20261020",
       "reason": "Website error prevented crawling; confirmed by the data owner on 2026-10-29.",
       "action": "Keep the source-specific observation calendar; do not fabricate a replacement batch."
+    },
+    {
+      "source": "guland",
+      "batch_id": "20261030",
+      "reason": "No CSV available for this scheduled collection date; data owner authorized accepting the missing batch on 2026-11-17.",
+      "action": "Keep the real source-specific observation calendar; do not fabricate or backdate a replacement batch."
+    },
+    {
+      "source": "nhadatvui",
+      "batch_id": "20261030",
+      "reason": "No CSV available for this scheduled collection date; data owner authorized accepting the missing batch on 2026-11-17.",
+      "action": "Keep the real source-specific observation calendar; do not fabricate or backdate a replacement batch."
+    },
+    {
+      "source": "nhadatvui",
+      "batch_id": "20261110",
+      "reason": "No CSV available for this scheduled collection date; data owner authorized accepting the missing batch on 2026-11-17.",
+      "action": "Keep the real source-specific observation calendar; do not fabricate or backdate a replacement batch."
     }
   ]
 }

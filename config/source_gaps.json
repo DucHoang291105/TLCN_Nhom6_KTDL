@@ -5,6 +5,24 @@
       "batch_id": "20261020",
       "reason": "Website error prevented crawling; confirmed by the data owner on 2026-10-29.",
       "action": "Keep the source-specific observation calendar; do not fabricate a replacement batch."
+    },
+    {
+      "source": "guland",
+      "batch_id": "20261030",
+      "reason": "No CSV available for this scheduled collection date; data owner authorized accepting the missing batch on 2026-11-17.",
+      "action": "Keep the real source-specific observation calendar; do not fabricate or backdate a replacement batch."
+    },
+    {
+      "source": "nhadatvui",
+      "batch_id": "20261030",
+      "reason": "No CSV available for this scheduled collection date; data owner authorized accepting the missing batch on 2026-11-17.",
+      "action": "Keep the real source-specific observation calendar; do not fabricate or backdate a replacement batch."
+    },
+    {
+      "source": "nhadatvui",
+      "batch_id": "20261110",
+      "reason": "No CSV available for this scheduled collection date; data owner authorized accepting the missing batch on 2026-11-17.",
+      "action": "Keep the real source-specific observation calendar; do not fabricate or backdate a replacement batch."
     }
   ]
 }

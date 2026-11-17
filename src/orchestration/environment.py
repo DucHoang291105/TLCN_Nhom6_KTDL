@@ -64,6 +64,11 @@ def switch(mode):
         for name in ("tlcn_superset", "tlcn_trino"):
             if state(name) not in {"absent", "created", "exited", "dead"}:
                 subprocess.run(["docker", "stop", name], check=True, cwd=ROOT)
+        # The REST fixture can retain a pooled SQLite read transaction after
+        # a query window. Reopen its connections only after writers are idle
+        # and Trino is stopped; keep the durable catalog volume intact.
+        if state("tlcn_iceberg_rest") == "running":
+            subprocess.run(["docker", "restart", "tlcn_iceberg_rest"], check=True, cwd=ROOT)
         command = ["docker", "compose", "--profile", "orchestration", "up", "-d", "--wait",
                    "--wait-timeout", "180", "minio", "iceberg-rest", "postgres", "spark-master", "spark-worker", "airflow"]
     else:

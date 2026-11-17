@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-10-29T04:52:30.122677+00:00",
+  "generated_at": "2026-11-17T15:10:27.477984+00:00",
   "output_table": "lakehouse.gold.fact_listing_lifecycle",
   "input_table": "lakehouse.silver.listing_observation",
-  "rows": 139477,
+  "rows": 150017,
   "grain": [
     "source_id"
   ],
@@ -18,7 +18,13 @@
       "20261016",
       "20261020",
       "20261023",
-      "20261027"
+      "20261027",
+      "20261030",
+      "20261103",
+      "20261106",
+      "20261110",
+      "20261113",
+      "20261117"
     ],
     "guland": [
       "20260922",
@@ -30,7 +36,12 @@
       "20261013",
       "20261016",
       "20261023",
-      "20261027"
+      "20261027",
+      "20261103",
+      "20261106",
+      "20261110",
+      "20261113",
+      "20261117"
     ],
     "nhadatvui": [
       "20260922",
@@ -44,7 +55,11 @@
       "20261016",
       "20261020",
       "20261023",
-      "20261027"
+      "20261027",
+      "20261103",
+      "20261106",
+      "20261113",
+      "20261117"
     ]
   },
   "status_counts": [
@@ -56,17 +71,17 @@
     {
       "source": "batdongsan",
       "lifecycle_status": "NOT_OBSERVED_2_BATCHES",
-      "count": 32527
+      "count": 40699
     },
     {
       "source": "batdongsan",
       "lifecycle_status": "NOT_OBSERVED_LATEST",
-      "count": 1945
+      "count": 1625
     },
     {
       "source": "batdongsan",
       "lifecycle_status": "OBSERVED_LATEST",
-      "count": 3628
+      "count": 3898
     },
     {
       "source": "chotot",
@@ -76,17 +91,17 @@
     {
       "source": "guland",
       "lifecycle_status": "NOT_OBSERVED_2_BATCHES",
-      "count": 50240
+      "count": 52077
     },
     {
       "source": "guland",
       "lifecycle_status": "NOT_OBSERVED_LATEST",
-      "count": 969
+      "count": 704
     },
     {
       "source": "guland",
       "lifecycle_status": "OBSERVED_LATEST",
-      "count": 1335
+      "count": 1349
     },
     {
       "source": "homedy",
@@ -111,17 +126,17 @@
     {
       "source": "nhadatvui",
       "lifecycle_status": "NOT_OBSERVED_2_BATCHES",
-      "count": 14751
+      "count": 15639
     },
     {
       "source": "nhadatvui",
       "lifecycle_status": "NOT_OBSERVED_LATEST",
-      "count": 169
+      "count": 116
     },
     {
       "source": "nhadatvui",
       "lifecycle_status": "OBSERVED_LATEST",
-      "count": 3596
+      "count": 3593
     }
   ],
   "sample": [
@@ -137,7 +152,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     },
     {
       "source_id": "alonhadat_12552103",
@@ -151,7 +166,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     },
     {
       "source_id": "alonhadat_12807758",
@@ -165,7 +180,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     },
     {
       "source_id": "alonhadat_12963102",
@@ -179,7 +194,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     },
     {
       "source_id": "alonhadat_12994529",
@@ -193,7 +208,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     },
     {
       "source_id": "alonhadat_13273040",
@@ -207,7 +222,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     },
     {
       "source_id": "alonhadat_13275586",
@@ -221,7 +236,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     },
     {
       "source_id": "alonhadat_13392874",
@@ -235,7 +250,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     },
     {
       "source_id": "alonhadat_13440258",
@@ -249,7 +264,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     },
     {
       "source_id": "alonhadat_13838837",
@@ -263,7 +278,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     },
     {
       "source_id": "alonhadat_13854872",
@@ -277,7 +292,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     },
     {
       "source_id": "alonhadat_13868707",
@@ -291,7 +306,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     },
     {
       "source_id": "alonhadat_13879107",
@@ -305,7 +320,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     },
     {
       "source_id": "alonhadat_14029365",
@@ -319,7 +334,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     },
     {
       "source_id": "alonhadat_14029393",
@@ -333,7 +348,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     },
     {
       "source_id": "alonhadat_14029407",
@@ -347,7 +362,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     },
     {
       "source_id": "alonhadat_14149675",
@@ -361,7 +376,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     },
     {
       "source_id": "alonhadat_14152786",
@@ -375,7 +390,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     },
     {
       "source_id": "alonhadat_14152835",
@@ -389,7 +404,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     },
     {
       "source_id": "alonhadat_14152857",
@@ -403,7 +418,7 @@
       "listed_days": 0,
       "price_change_count": 0,
       "lifecycle_status": "NOT_APPLICABLE",
-      "lifecycle_built_at": "2026-10-29T11:52:24.375+07:00"
+      "lifecycle_built_at": "2026-11-17T22:10:20.934+07:00"
     }
   ],
   "definitions": {

@@ -1,0 +1,48 @@
+{
+  "generated_at": "2026-11-17T15:21:17.600060+00:00",
+  "scope": "Automated UI walkthrough, no voice; not an A3 pipeline execution or human presentation rehearsal",
+  "run_id": "acceptance_A_20261117_r2",
+  "batch_id": "20261117",
+  "failure_run_id": "acceptance_A_20261117_r2_failure_gate",
+  "expected_kpis": {
+    "total": 133495,
+    "ho_chi_minh": 84639
+  },
+  "results": [
+    {
+      "rehearsal": 1,
+      "status": "PASS",
+      "checks": [
+        "bronze_batch_visible",
+        "stored_success_run_visible",
+        "stored_failure_graph_visible",
+        "query_15_rows",
+        "query_5_rows",
+        "province_filter_133495_to_84639"
+      ],
+      "elapsed_seconds": 71.54,
+      "video": "outputs/demo_pipeline_A_20261117_nghiemthu_luot1.webm",
+      "video_bytes": 5827154,
+      "sha256": "16da2f3d5eea9d36f4c8813729a7ecf63000a6eaa434c2f36c0130a8389a699f"
+    },
+    {
+      "rehearsal": 2,
+      "status": "PASS",
+      "checks": [
+        "bronze_batch_visible",
+        "stored_success_run_visible",
+        "stored_failure_graph_visible",
+        "query_15_rows",
+        "query_5_rows",
+        "province_filter_133495_to_84639"
+      ],
+      "elapsed_seconds": 70.56,
+      "video": "outputs/demo_pipeline_A_20261117_nghiemthu_luot2.webm",
+      "video_bytes": 5467852,
+      "sha256": "093de6e9da051069e4eea5d365a94d79fb48688d75762b211e5227f8d55a8d45"
+    }
+  ],
+  "status": "PASS",
+  "human_presentation_rehearsed": false,
+  "audio_narration": false
+}

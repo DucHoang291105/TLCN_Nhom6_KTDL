@@ -1,0 +1,179 @@
+{
+  "generated_at": "2026-11-17T14:16:28.002838+00:00",
+  "scope": "New input date alignment and explicit owner correction before ingestion",
+  "files": [
+    {
+      "source": "batdongsan",
+      "batch_id": "20261030",
+      "path": "data/incoming/snapshots/batdongsan/20261030/batdongsan_raw.csv",
+      "sha256": "34f69b7216cbaca3c9484692e2bd3bf7d54fa44cb2cb477f49a0899aef94bc88",
+      "local_scraped_dates": {
+        "20261030": 4000
+      },
+      "unknown_timestamp_rows": 0,
+      "folder_matches_scraped_date": true
+    },
+    {
+      "source": "batdongsan",
+      "batch_id": "20261103",
+      "path": "data/incoming/snapshots/batdongsan/20261103/batdongsan_raw.csv",
+      "sha256": "92e95fb8b58ffe0d26973b39e0f57dac46a9c587881db4300fa887a2d5681b26",
+      "local_scraped_dates": {
+        "20261103": 4000
+      },
+      "unknown_timestamp_rows": 0,
+      "folder_matches_scraped_date": true
+    },
+    {
+      "source": "batdongsan",
+      "batch_id": "20261106",
+      "path": "data/incoming/snapshots/batdongsan/20261106/batdongsan_raw.csv",
+      "sha256": "907c3ab816326a16b5f8caf0ac6f59181f7b31b20029c79796eebc1185e62b2c",
+      "local_scraped_dates": {
+        "20261106": 4000
+      },
+      "unknown_timestamp_rows": 0,
+      "folder_matches_scraped_date": true
+    },
+    {
+      "source": "batdongsan",
+      "batch_id": "20261110",
+      "path": "data/incoming/snapshots/batdongsan/20261110/batdongsan_raw.csv",
+      "sha256": "c112fc5801fbae0031815a76292c6c428b975debba9e1566431914d6296abc95",
+      "local_scraped_dates": {
+        "20261110": 4000
+      },
+      "unknown_timestamp_rows": 0,
+      "folder_matches_scraped_date": true
+    },
+    {
+      "source": "batdongsan",
+      "batch_id": "20261113",
+      "path": "data/incoming/snapshots/batdongsan/20261113/batdongsan_raw.csv",
+      "sha256": "335c4d9661baf06e92ae2c7b84bae5ba0332036f9a1e458d4bcfe7612878f69e",
+      "local_scraped_dates": {
+        "20261113": 4000
+      },
+      "unknown_timestamp_rows": 0,
+      "folder_matches_scraped_date": true
+    },
+    {
+      "source": "batdongsan",
+      "batch_id": "20261117",
+      "path": "data/incoming/snapshots/batdongsan/20261117/batdongsan_raw.csv",
+      "sha256": "c870363fd9adfe68cbd5eea0bf49e28984ac2e0da8b0cca652847471c8d61c6f",
+      "local_scraped_dates": {
+        "20261117": 4000
+      },
+      "unknown_timestamp_rows": 0,
+      "folder_matches_scraped_date": true
+    },
+    {
+      "source": "guland",
+      "batch_id": "20261103",
+      "path": "data/incoming/snapshots/guland/20261103/guland_raw.csv",
+      "sha256": "788a6a0db4c9acda09a934767d9ed53100364584065492433ebb3e28e633b315",
+      "local_scraped_dates": {
+        "20261103": 1350
+      },
+      "unknown_timestamp_rows": 0,
+      "folder_matches_scraped_date": true
+    },
+    {
+      "source": "guland",
+      "batch_id": "20261106",
+      "path": "data/incoming/snapshots/guland/20261106/guland_raw.csv",
+      "sha256": "790fc102f89864eaf697515d71e070fb0c07c892449314b32f4ebbc97b1cff59",
+      "local_scraped_dates": {
+        "20261106": 1350
+      },
+      "unknown_timestamp_rows": 0,
+      "folder_matches_scraped_date": true
+    },
+    {
+      "source": "guland",
+      "batch_id": "20261110",
+      "path": "data/incoming/snapshots/guland/20261110/guland_raw.csv",
+      "sha256": "8be2c199eb7079d60bfdc0ab69825d75f94ead5a5c34c2c1be564cb118d67b0d",
+      "local_scraped_dates": {
+        "20261110": 1350
+      },
+      "unknown_timestamp_rows": 0,
+      "folder_matches_scraped_date": true,
+      "owner_correction": {
+        "previous_sha256": "97b12dcbbbd0b033c2263069bc0708d2ecc6613461e8a38b7dbc29fd33a6206a",
+        "previous_local_scraped_dates": {
+          "20261112": 1350
+        },
+        "decision": "Owner changed timestamps and explicitly instructed treating this CSV as 2026-11-10 before first Bronze ingestion. Collection date cannot be independently established; retain this disclosure."
+      }
+    },
+    {
+      "source": "guland",
+      "batch_id": "20261113",
+      "path": "data/incoming/snapshots/guland/20261113/guland_raw.csv",
+      "sha256": "ee3bcbb35404c8d28f2823c0985d59adde4a3b5defe45fd105b00a5da759d1be",
+      "local_scraped_dates": {
+        "20261113": 1350
+      },
+      "unknown_timestamp_rows": 0,
+      "folder_matches_scraped_date": true
+    },
+    {
+      "source": "guland",
+      "batch_id": "20261117",
+      "path": "data/incoming/snapshots/guland/20261117/guland_raw.csv",
+      "sha256": "810bf3276965f3fa19eb8dac84f7f1c034d535b32b8c10a2930a40bdcafba065",
+      "local_scraped_dates": {
+        "20261117": 1350
+      },
+      "unknown_timestamp_rows": 0,
+      "folder_matches_scraped_date": true
+    },
+    {
+      "source": "nhadatvui",
+      "batch_id": "20261103",
+      "path": "data/incoming/snapshots/nhadatvui/20261103/nhadatvui_raw.csv",
+      "sha256": "505fa62669b0e34c64f2c4e02fc62a4b6e95d298177e7ac995cc49b7042fa09d",
+      "local_scraped_dates": {
+        "20261103": 3600
+      },
+      "unknown_timestamp_rows": 0,
+      "folder_matches_scraped_date": true
+    },
+    {
+      "source": "nhadatvui",
+      "batch_id": "20261106",
+      "path": "data/incoming/snapshots/nhadatvui/20261106/nhadatvui_raw.csv",
+      "sha256": "13b47d7a7a649786ddaae411b1fa0fd76235d709a5435d0381860a53a85ba564",
+      "local_scraped_dates": {
+        "20261106": 3600
+      },
+      "unknown_timestamp_rows": 0,
+      "folder_matches_scraped_date": true
+    },
+    {
+      "source": "nhadatvui",
+      "batch_id": "20261113",
+      "path": "data/incoming/snapshots/nhadatvui/20261113/nhadatvui_raw.csv",
+      "sha256": "3ac3da4f6d256fb9d75408b6e3f5e935e31155434b1e15fa897893bad313d43c",
+      "local_scraped_dates": {
+        "20261113": 3600
+      },
+      "unknown_timestamp_rows": 0,
+      "folder_matches_scraped_date": true
+    },
+    {
+      "source": "nhadatvui",
+      "batch_id": "20261117",
+      "path": "data/incoming/snapshots/nhadatvui/20261117/nhadatvui_raw.csv",
+      "sha256": "30b01aeebd43d86799c9df4307953d340b8e0640db51f46451c55018ab148112",
+      "local_scraped_dates": {
+        "20261117": 3600
+      },
+      "unknown_timestamp_rows": 0,
+      "folder_matches_scraped_date": true
+    }
+  ],
+  "mismatches": []
+}

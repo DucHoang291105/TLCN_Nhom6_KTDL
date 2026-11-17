@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-11-17T14:27:47.521958+00:00",
+  "scope": "Host preflight only; not a clean-machine end-to-end certificate",
+  "status": "PASS",
+  "checks": {
+    "python_3_10_or_newer": true,
+    "local_env_configured": true,
+    "git": true,
+    "git_lfs": true,
+    "docker_daemon": true,
+    "compose_config": true,
+    "input_csv_present": true,
+    "no_lfs_pointer_csv": true
+  },
+  "python": "3.12.9",
+  "platform": "Windows",
+  "versions": {
+    "git": "git version 2.51.0.windows.1",
+    "git_lfs": "git-lfs/3.7.0 (GitHub; windows amd64; go 1.24.4; git 92dddf56)",
+    "docker_daemon": "29.3.1"
+  },
+  "csv_files_seen": 54,
+  "lfs_pointers": [],
+  "elapsed_seconds": 2.507,
+  "clean_machine_certified": false
+}
