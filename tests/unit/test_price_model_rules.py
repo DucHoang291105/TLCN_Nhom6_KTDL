@@ -20,6 +20,13 @@ def test_location_level_prefers_district_then_province_then_other():
     assert location_level(3, 50, 12, None) == OTHER_LOCATION
 
 
+def test_location_level_province_only_has_own_level_and_same_fallbacks():
+    assert location_level(MIN_LEVEL_TRAIN_ROWS, 0, 5, "Đà Nẵng", province_only=True) == "prov:5"
+    assert location_level(MIN_LEVEL_TRAIN_ROWS, 0, 5, "Đà Nẵng") == "d:5"
+    assert location_level(3, MIN_LEVEL_TRAIN_ROWS, 5, "Đà Nẵng", province_only=True) == "p:Đà Nẵng"
+    assert location_level(3, 4, 5, "Đà Nẵng", province_only=True) == OTHER_LOCATION
+
+
 def test_listing_terms_include_unknown_rooms_and_only_true_flags():
     terms = listing_terms("d:7", 3, -1, {"title_has_legal": True, "title_has_elevator": False})
     assert terms == ["location=d:7", "area_band=3", "room_band=-1", "flag=title_has_legal"]
@@ -144,10 +151,13 @@ def test_job_row_terms_and_labels():
     from src.gold.gold_common import FLAG_COLUMNS
 
     row = {"district_train_rows": 3, "pooled_train_rows": 40, "location_key": 9, "province_name": "Đà Nẵng",
-           "area_band_key": 2, "room_band_key": -1, **{column: column == "title_has_frontage" for column in FLAG_COLUMNS}}
+           "location_level": "DISTRICT", "area_band_key": 2, "room_band_key": -1, **{column: column == "title_has_frontage" for column in FLAG_COLUMNS}}
     assert row_terms(row) == ["location=p:Đà Nẵng", "area_band=2", "room_band=-1", "flag=title_has_frontage"]
     bands = {"area": {2: "30 - 50 m²"}, "room": {-1: "Không rõ"}}
     assert level_label("location=d:9", {9: "Quận Hải Châu"}, bands) == ("Quận Hải Châu", 9)
+    province_row = {**row, "district_train_rows": 30, "location_key": 4, "location_level": "PROVINCE"}
+    assert row_terms(province_row)[0] == "location=prov:4"
+    assert level_label("location=prov:4", {}, bands, {4: "Đà Nẵng"}) == ("Chỉ có tỉnh – Đà Nẵng", 4)
     assert level_label("area_band=2", {}, bands) == ("30 - 50 m²", None)
     assert level_label("room_band=-1", {}, bands) == ("Không rõ", None)
     assert level_label("flag=title_has_frontage", {}, bands)[0] == "Mặt tiền được nêu"

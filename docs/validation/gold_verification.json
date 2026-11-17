@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-29T04:53:41.443781+00:00",
+  "generated_at": "2026-11-12T10:21:38.399213+00:00",
   "namespace": "lakehouse.gold",
   "table_counts": {
     "dim_source": 10,
@@ -21,8 +21,8 @@
     "fact_listing_price_change": 1904,
     "agg_market_overview": 149,
     "fact_listing_lifecycle": 139477,
-    "fact_listing_price_model": 68999,
-    "agg_price_model_coefficient": 222
+    "fact_listing_price_model": 119043,
+    "agg_price_model_coefficient": 288
   },
   "checks": {
     "dim_source_one_unknown_row": true,
@@ -123,6 +123,8 @@
     "lifecycle_disappearance_and_status_recomputed": true,
     "lifecycle_per_source_batch_calendar_correct": true,
     "price_model_covers_scope": true,
+    "price_model_location_level_matches_dim": true,
+    "price_model_province_only_use_province_term": true,
     "price_model_values_valid": true,
     "price_model_residual_consistent": true,
     "price_model_split_recomputed": true,
@@ -172,8 +174,9 @@
     "lifecycle_price_count_mismatches": 0,
     "lifecycle_calendar_mismatches": 0,
     "lifecycle_disappeared_rows": 97518,
-    "price_model_rows": 68999,
-    "price_model_test_share": 0.201133
+    "price_model_rows": 119043,
+    "price_model_coverage_share": 0.96731,
+    "price_model_test_share": 0.200667
   },
   "table_locations": {
     "dim_source": "s3://lakehouse-gold/real_estate/dim_source",

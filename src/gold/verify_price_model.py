@@ -13,14 +13,14 @@ def verify_price_model(spark, gold):
 
     model = spark.table(f"{gold}.fact_listing_price_model")
     coefficients = spark.table(f"{gold}.agg_price_model_coefficient")
-    locations = spark.table(f"{gold}.dim_location").select("location_key", "location_level")
+    locations = spark.table(f"{gold}.dim_location").select("location_key", "province_name", "location_level")
     reps = spark.table(f"{gold}.fact_listing").filter("is_dup_representative")
     checks, metrics = {}, {}
 
     # Scope recomputed from fact_listing: same filters as build_price_model.
     expected = (
         reps.join(locations, "location_key", "left")
-        .filter(F.col("property_category_key").isin(*MODEL_CATEGORY_KEYS) & (F.col("location_level") == "DISTRICT")
+        .filter(F.col("property_category_key").isin(*MODEL_CATEGORY_KEYS) & F.col("location_level").isin("DISTRICT", "PROVINCE") & F.col("province_name").isNotNull()
                 & (F.col("price_per_m2") > 0) & (F.col("area_band_key") != UNKNOWN_KEY))
         .select("source_id")
     )
@@ -28,6 +28,14 @@ def verify_price_model(spark, gold):
     checks["price_model_covers_scope"] = actual.exceptAll(expected).count() == 0 and expected.exceptAll(actual).count() == 0
     rows = model.count()
     metrics["price_model_rows"] = rows
+    representatives = reps.count()
+    metrics["price_model_coverage_share"] = round(rows / representatives, 6) if representatives else 0.0
+    checks["price_model_location_level_matches_dim"] = model.join(
+        locations.withColumnRenamed("location_level", "_dim_level"), "location_key", "left"
+    ).filter(F.col("location_level") != F.col("_dim_level")).count() == 0
+    checks["price_model_province_only_use_province_term"] = model.filter(
+        (F.col("location_level") == "PROVINCE") & F.col("model_location_term").startswith("d:")
+    ).count() == 0
 
     checks["price_model_values_valid"] = model.filter(
         "predicted_price_per_m2 IS NULL OR predicted_price_per_m2 <= 0 OR baseline_price_per_m2 IS NULL "

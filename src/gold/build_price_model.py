@@ -15,8 +15,12 @@ it is the input for the BQ2 backtest.
 ``agg_price_model_coefficient``: one row per model term, reference levels
 included with coefficient 0. ``premium_pct`` = exp(coefficient) - 1.
 
-Scope: representative sale listings in a known district, in categories
-nha_pho, can_ho, biet_thu, dat, with price/m² > 0 and a known area band.
+Scope: representative sale listings with a known district OR a known province
+only (B1: province-only listings use their own ``prov:`` location level, so
+they are modelled instead of dropped), in categories nha_pho, can_ho, biet_thu,
+dat, with price/m² > 0 and a known area band. A province-level term is a
+province-wide average of listings without a district; it is less precise than a
+district term, so metrics are also reported per location level.
 Limits: asking prices, not transactions; flags record what titles mention;
 coefficients are associations, not causal effects; project, floor, alley width
 and legal status beyond the title are not observed.
@@ -59,7 +63,8 @@ BASELINE_LEVELS = (
     ("LOC_CAT", ["property_category_key", "location_key"]),
     ("CAT", ["property_category_key"]),
 )
-TERM_COLUMNS = ["property_category_key", "location_key", "province_name", "area_band_key", "room_band_key",
+MODELLED_LOCATION_LEVELS = ("DISTRICT", "PROVINCE")
+TERM_COLUMNS = ["property_category_key", "location_key", "province_name", "location_level", "area_band_key", "room_band_key",
                 "district_train_rows", "pooled_train_rows", *FLAG_COLUMNS]
 
 
@@ -73,12 +78,14 @@ def split_expression():
 
 
 def row_terms(row: Any) -> list[str]:
-    location = location_level(row["district_train_rows"], row["pooled_train_rows"], row["location_key"], row["province_name"])
+    location = location_level(row["district_train_rows"], row["pooled_train_rows"], row["location_key"],
+                              row["province_name"], province_only=row["location_level"] == "PROVINCE")
     flags = {column: bool(row[column]) for column in FLAG_COLUMNS}
     return listing_terms(location, row["area_band_key"], row["room_band_key"], flags)
 
 
-def level_label(term: str, districts: dict[int, str], band_labels: dict[str, dict[int, str]]) -> tuple[str, int | None]:
+def level_label(term: str, districts: dict[int, str], band_labels: dict[str, dict[int, str]],
+                provinces: dict[int, str] | None = None) -> tuple[str, int | None]:
     factor, level = term_factor(term), term_level(term)
     if term == INTERCEPT:
         return "Hệ số chặn (mức tham chiếu)", None
@@ -86,6 +93,9 @@ def level_label(term: str, districts: dict[int, str], band_labels: dict[str, dic
         if level.startswith("d:"):
             key = int(level[2:])
             return districts.get(key, level), key
+        if level.startswith("prov:"):
+            key = int(level[5:])
+            return f"Chỉ có tỉnh – {(provinces or {}).get(key, level)}", key
         if level.startswith("p:"):
             return f"Quận/huyện ít tin – {level[2:]}", None
         return "Khu vực ít tin khác (gộp)", None
@@ -111,16 +121,22 @@ def main() -> None:
     reps = representatives(spark, gold).join(locations, "location_key", "left")
     scope = {"representative_listings": reps.count()}
     in_category = reps.filter(F.col("property_category_key").isin(*MODEL_CATEGORY_KEYS))
-    in_district = in_category.filter(F.col("location_level") == "DISTRICT")
-    priced = in_district.filter((F.col("price_per_m2") > 0) & (F.col("area_band_key") != UNKNOWN_KEY))
-    n_category, n_district, n_priced = in_category.count(), in_district.count(), priced.count()
+    in_location = in_category.filter(F.col("location_level").isin(*MODELLED_LOCATION_LEVELS) & F.col("province_name").isNotNull())
+    priced = in_location.filter((F.col("price_per_m2") > 0) & (F.col("area_band_key") != UNKNOWN_KEY))
+    n_category, n_location, n_priced = in_category.count(), in_location.count(), priced.count()
+    n_priced_district = priced.filter(F.col("location_level") == "DISTRICT").count()
     scope["excluded_category_not_modelled"] = scope["representative_listings"] - n_category
-    scope["excluded_location_not_district"] = n_category - n_district
-    scope["excluded_no_price_per_m2_or_area_band"] = n_district - n_priced
+    scope["excluded_location_unknown"] = n_category - n_location
+    scope["excluded_no_price_per_m2_or_area_band"] = n_location - n_priced
     scope["listings_in_scope"] = n_priced
+    scope["listings_in_scope_district"] = n_priced_district
+    scope["listings_in_scope_province_only"] = n_priced - n_priced_district
+    scope["coverage_share_of_representative"] = round(n_priced / scope["representative_listings"], 6) if scope["representative_listings"] else None
+    # Same filter as hedonic_ols_v1 before B1 (district only), for before/after.
+    scope["coverage_share_district_only"] = round(n_priced_district / scope["representative_listings"], 6) if scope["representative_listings"] else None
 
     base = (
-        priced.select("source_id", "property_category_key", "location_key", "province_name", "area_band_key",
+        priced.select("source_id", "property_category_key", "location_key", "province_name", "location_level", "area_band_key",
                       "room_band_key", "price_per_m2", *FLAG_COLUMNS)
         .withColumn("split", split_expression())
         .withColumn("log_price_per_m2", F.log("price_per_m2"))
@@ -198,7 +214,7 @@ def main() -> None:
 
     predicted = F.exp(F.col("predicted_log"))
     fact = assessed.select(
-        "source_id", "property_category_key", "location_key", "area_band_key", "room_band_key",
+        "source_id", "property_category_key", "location_key", "location_level", "area_band_key", "room_band_key",
         "split", "is_outlier_trimmed", "model_location_term", "price_per_m2",
         F.round(predicted, 2).alias("predicted_price_per_m2"),
         F.round(F.col("log_price_per_m2") - F.col("predicted_log"), 6).alias("residual_log"),
@@ -213,7 +229,8 @@ def main() -> None:
 
     # ---- Evaluation (computed from the published table) --------------------
     rows = written.select(
-        "property_category_key", "split", "is_outlier_trimmed", "price_per_m2", "predicted_price_per_m2", "baseline_price_per_m2"
+        "property_category_key", "split", "is_outlier_trimmed", "price_per_m2", "predicted_price_per_m2", "baseline_price_per_m2",
+        "location_level",
     ).rdd.map(tuple).collect()
     clean = [row for row in rows if not row[2]]
 
@@ -221,6 +238,7 @@ def main() -> None:
         return regression_metrics((row[3], row[column]) for row in selected)
 
     districts = {row["location_key"]: row["district_name"] for row in locations.filter("location_level = 'DISTRICT'").collect()}
+    provinces = {row["location_key"]: row["province_name"] for row in locations.filter("location_level = 'PROVINCE'").collect()}
     band_labels = {dimension: {band.band_key: band.band_label for band in bands} for dimension, bands in load_bands().items()}
     for labels in band_labels.values():
         labels[UNKNOWN_KEY] = UNKNOWN_LABEL
@@ -250,7 +268,7 @@ def main() -> None:
             premium = None if is_intercept else premium_pct(coefficient)
             low_pct = premium_pct(coefficient - 1.96 * std_error) if std_error is not None and not is_intercept else None
             high_pct = premium_pct(coefficient + 1.96 * std_error) if std_error is not None and not is_intercept else None
-            text, location_key = level_label(term, districts, band_labels)
+            text, location_key = level_label(term, districts, band_labels, provinces)
             coefficient_rows.append((
                 category, term_factor(term) if term != INTERCEPT else INTERCEPT, term_level(term), text, location_key,
                 index is None, int(train_rows.get(term, len(fit_rows) if term == INTERCEPT else 0)),
@@ -302,6 +320,16 @@ def main() -> None:
 
     all_test = [row for row in clean if row[1] == "test"]
     overall_model, overall_baseline = metrics(all_test, 4), metrics(all_test, 5)
+    by_location_level = {}
+    for level in MODELLED_LOCATION_LEVELS:
+        selected = [row for row in all_test if row[6] == level]
+        model_level, baseline_level_metrics = metrics(selected, 4), metrics(selected, 5)
+        by_location_level[level] = {
+            "test_model": model_level,
+            "test_baseline": baseline_level_metrics,
+            "model_beats_baseline_mae": model_level["mae"] is not None and baseline_level_metrics["mae"] is not None
+            and model_level["mae"] < baseline_level_metrics["mae"],
+        }
     split_counts = Counter((row[1], bool(row[2])) for row in rows)
     summary = {
         "started_at": started_at.isoformat(),
@@ -309,7 +337,7 @@ def main() -> None:
         "output_tables": ["lakehouse.gold.fact_listing_price_model", "lakehouse.gold.agg_price_model_coefficient"],
         "model_version": MODEL_VERSION,
         "method": "OLS on log(price_per_m2) per property category, ridge on non-intercept terms, normal equations + Cholesky",
-        "regressors": ["district (pooled if rare)", "area band", "room band (unknown = own level)", *FLAG_COLUMNS],
+        "regressors": ["location: district, or province-wide level for province-only listings (pooled if rare)", "area band", "room band (unknown = own level)", *FLAG_COLUMNS],
         "settings": {
             "split": f"pmod(xxhash64({SPLIT_SEED}, source_id), 100) < {TRAIN_PERCENT} -> train",
             "split_seed": SPLIT_SEED,
@@ -341,7 +369,9 @@ def main() -> None:
             "model_beats_baseline_mae": overall_model["mae"] is not None and overall_baseline["mae"] is not None and overall_model["mae"] < overall_baseline["mae"],
         },
         "by_category": by_category,
+        "by_location_level": by_location_level,
         "interpretation": [
+            "Province-only listings use a province-wide level (prov:), less precise than a district level; see by_location_level.",
             "premium_pct = exp(coefficient) - 1: price/m2 difference vs. the reference, other terms held fixed.",
             "Flags only mean the title mentions a feature; FALSE means not mentioned, not absent.",
             "Coefficients are associations in asking prices, not causal effects or transaction prices.",
