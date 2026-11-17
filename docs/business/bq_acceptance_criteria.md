@@ -43,7 +43,7 @@ Câu hỏi: cùng ngân sách, người mua đánh đổi vị trí, diện tíc
 | B1.2 | Nhãn Pareto đúng theo định nghĩa | Check `pareto_labels_recomputed` (tính lại độc lập) | `gold_verification.json` | Đạt |
 | B1.3 | Mỗi nhóm so sánh có ít nhất một tin trên frontier | Check `pareto_every_group_has_frontier` | `gold_verification.json` | Đạt |
 | B1.4 | Nhóm hiển thị đủ lớn để so sánh | Dashboard chỉ hiển thị nhóm có `n_listings ≥ 5`, hoặc hiển thị `n_listings` cạnh mỗi nhóm | `gold_budget_tradeoff_summary.json`: 1.133/2.469 nhóm có ≥ 5 tin | Đạt có điều kiện: 54% nhóm có dưới 5 tin, dashboard cần lọc hoặc ghi n |
-| B1.5 | Tỷ lệ frontier được trình bày tách theo việc biết số phòng | Báo cáo tỷ lệ frontier riêng cho tin biết / không biết số phòng | Truy vấn trên `fact_budget_pareto` + `fact_listing` | Chưa đo. Tin không rõ số phòng không thể bị trội về số phòng nên dễ nằm trên frontier |
+| B1.5 | Tỷ lệ frontier được trình bày tách theo việc biết số phòng | Báo cáo tỷ lệ frontier riêng cho tin biết / không biết số phòng | Truy vấn trên `fact_budget_pareto` + `fact_listing` | Đạt (đo ngày 17/11): trên toàn bộ nhóm, tin biết số phòng có 12.399/76.577 = 16,2% nằm trên frontier, tin không rõ số phòng có 8.241/43.538 = 18,9%. Chỉ tính nhóm có ≥ 5 tin: 15,4% (11.627/75.704) so với 16,7% (7.036/42.122). Tin không rõ số phòng nằm trên frontier nhiều hơn như dự đoán (do không thể bị trội về số phòng) nhưng chênh lệch nhỏ (+2,7 điểm phần trăm, +1,3 điểm khi chỉ tính nhóm ≥ 5 tin), nên frontier chưa bị thổi phồng đáng kể. Khi trình bày tỷ lệ frontier cần ghi kèm cả hai con số |
 
 ## 3. BQ2 – Vị trí giá/m² trong nhóm tương đồng
 

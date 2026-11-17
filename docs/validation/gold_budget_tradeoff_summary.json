@@ -1,10 +1,36 @@
 {
-  "started_at": "2026-10-29T04:50:22.225640+00:00",
-  "finished_at": "2026-10-29T04:50:37.908045+00:00",
+  "started_at": "2026-11-17T03:07:56.249346+00:00",
+  "finished_at": "2026-11-17T03:08:24.038926+00:00",
   "tradeoff_groups": 2469,
   "tradeoff_listings": 120160,
   "pareto_rows": 120115,
   "pareto_efficient_rows": 20640,
   "groups_with_ge_5_listings": 1133,
+  "frontier_share_by_rooms_known": {
+    "all_groups": {
+      "rooms_known": {
+        "listings": 76577,
+        "frontier": 12399,
+        "frontier_share": 0.1619
+      },
+      "rooms_unknown": {
+        "listings": 43538,
+        "frontier": 8241,
+        "frontier_share": 0.1893
+      }
+    },
+    "groups_ge_5_listings": {
+      "rooms_known": {
+        "listings": 75704,
+        "frontier": 11627,
+        "frontier_share": 0.1536
+      },
+      "rooms_unknown": {
+        "listings": 42122,
+        "frontier": 7036,
+        "frontier_share": 0.167
+      }
+    }
+  },
   "status": "PASS"
 }
