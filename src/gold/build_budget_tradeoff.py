@@ -91,6 +91,26 @@ def main() -> None:
     written = spark.table(f"{gold}.fact_budget_pareto")
 
     groups = spark.table(f"{gold}.agg_budget_tradeoff")
+    # B1.5: unknown rooms are incomparable on rooms, so such listings are harder
+    # to dominate. Report the frontier share separately for known / unknown
+    # rooms, over all groups and over groups with >= 5 listings (a group of
+    # one is always its own frontier).
+    flagged = written.join(candidates.select("source_id", "rooms"), "source_id").withColumn(
+        "rooms_known", F.col("rooms").isNotNull()
+    )
+
+    def frontier_split(frame) -> dict:
+        out = {}
+        for known, label in ((True, "rooms_known"), (False, "rooms_unknown")):
+            part = frame.filter(F.col("rooms_known") == known)
+            total, efficient = part.count(), part.filter("is_pareto_efficient").count()
+            out[label] = {"listings": total, "frontier": efficient, "frontier_share": round(efficient / total, 4) if total else None}
+        return out
+
+    frontier_by_rooms = {
+        "all_groups": frontier_split(flagged),
+        "groups_ge_5_listings": frontier_split(flagged.filter("group_size >= 5")),
+    }
     summary = {
         "started_at": started_at.isoformat(),
         "finished_at": datetime.now(timezone.utc).isoformat(),
@@ -99,6 +119,7 @@ def main() -> None:
         "pareto_rows": written.count(),
         "pareto_efficient_rows": written.filter("is_pareto_efficient").count(),
         "groups_with_ge_5_listings": groups.filter("n_listings >= 5").count(),
+        "frontier_share_by_rooms_known": frontier_by_rooms,
         "status": "PASS",
     }
     write_summary("gold_budget_tradeoff_summary.json", summary)

@@ -95,8 +95,8 @@ Số liệu dưới đây được kiểm chứng sau tích hợp pipeline và d
 | Gold `fact_listing` — tin bán | 122.375 |
 | Gold `fact_listing_lifecycle` | 137.732 |
 | Gold `fact_listing_price_change` — sự kiện đổi giá tin bán | 1.732 |
-| Gold `fact_listing_price_model` — dự đoán giá/m² của mô hình hedonic BQ2 | 68.666 |
-| Gold `agg_price_model_coefficient` — hệ số mô hình hedonic | 223 |
+| Gold `fact_listing_price_model` — dự đoán giá/m² của mô hình hedonic BQ2 | 119.043 |
+| Gold `agg_price_model_coefficient` — hệ số mô hình hedonic | 288 |
 
 Guland không có batch 20261020; pipeline giữ đúng lịch quan sát riêng của từng nguồn, không tạo batch thay thế.
 
@@ -142,7 +142,7 @@ Chi tiết lệnh và giới hạn vận hành: [Iceberg history](docs/operation
 
 Silver Current là bản ghi **mới nhất đã quan sát**, không xác nhận listing vẫn còn hiển thị. Cờ vắng hai batch không đồng nghĩa đã bán; `listed_days` là khoảng thời gian quan sát, không phải thời gian tới khi bán. Nguồn historical có trạng thái lifecycle `NOT_APPLICABLE`.
 
-Các nhóm nghi trùng cross-source được gắn cờ theo luật; chưa bảo đảm mỗi nhóm tương ứng đúng một bất động sản thực. BQ2 gồm benchmark mô tả (P25–P75) và mô hình hedonic `hedonic_ols_v1`. Trên tập test (dữ liệu tới batch 20261027), mô hình có R² log 0,73 so với 0,68 của baseline và MAE thấp hơn 3%, nhưng chỉ tốt hơn baseline ở 2/4 loại bất động sản. Hệ số là tương quan trên giá chào bán, không phải tác động nhân quả; chi tiết tại [tiêu chí chấp nhận BQ](docs/business/bq_acceptance_criteria.md). Backtest sơ bộ (`src/quality/bq2_backtest.py`, [kết quả](docs/validation/bq2_backtest.json), dữ liệu 22/09–27/10): tin trên P75 lúc mới đăng có tỷ lệ giảm giá 3,26% so với 2,15% của các tin còn lại, vẫn có ý nghĩa sau khi kiểm soát theo nguồn (p = 0,006); phần dư mô hình hedonic chưa cho tín hiệu có ý nghĩa. Với dữ liệu tới 23/10 kết quả H1 chưa đạt (p = 0,08), nên cần thêm batch để khẳng định. Silver Core và Gold vẫn rebuild từ Bronze; riêng `listing_history` cập nhật incremental qua MERGE và bảng state phục hồi được. Bronze tái sử dụng các batch đã hoàn tất.
+Các nhóm nghi trùng cross-source được gắn cờ theo luật; chưa bảo đảm mỗi nhóm tương ứng đúng một bất động sản thực. BQ2 gồm benchmark mô tả (P25–P75) và mô hình hedonic `hedonic_ols_v1`. Trên tập test (dữ liệu tới batch 20261027), mô hình (đã thêm tin chỉ có tỉnh, phủ 96,7% tin đại diện) có R² log 0,70 so với 0,68 của baseline và MAE thấp hơn 0,9%, nhưng chỉ tốt hơn baseline ở 1/4 loại bất động sản (nhà phố); tin cấp tỉnh kém chính xác hơn tin cấp quận. Hệ số là tương quan trên giá chào bán, không phải tác động nhân quả; chi tiết tại [tiêu chí chấp nhận BQ](docs/business/bq_acceptance_criteria.md). Backtest sơ bộ (`src/quality/bq2_backtest.py`, [kết quả](docs/validation/bq2_backtest.json), dữ liệu 22/09–27/10): tin trên P75 lúc mới đăng có tỷ lệ giảm giá 3,26% so với 2,15% của các tin còn lại, vẫn có ý nghĩa sau khi kiểm soát theo nguồn (p = 0,006); phần dư mô hình hedonic chưa cho tín hiệu có ý nghĩa. Với dữ liệu tới 23/10 kết quả H1 chưa đạt (p = 0,08), nên cần thêm batch để khẳng định. Silver Core và Gold vẫn rebuild từ Bronze; riêng `listing_history` cập nhật incremental qua MERGE và bảng state phục hồi được. Bronze tái sử dụng các batch đã hoàn tất.
 
 ## Iceberg history và kiểm thử tự động
 
