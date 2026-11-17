@@ -1,34 +1,34 @@
 {
-  "started_at": "2026-11-17T03:07:56.249346+00:00",
-  "finished_at": "2026-11-17T03:08:24.038926+00:00",
-  "tradeoff_groups": 2469,
-  "tradeoff_listings": 120160,
-  "pareto_rows": 120115,
-  "pareto_efficient_rows": 20640,
-  "groups_with_ge_5_listings": 1133,
+  "started_at": "2026-11-17T15:08:15.206126+00:00",
+  "finished_at": "2026-11-17T15:08:34.853604+00:00",
+  "tradeoff_groups": 2526,
+  "tradeoff_listings": 130064,
+  "pareto_rows": 130014,
+  "pareto_efficient_rows": 21220,
+  "groups_with_ge_5_listings": 1155,
   "frontier_share_by_rooms_known": {
     "all_groups": {
       "rooms_known": {
-        "listings": 76577,
-        "frontier": 12399,
-        "frontier_share": 0.1619
+        "listings": 83754,
+        "frontier": 12747,
+        "frontier_share": 0.1522
       },
       "rooms_unknown": {
-        "listings": 43538,
-        "frontier": 8241,
-        "frontier_share": 0.1893
+        "listings": 46260,
+        "frontier": 8473,
+        "frontier_share": 0.1832
       }
     },
     "groups_ge_5_listings": {
       "rooms_known": {
-        "listings": 75704,
-        "frontier": 11627,
-        "frontier_share": 0.1536
+        "listings": 82878,
+        "frontier": 11971,
+        "frontier_share": 0.1444
       },
       "rooms_unknown": {
-        "listings": 42122,
-        "frontier": 7036,
-        "frontier_share": 0.167
+        "listings": 44794,
+        "frontier": 7225,
+        "frontier_share": 0.1613
       }
     }
   },

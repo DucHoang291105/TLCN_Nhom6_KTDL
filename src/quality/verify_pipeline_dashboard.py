@@ -13,14 +13,21 @@ def read(name):
     return json.loads((ROOT / "docs/validation" / (name + ".json")).read_text(encoding="utf-8"))
 
 
-def main():
+def quality_pass(data, minimum, required=()):
+    checks = data.get("checks", {})
+    return (data.get("status") == "PASS" and len(checks) >= minimum
+            and set(required) <= checks.keys() and all(value is True for value in checks.values()))
+
+
+def main(output=None):
     from src.dashboard.provision_superset import Superset, DASHBOARDS, trino_rows
     run, silver, gold = read("integration_airflow_run"), read("silver_final_verification"), read("gold_verification")
     dashboard = read("superset_dashboard_check")
     checks = {
         "airflow_24_tasks": run["state"] == "success" and len(run["tasks"]) == 24 and all(t["state"] == "success" for t in run["tasks"]),
-        "silver_30": silver["status"] == "PASS" and len(silver["checks"]) == 30 and all(silver["checks"].values()),
-        "gold_108": gold["status"] == "PASS" and len(gold["checks"]) == 108 and all(gold["checks"].values()),
+        "silver_30": quality_pass(silver, 30, ("schema_exact_27", "source_id_unique", "current_union_count")),
+        "gold_108": quality_pass(gold, 108, ("fact_grain_unique", "fact_row_count_matches_silver",
+                                             "price_model_covers_scope", "lifecycle_per_source_batch_calendar_correct")),
         "dashboard_29_charts": dashboard["status"] == "PASS" and len(dashboard["chart_checks"]) == 29 and all(c["match"] for c in dashboard["chart_checks"]),
         "dashboards_checked_after_dag": datetime.fromisoformat(dashboard["generated_at"]) >= datetime.fromisoformat(run["end_date"].replace("Z", "+00:00")),
     }
@@ -60,11 +67,14 @@ def main():
                "manual_labeling": {k: labels[k] for k in ("sample_rows", "labelled_rows", "category_accuracy", "status")},
                "operation_mode": "Sequential Spark write window then Trino/Superset query window. Concurrent reading/writing on SQLite is not certified.",
                "status": "PASS" if all(checks.values()) else "FAIL"}
-    write_json_atomic(ROOT / "docs/validation/pipeline_dashboard_integration.json", summary)
+    write_json_atomic(Path(output) if output else ROOT / "docs/validation/pipeline_dashboard_integration.json", summary)
     print(json.dumps({"checks": checks, "status": summary["status"]}, indent=2))
     if summary["status"] != "PASS":
         raise SystemExit("Integration checks failed")
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, help="Separate probe output; keep historical acceptance evidence intact")
+    main(parser.parse_args().output)

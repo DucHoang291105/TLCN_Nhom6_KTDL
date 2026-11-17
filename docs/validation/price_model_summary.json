@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-11-17T04:52:00.997360+00:00",
-  "finished_at": "2026-11-17T04:52:46.936943+00:00",
+  "started_at": "2026-11-17T15:07:23.793732+00:00",
+  "finished_at": "2026-11-17T15:08:05.668509+00:00",
   "output_tables": [
     "lakehouse.gold.fact_listing_price_model",
     "lakehouse.gold.agg_price_model_coefficient"
@@ -55,146 +55,146 @@
     "baseline": "median price/m2 of train peer group: LOC_CAT_AREA_ROOM -> LOC_CAT_AREA -> LOC_CAT (>= 5 listings) -> category median"
   },
   "scope": {
-    "representative_listings": 123066,
-    "excluded_category_not_modelled": 965,
+    "representative_listings": 133495,
+    "excluded_category_not_modelled": 1080,
     "excluded_location_unknown": 181,
-    "excluded_no_price_per_m2_or_area_band": 2877,
-    "listings_in_scope": 119043,
-    "listings_in_scope_district": 68999,
-    "listings_in_scope_province_only": 50044,
-    "coverage_share_of_representative": 0.96731,
-    "coverage_share_district_only": 0.560667
+    "excluded_no_price_per_m2_or_area_band": 3381,
+    "listings_in_scope": 128853,
+    "listings_in_scope_district": 70700,
+    "listings_in_scope_province_only": 58153,
+    "coverage_share_of_representative": 0.965227,
+    "coverage_share_district_only": 0.529608
   },
   "rows": {
-    "train_fit": 93281,
-    "train_trimmed": 1874,
-    "test_evaluated": 23410,
-    "test_outside_trim_range": 478,
-    "rows_with_unseen_level": 17369,
-    "location_terms_pooled": 2208
+    "train_fit": 100992,
+    "train_trimmed": 2058,
+    "test_evaluated": 25288,
+    "test_outside_trim_range": 515,
+    "rows_with_unseen_level": 17216,
+    "location_terms_pooled": 2325
   },
   "test_baseline_level_counts": {
-    "LOC_CAT_AREA": 9017,
-    "LOC_CAT": 334,
-    "LOC_CAT_AREA_ROOM": 13956,
-    "CAT": 103
+    "LOC_CAT_AREA": 9572,
+    "LOC_CAT": 318,
+    "LOC_CAT_AREA_ROOM": 15298,
+    "CAT": 100
   },
   "overall_test": {
     "model": {
-      "n": 23410,
-      "mae": 41228164.89,
-      "mape": 0.404575,
-      "median_ape": 0.243155,
-      "r2_log": 0.739541
+      "n": 25288,
+      "mae": 41497941.01,
+      "mape": 0.408214,
+      "median_ape": 0.244787,
+      "r2_log": 0.732368
     },
     "model_only": {
-      "n": 23410,
-      "mae": 41874158.8,
-      "mape": 0.408869,
-      "median_ape": 0.255785,
-      "r2_log": 0.734833
+      "n": 25288,
+      "mae": 42125938.14,
+      "mape": 0.411997,
+      "median_ape": 0.257179,
+      "r2_log": 0.728486
     },
     "baseline": {
-      "n": 23410,
-      "mae": 44612361.95,
-      "mape": 0.459072,
-      "median_ape": 0.257722,
-      "r2_log": 0.68065
+      "n": 25288,
+      "mae": 44824296.52,
+      "mape": 0.463722,
+      "median_ape": 0.257324,
+      "r2_log": 0.672014
     },
     "model_beats_baseline_mae": true
   },
   "by_category": {
     "nha_pho": {
       "category_label": "Nhà phố / nhà riêng",
-      "fit_rows": 59686,
-      "test_rows": 14878,
-      "model_terms": 570,
+      "fit_rows": 63435,
+      "test_rows": 15773,
+      "model_terms": 582,
       "reference_levels": [
-        "location=prov:94",
+        "location=prov:95",
         "area_band=3",
         "room_band=-1",
         "dist_band=na"
       ],
-      "train_r2_log": 0.695392,
+      "train_r2_log": 0.690788,
       "blend": {
         "weight": 0.7,
         "pooled_to_baseline": false
       },
       "test_model": {
-        "n": 14878,
-        "mae": 47715546.62,
-        "mape": 0.404167,
-        "median_ape": 0.236323,
-        "r2_log": 0.693504
+        "n": 15773,
+        "mae": 48366191.74,
+        "mape": 0.410368,
+        "median_ape": 0.239199,
+        "r2_log": 0.688311
       },
       "test_model_only": {
-        "n": 14878,
-        "mae": 48417421.07,
-        "mape": 0.406531,
-        "median_ape": 0.250805,
-        "r2_log": 0.688355
+        "n": 15773,
+        "mae": 49035949.65,
+        "mape": 0.412196,
+        "median_ape": 0.252884,
+        "r2_log": 0.683894
       },
       "test_baseline": {
-        "n": 14878,
-        "mae": 52251596.87,
-        "mape": 0.466938,
-        "median_ape": 0.249369,
-        "r2_log": 0.624104
+        "n": 15773,
+        "mae": 52924671.44,
+        "mape": 0.475594,
+        "median_ape": 0.25284,
+        "r2_log": 0.616443
       },
       "model_beats_baseline_mae": true,
       "flags": {
         "title_has_car_access": {
-          "train_rows_with_flag": 12625,
-          "coefficient": 0.066533,
-          "std_error": 0.005067,
-          "premium_pct": 0.0688,
+          "train_rows_with_flag": 13198,
+          "coefficient": 0.06446,
+          "std_error": 0.005003,
+          "premium_pct": 0.0666,
           "ci95_premium_pct": [
-            0.0582,
-            0.0795
+            0.0562,
+            0.0771
           ],
           "significant_at_5pct": true
         },
         "title_has_elevator": {
-          "train_rows_with_flag": 3430,
-          "coefficient": 0.254753,
-          "std_error": 0.009349,
-          "premium_pct": 0.2901,
+          "train_rows_with_flag": 3651,
+          "coefficient": 0.253512,
+          "std_error": 0.009123,
+          "premium_pct": 0.2885,
           "ci95_premium_pct": [
-            0.2667,
-            0.314
+            0.2657,
+            0.3118
           ],
           "significant_at_5pct": true
         },
         "title_has_frontage": {
-          "train_rows_with_flag": 12704,
-          "coefficient": 0.406144,
-          "std_error": 0.005209,
-          "premium_pct": 0.501,
+          "train_rows_with_flag": 13603,
+          "coefficient": 0.406225,
+          "std_error": 0.005089,
+          "premium_pct": 0.5011,
           "ci95_premium_pct": [
-            0.4858,
-            0.5164
+            0.4862,
+            0.5162
           ],
           "significant_at_5pct": true
         },
         "title_has_furnished": {
-          "train_rows_with_flag": 2620,
-          "coefficient": 0.029249,
-          "std_error": 0.009639,
-          "premium_pct": 0.0297,
+          "train_rows_with_flag": 2799,
+          "coefficient": 0.028983,
+          "std_error": 0.009432,
+          "premium_pct": 0.0294,
           "ci95_premium_pct": [
-            0.0104,
-            0.0493
+            0.0106,
+            0.0486
           ],
           "significant_at_5pct": true
         },
         "title_has_legal": {
-          "train_rows_with_flag": 4466,
-          "coefficient": -0.292608,
-          "std_error": 0.007661,
-          "premium_pct": -0.2537,
+          "train_rows_with_flag": 4696,
+          "coefficient": -0.291135,
+          "std_error": 0.007544,
+          "premium_pct": -0.2526,
           "ci95_premium_pct": [
-            -0.2648,
-            -0.2424
+            -0.2636,
+            -0.2415
           ],
           "significant_at_5pct": true
         }
@@ -202,95 +202,95 @@
     },
     "can_ho": {
       "category_label": "Căn hộ chung cư",
-      "fit_rows": 20810,
-      "test_rows": 5313,
-      "model_terms": 160,
+      "fit_rows": 23580,
+      "test_rows": 5974,
+      "model_terms": 163,
       "reference_levels": [
-        "location=prov:94",
+        "location=prov:95",
         "area_band=3",
         "room_band=2",
         "dist_band=na"
       ],
-      "train_r2_log": 0.516983,
+      "train_r2_log": 0.499626,
       "blend": {
         "weight": 0.9,
         "pooled_to_baseline": true
       },
       "test_model": {
-        "n": 5313,
-        "mae": 20480270.61,
-        "mape": 0.312435,
-        "median_ape": 0.242133,
-        "r2_log": 0.513798
+        "n": 5974,
+        "mae": 20579589.1,
+        "mape": 0.310671,
+        "median_ape": 0.240667,
+        "r2_log": 0.500113
       },
       "test_model_only": {
-        "n": 5313,
-        "mae": 20467235.33,
-        "mape": 0.313321,
-        "median_ape": 0.241883,
-        "r2_log": 0.516073
+        "n": 5974,
+        "mae": 20609103.5,
+        "mape": 0.312169,
+        "median_ape": 0.242163,
+        "r2_log": 0.500845
       },
       "test_baseline": {
-        "n": 5313,
-        "mae": 22459714.76,
-        "mape": 0.358996,
-        "median_ape": 0.268172,
-        "r2_log": 0.328906
+        "n": 5974,
+        "mae": 22454545.41,
+        "mape": 0.355336,
+        "median_ape": 0.259259,
+        "r2_log": 0.322465
       },
       "model_beats_baseline_mae": true,
       "flags": {
         "title_has_car_access": {
           "train_rows_with_flag": 105,
-          "coefficient": 0.214379,
-          "std_error": 0.039794,
-          "premium_pct": 0.2391,
+          "coefficient": 0.217629,
+          "std_error": 0.039639,
+          "premium_pct": 0.2431,
           "ci95_premium_pct": [
-            0.1461,
-            0.3396
+            0.1502,
+            0.3436
           ],
           "significant_at_5pct": true
         },
         "title_has_elevator": {
-          "train_rows_with_flag": 115,
-          "coefficient": 0.377111,
-          "std_error": 0.037457,
-          "premium_pct": 0.4581,
+          "train_rows_with_flag": 123,
+          "coefficient": 0.329958,
+          "std_error": 0.035985,
+          "premium_pct": 0.3909,
           "ci95_premium_pct": [
-            0.3549,
-            0.5691
+            0.2962,
+            0.4926
           ],
           "significant_at_5pct": true
         },
         "title_has_frontage": {
-          "train_rows_with_flag": 418,
-          "coefficient": 0.103864,
-          "std_error": 0.020035,
-          "premium_pct": 0.1094,
+          "train_rows_with_flag": 476,
+          "coefficient": 0.075393,
+          "std_error": 0.018686,
+          "premium_pct": 0.0783,
           "ci95_premium_pct": [
-            0.0667,
-            0.1539
+            0.0395,
+            0.1185
           ],
           "significant_at_5pct": true
         },
         "title_has_furnished": {
-          "train_rows_with_flag": 4506,
-          "coefficient": -0.101211,
-          "std_error": 0.006877,
-          "premium_pct": -0.0963,
+          "train_rows_with_flag": 4962,
+          "coefficient": -0.096187,
+          "std_error": 0.006499,
+          "premium_pct": -0.0917,
           "ci95_premium_pct": [
-            -0.1084,
-            -0.084
+            -0.1032,
+            -0.0801
           ],
           "significant_at_5pct": true
         },
         "title_has_legal": {
-          "train_rows_with_flag": 4768,
-          "coefficient": -0.152406,
-          "std_error": 0.007043,
+          "train_rows_with_flag": 5109,
+          "coefficient": -0.152432,
+          "std_error": 0.006729,
           "premium_pct": -0.1414,
           "ci95_premium_pct": [
-            -0.1531,
-            -0.1294
+            -0.1526,
+            -0.13
           ],
           "significant_at_5pct": true
         }
@@ -298,95 +298,95 @@
     },
     "biet_thu": {
       "category_label": "Biệt thự / liền kề / shophouse",
-      "fit_rows": 7308,
-      "test_rows": 1849,
-      "model_terms": 102,
+      "fit_rows": 8343,
+      "test_rows": 2122,
+      "model_terms": 100,
       "reference_levels": [
-        "location=prov:40",
+        "location=prov:41",
         "area_band=5",
         "room_band=-1",
         "dist_band=na"
       ],
-      "train_r2_log": 0.629819,
+      "train_r2_log": 0.611831,
       "blend": {
         "weight": 0.5,
         "pooled_to_baseline": false
       },
       "test_model": {
-        "n": 1849,
-        "mae": 62917949.25,
-        "mape": 0.500483,
-        "median_ape": 0.294169,
-        "r2_log": 0.609167
+        "n": 2122,
+        "mae": 62593333.95,
+        "mape": 0.507942,
+        "median_ape": 0.293916,
+        "r2_log": 0.58661
       },
       "test_model_only": {
-        "n": 1849,
-        "mae": 64398376.61,
-        "mape": 0.494552,
-        "median_ape": 0.312061,
-        "r2_log": 0.597253
+        "n": 2122,
+        "mae": 64068951.16,
+        "mape": 0.50243,
+        "median_ape": 0.308903,
+        "r2_log": 0.577382
       },
       "test_baseline": {
-        "n": 1849,
-        "mae": 63270380.77,
-        "mape": 0.544489,
-        "median_ape": 0.281036,
-        "r2_log": 0.571531
+        "n": 2122,
+        "mae": 62764742.55,
+        "mape": 0.546299,
+        "median_ape": 0.284069,
+        "r2_log": 0.550782
       },
       "model_beats_baseline_mae": true,
       "flags": {
         "title_has_car_access": {
-          "train_rows_with_flag": 239,
-          "coefficient": 0.027633,
-          "std_error": 0.038243,
-          "premium_pct": 0.028,
+          "train_rows_with_flag": 247,
+          "coefficient": 0.062579,
+          "std_error": 0.03698,
+          "premium_pct": 0.0646,
           "ci95_premium_pct": [
-            -0.0462,
-            0.108
+            -0.0099,
+            0.1446
           ],
           "significant_at_5pct": false
         },
         "title_has_elevator": {
-          "train_rows_with_flag": 354,
-          "coefficient": 0.256599,
-          "std_error": 0.03111,
-          "premium_pct": 0.2925,
+          "train_rows_with_flag": 382,
+          "coefficient": 0.265783,
+          "std_error": 0.029455,
+          "premium_pct": 0.3045,
           "ci95_premium_pct": [
-            0.2161,
-            0.3738
+            0.2313,
+            0.382
           ],
           "significant_at_5pct": true
         },
         "title_has_frontage": {
-          "train_rows_with_flag": 922,
-          "coefficient": 0.131142,
-          "std_error": 0.019791,
-          "premium_pct": 0.1401,
+          "train_rows_with_flag": 1015,
+          "coefficient": 0.123537,
+          "std_error": 0.018524,
+          "premium_pct": 0.1315,
           "ci95_premium_pct": [
-            0.0968,
-            0.1852
+            0.0911,
+            0.1733
           ],
           "significant_at_5pct": true
         },
         "title_has_furnished": {
-          "train_rows_with_flag": 347,
-          "coefficient": 0.134503,
-          "std_error": 0.030724,
-          "premium_pct": 0.144,
+          "train_rows_with_flag": 384,
+          "coefficient": 0.144555,
+          "std_error": 0.028809,
+          "premium_pct": 0.1555,
           "ci95_premium_pct": [
-            0.0771,
-            0.215
+            0.0921,
+            0.2227
           ],
           "significant_at_5pct": true
         },
         "title_has_legal": {
-          "train_rows_with_flag": 542,
-          "coefficient": -0.087805,
-          "std_error": 0.024764,
-          "premium_pct": -0.0841,
+          "train_rows_with_flag": 619,
+          "coefficient": -0.087328,
+          "std_error": 0.022841,
+          "premium_pct": -0.0836,
           "ci95_premium_pct": [
-            -0.1275,
-            -0.0385
+            -0.1237,
+            -0.0417
           ],
           "significant_at_5pct": true
         }
@@ -394,95 +394,95 @@
     },
     "dat": {
       "category_label": "Đất",
-      "fit_rows": 5477,
-      "test_rows": 1370,
-      "model_terms": 111,
+      "fit_rows": 5634,
+      "test_rows": 1419,
+      "model_terms": 110,
       "reference_levels": [
-        "location=prov:208",
+        "location=prov:95",
         "area_band=4",
         "room_band=-1",
         "dist_band=3"
       ],
-      "train_r2_log": 0.733045,
+      "train_r2_log": 0.729125,
       "blend": {
         "weight": 0.6,
         "pooled_to_baseline": false
       },
       "test_model": {
-        "n": 1370,
-        "mae": 21965307.69,
-        "mape": 0.63689,
-        "median_ape": 0.271535,
-        "r2_log": 0.732031
+        "n": 1419,
+        "mae": 21673340.47,
+        "mape": 0.64579,
+        "median_ape": 0.267188,
+        "r2_log": 0.723444
       },
       "test_model_only": {
-        "n": 1370,
-        "mae": 23434048.97,
-        "mape": 0.689162,
-        "median_ape": 0.314517,
-        "r2_log": 0.720805
+        "n": 1419,
+        "mae": 23089211.6,
+        "mape": 0.694822,
+        "median_ape": 0.312471,
+        "r2_log": 0.715264
       },
       "test_baseline": {
-        "n": 1370,
-        "mae": 22380099.55,
-        "mape": 0.646475,
-        "median_ape": 0.27955,
-        "r2_log": 0.69338
+        "n": 1419,
+        "mae": 22132297.18,
+        "mape": 0.664578,
+        "median_ape": 0.271964,
+        "r2_log": 0.679149
       },
       "model_beats_baseline_mae": true,
       "flags": {
         "title_has_car_access": {
-          "train_rows_with_flag": 509,
-          "coefficient": 0.07918,
-          "std_error": 0.035545,
-          "premium_pct": 0.0824,
+          "train_rows_with_flag": 510,
+          "coefficient": 0.083717,
+          "std_error": 0.035584,
+          "premium_pct": 0.0873,
           "ci95_premium_pct": [
-            0.0096,
-            0.1605
+            0.0141,
+            0.1659
           ],
           "significant_at_5pct": true
         },
         "title_has_elevator": {
           "train_rows_with_flag": 10,
-          "coefficient": 0.224063,
-          "std_error": 0.216444,
-          "premium_pct": 0.2511,
+          "coefficient": 0.227167,
+          "std_error": 0.216923,
+          "premium_pct": 0.255,
           "ci95_premium_pct": [
-            -0.1814,
-            0.9123
+            -0.1796,
+            0.92
           ],
           "significant_at_5pct": false
         },
         "title_has_frontage": {
-          "train_rows_with_flag": 1239,
-          "coefficient": 0.301297,
-          "std_error": 0.024004,
-          "premium_pct": 0.3516,
+          "train_rows_with_flag": 1261,
+          "coefficient": 0.294385,
+          "std_error": 0.023756,
+          "premium_pct": 0.3423,
           "ci95_premium_pct": [
-            0.2895,
-            0.4167
+            0.2812,
+            0.4063
           ],
           "significant_at_5pct": true
         },
         "title_has_furnished": {
           "train_rows_with_flag": 5,
-          "coefficient": -0.471237,
-          "std_error": 0.29205,
-          "premium_pct": -0.3758,
+          "coefficient": -0.492669,
+          "std_error": 0.292925,
+          "premium_pct": -0.389,
           "ci95_premium_pct": [
-            -0.6478,
-            0.1065
+            -0.6559,
+            0.0849
           ],
           "significant_at_5pct": false
         },
         "title_has_legal": {
-          "train_rows_with_flag": 618,
-          "coefficient": -0.142155,
-          "std_error": 0.0331,
-          "premium_pct": -0.1325,
+          "train_rows_with_flag": 660,
+          "coefficient": -0.140279,
+          "std_error": 0.032294,
+          "premium_pct": -0.1309,
           "ci95_premium_pct": [
-            -0.187,
-            -0.0744
+            -0.1842,
+            -0.0741
           ],
           "significant_at_5pct": true
         }
@@ -492,35 +492,35 @@
   "by_location_level": {
     "DISTRICT": {
       "test_model": {
-        "n": 13582,
-        "mae": 40242361.15,
-        "mape": 0.358189,
-        "median_ape": 0.219087,
-        "r2_log": 0.762443
+        "n": 13888,
+        "mae": 40449513.89,
+        "mape": 0.358769,
+        "median_ape": 0.219537,
+        "r2_log": 0.760875
       },
       "test_baseline": {
-        "n": 13582,
-        "mae": 44553664.83,
-        "mape": 0.419022,
-        "median_ape": 0.235343,
-        "r2_log": 0.691456
+        "n": 13888,
+        "mae": 44780639.43,
+        "mape": 0.420022,
+        "median_ape": 0.235253,
+        "r2_log": 0.688862
       },
       "model_beats_baseline_mae": true
     },
     "PROVINCE": {
       "test_model": {
-        "n": 9828,
-        "mae": 42590515.96,
-        "mape": 0.468679,
-        "median_ape": 0.278887,
-        "r2_log": 0.703543
+        "n": 11400,
+        "mae": 42775182.76,
+        "mape": 0.468449,
+        "median_ape": 0.280057,
+        "r2_log": 0.693651
       },
       "test_baseline": {
-        "n": 9828,
-        "mae": 44693479.59,
-        "mape": 0.514421,
-        "median_ape": 0.293283,
-        "r2_log": 0.655324
+        "n": 11400,
+        "mae": 44877481.58,
+        "mape": 0.516959,
+        "median_ape": 0.288462,
+        "r2_log": 0.64246
       },
       "model_beats_baseline_mae": true
     }

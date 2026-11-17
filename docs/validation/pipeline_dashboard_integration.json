@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-29T05:00:28.915163+00:00",
-  "run_id": "defense_20261029_final",
+  "generated_at": "2026-11-17T15:17:46.028209+00:00",
+  "run_id": "acceptance_A_20261117_r2",
   "checks": {
     "airflow_24_tasks": true,
     "silver_30": true,
@@ -17,40 +17,40 @@
   },
   "table_counts": {
     "silver.listing_observation": {
-      "expected": 291145,
-      "actual": 291145
+      "expected": 334820,
+      "actual": 334820
     },
     "silver.listing_dq_quarantine": {
       "expected": 664,
       "actual": 664
     },
     "silver.crawl_current_27": {
-      "expected": 109160,
-      "actual": 109160
+      "expected": 119700,
+      "actual": 119700
     },
     "silver.historical_current_27": {
       "expected": 30317,
       "actual": 30317
     },
     "silver.silver_listings_current_27": {
-      "expected": 139477,
-      "actual": 139477
+      "expected": 150017,
+      "actual": 150017
     },
     "silver.listing_history": {
-      "expected": 154343,
-      "actual": 154343
+      "expected": 167794,
+      "actual": 167794
     },
     "silver.listing_history_state": {
-      "expected": 139477,
-      "actual": 139477
+      "expected": 150017,
+      "actual": 150017
     },
     "silver.listing_location": {
-      "expected": 139477,
-      "actual": 139477
+      "expected": 150017,
+      "actual": 150017
     },
     "silver.listing_feature": {
-      "expected": 139477,
-      "actual": 139477
+      "expected": 150017,
+      "actual": 150017
     },
     "gold.dim_source": {
       "expected": 10,
@@ -61,8 +61,8 @@
       "actual": 2694
     },
     "gold.dim_location": {
-      "expected": 258,
-      "actual": 258
+      "expected": 263,
+      "actual": 263
     },
     "gold.dim_property_category": {
       "expected": 6,
@@ -89,52 +89,52 @@
       "actual": 3
     },
     "gold.fact_listing": {
-      "expected": 124120,
-      "actual": 124120
+      "expected": 134660,
+      "actual": 134660
     },
     "gold.agg_peer_group_benchmark": {
-      "expected": 2685,
-      "actual": 2685
+      "expected": 2746,
+      "actual": 2746
     },
     "gold.fact_listing_price_assessment": {
-      "expected": 123066,
-      "actual": 123066
+      "expected": 133495,
+      "actual": 133495
     },
     "gold.agg_budget_tradeoff": {
-      "expected": 2469,
-      "actual": 2469
+      "expected": 2526,
+      "actual": 2526
     },
     "gold.fact_budget_pareto": {
-      "expected": 120115,
-      "actual": 120115
+      "expected": 130014,
+      "actual": 130014
     },
     "gold.agg_area_substitution": {
-      "expected": 2588,
-      "actual": 2588
+      "expected": 2593,
+      "actual": 2593
     },
     "gold.agg_dq_kpi": {
       "expected": 9,
       "actual": 9
     },
     "gold.fact_listing_price_change": {
-      "expected": 1904,
-      "actual": 1904
+      "expected": 3021,
+      "actual": 3021
     },
     "gold.agg_market_overview": {
-      "expected": 149,
-      "actual": 149
+      "expected": 154,
+      "actual": 154
     },
     "gold.fact_listing_lifecycle": {
-      "expected": 139477,
-      "actual": 139477
+      "expected": 150017,
+      "actual": 150017
     },
     "gold.fact_listing_price_model": {
-      "expected": 68999,
-      "actual": 68999
+      "expected": 128853,
+      "actual": 128853
     },
     "gold.agg_price_model_coefficient": {
-      "expected": 222,
-      "actual": 222
+      "expected": 971,
+      "actual": 971
     }
   },
   "dashboards": [
@@ -158,14 +158,14 @@
   "filter_checks": [
     {
       "province": "Hồ Chí Minh",
-      "expected": 79356,
-      "actual": 79356,
+      "expected": 84639,
+      "actual": 84639,
       "match": true
     },
     {
       "province": "Hà Nội",
-      "expected": 22632,
-      "actual": 22632,
+      "expected": 25234,
+      "actual": 25234,
       "match": true
     }
   ],

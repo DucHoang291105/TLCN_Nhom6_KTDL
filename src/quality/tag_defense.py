@@ -9,6 +9,7 @@ from pathlib import Path
 from src.orchestration.snapshot_manifest import file_checksum
 from src.quality.defense_evidence import ROOT, all_pass, code_state, inputs, read
 
+PLANNED_TAGS = ("v1.0-bao-ve", "v1.1-bao-ve")
 
 def verified_candidate(root, evidence):
     if evidence.get("status") != "PASS" or not all_pass(evidence.get("checks", {})):
@@ -27,8 +28,8 @@ def git(*args):
 
 
 def create_tag(tag, push=False):
-    if tag != "v1.0-bao-ve":
-        raise ValueError("This command finalizes only the planned v1.0-bao-ve tag")
+    if tag not in PLANNED_TAGS:
+        raise ValueError("Use a planned defense tag: " + ", ".join(PLANNED_TAGS))
     if git("status", "--porcelain"):
         raise ValueError("Commit the reviewed source, inputs and evidence before tagging")
     evidence = read(ROOT / "docs/validation/defense_verification.json")

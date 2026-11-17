@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-10-29T04:47:50.312586+00:00",
-  "finished_at": "2026-10-29T04:48:04.038636+00:00",
+  "started_at": "2026-11-17T15:05:19.312182+00:00",
+  "finished_at": "2026-11-17T15:05:20.405744+00:00",
   "namespace": "lakehouse.gold",
   "table_counts": {
     "dim_source": 10,
@@ -10,7 +10,7 @@
     "dim_area_band": 7,
     "dim_unit_price_band": 8,
     "dim_room_band": 6,
-    "dim_location": 258,
+    "dim_location": 263,
     "dim_date": 2694
   },
   "status": "PASS"

@@ -6,6 +6,22 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import requests
+import time
+
+
+class ReadRetrySession(requests.Session):
+    """Bounded retry for a read rejected during local JWT iat clock jitter.
+
+    The server still verifies the same token; no permission is bypassed.
+    Mutations are never retried, so a DAG cannot be submitted twice.
+    """
+    def request(self, method, url, **kwargs):
+        response = super().request(method, url, **kwargs)
+        if method.upper() in {"GET", "HEAD"} and response.status_code == 403:
+            response.close()
+            time.sleep(1)
+            response = super().request(method, url, **kwargs)
+        return response
 
 
 def session():
@@ -14,7 +30,7 @@ def session():
     credentials = json.loads(Path(password_file).read_text())
     response = requests.post("http://localhost:8080/auth/token", json={"username": "admin", "password": credentials["admin"]}, timeout=30)
     response.raise_for_status()
-    client = requests.Session()
+    client = ReadRetrySession()
     client.headers["Authorization"] = "Bearer " + response.json()["access_token"]
     return client
 

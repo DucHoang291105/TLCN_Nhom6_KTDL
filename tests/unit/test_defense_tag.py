@@ -36,3 +36,19 @@ def test_tag_rejects_changed_or_incomplete_verification(tmp_path, monkeypatch, c
     else: proof["checks"]["all_tables"] = "PASS"
     with pytest.raises(ValueError):
         release.verified_candidate(tmp_path, proof)
+
+
+@pytest.mark.parametrize("tag", ["v1.0-bao-ve", "v1.1-bao-ve"])
+def test_both_planned_tags_still_require_clean_reviewed_worktree(monkeypatch, tag):
+    monkeypatch.setattr(release, "git", lambda *args: " M source.py")
+    with pytest.raises(ValueError, match="Commit the reviewed"):
+        release.create_tag(tag)
+
+
+@pytest.mark.parametrize("tag", ["v9.9", "main", "../unsafe", "v1.1-bao-ve --force"])
+def test_unplanned_tags_rejected_before_git(monkeypatch, tag):
+    def unexpected(*args):
+        raise AssertionError("Git must not run")
+    monkeypatch.setattr(release, "git", unexpected)
+    with pytest.raises(ValueError, match="planned defense tag"):
+        release.create_tag(tag)

@@ -1,0 +1,1752 @@
+{
+  "generated_at": "2026-11-17T14:17:01.259102+00:00",
+  "as_of": "20261117",
+  "baseline_cutoff": "20261027",
+  "scope": "Local raw CSV diagnostic, not Silver/Gold acceptance or confirmed website availability",
+  "status": "PASS",
+  "checks": {
+    "files_valid_and_pinned_bytes_unchanged": true,
+    "no_ignored_or_extra_csv": true,
+    "all_calendar_gaps_declared": true,
+    "requested_batch_complete": true
+  },
+  "latest_complete_local_batch": "20261117",
+  "snapshot_files": 48,
+  "snapshot_rows": 316241,
+  "snapshots": [
+    {
+      "rows": 20000,
+      "unique_ids": 17506,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 2494,
+      "missing_page_rows": 0,
+      "observed_pages": 1000,
+      "min_page": 1,
+      "max_page": 1000,
+      "sha256": "6cc1d9148c85bd83bfa0bdd143ff0b32b6cc1a11170de85675dee220f80a60a1",
+      "size_bytes": 20953413,
+      "source": "batdongsan",
+      "batch_id": "20260922",
+      "path": "data/incoming/snapshots/batdongsan/20260922/batdongsan_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 14000,
+      "unique_ids": 13193,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 807,
+      "missing_page_rows": 0,
+      "observed_pages": 700,
+      "min_page": 1,
+      "max_page": 700,
+      "sha256": "15303e4b703a993d0e486739b06fd1ca3ed8bce024b1ebf0a2f7cfd0ebec3119",
+      "size_bytes": 15203414,
+      "source": "batdongsan",
+      "batch_id": "20260925",
+      "path": "data/incoming/snapshots/batdongsan/20260925/batdongsan_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 4000,
+      "unique_ids": 3897,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 103,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "1dd176227f270a63eb7eb19a105c9a4575d16e82f347300b6e875213296701e7",
+      "size_bytes": 6128651,
+      "source": "batdongsan",
+      "batch_id": "20260929",
+      "path": "data/incoming/snapshots/batdongsan/20260929/batdongsan_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 4000,
+      "unique_ids": 3908,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 92,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "61b307bf30ba95bdbede54e0013a3dde2da8686f989d44aa38880b146de4c78f",
+      "size_bytes": 6231147,
+      "source": "batdongsan",
+      "batch_id": "20261002",
+      "path": "data/incoming/snapshots/batdongsan/20261002/batdongsan_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 4000,
+      "unique_ids": 3987,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 13,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "9245622a5087f034a7428e598746ca840ea8d2a9022747e7eac8d6c37eb86e4c",
+      "size_bytes": 6133288,
+      "source": "batdongsan",
+      "batch_id": "20261006",
+      "path": "data/incoming/snapshots/batdongsan/20261006/batdongsan_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 4000,
+      "unique_ids": 3878,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 122,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "b9d25d3794ddbe912b572145c2fe10663e900ccfbad0203045e9c0db7570b0d8",
+      "size_bytes": 5976258,
+      "source": "batdongsan",
+      "batch_id": "20261009",
+      "path": "data/incoming/snapshots/batdongsan/20261009/batdongsan_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 4000,
+      "unique_ids": 3858,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 142,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "cf48d8aab97e02ea4f7889b6048690111006dc41b8389d2efbc952415605d4bd",
+      "size_bytes": 5798381,
+      "source": "batdongsan",
+      "batch_id": "20261013",
+      "path": "data/incoming/snapshots/batdongsan/20261013/batdongsan_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 4000,
+      "unique_ids": 3939,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 61,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "aaa94c3fec04d404b3a25f7fc24a41c78d74127308f32f974e672e4473ac6de6",
+      "size_bytes": 5732233,
+      "source": "batdongsan",
+      "batch_id": "20261016",
+      "path": "data/incoming/snapshots/batdongsan/20261016/batdongsan_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 4000,
+      "unique_ids": 3522,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 478,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 30,
+      "max_page": 229,
+      "sha256": "eb8a35fe0fcc090106719e0ae0965faf031e7071231b3d4fb242021e7e2f118c",
+      "size_bytes": 5054904,
+      "source": "batdongsan",
+      "batch_id": "20261020",
+      "path": "data/incoming/snapshots/batdongsan/20261020/batdongsan_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 4000,
+      "unique_ids": 3636,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 364,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "c5d1dce630ad1bfb6ec18ac3c6e89b61862dc4dde444244d28ee2041594e6be9",
+      "size_bytes": 5571448,
+      "source": "batdongsan",
+      "batch_id": "20261023",
+      "path": "data/incoming/snapshots/batdongsan/20261023/batdongsan_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 4000,
+      "unique_ids": 3628,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 372,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "c9173a0aa040989f5b47ff540806cdfa6a1a75b638a7b33375fdcc2d482f1d3c",
+      "size_bytes": 5565807,
+      "source": "batdongsan",
+      "batch_id": "20261027",
+      "path": "data/incoming/snapshots/batdongsan/20261027/batdongsan_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 4000,
+      "unique_ids": 3396,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 604,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 27,
+      "max_page": 226,
+      "sha256": "34f69b7216cbaca3c9484692e2bd3bf7d54fa44cb2cb477f49a0899aef94bc88",
+      "size_bytes": 5104624,
+      "source": "batdongsan",
+      "batch_id": "20261030",
+      "path": "data/incoming/snapshots/batdongsan/20261030/batdongsan_raw.csv",
+      "matches_pipeline_manifest": null
+    },
+    {
+      "rows": 4000,
+      "unique_ids": 3510,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 490,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "92e95fb8b58ffe0d26973b39e0f57dac46a9c587881db4300fa887a2d5681b26",
+      "size_bytes": 5611497,
+      "source": "batdongsan",
+      "batch_id": "20261103",
+      "path": "data/incoming/snapshots/batdongsan/20261103/batdongsan_raw.csv",
+      "matches_pipeline_manifest": null
+    },
+    {
+      "rows": 4000,
+      "unique_ids": 3928,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 72,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "907c3ab816326a16b5f8caf0ac6f59181f7b31b20029c79796eebc1185e62b2c",
+      "size_bytes": 5950732,
+      "source": "batdongsan",
+      "batch_id": "20261106",
+      "path": "data/incoming/snapshots/batdongsan/20261106/batdongsan_raw.csv",
+      "matches_pipeline_manifest": null
+    },
+    {
+      "rows": 4000,
+      "unique_ids": 3865,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 135,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "c112fc5801fbae0031815a76292c6c428b975debba9e1566431914d6296abc95",
+      "size_bytes": 6045661,
+      "source": "batdongsan",
+      "batch_id": "20261110",
+      "path": "data/incoming/snapshots/batdongsan/20261110/batdongsan_raw.csv",
+      "matches_pipeline_manifest": null
+    },
+    {
+      "rows": 4000,
+      "unique_ids": 3938,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 62,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "335c4d9661baf06e92ae2c7b84bae5ba0332036f9a1e458d4bcfe7612878f69e",
+      "size_bytes": 6081525,
+      "source": "batdongsan",
+      "batch_id": "20261113",
+      "path": "data/incoming/snapshots/batdongsan/20261113/batdongsan_raw.csv",
+      "matches_pipeline_manifest": null
+    },
+    {
+      "rows": 4000,
+      "unique_ids": 3898,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 102,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "c870363fd9adfe68cbd5eea0bf49e28984ac2e0da8b0cca652847471c8d61c6f",
+      "size_bytes": 6032264,
+      "source": "batdongsan",
+      "batch_id": "20261117",
+      "path": "data/incoming/snapshots/batdongsan/20261117/batdongsan_raw.csv",
+      "matches_pipeline_manifest": null
+    },
+    {
+      "rows": 45664,
+      "unique_ids": 44870,
+      "missing_id_rows": 664,
+      "duplicate_id_rows": 130,
+      "missing_page_rows": 664,
+      "observed_pages": 1000,
+      "min_page": 1,
+      "max_page": 1000,
+      "sha256": "beee64ced4ba80baf910911338f61058b1096e2c878c89c4e47b0fbd4836dc62",
+      "size_bytes": 276033348,
+      "source": "guland",
+      "batch_id": "20260922",
+      "path": "data/incoming/snapshots/guland/20260922/guland_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 31500,
+      "unique_ids": 31392,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 108,
+      "missing_page_rows": 0,
+      "observed_pages": 700,
+      "min_page": 1,
+      "max_page": 700,
+      "sha256": "9dd5e61421a640eb6e2f27efae5589ba8de26f5c745b5f43b142e85c289561d5",
+      "size_bytes": 195252263,
+      "source": "guland",
+      "batch_id": "20260925",
+      "path": "data/incoming/snapshots/guland/20260925/guland_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 9000,
+      "unique_ids": 8942,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 58,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "d4abda54e495af8a54c55c037bcfe2bda48c74fc6ea881b079e7e2b489034e25",
+      "size_bytes": 57686756,
+      "source": "guland",
+      "batch_id": "20260929",
+      "path": "data/incoming/snapshots/guland/20260929/guland_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 9000,
+      "unique_ids": 8981,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 19,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "01d8af3c86d846d7f8dee1a005680fa8cfbe2af440a0c43e18af5f1961e36b7d",
+      "size_bytes": 56432657,
+      "source": "guland",
+      "batch_id": "20261002",
+      "path": "data/incoming/snapshots/guland/20261002/guland_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 9000,
+      "unique_ids": 8831,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 169,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "ef6f471ed6d1c11c330caa2197c4894f9003364209046e93edf64725b3f97ca2",
+      "size_bytes": 56890041,
+      "source": "guland",
+      "batch_id": "20261006",
+      "path": "data/incoming/snapshots/guland/20261006/guland_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 9000,
+      "unique_ids": 8781,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 219,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "b2355dff69c89d377f01fdee6e3bf2bd999156f11b7c2b8c96daea21c8aed6a7",
+      "size_bytes": 57051704,
+      "source": "guland",
+      "batch_id": "20261009",
+      "path": "data/incoming/snapshots/guland/20261009/guland_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 9000,
+      "unique_ids": 8994,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 6,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "0c3e8e4bb7cf80ce9f5cd78e5a5db7a978bf7733f616a573f10de5a3c20b6c11",
+      "size_bytes": 56880665,
+      "source": "guland",
+      "batch_id": "20261013",
+      "path": "data/incoming/snapshots/guland/20261013/guland_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 9000,
+      "unique_ids": 8956,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 44,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "f373b02dbf0be4c191cddd65b19fcfb0871e0dd4568dcc60092617bf964a1195",
+      "size_bytes": 60118447,
+      "source": "guland",
+      "batch_id": "20261016",
+      "path": "data/incoming/snapshots/guland/20261016/guland_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 1350,
+      "unique_ids": 1303,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 47,
+      "missing_page_rows": 0,
+      "observed_pages": 30,
+      "min_page": 1,
+      "max_page": 30,
+      "sha256": "90e57530b6f603c5d1d5158d911ff66315fc24018d7df8e76a646b6721be0f9c",
+      "size_bytes": 9992511,
+      "source": "guland",
+      "batch_id": "20261023",
+      "path": "data/incoming/snapshots/guland/20261023/guland_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 1350,
+      "unique_ids": 1335,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 15,
+      "missing_page_rows": 0,
+      "observed_pages": 30,
+      "min_page": 1,
+      "max_page": 30,
+      "sha256": "ad7ac8645e06b8083d4b91c71189e5fe8acaae0a336e7b7a2d902cc8efe93aec",
+      "size_bytes": 9527803,
+      "source": "guland",
+      "batch_id": "20261027",
+      "path": "data/incoming/snapshots/guland/20261027/guland_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 1350,
+      "unique_ids": 1350,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 0,
+      "missing_page_rows": 0,
+      "observed_pages": 30,
+      "min_page": 1,
+      "max_page": 30,
+      "sha256": "788a6a0db4c9acda09a934767d9ed53100364584065492433ebb3e28e633b315",
+      "size_bytes": 9724245,
+      "source": "guland",
+      "batch_id": "20261103",
+      "path": "data/incoming/snapshots/guland/20261103/guland_raw.csv",
+      "matches_pipeline_manifest": null
+    },
+    {
+      "rows": 1350,
+      "unique_ids": 1350,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 0,
+      "missing_page_rows": 0,
+      "observed_pages": 30,
+      "min_page": 1,
+      "max_page": 30,
+      "sha256": "790fc102f89864eaf697515d71e070fb0c07c892449314b32f4ebbc97b1cff59",
+      "size_bytes": 9766875,
+      "source": "guland",
+      "batch_id": "20261106",
+      "path": "data/incoming/snapshots/guland/20261106/guland_raw.csv",
+      "matches_pipeline_manifest": null
+    },
+    {
+      "rows": 1350,
+      "unique_ids": 1350,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 0,
+      "missing_page_rows": 0,
+      "observed_pages": 30,
+      "min_page": 1,
+      "max_page": 30,
+      "sha256": "8be2c199eb7079d60bfdc0ab69825d75f94ead5a5c34c2c1be564cb118d67b0d",
+      "size_bytes": 8111142,
+      "source": "guland",
+      "batch_id": "20261110",
+      "path": "data/incoming/snapshots/guland/20261110/guland_raw.csv",
+      "matches_pipeline_manifest": null
+    },
+    {
+      "rows": 1350,
+      "unique_ids": 1350,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 0,
+      "missing_page_rows": 0,
+      "observed_pages": 30,
+      "min_page": 1,
+      "max_page": 30,
+      "sha256": "ee3bcbb35404c8d28f2823c0985d59adde4a3b5defe45fd105b00a5da759d1be",
+      "size_bytes": 9306342,
+      "source": "guland",
+      "batch_id": "20261113",
+      "path": "data/incoming/snapshots/guland/20261113/guland_raw.csv",
+      "matches_pipeline_manifest": null
+    },
+    {
+      "rows": 1350,
+      "unique_ids": 1349,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 1,
+      "missing_page_rows": 0,
+      "observed_pages": 30,
+      "min_page": 1,
+      "max_page": 30,
+      "sha256": "810bf3276965f3fa19eb8dac84f7f1c034d535b32b8c10a2930a40bdcafba065",
+      "size_bytes": 9113798,
+      "source": "guland",
+      "batch_id": "20261117",
+      "path": "data/incoming/snapshots/guland/20261117/guland_raw.csv",
+      "matches_pipeline_manifest": null
+    },
+    {
+      "rows": 16860,
+      "unique_ids": 16734,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 126,
+      "missing_page_rows": 0,
+      "observed_pages": 937,
+      "min_page": 1,
+      "max_page": 937,
+      "sha256": "fd00120bcda93ebbab62e04c6f6bd206f973513ceeded4b1feaf12249980a37e",
+      "size_bytes": 10141745,
+      "source": "nhadatvui",
+      "batch_id": "20260922",
+      "path": "data/incoming/snapshots/nhadatvui/20260922/nhadatvui_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 10800,
+      "unique_ids": 10777,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 23,
+      "missing_page_rows": 0,
+      "observed_pages": 600,
+      "min_page": 1,
+      "max_page": 600,
+      "sha256": "c5e8168cfff50a1fae16f6fd8e80dd9dadea8e2126e26c5ab187182850ffc63e",
+      "size_bytes": 6467659,
+      "source": "nhadatvui",
+      "batch_id": "20260925",
+      "path": "data/incoming/snapshots/nhadatvui/20260925/nhadatvui_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 3600,
+      "unique_ids": 3600,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 0,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "5e024755481125139b6aa646866d2567ff08037b689ecfffb5737d473f6d7447",
+      "size_bytes": 2123086,
+      "source": "nhadatvui",
+      "batch_id": "20260929",
+      "path": "data/incoming/snapshots/nhadatvui/20260929/nhadatvui_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 3600,
+      "unique_ids": 3599,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 1,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "e91905a72aba07656fa4c19e7cb74b2fa36299d48070355338f6823cc8d1ff93",
+      "size_bytes": 2083598,
+      "source": "nhadatvui",
+      "batch_id": "20261002",
+      "path": "data/incoming/snapshots/nhadatvui/20261002/nhadatvui_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 3600,
+      "unique_ids": 3599,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 1,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "bf207b16d05e443c9a60b31913cae3228f99e7553e2b742bd637d64f6598b3bc",
+      "size_bytes": 2120537,
+      "source": "nhadatvui",
+      "batch_id": "20261003",
+      "path": "data/incoming/snapshots/nhadatvui/20261003/nhadatvui_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 3600,
+      "unique_ids": 3599,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 1,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "29b778e4420bf18ffae2a9f4cef5563e5bd35ba71391b0ded2c53adfa4c367fb",
+      "size_bytes": 2119743,
+      "source": "nhadatvui",
+      "batch_id": "20261006",
+      "path": "data/incoming/snapshots/nhadatvui/20261006/nhadatvui_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 3600,
+      "unique_ids": 3599,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 1,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "590f81c55706af78c99aeb65c058d2797bc7eda7fbdc0dda1c637e64e7e7fba6",
+      "size_bytes": 2114651,
+      "source": "nhadatvui",
+      "batch_id": "20261009",
+      "path": "data/incoming/snapshots/nhadatvui/20261009/nhadatvui_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 7167,
+      "unique_ids": 3595,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 3572,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "b2740c42ead7f9ebc359955c0575641275fcc38223ac77e74102fefdba290cc4",
+      "size_bytes": 4202793,
+      "source": "nhadatvui",
+      "batch_id": "20261013",
+      "path": "data/incoming/snapshots/nhadatvui/20261013/nhadatvui_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 3600,
+      "unique_ids": 3598,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 2,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "0a1f8c3b70065bf4ca0eacbeec8b8e10905ec5b875b455a5d7db0e36ac78c774",
+      "size_bytes": 2109265,
+      "source": "nhadatvui",
+      "batch_id": "20261016",
+      "path": "data/incoming/snapshots/nhadatvui/20261016/nhadatvui_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 3600,
+      "unique_ids": 3598,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 2,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "28ae62ee1dba4272ff8a8226c268edb1bcd898772cdc2ae43428b2b00ea412e9",
+      "size_bytes": 2109319,
+      "source": "nhadatvui",
+      "batch_id": "20261020",
+      "path": "data/incoming/snapshots/nhadatvui/20261020/nhadatvui_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 3600,
+      "unique_ids": 3597,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 3,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "a6b14fc93c20b07135bd38177e79e4383d326a5a3dc575488520191b86204fb4",
+      "size_bytes": 2109996,
+      "source": "nhadatvui",
+      "batch_id": "20261023",
+      "path": "data/incoming/snapshots/nhadatvui/20261023/nhadatvui_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 3600,
+      "unique_ids": 3596,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 4,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "70acb85d763d9eeb6708f384814b76df0b27f11cfb2d2735f4495493a25267f8",
+      "size_bytes": 2111503,
+      "source": "nhadatvui",
+      "batch_id": "20261027",
+      "path": "data/incoming/snapshots/nhadatvui/20261027/nhadatvui_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 3600,
+      "unique_ids": 3600,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 0,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "505fa62669b0e34c64f2c4e02fc62a4b6e95d298177e7ac995cc49b7042fa09d",
+      "size_bytes": 2111770,
+      "source": "nhadatvui",
+      "batch_id": "20261103",
+      "path": "data/incoming/snapshots/nhadatvui/20261103/nhadatvui_raw.csv",
+      "matches_pipeline_manifest": null
+    },
+    {
+      "rows": 3600,
+      "unique_ids": 3599,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 1,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "13b47d7a7a649786ddaae411b1fa0fd76235d709a5435d0381860a53a85ba564",
+      "size_bytes": 2107722,
+      "source": "nhadatvui",
+      "batch_id": "20261106",
+      "path": "data/incoming/snapshots/nhadatvui/20261106/nhadatvui_raw.csv",
+      "matches_pipeline_manifest": null
+    },
+    {
+      "rows": 3600,
+      "unique_ids": 3599,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 1,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "3ac3da4f6d256fb9d75408b6e3f5e935e31155434b1e15fa897893bad313d43c",
+      "size_bytes": 2103366,
+      "source": "nhadatvui",
+      "batch_id": "20261113",
+      "path": "data/incoming/snapshots/nhadatvui/20261113/nhadatvui_raw.csv",
+      "matches_pipeline_manifest": null
+    },
+    {
+      "rows": 3600,
+      "unique_ids": 3593,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 7,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "30b01aeebd43d86799c9df4307953d340b8e0640db51f46451c55018ab148112",
+      "size_bytes": 2101008,
+      "source": "nhadatvui",
+      "batch_id": "20261117",
+      "path": "data/incoming/snapshots/nhadatvui/20261117/nhadatvui_raw.csv",
+      "matches_pipeline_manifest": null
+    }
+  ],
+  "sources": {
+    "batdongsan": {
+      "baseline": {
+        "status": "MEASURED",
+        "latest_batch": "20261027",
+        "batch_count": 11,
+        "unique_ids_ever": 38100,
+        "latest_unique_ids": 3628,
+        "absent_two_batches": 32527,
+        "absent_two_batches_share": 0.8537270341207349,
+        "consecutive_pairs": [
+          {
+            "old_batch": "20260922",
+            "new_batch": "20260925",
+            "old_unique_ids": 17506,
+            "new_unique_ids": 13193,
+            "retained_ids": 4312,
+            "retained_share_of_old": 0.2463155489546441,
+            "not_observed_from_old": 13194
+          },
+          {
+            "old_batch": "20260925",
+            "new_batch": "20260929",
+            "old_unique_ids": 13193,
+            "new_unique_ids": 3897,
+            "retained_ids": 2262,
+            "retained_share_of_old": 0.17145455923595845,
+            "not_observed_from_old": 10931
+          },
+          {
+            "old_batch": "20260929",
+            "new_batch": "20261002",
+            "old_unique_ids": 3897,
+            "new_unique_ids": 3908,
+            "retained_ids": 2550,
+            "retained_share_of_old": 0.6543494996150885,
+            "not_observed_from_old": 1347
+          },
+          {
+            "old_batch": "20261002",
+            "new_batch": "20261006",
+            "old_unique_ids": 3908,
+            "new_unique_ids": 3987,
+            "retained_ids": 2465,
+            "retained_share_of_old": 0.6307574206755373,
+            "not_observed_from_old": 1443
+          },
+          {
+            "old_batch": "20261006",
+            "new_batch": "20261009",
+            "old_unique_ids": 3987,
+            "new_unique_ids": 3878,
+            "retained_ids": 2415,
+            "retained_share_of_old": 0.6057185854025583,
+            "not_observed_from_old": 1572
+          },
+          {
+            "old_batch": "20261009",
+            "new_batch": "20261013",
+            "old_unique_ids": 3878,
+            "new_unique_ids": 3858,
+            "retained_ids": 1777,
+            "retained_share_of_old": 0.4582258896338319,
+            "not_observed_from_old": 2101
+          },
+          {
+            "old_batch": "20261013",
+            "new_batch": "20261016",
+            "old_unique_ids": 3858,
+            "new_unique_ids": 3939,
+            "retained_ids": 2315,
+            "retained_share_of_old": 0.6000518403317782,
+            "not_observed_from_old": 1543
+          },
+          {
+            "old_batch": "20261016",
+            "new_batch": "20261020",
+            "old_unique_ids": 3939,
+            "new_unique_ids": 3522,
+            "retained_ids": 953,
+            "retained_share_of_old": 0.24193957857324194,
+            "not_observed_from_old": 2986
+          },
+          {
+            "old_batch": "20261020",
+            "new_batch": "20261023",
+            "old_unique_ids": 3522,
+            "new_unique_ids": 3636,
+            "retained_ids": 2599,
+            "retained_share_of_old": 0.7379329926178307,
+            "not_observed_from_old": 923
+          },
+          {
+            "old_batch": "20261023",
+            "new_batch": "20261027",
+            "old_unique_ids": 3636,
+            "new_unique_ids": 3628,
+            "retained_ids": 1691,
+            "retained_share_of_old": 0.46507150715071505,
+            "not_observed_from_old": 1945
+          }
+        ],
+        "depth_cohorts": {
+          "reference_batch": "20260922",
+          "reference_max_page": 1000,
+          "latest_max_page": 200,
+          "cohorts": {
+            "within_latest_depth": {
+              "ids": 3980,
+              "absent_two_batches": 3396,
+              "absent_share": 0.8532663316582915
+            },
+            "beyond_latest_depth": {
+              "ids": 13526,
+              "absent_two_batches": 13215,
+              "absent_share": 0.9770072453053379
+            },
+            "unknown_page": {
+              "ids": 0,
+              "absent_two_batches": 0,
+              "absent_share": null
+            }
+          }
+        }
+      },
+      "local": {
+        "status": "MEASURED",
+        "latest_batch": "20261117",
+        "batch_count": 17,
+        "unique_ids_ever": 46222,
+        "latest_unique_ids": 3898,
+        "absent_two_batches": 40699,
+        "absent_two_batches_share": 0.8805114447665614,
+        "consecutive_pairs": [
+          {
+            "old_batch": "20260922",
+            "new_batch": "20260925",
+            "old_unique_ids": 17506,
+            "new_unique_ids": 13193,
+            "retained_ids": 4312,
+            "retained_share_of_old": 0.2463155489546441,
+            "not_observed_from_old": 13194
+          },
+          {
+            "old_batch": "20260925",
+            "new_batch": "20260929",
+            "old_unique_ids": 13193,
+            "new_unique_ids": 3897,
+            "retained_ids": 2262,
+            "retained_share_of_old": 0.17145455923595845,
+            "not_observed_from_old": 10931
+          },
+          {
+            "old_batch": "20260929",
+            "new_batch": "20261002",
+            "old_unique_ids": 3897,
+            "new_unique_ids": 3908,
+            "retained_ids": 2550,
+            "retained_share_of_old": 0.6543494996150885,
+            "not_observed_from_old": 1347
+          },
+          {
+            "old_batch": "20261002",
+            "new_batch": "20261006",
+            "old_unique_ids": 3908,
+            "new_unique_ids": 3987,
+            "retained_ids": 2465,
+            "retained_share_of_old": 0.6307574206755373,
+            "not_observed_from_old": 1443
+          },
+          {
+            "old_batch": "20261006",
+            "new_batch": "20261009",
+            "old_unique_ids": 3987,
+            "new_unique_ids": 3878,
+            "retained_ids": 2415,
+            "retained_share_of_old": 0.6057185854025583,
+            "not_observed_from_old": 1572
+          },
+          {
+            "old_batch": "20261009",
+            "new_batch": "20261013",
+            "old_unique_ids": 3878,
+            "new_unique_ids": 3858,
+            "retained_ids": 1777,
+            "retained_share_of_old": 0.4582258896338319,
+            "not_observed_from_old": 2101
+          },
+          {
+            "old_batch": "20261013",
+            "new_batch": "20261016",
+            "old_unique_ids": 3858,
+            "new_unique_ids": 3939,
+            "retained_ids": 2315,
+            "retained_share_of_old": 0.6000518403317782,
+            "not_observed_from_old": 1543
+          },
+          {
+            "old_batch": "20261016",
+            "new_batch": "20261020",
+            "old_unique_ids": 3939,
+            "new_unique_ids": 3522,
+            "retained_ids": 953,
+            "retained_share_of_old": 0.24193957857324194,
+            "not_observed_from_old": 2986
+          },
+          {
+            "old_batch": "20261020",
+            "new_batch": "20261023",
+            "old_unique_ids": 3522,
+            "new_unique_ids": 3636,
+            "retained_ids": 2599,
+            "retained_share_of_old": 0.7379329926178307,
+            "not_observed_from_old": 923
+          },
+          {
+            "old_batch": "20261023",
+            "new_batch": "20261027",
+            "old_unique_ids": 3636,
+            "new_unique_ids": 3628,
+            "retained_ids": 1691,
+            "retained_share_of_old": 0.46507150715071505,
+            "not_observed_from_old": 1945
+          },
+          {
+            "old_batch": "20261027",
+            "new_batch": "20261030",
+            "old_unique_ids": 3628,
+            "new_unique_ids": 3396,
+            "retained_ids": 1488,
+            "retained_share_of_old": 0.4101433296582139,
+            "not_observed_from_old": 2140
+          },
+          {
+            "old_batch": "20261030",
+            "new_batch": "20261103",
+            "old_unique_ids": 3396,
+            "new_unique_ids": 3510,
+            "retained_ids": 1593,
+            "retained_share_of_old": 0.46908127208480566,
+            "not_observed_from_old": 1803
+          },
+          {
+            "old_batch": "20261103",
+            "new_batch": "20261106",
+            "old_unique_ids": 3510,
+            "new_unique_ids": 3928,
+            "retained_ids": 1759,
+            "retained_share_of_old": 0.5011396011396011,
+            "not_observed_from_old": 1751
+          },
+          {
+            "old_batch": "20261106",
+            "new_batch": "20261110",
+            "old_unique_ids": 3928,
+            "new_unique_ids": 3865,
+            "retained_ids": 2068,
+            "retained_share_of_old": 0.5264765784114053,
+            "not_observed_from_old": 1860
+          },
+          {
+            "old_batch": "20261110",
+            "new_batch": "20261113",
+            "old_unique_ids": 3865,
+            "new_unique_ids": 3938,
+            "retained_ids": 2166,
+            "retained_share_of_old": 0.5604139715394567,
+            "not_observed_from_old": 1699
+          },
+          {
+            "old_batch": "20261113",
+            "new_batch": "20261117",
+            "old_unique_ids": 3938,
+            "new_unique_ids": 3898,
+            "retained_ids": 2313,
+            "retained_share_of_old": 0.5873539867953276,
+            "not_observed_from_old": 1625
+          }
+        ],
+        "depth_cohorts": {
+          "reference_batch": "20260922",
+          "reference_max_page": 1000,
+          "latest_max_page": 200,
+          "cohorts": {
+            "within_latest_depth": {
+              "ids": 3980,
+              "absent_two_batches": 3502,
+              "absent_share": 0.8798994974874372
+            },
+            "beyond_latest_depth": {
+              "ids": 13526,
+              "absent_two_batches": 13313,
+              "absent_share": 0.9842525506432057
+            },
+            "unknown_page": {
+              "ids": 0,
+              "absent_two_batches": 0,
+              "absent_share": null
+            }
+          }
+        }
+      },
+      "batches": [
+        "20260922",
+        "20260925",
+        "20260929",
+        "20261002",
+        "20261006",
+        "20261009",
+        "20261013",
+        "20261016",
+        "20261020",
+        "20261023",
+        "20261027",
+        "20261030",
+        "20261103",
+        "20261106",
+        "20261110",
+        "20261113",
+        "20261117"
+      ]
+    },
+    "guland": {
+      "baseline": {
+        "status": "MEASURED",
+        "latest_batch": "20261027",
+        "batch_count": 10,
+        "unique_ids_ever": 52544,
+        "latest_unique_ids": 1335,
+        "absent_two_batches": 50240,
+        "absent_two_batches_share": 0.9561510353227771,
+        "consecutive_pairs": [
+          {
+            "old_batch": "20260922",
+            "new_batch": "20260925",
+            "old_unique_ids": 44870,
+            "new_unique_ids": 31392,
+            "retained_ids": 30430,
+            "retained_share_of_old": 0.6781814129708046,
+            "not_observed_from_old": 14440
+          },
+          {
+            "old_batch": "20260925",
+            "new_batch": "20260929",
+            "old_unique_ids": 31392,
+            "new_unique_ids": 8942,
+            "retained_ids": 8070,
+            "retained_share_of_old": 0.2570718654434251,
+            "not_observed_from_old": 23322
+          },
+          {
+            "old_batch": "20260929",
+            "new_batch": "20261002",
+            "old_unique_ids": 8942,
+            "new_unique_ids": 8981,
+            "retained_ids": 6412,
+            "retained_share_of_old": 0.7170655334377097,
+            "not_observed_from_old": 2530
+          },
+          {
+            "old_batch": "20261002",
+            "new_batch": "20261006",
+            "old_unique_ids": 8981,
+            "new_unique_ids": 8831,
+            "retained_ids": 6925,
+            "retained_share_of_old": 0.7710722636677431,
+            "not_observed_from_old": 2056
+          },
+          {
+            "old_batch": "20261006",
+            "new_batch": "20261009",
+            "old_unique_ids": 8831,
+            "new_unique_ids": 8781,
+            "retained_ids": 6699,
+            "retained_share_of_old": 0.7585777375155701,
+            "not_observed_from_old": 2132
+          },
+          {
+            "old_batch": "20261009",
+            "new_batch": "20261013",
+            "old_unique_ids": 8781,
+            "new_unique_ids": 8994,
+            "retained_ids": 6341,
+            "retained_share_of_old": 0.7221273203507573,
+            "not_observed_from_old": 2440
+          },
+          {
+            "old_batch": "20261013",
+            "new_batch": "20261016",
+            "old_unique_ids": 8994,
+            "new_unique_ids": 8956,
+            "retained_ids": 5126,
+            "retained_share_of_old": 0.5699355125639315,
+            "not_observed_from_old": 3868
+          },
+          {
+            "old_batch": "20261016",
+            "new_batch": "20261023",
+            "old_unique_ids": 8956,
+            "new_unique_ids": 1303,
+            "retained_ids": 1122,
+            "retained_share_of_old": 0.1252791424743189,
+            "not_observed_from_old": 7834
+          },
+          {
+            "old_batch": "20261023",
+            "new_batch": "20261027",
+            "old_unique_ids": 1303,
+            "new_unique_ids": 1335,
+            "retained_ids": 334,
+            "retained_share_of_old": 0.2563315425940138,
+            "not_observed_from_old": 969
+          }
+        ],
+        "depth_cohorts": {
+          "reference_batch": "20260922",
+          "reference_max_page": 1000,
+          "latest_max_page": 30,
+          "cohorts": {
+            "within_latest_depth": {
+              "ids": 1338,
+              "absent_two_batches": 1145,
+              "absent_share": 0.8557548579970105
+            },
+            "beyond_latest_depth": {
+              "ids": 43532,
+              "absent_two_batches": 42405,
+              "absent_share": 0.9741109988054765
+            },
+            "unknown_page": {
+              "ids": 0,
+              "absent_two_batches": 0,
+              "absent_share": null
+            }
+          }
+        }
+      },
+      "local": {
+        "status": "MEASURED",
+        "latest_batch": "20261117",
+        "batch_count": 15,
+        "unique_ids_ever": 54130,
+        "latest_unique_ids": 1349,
+        "absent_two_batches": 52077,
+        "absent_two_batches_share": 0.9620727877332348,
+        "consecutive_pairs": [
+          {
+            "old_batch": "20260922",
+            "new_batch": "20260925",
+            "old_unique_ids": 44870,
+            "new_unique_ids": 31392,
+            "retained_ids": 30430,
+            "retained_share_of_old": 0.6781814129708046,
+            "not_observed_from_old": 14440
+          },
+          {
+            "old_batch": "20260925",
+            "new_batch": "20260929",
+            "old_unique_ids": 31392,
+            "new_unique_ids": 8942,
+            "retained_ids": 8070,
+            "retained_share_of_old": 0.2570718654434251,
+            "not_observed_from_old": 23322
+          },
+          {
+            "old_batch": "20260929",
+            "new_batch": "20261002",
+            "old_unique_ids": 8942,
+            "new_unique_ids": 8981,
+            "retained_ids": 6412,
+            "retained_share_of_old": 0.7170655334377097,
+            "not_observed_from_old": 2530
+          },
+          {
+            "old_batch": "20261002",
+            "new_batch": "20261006",
+            "old_unique_ids": 8981,
+            "new_unique_ids": 8831,
+            "retained_ids": 6925,
+            "retained_share_of_old": 0.7710722636677431,
+            "not_observed_from_old": 2056
+          },
+          {
+            "old_batch": "20261006",
+            "new_batch": "20261009",
+            "old_unique_ids": 8831,
+            "new_unique_ids": 8781,
+            "retained_ids": 6699,
+            "retained_share_of_old": 0.7585777375155701,
+            "not_observed_from_old": 2132
+          },
+          {
+            "old_batch": "20261009",
+            "new_batch": "20261013",
+            "old_unique_ids": 8781,
+            "new_unique_ids": 8994,
+            "retained_ids": 6341,
+            "retained_share_of_old": 0.7221273203507573,
+            "not_observed_from_old": 2440
+          },
+          {
+            "old_batch": "20261013",
+            "new_batch": "20261016",
+            "old_unique_ids": 8994,
+            "new_unique_ids": 8956,
+            "retained_ids": 5126,
+            "retained_share_of_old": 0.5699355125639315,
+            "not_observed_from_old": 3868
+          },
+          {
+            "old_batch": "20261016",
+            "new_batch": "20261023",
+            "old_unique_ids": 8956,
+            "new_unique_ids": 1303,
+            "retained_ids": 1122,
+            "retained_share_of_old": 0.1252791424743189,
+            "not_observed_from_old": 7834
+          },
+          {
+            "old_batch": "20261023",
+            "new_batch": "20261027",
+            "old_unique_ids": 1303,
+            "new_unique_ids": 1335,
+            "retained_ids": 334,
+            "retained_share_of_old": 0.2563315425940138,
+            "not_observed_from_old": 969
+          },
+          {
+            "old_batch": "20261027",
+            "new_batch": "20261103",
+            "old_unique_ids": 1335,
+            "new_unique_ids": 1350,
+            "retained_ids": 244,
+            "retained_share_of_old": 0.18277153558052434,
+            "not_observed_from_old": 1091
+          },
+          {
+            "old_batch": "20261103",
+            "new_batch": "20261106",
+            "old_unique_ids": 1350,
+            "new_unique_ids": 1350,
+            "retained_ids": 1104,
+            "retained_share_of_old": 0.8177777777777778,
+            "not_observed_from_old": 246
+          },
+          {
+            "old_batch": "20261106",
+            "new_batch": "20261110",
+            "old_unique_ids": 1350,
+            "new_unique_ids": 1350,
+            "retained_ids": 430,
+            "retained_share_of_old": 0.31851851851851853,
+            "not_observed_from_old": 920
+          },
+          {
+            "old_batch": "20261110",
+            "new_batch": "20261113",
+            "old_unique_ids": 1350,
+            "new_unique_ids": 1350,
+            "retained_ids": 564,
+            "retained_share_of_old": 0.4177777777777778,
+            "not_observed_from_old": 786
+          },
+          {
+            "old_batch": "20261113",
+            "new_batch": "20261117",
+            "old_unique_ids": 1350,
+            "new_unique_ids": 1349,
+            "retained_ids": 646,
+            "retained_share_of_old": 0.4785185185185185,
+            "not_observed_from_old": 704
+          }
+        ],
+        "depth_cohorts": {
+          "reference_batch": "20260922",
+          "reference_max_page": 1000,
+          "latest_max_page": 30,
+          "cohorts": {
+            "within_latest_depth": {
+              "ids": 1338,
+              "absent_two_batches": 1325,
+              "absent_share": 0.9902840059790733
+            },
+            "beyond_latest_depth": {
+              "ids": 43532,
+              "absent_two_batches": 42550,
+              "absent_share": 0.9774418818340531
+            },
+            "unknown_page": {
+              "ids": 0,
+              "absent_two_batches": 0,
+              "absent_share": null
+            }
+          }
+        }
+      },
+      "batches": [
+        "20260922",
+        "20260925",
+        "20260929",
+        "20261002",
+        "20261006",
+        "20261009",
+        "20261013",
+        "20261016",
+        "20261023",
+        "20261027",
+        "20261103",
+        "20261106",
+        "20261110",
+        "20261113",
+        "20261117"
+      ]
+    },
+    "nhadatvui": {
+      "baseline": {
+        "status": "MEASURED",
+        "latest_batch": "20261027",
+        "batch_count": 12,
+        "unique_ids_ever": 18516,
+        "latest_unique_ids": 3596,
+        "absent_two_batches": 14751,
+        "absent_two_batches_share": 0.7966623460790667,
+        "consecutive_pairs": [
+          {
+            "old_batch": "20260922",
+            "new_batch": "20260925",
+            "old_unique_ids": 16734,
+            "new_unique_ids": 10777,
+            "retained_ids": 10175,
+            "retained_share_of_old": 0.6080435042428588,
+            "not_observed_from_old": 6559
+          },
+          {
+            "old_batch": "20260925",
+            "new_batch": "20260929",
+            "old_unique_ids": 10777,
+            "new_unique_ids": 3600,
+            "retained_ids": 3497,
+            "retained_share_of_old": 0.32448733413751507,
+            "not_observed_from_old": 7280
+          },
+          {
+            "old_batch": "20260929",
+            "new_batch": "20261002",
+            "old_unique_ids": 3600,
+            "new_unique_ids": 3599,
+            "retained_ids": 3477,
+            "retained_share_of_old": 0.9658333333333333,
+            "not_observed_from_old": 123
+          },
+          {
+            "old_batch": "20261002",
+            "new_batch": "20261003",
+            "old_unique_ids": 3599,
+            "new_unique_ids": 3599,
+            "retained_ids": 3599,
+            "retained_share_of_old": 1.0,
+            "not_observed_from_old": 0
+          },
+          {
+            "old_batch": "20261003",
+            "new_batch": "20261006",
+            "old_unique_ids": 3599,
+            "new_unique_ids": 3599,
+            "retained_ids": 3548,
+            "retained_share_of_old": 0.9858293970547374,
+            "not_observed_from_old": 51
+          },
+          {
+            "old_batch": "20261006",
+            "new_batch": "20261009",
+            "old_unique_ids": 3599,
+            "new_unique_ids": 3599,
+            "retained_ids": 3449,
+            "retained_share_of_old": 0.9583217560433454,
+            "not_observed_from_old": 150
+          },
+          {
+            "old_batch": "20261009",
+            "new_batch": "20261013",
+            "old_unique_ids": 3599,
+            "new_unique_ids": 3595,
+            "retained_ids": 3483,
+            "retained_share_of_old": 0.9677688246735204,
+            "not_observed_from_old": 116
+          },
+          {
+            "old_batch": "20261013",
+            "new_batch": "20261016",
+            "old_unique_ids": 3595,
+            "new_unique_ids": 3598,
+            "retained_ids": 3482,
+            "retained_share_of_old": 0.9685674547983311,
+            "not_observed_from_old": 113
+          },
+          {
+            "old_batch": "20261016",
+            "new_batch": "20261020",
+            "old_unique_ids": 3598,
+            "new_unique_ids": 3598,
+            "retained_ids": 3447,
+            "retained_share_of_old": 0.9580322401334075,
+            "not_observed_from_old": 151
+          },
+          {
+            "old_batch": "20261020",
+            "new_batch": "20261023",
+            "old_unique_ids": 3598,
+            "new_unique_ids": 3597,
+            "retained_ids": 3368,
+            "retained_share_of_old": 0.9360755975541968,
+            "not_observed_from_old": 230
+          },
+          {
+            "old_batch": "20261023",
+            "new_batch": "20261027",
+            "old_unique_ids": 3597,
+            "new_unique_ids": 3596,
+            "retained_ids": 3428,
+            "retained_share_of_old": 0.9530164025576869,
+            "not_observed_from_old": 169
+          }
+        ],
+        "depth_cohorts": {
+          "reference_batch": "20260922",
+          "reference_max_page": 937,
+          "latest_max_page": 200,
+          "cohorts": {
+            "within_latest_depth": {
+              "ids": 3474,
+              "absent_two_batches": 1191,
+              "absent_share": 0.34283246977547494
+            },
+            "beyond_latest_depth": {
+              "ids": 13260,
+              "absent_two_batches": 13260,
+              "absent_share": 1.0
+            },
+            "unknown_page": {
+              "ids": 0,
+              "absent_two_batches": 0,
+              "absent_share": null
+            }
+          }
+        }
+      },
+      "local": {
+        "status": "MEASURED",
+        "latest_batch": "20261117",
+        "batch_count": 16,
+        "unique_ids_ever": 19348,
+        "latest_unique_ids": 3593,
+        "absent_two_batches": 15639,
+        "absent_two_batches_share": 0.8083005995451726,
+        "consecutive_pairs": [
+          {
+            "old_batch": "20260922",
+            "new_batch": "20260925",
+            "old_unique_ids": 16734,
+            "new_unique_ids": 10777,
+            "retained_ids": 10175,
+            "retained_share_of_old": 0.6080435042428588,
+            "not_observed_from_old": 6559
+          },
+          {
+            "old_batch": "20260925",
+            "new_batch": "20260929",
+            "old_unique_ids": 10777,
+            "new_unique_ids": 3600,
+            "retained_ids": 3497,
+            "retained_share_of_old": 0.32448733413751507,
+            "not_observed_from_old": 7280
+          },
+          {
+            "old_batch": "20260929",
+            "new_batch": "20261002",
+            "old_unique_ids": 3600,
+            "new_unique_ids": 3599,
+            "retained_ids": 3477,
+            "retained_share_of_old": 0.9658333333333333,
+            "not_observed_from_old": 123
+          },
+          {
+            "old_batch": "20261002",
+            "new_batch": "20261003",
+            "old_unique_ids": 3599,
+            "new_unique_ids": 3599,
+            "retained_ids": 3599,
+            "retained_share_of_old": 1.0,
+            "not_observed_from_old": 0
+          },
+          {
+            "old_batch": "20261003",
+            "new_batch": "20261006",
+            "old_unique_ids": 3599,
+            "new_unique_ids": 3599,
+            "retained_ids": 3548,
+            "retained_share_of_old": 0.9858293970547374,
+            "not_observed_from_old": 51
+          },
+          {
+            "old_batch": "20261006",
+            "new_batch": "20261009",
+            "old_unique_ids": 3599,
+            "new_unique_ids": 3599,
+            "retained_ids": 3449,
+            "retained_share_of_old": 0.9583217560433454,
+            "not_observed_from_old": 150
+          },
+          {
+            "old_batch": "20261009",
+            "new_batch": "20261013",
+            "old_unique_ids": 3599,
+            "new_unique_ids": 3595,
+            "retained_ids": 3483,
+            "retained_share_of_old": 0.9677688246735204,
+            "not_observed_from_old": 116
+          },
+          {
+            "old_batch": "20261013",
+            "new_batch": "20261016",
+            "old_unique_ids": 3595,
+            "new_unique_ids": 3598,
+            "retained_ids": 3482,
+            "retained_share_of_old": 0.9685674547983311,
+            "not_observed_from_old": 113
+          },
+          {
+            "old_batch": "20261016",
+            "new_batch": "20261020",
+            "old_unique_ids": 3598,
+            "new_unique_ids": 3598,
+            "retained_ids": 3447,
+            "retained_share_of_old": 0.9580322401334075,
+            "not_observed_from_old": 151
+          },
+          {
+            "old_batch": "20261020",
+            "new_batch": "20261023",
+            "old_unique_ids": 3598,
+            "new_unique_ids": 3597,
+            "retained_ids": 3368,
+            "retained_share_of_old": 0.9360755975541968,
+            "not_observed_from_old": 230
+          },
+          {
+            "old_batch": "20261023",
+            "new_batch": "20261027",
+            "old_unique_ids": 3597,
+            "new_unique_ids": 3596,
+            "retained_ids": 3428,
+            "retained_share_of_old": 0.9530164025576869,
+            "not_observed_from_old": 169
+          },
+          {
+            "old_batch": "20261027",
+            "new_batch": "20261103",
+            "old_unique_ids": 3596,
+            "new_unique_ids": 3600,
+            "retained_ids": 3327,
+            "retained_share_of_old": 0.925194660734149,
+            "not_observed_from_old": 269
+          },
+          {
+            "old_batch": "20261103",
+            "new_batch": "20261106",
+            "old_unique_ids": 3600,
+            "new_unique_ids": 3599,
+            "retained_ids": 3433,
+            "retained_share_of_old": 0.9536111111111111,
+            "not_observed_from_old": 167
+          },
+          {
+            "old_batch": "20261106",
+            "new_batch": "20261113",
+            "old_unique_ids": 3599,
+            "new_unique_ids": 3599,
+            "retained_ids": 3316,
+            "retained_share_of_old": 0.9213670464017782,
+            "not_observed_from_old": 283
+          },
+          {
+            "old_batch": "20261113",
+            "new_batch": "20261117",
+            "old_unique_ids": 3599,
+            "new_unique_ids": 3593,
+            "retained_ids": 3483,
+            "retained_share_of_old": 0.9677688246735204,
+            "not_observed_from_old": 116
+          }
+        ],
+        "depth_cohorts": {
+          "reference_batch": "20260922",
+          "reference_max_page": 937,
+          "latest_max_page": 200,
+          "cohorts": {
+            "within_latest_depth": {
+              "ids": 3474,
+              "absent_two_batches": 2046,
+              "absent_share": 0.5889464594127807
+            },
+            "beyond_latest_depth": {
+              "ids": 13260,
+              "absent_two_batches": 13260,
+              "absent_share": 1.0
+            },
+            "unknown_page": {
+              "ids": 0,
+              "absent_two_batches": 0,
+              "absent_share": null
+            }
+          }
+        }
+      },
+      "batches": [
+        "20260922",
+        "20260925",
+        "20260929",
+        "20261002",
+        "20261003",
+        "20261006",
+        "20261009",
+        "20261013",
+        "20261016",
+        "20261020",
+        "20261023",
+        "20261027",
+        "20261103",
+        "20261106",
+        "20261113",
+        "20261117"
+      ]
+    }
+  },
+  "missing_scheduled_batches": [
+    {
+      "source": "guland",
+      "batch_id": "20261020",
+      "declared": true
+    },
+    {
+      "source": "guland",
+      "batch_id": "20261030",
+      "declared": true
+    },
+    {
+      "source": "nhadatvui",
+      "batch_id": "20261030",
+      "declared": true
+    },
+    {
+      "source": "nhadatvui",
+      "batch_id": "20261110",
+      "declared": true
+    }
+  ],
+  "extra_csv_not_consumed_by_pipeline": [],
+  "excluded_after_cutoff": [],
+  "errors": [],
+  "limits": [
+    "Raw ID counts precede Silver DQ/dedup; do not equate them to Gold counts.",
+    "Page numbers describe exported records, not every attempted or successful HTTP request.",
+    "Depth cohorts show association, not a causal estimate or confirmation of sold/deleted listings.",
+    "Cutoff is inclusive; missing current-day input may still be awaiting its 22:00 crawl."
+  ]
+}

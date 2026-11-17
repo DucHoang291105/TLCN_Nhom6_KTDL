@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-11-17T14:25:10.925103+00:00",
+  "failed_run_id": "acceptance_A_20261117",
+  "observed_error": "Iceberg smoke create failed with SQLITE_BUSY; REST fixture retained SQLite pooled connection state after query window. Airflow export separately hit JWT token not yet valid (iat).",
+  "recovery": "Wait for writers idle, stop readers, reopen REST connections without deleting volumes; retry only idempotent GET/HEAD once for transient JWT 403.",
+  "probe": "outputs/catalog_restart_probe.log",
+  "post_restart_iceberg_demo_status": "PASS",
+  "post_restart_demo_checks": 6,
+  "status": "RECOVERY_PROBE_PASS",
+  "final_pipeline_acceptance": {
+    "run_id": "acceptance_A_20261117_r2",
+    "status": "PASS",
+    "code_unchanged": true
+  }
+}

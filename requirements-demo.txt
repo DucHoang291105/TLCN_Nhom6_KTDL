@@ -1,0 +1,2 @@
+# Optional browser recording; install separately from pipeline dependencies.
+playwright==1.63.0

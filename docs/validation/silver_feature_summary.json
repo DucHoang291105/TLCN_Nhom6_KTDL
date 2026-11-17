@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-10-29T04:46:18.728753+00:00",
-  "finished_at": "2026-10-29T04:46:59.918051+00:00",
+  "started_at": "2026-11-17T15:03:38.450088+00:00",
+  "finished_at": "2026-11-17T15:04:23.599074+00:00",
   "inputs": [
     "lakehouse.silver.silver_listings_current_27",
     "lakehouse.silver.listing_location",
@@ -8,25 +8,25 @@
   ],
   "output": "lakehouse.silver.listing_feature",
   "feature_rule_version": "listing_feature_rules_v4",
-  "input_rows": 139477,
-  "output_rows": 139477,
+  "input_rows": 150017,
+  "output_rows": 150017,
   "category_name_counts": {
-    "Nhà ở": 75106,
-    "Căn hộ chung cư": 23470,
-    "Biệt thự": 9695,
+    "Nhà ở": 80007,
+    "Căn hộ chung cư": 27147,
+    "Biệt thự": 10907,
     "Nhà phố": 6544,
-    "Đất": 5992,
+    "Đất": 6211,
     "Phòng/Cho thuê": 5884,
     "Căn hộ": 3793,
     "Căn hộ/Chung cư": 2661,
-    "Shophouse": 2189,
-    "Bất động sản khác": 1842,
+    "Shophouse": 2484,
+    "Bất động sản khác": 1855,
     "Đất nền": 573,
-    "Condotel": 441,
-    "Officetel": 346,
-    "Bất động sản thương mại": 331,
+    "Condotel": 554,
+    "Bất động sản thương mại": 420,
+    "Officetel": 353,
     "Văn phòng, Mặt bằng kinh doanh": 262,
-    "Trang trại, khu nghỉ dưỡng": 113,
+    "Trang trại, khu nghỉ dưỡng": 127,
     "Nhà đất cho thuê": 64,
     "Văn phòng/Mặt bằng": 40,
     "Kho xưởng": 30,
@@ -41,57 +41,57 @@
     "Căn hộ dịch vụ": 1
   },
   "model_category_counts": {
-    "nha_pho": 81499,
-    "dat": 7202,
-    "phong_tro_khac": 7204,
-    "biet_thu": 11912,
-    "can_ho": 31290,
-    "khong_ro": 370
+    "nha_pho": 86422,
+    "dat": 7412,
+    "phong_tro_khac": 7313,
+    "biet_thu": 13419,
+    "can_ho": 35075,
+    "khong_ro": 376
   },
   "model_category_method_counts": {
-    "ENDPOINT_CONTEXT": 26851,
-    "TITLE_OVER_ENDPOINT": 772,
-    "TITLE_FALLBACK": 1472,
-    "CATEGORY_NAME": 110012,
-    "UNMAPPED": 370
+    "ENDPOINT_CONTEXT": 26161,
+    "TITLE_OVER_ENDPOINT": 750,
+    "TITLE_FALLBACK": 1479,
+    "CATEGORY_NAME": 121251,
+    "UNMAPPED": 376
   },
   "category_evidence_counts": {
-    "ENDPOINT_CONTEXT": 27623,
-    "SOURCE_LABEL": 55238,
-    "SOURCE_STRUCTURED": 56616
+    "ENDPOINT_CONTEXT": 26911,
+    "SOURCE_LABEL": 57536,
+    "SOURCE_STRUCTURED": 65570
   },
-  "category_title_conflict_rows": 4976,
+  "category_title_conflict_rows": 5441,
   "category_title_conflict_by_source": {
     "muaban": 93,
     "luachonnhadat": 10,
     "alonhadat": 234,
-    "batdongsan": 1684,
+    "batdongsan": 2069,
     "chotot": 463,
-    "nhadatvui": 634,
-    "guland": 1320,
+    "nhadatvui": 682,
+    "guland": 1352,
     "mogi": 518,
     "homedy": 20
   },
-  "model_category_unmapped_share": 0.002653,
+  "model_category_unmapped_share": 0.002506,
   "true_rates": {
-    "title_has_legal": 0.099127,
-    "title_has_furnished": 0.083232,
-    "title_has_frontage": 0.16716,
-    "title_has_elevator": 0.040308,
-    "title_has_car_access": 0.12724,
-    "price_known": 0.979165,
+    "title_has_legal": 0.098662,
+    "title_has_furnished": 0.083451,
+    "title_has_frontage": 0.164928,
+    "title_has_elevator": 0.039749,
+    "title_has_car_access": 0.123233,
+    "price_known": 0.977129,
     "area_known": 0.999527,
-    "rooms_known": 0.624074,
-    "location_known": 0.998831,
-    "legal_known": 0.099909
+    "rooms_known": 0.630849,
+    "location_known": 0.998913,
+    "legal_known": 0.099435
   },
   "is_rent_counts": {
     "True": 15357,
-    "False": 124120
+    "False": 134660
   },
   "dq_status_counts": {
-    "WARN": 46333,
-    "PASS": 93144
+    "WARN": 48014,
+    "PASS": 102003
   },
   "warnings": [],
   "status": "PASS"

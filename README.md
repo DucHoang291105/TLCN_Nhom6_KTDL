@@ -79,39 +79,61 @@ Dữ liệu historical đặt trong `data/incoming/historical/<nguồn>/`, theo 
 
 ## Kết quả đã kiểm chứng
 
-Số liệu dưới đây được kiểm chứng sau tích hợp pipeline và dashboard, dữ liệu tới batch **20261023**. Lượt chạy: `integration_ac_20261024`. Nguồn đối chiếu: [kết quả Airflow](docs/validation/integration_airflow_run.json), [kiểm chứng tích hợp](docs/validation/pipeline_dashboard_integration.json) và [các JSON kiểm định](docs/validation/).
+Dữ liệu tới batch **20261117**, ba nguồn crawl và sáu nguồn historical. Bộ
+nghiệm thu `acceptance_A_20261117_r2` đã PASS trên code và input được đóng
+băng trong suốt lượt chạy; không tạo batch thay thế cho những ngày thiếu.
 
-| Đầu ra | Số dòng |
-|---|---:|
-| Bronze historical | 30.317 |
-| Bronze snapshot — 30 CSV (Batdongsan 10, Guland 9, Nhadatvui 11 batch) | 262.141 |
-| Tổng Bronze | 292.458 |
-| Silver `listing_observation` | 282.586 |
-| Silver `listing_dq_quarantine` | 664 |
-| Silver `silver_listings_current_27` | 137.732 |
-| Silver `listing_history` | 151.982 |
-| Silver `listing_history_state` — checkpoint theo listing | 137.732 |
-| Silver `listing_location` / `listing_feature` | 137.732 mỗi bảng |
-| Gold `fact_listing` — tin bán | 122.375 |
-| Gold `fact_listing_lifecycle` | 137.732 |
-| Gold `fact_listing_price_change` — sự kiện đổi giá tin bán | 1.732 |
-| Gold `fact_listing_price_model` — dự đoán giá/m² của mô hình hedonic BQ2 | 119.043 |
-| Gold `agg_price_model_coefficient` — hệ số mô hình hedonic | 959 |
+| Đầu ra | Số dòng | JSON nguồn trong `docs/validation/` |
+|---|---:|---|
+| Bronze historical | 30.317 | `bronze_state_audit.json` |
+| Bronze snapshot — 48 CSV | 316.241 | `snapshot_manifest.json` |
+| Tổng Bronze | 346.558 | `bronze_state_audit.json` |
+| Silver `listing_observation` | 334.820 | `silver_final_verification.json` |
+| Silver `listing_dq_quarantine` | 664 | `silver_final_verification.json` |
+| Silver Current / Location / Feature | 150.017 | `silver_final_verification.json` |
+| Silver `listing_history` | 167.794 | `silver_final_verification.json` |
+| Silver `listing_history_state` | 150.017 | `silver_final_verification.json` |
+| Gold `fact_listing` | 134.660 | `gold_verification.json` |
+| Gold `fact_listing_lifecycle` | 150.017 | `gold_verification.json` |
+| Gold `fact_listing_price_change` | 3.021 | `gold_verification.json` |
+| Gold `fact_listing_price_model` | 128.853 | `gold_verification.json` |
+| Gold `agg_price_model_coefficient` | 971 | `gold_verification.json` |
 
-Guland không có batch 20261020; pipeline giữ đúng lịch quan sát riêng của từng nguồn, không tạo batch thay thế.
+- Nghiệm thu tổng: **66/66 PASS**, `code_unchanged = true`, toàn bộ 54 CSV đầu vào không đổi.
+- Airflow: **24/24 task SUCCESS**, thời gian **14 phút 17.59 giây**.
+- Silver **30/30 PASS**; Gold **113/113 PASS**.
+- Unit tests trong lượt nghiệm thu: **466/466 PASS**, không failure/error/skip.
+- Hai rebuild khớp đủ **30 bảng** về schema, grain, số dòng và SHA256 nội dung.
+- MERGE/SCD2 **11/11**, lifecycle **12/12**, demo Iceberg **6/6**; thử lỗi chặn đúng **23 task downstream**.
+- Trino đối chiếu đúng 30 bảng; **29 biểu đồ** và bộ lọc tỉnh khớp Gold.
 
-Kết quả kiểm định:
+Nguồn: [nghiệm thu tổng](docs/validation/defense_verification.json),
+[Airflow](docs/validation/integration_airflow_run.json),
+[Silver](docs/validation/silver_final_verification.json),
+[Gold](docs/validation/gold_verification.json),
+[hai rebuild](docs/validation/deterministic_rebuild.json),
+[tích hợp dashboard](docs/validation/pipeline_dashboard_integration.json).
+Kết quả chỉ áp dụng cho code và input đã kiểm chứng. Sau sửa code hoặc thêm
+batch, chạy lại kiểm chứng trước khi công bố kết quả hoặc gắn tag mới.
 
-- Silver: **30/30 PASS**.
-- Gold: **108/108 PASS** (thêm 15 check cho mô hình hedonic BQ2 và 1 check khoảng cách BQ3, chạy lại ngày 26/10).
-- Unit tests: **344 PASS tại máy local**; GitHub Actions chạy kiểm thử trên Python 3.10 và 3.12.
-- Kiểm thử Spark SCD2: **11/11 PASS**; demo Iceberg: **6/6 PASS**.
-- Kiểm thử Spark cho lifecycle: **12/12 PASS**.
-- Airflow: **23/23 task SUCCESS**, thời gian chạy khoảng **12,48 phút**, run `integration_ac_20261024`. DAG hiện có 24 task (thêm `gold.price_model`), chưa chạy lại qua Airflow.
-- Kiểm thử lỗi: một task thất bại, 22 task downstream bị chặn.
-- Checksum 29 CSV đã có giữ nguyên; bổ sung đúng batch Nhadatvui 03/10, nâng tổng lên 30 CSV.
+Đối chứng history hiện tại: MERGE và rebuild cùng **167.794 dòng**, SHA256
+bằng nhau và không có khác biệt hai chiều. Trong benchmark từ baseline
+16/10, MERGE xử lý **26.668 ID**, staging **22.260 dòng**,
+mất **17.74 giây**; rebuild **9.96 giây**. Retry không đổi
+input giữ nguyên snapshot. Đây là kiểm chứng tính đúng; không khẳng định
+MERGE luôn nhanh hơn rebuild. Xem [history](docs/validation/history_incremental_verification.json).
 
-Đối chứng mới sau tích hợp: MERGE và full rebuild đều tạo **151.982 dòng history**, cùng SHA256 và không có khác biệt khi `EXCEPT ALL` hai chiều. MERGE chỉ tính lại timeline của **9.689/137.732 listing ID**, staging còn **4.398 dòng** thực sự thay đổi. Xem [kết quả history](docs/validation/history_incremental_verification.json) cho số đo thực tế; không khẳng định incremental luôn nhanh hơn rebuild. Retry không đổi input không tạo data snapshot history mới.
+Guland thiếu **20/10 và 30/10**; Nhadatvui thiếu **30/10 và 10/11**, đã được
+chấp nhận và khai báo trong `config/source_gaps.json`. CSV Guland batch 10/11
+được chủ dữ liệu hiệu chỉnh timestamp từ 12/11 về 10/11 trước ingest; quyết
+định và checksum trước/sau ở [input date review](docs/validation/input_date_review.json).
+Ngày thu thập của file này chưa được xác minh độc lập; phân tích theo thời
+gian cần công bố giới hạn đó.
+
+Dữ liệu hiện có **108.415/119.700 tin crawl vắng hai batch (90,57%)**; đây là
+vắng trong mẫu thu thập, không xác nhận đã bán hoặc đã gỡ. Xem
+[điều tra độ phủ](docs/operations/crawl_coverage.md) và
+[JSON đo](docs/validation/crawl_coverage.json).
 
 ## An toàn vận hành và hiệu năng
 
@@ -142,7 +164,7 @@ Chi tiết lệnh và giới hạn vận hành: [Iceberg history](docs/operation
 
 Silver Current là bản ghi **mới nhất đã quan sát**, không xác nhận listing vẫn còn hiển thị. Cờ vắng hai batch không đồng nghĩa đã bán; `listed_days` là khoảng thời gian quan sát, không phải thời gian tới khi bán. Nguồn historical có trạng thái lifecycle `NOT_APPLICABLE`.
 
-Các nhóm nghi trùng cross-source được gắn cờ theo luật; chưa bảo đảm mỗi nhóm tương ứng đúng một bất động sản thực. BQ2 gồm benchmark mô tả (P25–P75) và mô hình hedonic kết hợp với baseline (`hedonic_ols_blend`, tham số trong `config/price_model_blend.json`, cách chọn trong `docs/validation/price_model_selection.json`). Trên tập test (dữ liệu tới batch 20261027), mô hình (phủ 96,7% tin đại diện) có R² log 0,74 so với 0,68 của baseline và MAE thấp hơn 7,6%; tốt hơn baseline có ý nghĩa thống kê ở nhà phố và căn hộ, còn ở biệt thự và đất chỉ ngang baseline; tin cấp tỉnh kém chính xác hơn tin cấp quận. Hệ số là tương quan trên giá chào bán, không phải tác động nhân quả; chi tiết tại [tiêu chí chấp nhận BQ](docs/business/bq_acceptance_criteria.md). Backtest sơ bộ (`src/quality/bq2_backtest.py`, [kết quả](docs/validation/bq2_backtest.json), dữ liệu 22/09–27/10): tin trên P75 lúc mới đăng có tỷ lệ giảm giá 3,26% so với 2,15% của các tin còn lại, vẫn có ý nghĩa sau khi kiểm soát theo nguồn (p = 0,006); phần dư mô hình hedonic chưa cho tín hiệu có ý nghĩa. Với dữ liệu tới 23/10 kết quả H1 chưa đạt (p = 0,08), nên cần thêm batch để khẳng định. Silver Core và Gold vẫn rebuild từ Bronze; riêng `listing_history` cập nhật incremental qua MERGE và bảng state phục hồi được. Bronze tái sử dụng các batch đã hoàn tất.
+Các nhóm nghi trùng cross-source được gắn cờ theo luật; chưa bảo đảm mỗi nhóm tương ứng đúng một bất động sản thực. BQ2 gồm benchmark mô tả (P25–P75) và mô hình hedonic kết hợp baseline (`hedonic_ols_blend`, tham số tại `config/price_model_blend.json`). Trên tập test dữ liệu tới 17/11, mô hình phủ 96.52% tin đại diện; R² log 0.732 so với 0.672 của baseline, MAE giá/m² thấp hơn 7.42%. Đây là kết quả đánh giá mô hình hiện tại trong [price_model_summary.json](docs/validation/price_model_summary.json); ý nghĩa và tiêu chí nghiệp vụ cần đọc theo [BQ acceptance](docs/business/bq_acceptance_criteria.md). Hệ số thể hiện tương quan trên giá chào bán, không phải tác động nhân quả. Backtest sơ bộ (`src/quality/bq2_backtest.py`, [kết quả](docs/validation/bq2_backtest.json), dữ liệu 22/09–27/10): tin trên P75 lúc mới đăng có tỷ lệ giảm giá 3,26% so với 2,15% của các tin còn lại, vẫn có ý nghĩa sau khi kiểm soát theo nguồn (p = 0,006); phần dư mô hình hedonic chưa cho tín hiệu có ý nghĩa. Với dữ liệu tới 23/10 kết quả H1 chưa đạt (p = 0,08), nên cần thêm batch để khẳng định. Silver Core và Gold vẫn rebuild từ Bronze; riêng `listing_history` cập nhật incremental qua MERGE và bảng state phục hồi được. Bronze tái sử dụng các batch đã hoàn tất.
 
 ## Iceberg history và kiểm thử tự động
 
@@ -159,15 +181,31 @@ Workflow GitHub Actions `Tests` chạy pytest trên Python 3.10/3.12 khi push ho
 
 ## Khởi động môi trường
 
-Yêu cầu: Docker Desktop, Git LFS và Python 3.10+ để chạy script hoặc test trên máy.
+Yêu cầu: Docker Desktop đang chạy Linux containers, Git + Git LFS,
+Python 3.10+ và PowerShell. Đây là quy trình chuẩn bị để thử trên máy sạch;
+**chưa xác nhận tái lập hoặc đo thời gian trên máy thứ hai**.
 
 ```powershell
+git clone https://github.com/DucHoang291105/TLCN_Nhom6_KTDL.git
+Set-Location TLCN_Nhom6_KTDL
+git lfs install
 git lfs pull
-# Chỉ thực hiện khi chưa có .env:
-Copy-Item .env.example .env
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+.\.venv\Scripts\python.exe -m src.orchestration.init_environment
+docker compose config --quiet
 ```
 
-Cấu hình thông tin kết nối và các khóa Airflow/Superset trong `.env` trước khi khởi động. Giữ nguyên `.env` đã cấu hình khi sử dụng lại môi trường.
+`init_environment` tạo `.env` khi chưa có, sinh mật khẩu và secret riêng,
+bao gồm Fernet key hợp lệ. File `.env` đã có được giữ nguyên. Thông tin đăng
+nhập MinIO/Superset nằm trong `.env` local; Airflow standalone sinh tài khoản
+ban đầu trong thư mục `/opt/airflow` của container. Không đổi password
+PostgreSQL sau khi đã khởi tạo volume nếu chưa đồng bộ tài khoản trong DB.
+
+Có thể dùng `./scripts/reproduce_environment.ps1 -Phase Prepare` thay cho các
+bước LFS/venv/dependency/env sau khi clone; `-Phase Check` kiểm tra điều kiện
+máy. Hướng dẫn nhận CSV và đo thời gian trên máy khác:
+[nhận dữ liệu và tái lập](docs/operations/nhan_du_lieu_va_tai_lap.md).
 
 Khởi động dịch vụ xử lý:
 
@@ -200,22 +238,39 @@ không truy vấn được trong cửa sổ này. Không chạy script Spark th�
 với Trino. Chưa chuyển catalog sang PostgreSQL hoặc chứng nhận đọc/ghi đồng thời.
 
 ```powershell
-docker stop tlcn_superset tlcn_trino
+.\.venv\Scripts\python.exe -m src.orchestration.environment write
 ```
 
-Khi nạp dữ liệu lần đầu, chuẩn bị đủ historical CSV và snapshot rồi chạy:
+Khi nạp lần đầu, chuẩn bị đủ historical và snapshot; chọn batch thật có đủ
+ba nguồn. Ví dụ dưới dùng **20261027**, batch đầy đủ đã kiểm chứng. Thay ngày
+khi nhận đủ CSV mới.
 
 ```powershell
+.\.venv\Scripts\python.exe -m src.quality.crawl_coverage --as-of 20261027 --strict
 .\scripts\run_spark.ps1 src\bronze\ingest_bronze.py
-python -c "from src.orchestration.pipeline import validate_snapshots; validate_snapshots('20261023')"
-.\scripts\run_spark.ps1 src\bronze\ingest_snapshots_bronze.py --skip-existing
+.\scripts\run_airflow_pipeline.ps1 -BatchId 20261027 -HistoryMode incremental
 ```
 
-Chạy toàn bộ pipeline qua Airflow với một batch đã có:
+Runner nộp run rồi trả về; đợi Airflow kết thúc thành công trước khi chuyển
+query mode. Dùng run ID được in khi nộp:
 
 ```powershell
-.\scripts\run_airflow_pipeline.ps1 -BatchId 20261023 -HistoryMode incremental
+# Thay RUN_ID bằng run thực tế:
+docker exec tlcn_airflow python -m src.orchestration.airflow_run status --run-id RUN_ID
+docker exec tlcn_airflow python -m src.orchestration.airflow_run export --run-id RUN_ID --output integration_airflow_run.json
 ```
+
+Chuẩn bị nhận dữ liệu ngày 17/11 bằng audit riêng. Các điều kiện còn thiếu
+được ghi trong JSON, không tự tạo gap hoặc đổi ngày CSV:
+
+```powershell
+.\.venv\Scripts\python.exe -m src.quality.crawl_coverage --as-of 20261117 --strict
+```
+
+Nhận file xuất extension hoặc CSV do thành viên gửi bằng
+`python -m src.orchestration.receive_snapshot --source batdongsan --batch-id YYYYMMDD --file PATH`.
+Mặc định chỉ kiểm tra; thêm `--apply` để copy nguyên bytes vào cấu trúc chuẩn.
+Chạy lại file giống hệt được tái sử dụng, file khác nội dung không bị ghi đè.
 
 DAG `lakehouse_pipeline` có lịch **22:00 thứ 3 và thứ 6**, múi giờ `Asia/Ho_Chi_Minh`, không backfill tự động và chỉ chạy một run/task đồng thời. Có thể theo dõi Graph/Grid và log từng task tại Airflow.
 
@@ -236,10 +291,9 @@ Chạy script trực tiếp và DAG vào các thời điểm riêng để tránh
 Sau khi pipeline đã hoàn tất:
 
 ```powershell
-python -m pip install -r requirements.txt
-docker compose --profile query --profile dashboard up -d trino superset
-python -m src.dashboard.provision_superset
-python -m src.quality.verify_pipeline_dashboard
+.\.venv\Scripts\python.exe -m src.orchestration.environment read
+.\.venv\Scripts\python.exe -m src.dashboard.provision_superset
+.\.venv\Scripts\python.exe -m src.quality.verify_pipeline_dashboard
 ```
 
 Mở Superset tại http://localhost:8088, đăng nhập bằng tài khoản trong `.env`.
@@ -251,16 +305,23 @@ provision sau batch mới để cập nhật phần nhận xét.
 
 - [Kiểm tra dashboard](docs/validation/superset_dashboard_check.json): 29 biểu đồ và KPI.
 - [Benchmark truy vấn](docs/validation/query_benchmark.json): so sánh thời gian mô tả; truy vấn Gold/Silver không tương đương hoàn toàn nên không xem tỷ lệ thời gian là speedup có kiểm soát.
+- [Kịch bản demo kỹ thuật](docs/demo/kich_ban_demo.md): Airflow, fault gate, lifecycle, Iceberg và Trino.
+- [Kết quả thử thao tác demo](docs/validation/demo_rehearsals.json): hai lượt browser tự động PASS trên dữ liệu đã lưu; có video local không lời thuyết minh.
 - [Hướng dẫn gán nhãn](docs/validation/labeling/README.md): 198 mẫu, hiện chưa có nhãn thủ công nên chưa có accuracy thực nghiệm. Không điền dự đoán làm nhãn thật.
 
 `verify_pipeline_dashboard` dùng bằng chứng run tích hợp đã lưu, không tự chứng
 nhận cho batch mới. Khi kiểm chứng một run mới cần export lại trạng thái Airflow,
 chạy lại kiểm định và provision trước khi đọc kết quả này.
 
+Probe trước A3 từng phát hiện hai bảng mô hình cũ; [bằng chứng probe](docs/validation/predata_runtime_compatibility.json) được giữ để truy nguyên. Lần nghiệm thu mới đã rebuild và đối chiếu đúng toàn bộ 30 bảng qua Trino; dùng [kết quả hiện tại](docs/validation/pipeline_dashboard_integration.json) để đánh giá trạng thái đồng bộ.
+
+DAG được giữ paused trong cửa sổ đọc để tránh writer tự động trùng lúc Trino hoạt động. Khi có batch mới, chuyển write mode rồi nộp run theo hướng dẫn ở trên. Tag `v1.1-bao-ve` chỉ tạo sau nghiệm thu dữ liệu chốt và CI trên đúng commit; tag cũ được giữ nguyên.
+
 ## Kiểm thử và xem kết quả
 
 ```powershell
 python -m pytest -q
+.\.venv\Scripts\python.exe -m src.quality.verify_report_numbers
 .\scripts\run_spark.ps1 src\quality\verify_lifecycle_fixtures.py
 .\scripts\run_spark.ps1 src\silver\verify_silver.py
 .\scripts\run_spark.ps1 src\gold\verify_gold.py
