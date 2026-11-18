@@ -13,7 +13,7 @@ import unicodedata
 from collections.abc import Mapping
 from typing import Any
 
-FEATURE_RULE_VERSION = "listing_feature_rules_v4"
+FEATURE_RULE_VERSION = "listing_feature_rules_v5"
 
 MODEL_CATEGORIES = ("nha_pho", "can_ho", "biet_thu", "dat", "phong_tro_khac", "khong_ro")
 
@@ -46,7 +46,7 @@ GENERIC_CATEGORY_LABELS = {"bat dong san khac", "loai bat dong san khac", "khac"
 # only count when no strong signal is present.
 TITLE_STRONG_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("phong_tro_khac", (
-        r"chdv", r"can ho dich vu", r"phong tro", r"nha tro", r"kho", r"xuong",
+        r"chdv", r"can ho dich vu", r"ccmn", r"phong tro", r"nha tro", r"kho", r"xuong",
         r"nha xuong", r"mat bang", r"van phong", r"building", r"khach san",
         r"trang trai", r"nghi duong",
     )),
@@ -85,10 +85,13 @@ CATEGORY_FAMILY = {
 NEGATION_TOKENS = {"khong", "ko", "k", "kh", "chua", "thieu"}
 # A frontage mention such as "cách mặt tiền 20m" describes proximity, not the
 # property itself.
-PROXIMITY_TOKENS = {"gan", "cach", "sat", "ra", "toi", "den", "vai"}
+PROXIMITY_TOKENS = {"gan", "cach", "sat", "ra", "toi", "den", "vai", "thong"}
 # "MT 5m" / "mặt tiền 4,5m" gives the lot width; "mặt tiền hẻm" faces an alley.
 # Neither shows that the property faces a street.
-FRONTAGE_NOT_STREET = re.compile(r" ?(?:\d+(?: \d+)? ?m\b|hem|ngo|kiet)")
+FRONTAGE_NOT_STREET = re.compile(r" ?(?:\d+(?: \d+)? ?m\b|hem|ngo|kiet|bo (?:song|ho|bien)|song|bien)")
+# A bare "ô tô" / "xe hơi" in a title states car access ("- Oto - Thang Máy -")
+# unless a proximity word comes right before it ("gần ô tô").
+CAR_MENTION = re.compile(r"(?:^| )(?:o to|oto|xe hoi)(?= |$)")
 NEGATION_WINDOW = 2
 
 FEATURE_RULES: dict[str, dict[str, tuple[str, ...]]] = {
@@ -97,6 +100,9 @@ FEATURE_RULES: dict[str, dict[str, tuple[str, ...]]] = {
             r"so hong", r"so do", r"shr", r"so rieng", r"so san",
             r"phap ly (?:ro rang|chuan|day du|sach|minh bach)", r"cong chung",
             r"sang ten", r"so hong rieng", r"so dep", r"so vuong",
+            # v5 (labelled sample): residential land status and completion
+            # papers count as stating the legal position.
+            r"tho cu", r"san so", r"hoan cong", r"bao phap ly",
         ),
         "negative": (
             r"giay tay", r"vi bang", r"so chung", r"chua (?:co )?so",
@@ -107,7 +113,7 @@ FEATURE_RULES: dict[str, dict[str, tuple[str, ...]]] = {
     },
     "furnished": {
         "positive": (
-            r"full noi that", r"noi that (?:cao cap|day du|xin|dep|sang trong|nhap khau|go)",
+            r"full noi that", r"noi that (?:sieu |rat |cuc )?(?:cao cap|day du|xin|dep|sang trong|nhap khau|go)",
             r"day du noi that", r"ntcc", r"full nt", r"full do",
             r"tang (?:toan bo |lai |kem )?noi that", r"kem noi that",
             r"fully furnished", r"furnished",
@@ -118,6 +124,7 @@ FEATURE_RULES: dict[str, dict[str, tuple[str, ...]]] = {
     "frontage": {
         "positive": (
             r"mat tien", r"mt", r"mtkd", r"mat pho", r"mat duong", r"mat tien kinh doanh",
+            r"[2-4] ?mt",  # "góc 2MT"
         ),
         "negative": (),
         "accented": (),
@@ -132,7 +139,7 @@ FEATURE_RULES: dict[str, dict[str, tuple[str, ...]]] = {
             r"hem xe hoi", r"hxh", r"hem o to", r"hem oto", r"ngo o to", r"ngo oto",
             r"(?:o to|oto|xe hoi) (?:vao|do|ngu|dau|tranh|toi|den)",
             r"duong (?:o to|oto|xe hoi)", r"hem xe tai", r"xe hoi tan cua",
-            r"o to tan cua", r"oto tan cua",
+            r"o to tan cua", r"oto tan cua", r"hem xa tai",
         ),
         "negative": (),
         "accented": (),
@@ -230,8 +237,10 @@ def feature_status(feature: str, title: Any) -> str | None:
             if NEGATION_TOKENS.intersection(before):
                 negated = True
                 continue
+            # Only the word right before counts as proximity: in "gần Aeon, MT
+            # đường 13B" the "gần" belongs to Aeon (punctuation is folded away).
             if feature == "frontage" and (
-                PROXIMITY_TOKENS.intersection(before)
+                PROXIMITY_TOKENS.intersection(before[-1:])
                 or FRONTAGE_NOT_STREET.match(folded, match.end())
             ):
                 continue
@@ -246,6 +255,14 @@ def feature_status(feature: str, title: Any) -> str | None:
                 if NEGATION_TOKENS.intersection(fold_text(accented[: match.start()]).split()[-NEGATION_WINDOW:]):
                     negated = True
                     continue
+                return "POSITIVE"
+
+    if feature == "car_access":
+        for match in CAR_MENTION.finditer(folded):
+            before = _preceding_tokens(folded, match.start())
+            if NEGATION_TOKENS.intersection(before):
+                negated = True
+            elif not PROXIMITY_TOKENS.intersection(before[-1:]):
                 return "POSITIVE"
 
     if feature == "elevator":
@@ -271,6 +288,15 @@ def category_from_label(category_name: Any) -> str | None:
     return None
 
 
+# Place names and words that contain a type word: "Nhà Bè", "Nha Trang",
+# "đại lộ" (avenue, not "lô").
+NOT_A_TYPE = re.compile(r"(?:^| )(?:nha (?:be|trang)|dai lo)(?= |$)")
+# "xuống" and "xưởng" fold to the same "xuong".
+XUONG_FALSE_FRIEND = re.compile(r"(?:^| )xuong(?= |$)")
+# Whole service-apartment / mini-apartment buildings: the title names the
+# property type more precisely than a source label "Căn hộ" or "Nhà ở".
+SERVICE_BUILDING = re.compile(r"(?:^| )(?:chdv|can ho dich vu|ccmn)(?= |$)")
+
 # A property type named after a proximity word describes a nearby landmark.
 PROXIMITY_LANDMARK = re.compile(
     r"(?:^| )(?:gan|ngay|canh|ben canh|doi dien|sat|ke|view|nhin ra|huong ra|cach(?: \d+ ?(?:m|km|phut))?)"
@@ -290,6 +316,9 @@ def category_from_title(title: Any) -> tuple[str | None, str | None]:
         return None, None
     # "gần chung cư SCREC", "đối diện căn hộ Masteri": a landmark, not the type.
     folded = PROXIMITY_LANDMARK.sub(" ", folded)
+    folded = NOT_A_TYPE.sub(" ", folded)
+    if "xưởng" not in accented_tokens_text(title):
+        folded = XUONG_FALSE_FRIEND.sub(" ", folded)
     strong = {name for name, patterns in _TITLE_STRONG_INDEX if any(p.search(folded) for p in patterns)}
     if strong:
         return next(name for name in TITLE_PRECEDENCE if name in strong), "STRONG"
@@ -304,11 +333,14 @@ def map_model_category(
 ) -> tuple[str, str, bool]:
     """Return (model_category, method, category_title_conflict).
 
-    - A specific Core label backed by the source (taxonomy or label) is kept;
-      a strong title signal of another family (building / apartment / land)
-      only raises the conflict flag.
-    - A label that rests on the crawled endpoint alone yields to a strong title
-      signal of another family (method TITLE_OVER_ENDPOINT).
+    - A title naming a whole service/mini-apartment building (CHDV, CCMN) is
+      phong_tro_khac whatever the label (TITLE_SERVICE_BUILDING).
+    - A specific Core label is kept unless a strong title signal of another
+      family (building / apartment / land) contradicts it; then the title wins
+      (TITLE_OVER_ENDPOINT for endpoint labels, TITLE_OVER_LABEL otherwise) and
+      the conflict flag is raised. Until v4 the label won; the labelled sample
+      (dev split) showed the title right in 6 of 9 such conflicts and the
+      other 3 were title-reading bugs fixed in v5.
     - Missing/generic labels use the title (TITLE_FALLBACK), else khong_ro.
     """
 
@@ -318,9 +350,12 @@ def map_model_category(
         label is not None and strength == "STRONG"
         and CATEGORY_FAMILY[title_category] != CATEGORY_FAMILY[label]
     )
+    if label not in (None, "phong_tro_khac") and title_category == "phong_tro_khac" and SERVICE_BUILDING.search(fold_text(title)):
+        return "phong_tro_khac", "TITLE_SERVICE_BUILDING", True
     if label is not None:
-        if conflict and category_evidence == "ENDPOINT_CONTEXT":
-            return title_category, "TITLE_OVER_ENDPOINT", True
+        if conflict:
+            method = "TITLE_OVER_ENDPOINT" if category_evidence == "ENDPOINT_CONTEXT" else "TITLE_OVER_LABEL"
+            return title_category, method, True
         method = "ENDPOINT_CONTEXT" if category_evidence == "ENDPOINT_CONTEXT" else "CATEGORY_NAME"
         return label, method, conflict
     if title_category is not None:

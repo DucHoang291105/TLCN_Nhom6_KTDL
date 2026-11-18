@@ -49,18 +49,41 @@ def env(name: str, default: str | None = None) -> str:
 # beach land in a mixed peer group): kept, shown apart as extreme outliers and
 # left out of the "typical gap" KPIs so a few cases do not drive them.
 SUSPECT = "(price_ratio > 10)"
+# B1.4: a district group needs at least this many listings to be shown.
+MIN_GROUP = 5
+OSM = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+VIEW_HCM = {"longitude": 106.68, "latitude": 10.80, "zoom": 10.4, "bearing": 0, "pitch": 0}
+# Maps show the core metro only: the 2025 provinces reach 70+ km (Bà Rịa,
+# Bình Dương), and fitting them all shrinks the city to a few pixels.
+MAP_RADIUS_KM = 30
+VIEW_HN = {"longitude": 105.83, "latitude": 21.01, "zoom": 10.8, "bearing": 0, "pitch": 0}
 
 # ----------------------------------------------------------------- datasets
 # SQL is sent as one line, so no "--" comments inside these strings.
-# quan_theo_khoang_cach ("07.5 km · Quận 7") sorts districts by distance and
-# shows the distance on the axis; quan_thay_the_km adds the extra distance.
+# Map datasets name province/category "tinh"/"loai_hinh" when a map has a
+# fixed scope, so the dashboard's province filter does not apply to it.
 G = "iceberg.gold"
+S = "iceberg.silver"
+RING = """CASE WHEN f.distance_to_center_km < 5 THEN '1. Dưới 5 km' WHEN f.distance_to_center_km < 10 THEN '2. 5–10 km'
+          WHEN f.distance_to_center_km < 15 THEN '3. 10–15 km' WHEN f.distance_to_center_km < 25 THEN '4. 15–25 km' ELSE '5. Trên 25 km' END"""
+PRICE_CLASS = """CASE WHEN f.price_per_m2 < 60e6 THEN '1. Dưới 60 tr/m²' WHEN f.price_per_m2 < 100e6 THEN '2. 60–100 tr/m²'
+                 WHEN f.price_per_m2 < 200e6 THEN '3. 100–200 tr/m²' ELSE '4. Trên 200 tr/m²' END"""
+GAP_CLASS = """CASE WHEN m.residual_pct IS NULL THEN NULL WHEN m.residual_pct <= -0.3 THEN '1. Rao thấp hơn ước tính ≥ 30%'
+               WHEN m.residual_pct < 0.3 THEN '2. Trong ±30% ước tính' ELSE '3. Rao cao hơn ước tính ≥ 30%' END"""
 DATASETS: dict[str, str] = {
     "market_overview": f"""
         SELECT o.province_name, c.category_label, o.n_listings,
                o.median_price_per_m2 / 1e6 AS median_price_per_m2_tr, o.median_price / 1e9 AS median_price_ty, o.median_area
         FROM {G}.agg_market_overview o
         JOIN {G}.dim_property_category c ON c.property_category_key = o.property_category_key""",
+    "map_price": f"""
+        SELECT d.province_name AS tinh, c.model_category AS loai_hinh, ll.lat, ll.lon, f.price_per_m2 / 1e6 AS gia_m2_tr,
+               {PRICE_CLASS} AS muc_gia, {RING} AS vanh_dai
+        FROM {G}.fact_listing f
+        JOIN {S}.listing_location ll ON ll.source_id = f.source_id
+        JOIN {G}.dim_location d ON d.location_key = f.location_key
+        JOIN {G}.dim_property_category c ON c.property_category_key = f.property_category_key
+        WHERE f.is_dup_representative AND ll.lat IS NOT NULL AND f.price_per_m2 > 0 AND f.distance_to_center_km IS NOT NULL""",
     "funnel": f"""
         SELECT stage, rows FROM (
             SELECT 1 AS ord, '1. Bronze (đã crawl)' AS stage, SUM(bronze_rows) AS rows FROM {G}.agg_dq_kpi
@@ -69,55 +92,115 @@ DATASETS: dict[str, str] = {
             UNION ALL SELECT 4, '4. Tin bán (fact_listing)', SUM(fact_rows) FROM {G}.agg_dq_kpi
             UNION ALL SELECT 5, '5. Tin đại diện (bỏ nghi trùng nguồn)', SUM(representative_rows) FROM {G}.agg_dq_kpi
         ) t""",
-    "price_assessment": f"""
-        SELECT l.province_name, NULLIF(l.district_name, 'Unknown') AS district_name, c.category_label, ab.band_label AS area_band,
-               a.price_position,
-               CASE a.price_position WHEN 'duoi_p25' THEN '1. Dưới P25' WHEN 'p25_p75' THEN '2. Trong P25–P75'
-                    WHEN 'tren_p75' THEN '3. Trên P75' ELSE '4. Không đủ dữ liệu' END AS vi_tri_gia,
-               CASE WHEN a.price_ratio IS NULL THEN NULL
-                    WHEN a.price_ratio < 0.5 THEN '1. < 0,5×' WHEN a.price_ratio < 0.8 THEN '2. 0,5–0,8×'
-                    WHEN a.price_ratio < 1.25 THEN '3. 0,8–1,25×' WHEN a.price_ratio < 2 THEN '4. 1,25–2×'
-                    WHEN a.price_ratio <= 10 THEN '5. 2–10×' ELSE '6. > 10× (outlier)' END AS muc_lech,
+    "price_check": f"""
+        SELECT l.province_name, NULLIF(l.district_name, 'Unknown') AS district_name, c.category_label,
+               COALESCE(NULLIF(l.district_name, 'Unknown'), l.province_name) AS khu_vuc,
+               a.price_position, a.price_ratio, a.peer_n,
                a.price / 1e9 AS gia_ty, a.area, a.price_per_m2 / 1e6 AS gia_m2_tr,
-               a.peer_median_price_per_m2 / 1e6 AS median_nhom_tr, a.price_ratio, a.peer_n,
-               a.is_low_price_missing_legal, f.title
+               a.peer_p25_price_per_m2 / 1e6 AS p25_nhom_tr, a.peer_p75_price_per_m2 / 1e6 AS p75_nhom_tr,
+               m.predicted_price_per_m2 / 1e6 AS uoc_tinh_tr, m.residual_pct * 100 AS chenh_uoc_tinh_pct,
+               m.split AS tap_mo_hinh, COALESCE(m.is_outlier_trimmed, false) AS is_outlier_trimmed,
+               {GAP_CLASS} AS muc_chenh, ll.lat, ll.lon, f.distance_to_center_km AS kc_trung_tam, f.title, f.ad_url
         FROM {G}.fact_listing_price_assessment a
         JOIN {G}.dim_location l ON l.location_key = a.location_key
         JOIN {G}.dim_property_category c ON c.property_category_key = a.property_category_key
-        JOIN {G}.dim_area_band ab ON ab.band_key = a.area_band_key
-        JOIN {G}.fact_listing f ON f.source_id = a.source_id""",
+        JOIN {G}.fact_listing f ON f.source_id = a.source_id
+        LEFT JOIN {G}.fact_listing_price_model m ON m.source_id = a.source_id
+        LEFT JOIN {S}.listing_location ll ON ll.source_id = a.source_id""",
+    "price_factor": f"""
+        SELECT c.category_label, k.premium_pct * 100 AS chenh_gia_pct, k.train_rows,
+               CASE WHEN k.ci95_low_pct > 0 OR k.ci95_high_pct < 0 THEN '1. Chắc chắn (KTC 95% không chứa 0)'
+                    ELSE '2. Chưa đủ chắc chắn' END AS do_tin_cay,
+               replace(k.level_label, ' được nêu', '') || ' (KTC ' || format('%.0f', k.ci95_low_pct * 100) || '…'
+                   || format('%.0f', k.ci95_high_pct * 100) || '%, ' || CAST(k.train_rows AS varchar) || ' tin)' AS dac_diem_nhan
+        FROM {G}.agg_price_model_coefficient k
+        JOIN {G}.dim_property_category c ON c.property_category_key = k.property_category_key
+        WHERE k.factor = 'flag'""",
     "budget_tradeoff": f"""
         SELECT l.province_name, NULLIF(l.district_name, 'Unknown') AS district_name, c.category_label, pb.band_key AS price_band_key,
                pb.band_label AS ngan_sach, t.n_listings, t.median_area, t.median_rooms,
                t.median_price_per_m2 / 1e6 AS median_price_per_m2_tr, t.median_distance_km,
-               t.share_legal, t.share_frontage, t.share_car_access, t.share_elevator,
-               lpad(format('%.1f', t.median_distance_km), 4, '0') || ' km · ' || l.district_name AS quan_theo_khoang_cach
+               k.lat, k.lon,
+               CASE WHEN t.median_area < 50 THEN '1. Dưới 50 m²' WHEN t.median_area < 80 THEN '2. 50–80 m²'
+                    WHEN t.median_area < 150 THEN '3. 80–150 m²' ELSE '4. Trên 150 m²' END AS dien_tich_nhan,
+               lpad(format('%.1f', t.median_distance_km), 4, '0') || ' km · ' || l.district_name || ' · '
+                   || CAST(t.n_listings AS varchar) || ' tin' AS quan_theo_khoang_cach
         FROM {G}.agg_budget_tradeoff t
         JOIN {G}.dim_location l ON l.location_key = t.location_key
         JOIN {G}.dim_property_category c ON c.property_category_key = t.property_category_key
         JOIN {G}.dim_price_band pb ON pb.band_key = t.price_band_key
+        LEFT JOIN (SELECT location_key, MAX(centroid_lat) AS lat, MAX(centroid_lon) AS lon FROM {G}.agg_commute_district GROUP BY 1) k
+             ON k.location_key = t.location_key
         WHERE l.district_name IS NOT NULL AND l.district_name <> 'Unknown'""",
     "budget_pareto": f"""
         SELECT l.province_name, NULLIF(l.district_name, 'Unknown') AS district_name, c.category_label, pb.band_key AS price_band_key, pb.band_label AS ngan_sach,
-               p.is_pareto_efficient, p.group_size, p.frontier_size, f.title, f.price / 1e9 AS gia_ty, f.area, f.rooms,
-               f.title_has_legal, f.title_has_frontage, f.title_has_car_access
+               p.is_pareto_efficient, f.title, f.price / 1e9 AS gia_ty, f.area, f.rooms,
+               f.title_has_frontage, f.title_has_car_access, f.ad_url,
+               f.price_per_m2 / 1e6 AS gia_m2_tr, f.price_per_m2 / t.median_price_per_m2 AS so_voi_median_quan
         FROM {G}.fact_budget_pareto p
         JOIN {G}.fact_listing f ON f.source_id = p.source_id
+        JOIN {G}.agg_budget_tradeoff t ON t.location_key = p.location_key AND t.property_category_key = p.property_category_key
+             AND t.price_band_key = p.price_band_key
         JOIN {G}.dim_location l ON l.location_key = p.location_key
         JOIN {G}.dim_property_category c ON c.property_category_key = p.property_category_key
         JOIN {G}.dim_price_band pb ON pb.band_key = p.price_band_key""",
-    "area_substitution": f"""
-        SELECT o.province_name, NULLIF(o.district_name, 'Unknown') AS quan_goc, NULLIF(a.district_name, 'Unknown') AS quan_thay_the, c.category_label,
-               ab.band_label AS area_band, s.substitution_rank, s.price_gap_pct * 100 AS re_hon_pct,
-               s.target_area, s.estimated_saving_at_target_area / 1e9 AS chenh_chi_phi_ty,
-               s.distance_diff_km, s.feature_similarity, s.origin_n_listings, s.alternative_n_listings,
-               a.district_name || ' (' || CASE WHEN s.distance_diff_km >= 0 THEN '+' ELSE '' END
-                   || format('%.1f', s.distance_diff_km) || ' km)' AS quan_thay_the_km
-        FROM {G}.agg_area_substitution s
+    "commute_district": f"""
+        SELECT d.destination_name AS noi_den, d.province_name, l.district_name, l.district_name AS quan_goc,
+               c.category_label, ab.band_label AS area_band, d.commute_km, d.n_listings,
+               d.estimated_cost_at_target_area / 1e9 AS chi_phi_ty,
+               CASE WHEN d.is_commute_efficient THEN '1. Đáng cân nhắc' ELSE '2. Có quận vừa gần hơn vừa rẻ hơn' END AS lua_chon,
+               lpad(format('%.1f', d.commute_km), 4, '0') || ' km · ' || l.district_name || ' · '
+                   || CAST(d.n_listings AS varchar) || ' tin' AS quan_theo_quang_duong
+        FROM {G}.agg_commute_district d
+        JOIN {G}.dim_location l ON l.location_key = d.location_key
+        JOIN {G}.dim_property_category c ON c.property_category_key = d.property_category_key
+        JOIN {G}.dim_area_band ab ON ab.band_key = d.area_band_key""",
+    "commute_map": f"""
+        SELECT d.destination_name AS noi_den, c.category_label, ab.band_label AS area_band,
+               d.centroid_lat AS lat, d.centroid_lon AS lon, d.estimated_cost_at_target_area / 1e9 AS chi_phi_ty,
+               d.estimated_cost_at_target_area / 1e9 + 1 AS kich_thuoc, d.commute_km,
+               CASE WHEN d.is_commute_efficient THEN '1. Đáng cân nhắc' ELSE '2. Có quận vừa gần hơn vừa rẻ hơn' END AS lua_chon
+        FROM {G}.agg_commute_district d
+        JOIN {G}.dim_property_category c ON c.property_category_key = d.property_category_key
+        JOIN {G}.dim_area_band ab ON ab.band_key = d.area_band_key
+        UNION ALL
+        SELECT DISTINCT d.destination_name, c.category_label, ab.band_label, d.destination_lat, d.destination_lon, 0e0, 12e0, 0e0, '0. Nơi làm/học'
+        FROM {G}.agg_commute_district d
+        JOIN {G}.dim_property_category c ON c.property_category_key = d.property_category_key
+        JOIN {G}.dim_area_band ab ON ab.band_key = d.area_band_key""",
+    "commute_substitution": f"""
+        SELECT n.destination_name AS noi_den, o.province_name, o.district_name AS quan_goc, a.district_name AS quan_thay_the,
+               c.category_label, ab.band_label AS area_band, s.price_gap_pct * 100 AS re_hon_pct,
+               s.estimated_saving_at_target_area / 1e9 AS chenh_chi_phi_ty,
+               a.district_name || ' · ' || format('%.1f', s.alternative_commute_km) || ' km (' || CASE WHEN s.commute_diff_km >= 0 THEN '+' ELSE '' END
+                   || format('%.1f', s.commute_diff_km) || ') · ' || CAST(s.alternative_n_listings AS varchar) || ' tin' AS quan_thay_the_qd
+        FROM {G}.agg_commute_substitution s
+        JOIN (SELECT DISTINCT destination_id, destination_name FROM {G}.agg_commute_district) n ON n.destination_id = s.destination_id
         JOIN {G}.dim_location o ON o.location_key = s.origin_location_key
         JOIN {G}.dim_location a ON a.location_key = s.alternative_location_key
         JOIN {G}.dim_property_category c ON c.property_category_key = s.property_category_key
         JOIN {G}.dim_area_band ab ON ab.band_key = s.area_band_key""",
+    "commute_listings": f"""
+        SELECT n.destination_name AS noi_den, o.district_name AS quan_goc, a.district_name AS quan_thay_the, c.category_label,
+               ab.band_label AS area_band, s.alternative_commute_km AS quang_duong_km,
+               f.title, f.price / 1e9 AS gia_ty, f.area, f.price_per_m2 / 1e6 AS gia_m2_tr,
+               s.alternative_median_price_per_m2 / 1e6 AS median_quan_thay_the_tr, f.ad_url
+        FROM {G}.agg_commute_substitution s
+        JOIN (SELECT DISTINCT destination_id, destination_name FROM {G}.agg_commute_district) n ON n.destination_id = s.destination_id
+        JOIN {G}.fact_listing f ON f.location_key = s.alternative_location_key AND f.property_category_key = s.property_category_key
+             AND f.area_band_key = s.area_band_key AND f.is_dup_representative AND f.price_per_m2 > 0
+        JOIN {G}.dim_location o ON o.location_key = s.origin_location_key
+        JOIN {G}.dim_location a ON a.location_key = s.alternative_location_key
+        JOIN {G}.dim_property_category c ON c.property_category_key = s.property_category_key
+        JOIN {G}.dim_area_band ab ON ab.band_key = s.area_band_key""",
+    "data_quality": f"""
+        SELECT k.source, CASE k.source_type WHEN 'historical' THEN 'Lịch sử (nạp một lần)' ELSE 'Crawl định kỳ' END AS loai_nguon,
+               k.bronze_rows, k.current_rows, k.representative_rows,
+               k.pass_rows, k.warn_rows, k.reject_rows, k.dup_suspect_rate,
+               k.coverage_price_known, k.coverage_area_known, k.coverage_rooms_known, k.coverage_province,
+               k.coverage_coordinate, k.coverage_legal_known, CAST(f.ngay_moi_nhat AS varchar) AS ngay_moi_nhat
+        FROM {G}.agg_dq_kpi k
+        LEFT JOIN (SELECT source, MAX(last_seen_date) AS ngay_moi_nhat FROM {G}.fact_listing_lifecycle GROUP BY source) f ON f.source = k.source""",
 }
 
 
@@ -125,11 +208,41 @@ def m(expression: str, label: str) -> dict[str, Any]:
     return {"expressionType": "SQL", "sqlExpression": expression, "label": label}
 
 
-BQ1_SCOPE = f"province_name = '{HCM}' AND category_label = '{HOUSE}' AND price_band_key = 4 AND n_listings >= 20"
-BQ3_SCOPE = f"quan_goc = 'Quận Bình Tân' AND category_label = '{HOUSE}' AND area_band = '50 - 80 m²'"
-PCT_P75 = m("AVG(CASE WHEN price_position = 'tren_p75' THEN 1e0 ELSE 0e0 END)", "Tỷ lệ trên P75")
+# Dashboards with required filters open on a default scenario; their charts
+# follow the filters, and the saved query context (used by the data API
+# check) carries the default values.
+BQ1_DEFAULT = {"province_name": HCM, "category_label": HOUSE, "ngan_sach": "3 - 5 tỷ"}
+BQ2_DEFAULT = {"category_label": HOUSE, "province_name": HCM}
+BQ3_DEFAULT = {"noi_den": "Khu công nghệ cao (Thủ Đức)", "quan_goc": "Quận Phú Nhuận", "category_label": HOUSE, "area_band": "50 - 80 m²"}
+BQ3_PAIRS = f"""FROM {G}.agg_commute_substitution s JOIN {G}.agg_commute_district d ON d.destination_id = s.destination_id
+    AND d.location_key = s.origin_location_key AND d.property_category_key = s.property_category_key AND d.area_band_key = s.area_band_key
+    JOIN {G}.dim_location o ON o.location_key = s.origin_location_key JOIN {G}.dim_property_category c ON c.property_category_key = s.property_category_key
+    JOIN {G}.dim_area_band ab ON ab.band_key = s.area_band_key
+    WHERE d.destination_name = '{BQ3_DEFAULT["noi_den"]}' AND o.district_name = '{BQ3_DEFAULT["quan_goc"]}'
+    AND c.category_label = '{HOUSE}' AND ab.band_label = '{BQ3_DEFAULT["area_band"]}'"""
+BQ1_GROUPS = f"""FROM {G}.agg_budget_tradeoff t JOIN {G}.dim_location l ON l.location_key = t.location_key
+    JOIN {G}.dim_property_category c ON c.property_category_key = t.property_category_key JOIN {G}.dim_price_band pb ON pb.band_key = t.price_band_key
+    WHERE l.province_name = '{HCM}' AND c.category_label = '{HOUSE}' AND pb.band_label = '{BQ1_DEFAULT["ngan_sach"]}'
+    AND l.district_name IS NOT NULL AND l.district_name <> 'Unknown' AND t.n_listings >= {MIN_GROUP}"""
+BQ2_MODEL = f"""FROM {G}.fact_listing_price_model m JOIN {G}.fact_listing_price_assessment a ON a.source_id = m.source_id
+    JOIN {G}.dim_property_category c ON c.property_category_key = a.property_category_key JOIN {G}.dim_location l ON l.location_key = a.location_key
+    WHERE c.category_label = '{HOUSE}' AND l.province_name = '{HCM}'"""
+OVER, UNDER = "chenh_uoc_tinh_pct >= 30", "chenh_uoc_tinh_pct <= -30"
 
-# Chart specs. viz: kpi | bar | hbar | bubble | funnel | table.
+# Colours carry meaning: red = expensive / priced high / small, green = cheap /
+# priced low / large, grey = typical. Applied through the dashboards' label_colors.
+LABEL_COLORS = {
+    "1. Dưới 60 tr/m²": "#1a9850", "2. 60–100 tr/m²": "#d9ef8b", "3. 100–200 tr/m²": "#fc8d59", "4. Trên 200 tr/m²": "#d73027",
+    "1. Rao thấp hơn ước tính ≥ 30%": "#1a9850", "2. Trong ±30% ước tính": "#bdbdbd", "3. Rao cao hơn ước tính ≥ 30%": "#d73027",
+    "1. Dưới 50 m²": "#d73027", "2. 50–80 m²": "#fc8d59", "3. 80–150 m²": "#91cf60", "4. Trên 150 m²": "#1a9850",
+    "0. Nơi làm/học": "#2b2b2b", "1. Đáng cân nhắc": "#1a9850", "2. Có quận vừa gần hơn vừa rẻ hơn": "#bdbdbd",
+    "1. Chắc chắn (KTC 95% không chứa 0)": "#2c7fb8", "2. Chưa đủ chắc chắn": "#bdbdbd",
+    "PASS": "#1a9850", "WARN": "#fee08b", "REJECT": "#d73027",
+}
+
+# Chart specs. viz: kpi | bar | hbar | funnel | table | map. "scenario": slug
+# whose default filters the saved query context carries. Chart titles marked
+# "title_from_insights" are replaced by a finding computed from Gold.
 CHARTS: list[dict[str, Any]] = [
     # ---------------------------------------------------------- overview
     {"key": "ov_listings", "name": "Tin rao bán đang phân tích", "dataset": "market_overview", "viz": "kpi",
@@ -138,99 +251,150 @@ CHARTS: list[dict[str, Any]] = [
     {"key": "ov_hcm_share", "name": "Tỷ trọng TP.HCM", "dataset": "market_overview", "viz": "kpi", "format": ".1%",
      "metric": m(f"SUM(CASE WHEN province_name = '{HCM}' THEN n_listings ELSE 0 END) * 1e0 / SUM(n_listings)", "TP.HCM"),
      "sub": "số tin nằm ở TP.HCM"},
-    {"key": "ov_median_m2", "name": "Median giá chào/m² (triệu)", "dataset": "price_assessment", "viz": "kpi", "format": ",.1f",
-     "metric": m("APPROX_PERCENTILE(gia_m2_tr, 0.5)", "Triệu/m²"), "where": f"NOT {SUSPECT}", "sub": "toàn bộ tin có giá, cả nước"},
+    {"key": "ov_median_m2", "name": "Median giá chào/m² (triệu)", "dataset": "price_check", "viz": "kpi", "format": ",.1f",
+     "metric": m("APPROX_PERCENTILE(gia_m2_tr, 0.5)", "Triệu/m²"), "where": f"NOT {SUSPECT}", "sub": "theo bộ lọc đang chọn"},
     {"key": "ov_provinces", "name": "Tỉnh/thành có tin", "dataset": "market_overview", "viz": "kpi",
-     "metric": m("COUNT(DISTINCT province_name)", "Tỉnh"), "where": "province_name <> 'Không rõ'", "sub": "trên 34 tỉnh/thành (mô hình 2025)"},
-    {"key": "ov_by_province", "name": "Tin tập trung ở đâu? Số tin theo tỉnh (10 tỉnh nhiều nhất)", "dataset": "market_overview",
-     "viz": "hbar", "x": "province_name", "metric": m("SUM(n_listings)", "Số tin"), "limit": 10, "where": "province_name <> 'Không rõ'"},
-    {"key": "ov_by_category", "name": "Loại hình nào được rao nhiều?", "dataset": "market_overview",
-     "viz": "hbar", "x": "category_label", "metric": m("SUM(n_listings)", "Số tin"), "where": "category_label <> 'Không rõ'"},
-    {"key": "ov_price", "name": "Ở đâu đắt nhất? Median giá/m² (triệu) theo tỉnh và loại hình", "dataset": "market_overview",
-     "viz": "bar", "x": "province_name", "groupby": ["category_label"], "metric": m("MAX(median_price_per_m2_tr)", "Triệu/m²"),
-     "where": f"category_label IN ('{HOUSE}', '{APARTMENT}', 'Đất')", "top_provinces": 6},
-    {"key": "ov_funnel", "name": "Từ dữ liệu crawl tới tin dùng để phân tích (số dòng mỗi tầng)", "dataset": "funnel", "viz": "hbar",
+     "metric": m("COUNT(DISTINCT province_name)", "Tỉnh"), "where": "province_name <> 'Không rõ'", "sub": "trên 34 tỉnh/thành"},
+    {"key": "ov_map_hcm", "name": "Giá/m² nhà phố TP.HCM theo vị trí", "title_from_insights": True, "dataset": "map_price", "viz": "map",
+     "dimension": "muc_gia", "viewport": VIEW_HCM, "radius": 140, "where": f"tinh = '{HCM}' AND loai_hinh = 'nha_pho'", "width": 7, "height": 95},
+    {"key": "ov_ring", "name": "Giá/m² theo khoảng cách tới trung tâm (TP.HCM, nhà phố)", "title_from_insights": True, "dataset": "map_price",
+     "viz": "bar", "x": "vanh_dai", "metric": m("APPROX_PERCENTILE(gia_m2_tr, 0.5)", "Median triệu/m²"), "sort_x": True,
+     "format": ",.0f", "where": f"tinh = '{HCM}' AND loai_hinh = 'nha_pho'", "width": 5, "height": 95},
+    {"key": "ov_map_hn", "name": "Giá/m² nhà phố Hà Nội theo vị trí", "title_from_insights": True, "dataset": "map_price", "viz": "map",
+     "dimension": "muc_gia", "viewport": VIEW_HN, "radius": 120, "where": "tinh = 'Hà Nội' AND loai_hinh = 'nha_pho'", "width": 7, "height": 95},
+    {"key": "ov_price", "name": "Median giá/m² (triệu) theo tỉnh và loại hình – nhóm ≥ 30 tin", "title_from_insights": True,
+     "dataset": "market_overview", "viz": "hbar", "x": "province_name", "groupby": ["category_label"],
+     "metric": m("MAX(median_price_per_m2_tr)", "Triệu/m²"), "where": f"category_label IN ('{HOUSE}', '{APARTMENT}') AND n_listings >= 30",
+     "top_provinces": 8, "width": 5, "height": 95},
+    # ---------------------------------------------------------- BQ1
+    {"key": "bq1_listings", "name": "Tin trong phân khúc", "dataset": "budget_tradeoff", "viz": "kpi", "scenario": "tlcn-bq1",
+     "metric": m("SUM(n_listings)", "Tin"), "sub": "theo tỉnh, loại hình, ngân sách đã chọn",
+     "check_sql": f"SELECT SUM(t.n_listings) {BQ1_GROUPS.replace(f' AND t.n_listings >= {MIN_GROUP}', '')}"},
+    {"key": "bq1_districts", "name": f"Quận đủ dữ liệu (≥ {MIN_GROUP} tin)", "dataset": "budget_tradeoff", "viz": "kpi", "scenario": "tlcn-bq1",
+     "metric": m("COUNT(*)", "Quận"), "where": f"n_listings >= {MIN_GROUP}", "sub": "chỉ các quận này được so sánh",
+     "check_sql": f"SELECT COUNT(*) {BQ1_GROUPS}"},
+    {"key": "bq1_pareto_share", "name": "Tin không bị trội", "dataset": "budget_pareto", "viz": "kpi", "format": ".1%", "scenario": "tlcn-bq1",
+     "metric": m("AVG(CASE WHEN is_pareto_efficient THEN 1e0 ELSE 0e0 END)", "Pareto"), "sub": "danh sách nên xem trước ở cuối trang"},
+    {"key": "bq1_map", "name": "Cùng ngân sách, mỗi quận cho bao nhiêu m²?", "title_from_insights": True, "dataset": "budget_tradeoff",
+     "viz": "map", "dimension": "dien_tich_nhan", "radius_metric": m("SQRT(MAX(median_area))", "√ median diện tích"), "multiplier": 160,
+     "autozoom": True, "viewport": VIEW_HCM, "scenario": "tlcn-bq1",
+     "where": f"n_listings >= {MIN_GROUP} AND lat IS NOT NULL AND median_distance_km <= {MAP_RADIUS_KM}",
+     "width": 7, "height": 110},
+    {"key": "bq1_distance", "name": "Median diện tích (m²), quận xếp theo khoảng cách tới trung tâm", "title_from_insights": True,
+     "dataset": "budget_tradeoff", "viz": "hbar", "x": "quan_theo_khoang_cach", "metric": m("MAX(median_area)", "m²"),
+     "sort_x": True, "scenario": "tlcn-bq1", "where": f"n_listings >= {MIN_GROUP} AND median_distance_km IS NOT NULL", "width": 5, "height": 110},
+    {"key": "bq1_table", "name": "Tin nên xem trước: không có tin cùng quận vừa rẻ hơn vừa không kém (bỏ tin giá/m² lệch > 3 lần median quận)",
+     "dataset": "budget_pareto", "viz": "table", "scenario": "tlcn-bq1",
+     "columns": ["district_name", "title", "gia_ty", "area", "gia_m2_tr", "rooms", "ad_url"],
+     "order": [["district_name", True], ["gia_ty", True]], "row_limit": 500,
+     "where": "is_pareto_efficient AND so_voi_median_quan BETWEEN 1e0 / 3 AND 3"},
+    # ---------------------------------------------------------- BQ2
+    {"key": "bq2_error", "name": "Sai số điển hình của giá ước tính (%)", "dataset": "price_check", "viz": "kpi", "format": ",.0f",
+     "scenario": "tlcn-bq2", "metric": m("APPROX_PERCENTILE(ABS(chenh_uoc_tinh_pct), 0.5)", "%"),
+     "where": "tap_mo_hinh = 'test' AND NOT is_outlier_trimmed", "sub": "nên chỉ tin vào mức lệch ≥ 30%"},
+    {"key": "bq2_over", "name": "Rao cao hơn ước tính ≥ 30%", "dataset": "price_check", "viz": "kpi", "format": ".1%", "scenario": "tlcn-bq2",
+     "metric": m(f"AVG(CASE WHEN {OVER} THEN 1e0 ELSE 0e0 END)", "Tỷ lệ"), "where": "chenh_uoc_tinh_pct IS NOT NULL",
+     "sub": "nên thương lượng", "check_sql": f"SELECT AVG(CASE WHEN m.residual_pct >= 0.3 THEN 1e0 ELSE 0e0 END) {BQ2_MODEL} AND m.residual_pct IS NOT NULL"},
+    {"key": "bq2_under", "name": "Rao thấp hơn ước tính ≥ 30%", "dataset": "price_check", "viz": "kpi", "format": ".1%", "scenario": "tlcn-bq2",
+     "metric": m(f"AVG(CASE WHEN {UNDER} THEN 1e0 ELSE 0e0 END)", "Tỷ lệ"), "where": "chenh_uoc_tinh_pct IS NOT NULL",
+     "sub": "giá tốt hoặc thiếu thông tin – kiểm tra kỹ",
+     "check_sql": f"SELECT AVG(CASE WHEN m.residual_pct <= -0.3 THEN 1e0 ELSE 0e0 END) {BQ2_MODEL} AND m.residual_pct IS NOT NULL"},
+    {"key": "bq2_map", "name": "Tin rao cao (đỏ) và thấp (xanh) so với giá ước tính", "title_from_insights": True, "dataset": "price_check",
+     "viz": "map", "dimension": "muc_chenh", "radius": 140, "autozoom": True, "viewport": VIEW_HCM, "scenario": "tlcn-bq2",
+     "where": f"lat IS NOT NULL AND muc_chenh IS NOT NULL AND kc_trung_tam <= {MAP_RADIUS_KM}", "width": 7, "height": 110},
+    {"key": "bq2_district", "name": "Tỷ lệ tin rao cao hơn ước tính ≥ 30% theo quận (quận ≥ 100 tin)", "title_from_insights": True,
+     "dataset": "price_check", "viz": "hbar", "x": "district_name", "metric": m(f"AVG(CASE WHEN {OVER} THEN 1e0 ELSE 0e0 END)", "Tỷ lệ"),
+     "format": ".0%", "limit": 15, "where": "district_name IS NOT NULL AND chenh_uoc_tinh_pct IS NOT NULL", "having": "COUNT(*) >= 100",
+     "scenario": "tlcn-bq2", "width": 5, "height": 110},
+    {"key": "bq2_factor", "name": "Đặc điểm nêu trong tiêu đề đi kèm chênh giá/m² bao nhiêu %", "title_from_insights": True,
+     "dataset": "price_factor", "viz": "hbar", "x": "dac_diem_nhan", "groupby": ["do_tin_cay"], "stack": "Stack", "show_value": True,
+     "metric": m("MAX(chenh_gia_pct)", "% chênh giá/m²"), "format": ",.0f", "scenario": "tlcn-bq2", "height": 55},
+    {"key": "bq2_table", "name": "Tra cứu tin: giá chào so với giá ước tính và P25–P75 nhóm tương đồng (bỏ tin lệch > 200%: thường là xếp nhầm loại hình)",
+     "dataset": "price_check", "viz": "table", "scenario": "tlcn-bq2",
+     "columns": ["khu_vuc", "title", "gia_ty", "area", "gia_m2_tr", "uoc_tinh_tr", "chenh_uoc_tinh_pct", "p25_nhom_tr", "p75_nhom_tr", "ad_url"],
+     "order": [["khu_vuc", True], ["gia_ty", True]], "row_limit": 1000,
+     "where": "uoc_tinh_tr IS NOT NULL AND NOT is_outlier_trimmed AND ABS(chenh_uoc_tinh_pct) <= 200"},
+    # ---------------------------------------------------------- BQ3 (by place of work or study)
+    {"key": "bq3_now", "name": "Quãng đường từ quận đang nhắm (km)", "dataset": "commute_district", "viz": "kpi", "format": ",.1f",
+     "metric": m("MAX(commute_km)", "km"), "scenario": "tlcn-bq3", "sub": "đường chim bay tới nơi làm/học"},
+    {"key": "bq3_options", "name": "Quận rẻ hơn, đường đi tương đương", "dataset": "commute_substitution", "viz": "kpi",
+     "metric": m("COUNT(*)", "Quận"), "scenario": "tlcn-bq3", "sub": "xa hơn tối đa 2 km", "check_sql": f"SELECT COUNT(*) {BQ3_PAIRS}"},
+    {"key": "bq3_best", "name": "Rẻ hơn nhiều nhất (%)", "dataset": "commute_substitution", "viz": "kpi", "format": ",.0f",
+     "metric": m("MAX(re_hon_pct)", "%"), "scenario": "tlcn-bq3", "sub": "cho cùng diện tích",
+     "check_sql": f"SELECT MAX(s.price_gap_pct) * 100 {BQ3_PAIRS}"},
+    {"key": "bq3_saving", "name": "Tiết kiệm tối đa (tỷ đồng)", "dataset": "commute_substitution", "viz": "kpi", "format": ",.2f",
+     "metric": m("MAX(chenh_chi_phi_ty)", "Tỷ"), "scenario": "tlcn-bq3", "sub": "ước tính, cùng diện tích"},
+    {"key": "bq3_geo", "name": "Các quận quanh nơi làm/học (vòng tròn càng to càng đắt)", "title_from_insights": True, "dataset": "commute_map",
+     "viz": "map", "dimension": "lua_chon", "radius_metric": m("MAX(kich_thuoc)", "Chi phí (tỷ) + 1"), "multiplier": 110,
+     "autozoom": True, "viewport": VIEW_HCM, "scenario": "tlcn-bq3", "where": f"lat IS NOT NULL AND commute_km <= {MAP_RADIUS_KM}",
+     "width": 7, "height": 110},
+    {"key": "bq3_gap", "name": "Quận thay thế: rẻ hơn bao nhiêu %", "title_from_insights": True, "dataset": "commute_substitution",
+     "viz": "hbar", "x": "quan_thay_the_qd", "metric": m("MAX(re_hon_pct)", "% thấp hơn"), "format": ",.0f", "scenario": "tlcn-bq3",
+     "width": 5, "height": 110},
+    {"key": "bq3_map", "name": "Mọi quận: quãng đường tới nơi làm/học và chi phí (tỷ đồng) cho cùng diện tích",
+     "dataset": "commute_district", "viz": "hbar", "x": "quan_theo_quang_duong", "groupby": ["lua_chon"], "stack": "Stack", "show_value": True,
+     "metric": m("MAX(chi_phi_ty)", "Tỷ đồng"), "format": ",.1f", "sort_x": True, "scenario": "tlcn-bq3", "height": 110},
+    {"key": "bq3_listings", "name": "Tin rao giá điển hình ở các quận thay thế (giá/m² 0,8–1,25× median quận đó)",
+     "dataset": "commute_listings", "viz": "table",
+     "columns": ["quan_thay_the", "quang_duong_km", "title", "gia_ty", "area", "gia_m2_tr", "ad_url"],
+     "order": [["quang_duong_km", True], ["gia_ty", True]], "row_limit": 300, "scenario": "tlcn-bq3",
+     "where": "gia_m2_tr BETWEEN 0.8 * median_quan_thay_the_tr AND 1.25 * median_quan_thay_the_tr"},
+    # ---------------------------------------------------------- data quality
+    {"key": "dq_pass", "name": "Bản ghi đạt PASS", "dataset": "data_quality", "viz": "kpi", "format": ".1%",
+     "metric": m("SUM(pass_rows) * 1e0 / SUM(pass_rows + warn_rows)", "PASS"), "sub": "còn lại là WARN: thiếu/đã sửa một trường",
+     "check_sql": f"SELECT SUM(pass_rows) * 1e0 / SUM(pass_rows + warn_rows) FROM {G}.agg_dq_kpi"},
+    {"key": "dq_reject", "name": "Bản ghi bị loại", "dataset": "data_quality", "viz": "kpi",
+     "metric": m("SUM(reject_rows)", "Dòng"), "sub": "không vào phân tích"},
+    {"key": "dq_dup", "name": "Tin nghi trùng giữa nguồn", "dataset": "data_quality", "viz": "kpi", "format": ".1%",
+     "metric": m("SUM(dup_suspect_rate * current_rows) / SUM(current_rows)", "Tỷ lệ"), "sub": "chỉ giữ một tin đại diện"},
+    {"key": "dq_status", "name": "Tỷ lệ PASS / WARN / REJECT theo nguồn", "title_from_insights": True, "dataset": "data_quality",
+     "viz": "hbar", "x": "source", "metrics": [m("SUM(pass_rows)", "PASS"), m("SUM(warn_rows)", "WARN"), m("SUM(reject_rows)", "REJECT")],
+     "stack": "Expand"},
+    {"key": "dq_coverage", "name": "Độ phủ trường dữ liệu theo nguồn", "title_from_insights": True, "dataset": "data_quality",
+     "viz": "hbar", "x": "source", "format": ".0%", "height": 90,
+     "metrics": [m("MAX(coverage_price_known)", "Giá"), m("MAX(coverage_area_known)", "Diện tích"), m("MAX(coverage_rooms_known)", "Số phòng"),
+                 m("MAX(coverage_coordinate)", "Tọa độ"), m("MAX(coverage_legal_known)", "Pháp lý")]},
+    {"key": "dq_funnel", "name": "Từ dữ liệu crawl tới tin dùng để phân tích (số dòng mỗi tầng)", "dataset": "funnel", "viz": "hbar",
      "x": "stage", "metric": m("SUM(rows)", "Dòng"), "sort_x": True,
      "check_sql": f"SELECT SUM(bronze_rows) FROM {G}.agg_dq_kpi", "check_first_row": True},
-    # ---------------------------------------------------------- BQ2
-    {"key": "bq2_high", "name": "Rao cao hơn median nhóm ≥ 25%", "dataset": "price_assessment", "viz": "kpi", "format": ".1%",
-     "metric": m("AVG(CASE WHEN price_ratio >= 1.25 THEN 1e0 ELSE 0e0 END)", "≥ 1,25×"), "where": f"price_ratio IS NOT NULL AND NOT {SUSPECT}",
-     "sub": "so với các căn cùng quận, loại hình, diện tích, số phòng",
-     "check_sql": f"SELECT AVG(CASE WHEN price_ratio >= 1.25 THEN 1e0 ELSE 0e0 END) FROM {G}.fact_listing_price_assessment WHERE price_ratio IS NOT NULL AND NOT {SUSPECT}"},
-    {"key": "bq2_low", "name": "Rao gấp đôi median nhóm", "dataset": "price_assessment", "viz": "kpi", "format": ".1%",
-     "metric": m("AVG(CASE WHEN price_ratio >= 2 THEN 1e0 ELSE 0e0 END)", "≥ 2×"), "where": f"price_ratio IS NOT NULL AND NOT {SUSPECT}",
-     "sub": "ứng viên 'định giá cao' cần thương lượng"},
-    {"key": "bq2_low_legal", "name": "Giá thấp nhưng không nêu pháp lý", "dataset": "price_assessment", "viz": "kpi", "format": ".0%",
-     "metric": m("AVG(CASE WHEN is_low_price_missing_legal THEN 1e0 ELSE 0e0 END)", "Tỷ lệ"), "where": "price_position = 'duoi_p25'",
-     "sub": "trong các tin dưới P25 – cần hỏi giấy tờ"},
-    {"key": "bq2_suspect", "name": "Outlier: giá/m² > 10× median nhóm", "dataset": "price_assessment", "viz": "kpi",
-     "metric": m(f"SUM(CASE WHEN {SUSPECT} THEN 1 ELSE 0 END)", "Tin"), "sub": "giữ lại, cần xem riêng (mặt tiền đắc địa, nhóm so sánh không đồng nhất)",
-     "check_sql": f"SELECT SUM(CASE WHEN {SUSPECT} THEN 1 ELSE 0 END) FROM {G}.fact_listing_price_assessment"},
-    {"key": "bq2_positions", "name": "Loại hình nào hay bị rao cao? (tỷ lệ tin theo vị trí giá)", "dataset": "price_assessment",
-     "viz": "hbar", "x": "category_label", "groupby": ["vi_tri_gia"], "metric": m("COUNT(*)", "Số tin"), "stack": "Expand",
-     "where": "category_label <> 'Không rõ'"},
-    {"key": "bq2_ratio", "name": "Giá/m² lệch bao nhiêu so với median nhóm? (số tin)", "dataset": "price_assessment",
-     "viz": "bar", "x": "muc_lech", "metric": m("COUNT(*)", "Số tin"), "where": "muc_lech IS NOT NULL", "sort_x": True},
-    {"key": "bq2_district", "name": f"Căn hộ TP.HCM: quận nào có nhiều tin rao cao hơn P75? (quận ≥ 100 tin)", "dataset": "price_assessment",
-     "viz": "hbar", "x": "district_name", "metric": PCT_P75, "format": ".0%", "limit": 12,
-     "where": f"province_name = '{HCM}' AND category_label = '{APARTMENT}' AND district_name IS NOT NULL", "having": "COUNT(*) >= 100"},
-    {"key": "bq2_table", "name": "Chi tiết: tin rao cao nhất so với nhóm (≤ 10× median)", "dataset": "price_assessment", "viz": "table",
-     "columns": ["district_name", "category_label", "title", "gia_ty", "area", "gia_m2_tr", "median_nhom_tr", "price_ratio"],
-     "order": [["price_ratio", False]], "row_limit": 50, "where": f"price_position = 'tren_p75' AND NOT {SUSPECT}"},
-    # ---------------------------------------------------------- BQ1
-    {"key": "bq1_districts", "name": "Quận có đủ tin (≥ 20)", "dataset": "budget_tradeoff", "viz": "kpi",
-     "metric": m("COUNT(*)", "Quận"), "where": BQ1_SCOPE, "sub": "nhà phố 3–5 tỷ tại TP.HCM"},
-    {"key": "bq1_area_range", "name": "Chênh diện tích giữa các quận", "dataset": "budget_tradeoff", "viz": "kpi", "format": ",.1f",
-     "metric": m("MAX(median_area) / MIN(median_area)", "lần"), "where": BQ1_SCOPE, "sub": "quận rộng nhất / quận hẹp nhất (lần)"},
-    {"key": "bq1_pareto_share", "name": "Tin không bị trội", "dataset": "budget_pareto", "viz": "kpi", "format": ".1%",
-     "metric": m("AVG(CASE WHEN is_pareto_efficient THEN 1e0 ELSE 0e0 END)", "Pareto"),
-     "where": f"province_name = '{HCM}' AND category_label = '{HOUSE}' AND price_band_key = 4", "sub": "nên xem trước; số còn lại có lựa chọn tốt hơn cùng quận"},
-    {"key": "bq1_distance", "name": "Cùng 3–5 tỷ: càng xa trung tâm, nhà càng rộng – median diện tích (m²), quận xếp theo khoảng cách",
-     "dataset": "budget_tradeoff", "viz": "bar", "x": "quan_theo_khoang_cach", "metric": m("MAX(median_area)", "Median diện tích (m²)"),
-     "sort_x": True, "where": BQ1_SCOPE + " AND median_distance_km IS NOT NULL"},
-    {"key": "bq1_price_m2", "name": "Giá/m² (triệu) theo quận – phần tiền trả cho vị trí", "dataset": "budget_tradeoff",
-     "viz": "hbar", "x": "district_name", "metric": m("MAX(median_price_per_m2_tr)", "Triệu/m²"), "where": BQ1_SCOPE, "height": 85},
-    {"key": "bq1_car", "name": "Tỷ lệ tin nêu ô tô tiếp cận theo quận", "dataset": "budget_tradeoff",
-     "viz": "hbar", "x": "district_name", "metric": m("MAX(share_car_access)", "Ô tô tiếp cận"), "format": ".0%", "where": BQ1_SCOPE, "height": 85},
-    {"key": "bq1_table", "name": "Chi tiết: tin không bị trội, nhà phố 3–5 tỷ TP.HCM",
-     "dataset": "budget_pareto", "viz": "table",
-     "columns": ["district_name", "title", "gia_ty", "area", "rooms", "title_has_frontage", "title_has_car_access", "title_has_legal"],
-     "order": [["area", False]], "row_limit": 100,
-     "where": f"is_pareto_efficient AND province_name = '{HCM}' AND category_label = '{HOUSE}' AND price_band_key = 4"},
-    # ---------------------------------------------------------- BQ3
-    {"key": "bq3_options", "name": "Lựa chọn thay thế", "dataset": "area_substitution", "viz": "kpi",
-     "metric": m("COUNT(*)", "Quận"), "where": BQ3_SCOPE, "sub": "cho nhà phố 50–80 m² ở Quận Bình Tân"},
-    {"key": "bq3_best_near", "name": "Rẻ hơn nhiều nhất trong phạm vi +5 km", "dataset": "area_substitution", "viz": "kpi", "format": ",.0f",
-     "metric": m("MAX(re_hon_pct)", "%"), "where": BQ3_SCOPE + " AND distance_diff_km <= 5", "sub": "% chi phí thấp hơn cho cùng diện tích"},
-    {"key": "bq3_gap", "name": "Chi phí thấp hơn bao nhiêu % cho cùng diện tích – và xa trung tâm thêm bao nhiêu km",
-     "dataset": "area_substitution", "viz": "hbar", "x": "quan_thay_the_km", "metric": m("MAX(re_hon_pct)", "% thấp hơn"),
-     "format": ",.0f", "where": BQ3_SCOPE},
-    {"key": "bq3_saving", "name": "Ước tính chênh chi phí (tỷ đồng) cho căn 62 m² điển hình", "dataset": "area_substitution",
-     "viz": "hbar", "x": "quan_thay_the", "metric": m("MAX(chenh_chi_phi_ty)", "Tỷ đồng"), "format": ",.2f", "where": BQ3_SCOPE},
-    {"key": "bq3_by_origin", "name": "Quận gốc nào có nhiều lựa chọn thay thế? (TP.HCM, nhà phố 50–80 m²)", "dataset": "area_substitution",
-     "viz": "hbar", "x": "quan_goc", "metric": m("COUNT(*)", "Số quận thay thế"), "limit": 12,
-     "where": f"province_name = '{HCM}' AND category_label = '{HOUSE}' AND area_band = '50 - 80 m²' AND quan_goc IS NOT NULL"},
-    {"key": "bq3_table", "name": "Chi tiết: khu vực thay thế (dùng bộ lọc Quận gốc)", "dataset": "area_substitution", "viz": "table",
-     "columns": ["quan_goc", "category_label", "area_band", "quan_thay_the", "re_hon_pct", "chenh_chi_phi_ty", "distance_diff_km", "feature_similarity"],
-     "order": [["origin_n_listings", False]], "row_limit": 500},
+    {"key": "dq_sources", "name": "Nguồn dữ liệu và ngày quan sát mới nhất", "dataset": "data_quality", "viz": "table",
+     "columns": ["source", "loai_nguon", "ngay_moi_nhat", "current_rows", "representative_rows"],
+     "order": [["representative_rows", False]], "row_limit": 20},
 ]
 
-# Rows: chart keys, or "md" for the insight header.
+# Rows: chart keys, or "md" for the one-line header.
 DASHBOARDS = [
     {"slug": "tlcn-tong-quan", "title": "Tổng quan thị trường BĐS đang chào bán",
-     "rows": [["md"], ["ov_listings", "ov_hcm_share", "ov_median_m2", "ov_provinces"], ["ov_by_province", "ov_by_category"], ["ov_price"], ["ov_funnel"]]},
+     "rows": [["md"], ["ov_listings", "ov_hcm_share", "ov_median_m2", "ov_provinces"], ["ov_map_hcm", "ov_ring"], ["ov_map_hn", "ov_price"]]},
     {"slug": "tlcn-bq1", "title": "BQ1 – Cùng ngân sách, người mua đánh đổi gì?",
-     "rows": [["md"], ["bq1_districts", "bq1_area_range", "bq1_pareto_share"], ["bq1_distance"], ["bq1_price_m2", "bq1_car"], ["bq1_table"]]},
-    {"slug": "tlcn-bq2", "title": "BQ2 – Tin nào rao cao/thấp bất thường so với căn tương đồng?",
-     "rows": [["md"], ["bq2_high", "bq2_low", "bq2_low_legal", "bq2_suspect"], ["bq2_positions", "bq2_ratio"], ["bq2_district"], ["bq2_table"]]},
-    {"slug": "tlcn-bq3", "title": "BQ3 – Không mua được ở quận này thì xem quận nào?",
-     "rows": [["md"], ["bq3_options", "bq3_best_near"], ["bq3_gap", "bq3_saving"], ["bq3_by_origin"], ["bq3_table"]]},
+     "rows": [["md"], ["bq1_listings", "bq1_districts", "bq1_pareto_share"], ["bq1_map", "bq1_distance"], ["bq1_table"]]},
+    {"slug": "tlcn-bq2", "title": "BQ2 – Tin này đắt hay rẻ so với căn tương đồng?",
+     "rows": [["md"], ["bq2_error", "bq2_over", "bq2_under"], ["bq2_map", "bq2_district"], ["bq2_factor"], ["bq2_table"]]},
+    {"slug": "tlcn-bq3", "title": "BQ3 – Đi làm/học ở đây: mua ở quận nào thì đường đi tương đương mà rẻ hơn?",
+     "rows": [["md"], ["bq3_now", "bq3_options", "bq3_best", "bq3_saving"], ["bq3_geo", "bq3_gap"], ["bq3_map"], ["bq3_listings"]]},
+    {"slug": "tlcn-chat-luong", "title": "Chất lượng dữ liệu – số liệu trên dashboard đáng tin đến đâu?",
+     "rows": [["md"], ["dq_pass", "dq_reject", "dq_dup"], ["dq_status", "dq_coverage"], ["dq_funnel", "dq_sources"]]},
 ]
 NATIVE_FILTERS = {
     "tlcn-tong-quan": [("Tỉnh/thành", "province_name"), ("Loại hình", "category_label")],
-    "tlcn-bq2": [("Tỉnh/thành", "province_name"), ("Quận/huyện", "district_name"), ("Loại hình", "category_label")],
-    "tlcn-bq1": [("Quận/huyện", "district_name")],
-    "tlcn-bq3": [("Quận gốc", "quan_goc"), ("Loại hình", "category_label")],
+    "tlcn-bq1": [
+        {"label": "Tỉnh/thành", "column": "province_name", "dataset": "budget_tradeoff", "default": BQ1_DEFAULT["province_name"]},
+        {"label": "Loại hình", "column": "category_label", "dataset": "budget_tradeoff", "default": BQ1_DEFAULT["category_label"]},
+        {"label": "Ngân sách", "column": "ngan_sach", "dataset": "budget_tradeoff", "default": BQ1_DEFAULT["ngan_sach"]},
+    ],
+    "tlcn-bq2": [
+        {"label": "Loại hình", "column": "category_label", "dataset": "price_check", "default": BQ2_DEFAULT["category_label"]},
+        {"label": "Tỉnh/thành", "column": "province_name", "dataset": "price_check", "default": BQ2_DEFAULT["province_name"]},
+        {"label": "Quận/huyện", "column": "district_name", "dataset": "price_check", "parent": "province_name"},
+    ],
+    "tlcn-bq3": [
+        {"label": "Nơi làm/học", "column": "noi_den", "dataset": "commute_district", "default": BQ3_DEFAULT["noi_den"]},
+        {"label": "Quận đang nhắm", "column": "quan_goc", "dataset": "commute_district", "default": BQ3_DEFAULT["quan_goc"],
+         "parent": "noi_den", "charts": ["bq3_now", "bq3_options", "bq3_best", "bq3_saving", "bq3_gap", "bq3_listings"]},
+        {"label": "Loại hình", "column": "category_label", "dataset": "commute_district", "default": BQ3_DEFAULT["category_label"]},
+        {"label": "Diện tích", "column": "area_band", "dataset": "commute_district", "default": BQ3_DEFAULT["area_band"]},
+    ],
+    "tlcn-chat-luong": [("Nguồn", "source")],
 }
 
 
@@ -264,11 +428,18 @@ class Superset:
         return self.call("GET", f"{resource}/?q={requests.utils.quote(q)}")["result"]
 
 
+DATASET_COLUMNS: dict[str, set[str]] = {}
+
+
+def has_column(dataset: str, column: str) -> bool:
+    return column in DATASET_COLUMNS.get(dataset, set())
+
+
 def chart_params(spec: dict, dataset_id: int) -> tuple[dict, dict]:
     """Return (form_data params, query object for the query context)."""
 
     viz = {"kpi": "big_number_total", "bar": "echarts_timeseries_bar", "hbar": "echarts_timeseries_bar",
-           "bubble": "bubble_v2", "funnel": "funnel", "table": "table"}[spec["viz"]]
+           "bubble": "bubble_v2", "funnel": "funnel", "table": "table", "map": "deck_scatter"}[spec["viz"]]
     adhoc = [{"expressionType": "SQL", "clause": "WHERE", "sqlExpression": spec["where"]}] if spec.get("where") else []
     if spec.get("having"):
         adhoc.append({"expressionType": "SQL", "clause": "HAVING", "sqlExpression": spec["having"]})
@@ -278,14 +449,28 @@ def chart_params(spec: dict, dataset_id: int) -> tuple[dict, dict]:
     if spec["viz"] == "table":
         config = {}
         for column in spec["columns"]:
-            if column in ("gia_ty", "gia_m2_tr", "median_nhom_tr", "price_ratio", "chenh_chi_phi_ty", "distance_diff_km", "feature_similarity"):
+            if column in ("gia_ty", "gia_m2_tr", "median_nhom_tr", "price_ratio", "chenh_chi_phi_ty", "distance_diff_km", "feature_similarity",
+                          "quang_duong_km", "median_quan_goc_tr", "median_quan_thay_the_tr", "uoc_tinh_tr", "p25_nhom_tr", "p75_nhom_tr"):
                 config[column] = {"d3NumberFormat": ",.2~f"}
-            elif column in ("re_hon_pct",):
+            elif column in ("re_hon_pct", "chenh_uoc_tinh_pct"):
                 config[column] = {"d3NumberFormat": ",.0f"}
         params = {**base, "query_mode": "raw", "all_columns": spec["columns"], "column_config": config,
                   "order_by_cols": [json.dumps(o) for o in spec.get("order", [])], "row_limit": spec["row_limit"],
-                  "server_pagination": False, "include_search": True, "page_length": 10}
+                  "server_pagination": False, "include_search": True, "page_length": 10, "show_cell_bars": False}
         query = {"columns": spec["columns"], "orderby": spec.get("order", []), "row_limit": spec["row_limit"], "extras": extras}
+    elif spec["viz"] == "map":
+        # deck.gl scatter on OpenStreetMap tiles (no Mapbox key). Colour comes
+        # from the dimension through the dashboard's label_colors; the radius
+        # is fixed (metres) or a metric x multiplier (metres).
+        radius = ({"type": "metric", "value": spec["radius_metric"]} if spec.get("radius_metric")
+                  else {"type": "fix", "value": spec.get("radius", 150)})
+        params = {**base, "spatial": {"type": "latlong", "latCol": "lat", "lonCol": "lon"}, "row_limit": 50000, "filter_nulls": True,
+                  "mapbox_style": OSM, "viewport": spec["viewport"], "autozoom": spec.get("autozoom", False),
+                  "point_radius_fixed": radius, "point_unit": "radius_m", "min_radius": 2, "max_radius": 60,
+                  "multiplier": spec.get("multiplier", 1), "dimension": spec["dimension"], "color_scheme": "supersetColors",
+                  "legend_position": "tr", "js_columns": []}
+        query = {"columns": ["lat", "lon", spec["dimension"]], "metrics": [spec["radius_metric"]] if spec.get("radius_metric") else [],
+                 "row_limit": 50000, "extras": extras}
     elif spec["viz"] == "kpi":
         params = {**base, "metric": spec["metric"], "header_font_size": 0.5, "subheader_font_size": 0.18,
                   "y_axis_format": spec.get("format", ",d"), "subheader": spec.get("sub", ""), "subtitle": spec.get("sub", "")}
@@ -308,7 +493,7 @@ def chart_params(spec: dict, dataset_id: int) -> tuple[dict, dict]:
         params = {**base, "x_axis": spec["x"], "metrics": metrics, "groupby": spec.get("groupby", []),
                   "orientation": "horizontal" if horizontal else "vertical", "row_limit": spec.get("limit", 1000),
                   "show_legend": bool(spec.get("groupby")) or len(metrics) > 1, "legendOrientation": "top", "rich_tooltip": True,
-                  "stack": spec.get("stack"), "show_value": spec.get("stack") is None,
+                  "stack": spec.get("stack"), "show_value": spec.get("show_value", spec.get("stack") is None),
                   "x_axis_sort": metrics[0]["label"] if sort_metric and not spec.get("groupby") else spec["x"],
                   # Horizontal bars draw bottom-up: ascending puts the largest on top.
                   "x_axis_sort_asc": horizontal if sort_metric and not spec.get("groupby") else not horizontal,
@@ -322,7 +507,14 @@ def chart_params(spec: dict, dataset_id: int) -> tuple[dict, dict]:
             query["series_limit_metric"] = metrics[0]
             params["limit"] = spec["limit"]
             params["timeseries_limit_metric"] = metrics[0]
-    query["filters"] = []
+    # Scenario charts take their scope from the dashboard filters; the saved
+    # query context (used by the data API check) carries the default scenario.
+    query["filters"] = [
+        {"col": f["column"], "op": "IN", "val": [f["default"]]}
+        for f in (NATIVE_FILTERS.get(spec["scenario"], []) if spec.get("scenario") else [])
+        if isinstance(f, dict) and f.get("default") and has_column(spec["dataset"], f["column"])
+        and spec["key"] in (f.get("charts") or [spec["key"]])
+    ]
     return params, query
 
 
@@ -332,38 +524,59 @@ def position_json(rows: list[list[Any]], specs: dict[int, dict], markdown: str) 
         "ROOT_ID": {"type": "ROOT", "id": "ROOT_ID", "children": ["GRID_ID"]},
         "GRID_ID": {"type": "GRID", "id": "GRID_ID", "children": [], "parents": ["ROOT_ID"]},
     }
-    heights = {"kpi": 24, "table": 80, "bubble": 70, "funnel": 50, "bar": 60, "hbar": 55}
+    heights = {"kpi": 22, "table": 80, "bubble": 70, "funnel": 50, "bar": 60, "hbar": 55, "map": 100}
     for r_index, row in enumerate(rows):
         row_id = f"ROW-{r_index}"
         layout["GRID_ID"]["children"].append(row_id)
         layout[row_id] = {"type": "ROW", "id": row_id, "children": [], "parents": ["ROOT_ID", "GRID_ID"],
                           "meta": {"background": "BACKGROUND_TRANSPARENT"}}
-        width = 12 // len(row)
+        width = 12 // len(row)  # unless the chart sets its own "width"
         for item in row:
             if item == "md":
                 cid = f"MARKDOWN-{r_index}"
                 layout[cid] = {"type": "MARKDOWN", "id": cid, "children": [], "parents": ["ROOT_ID", "GRID_ID", row_id],
-                               "meta": {"width": 12, "height": 26, "code": markdown}}
+                               "meta": {"width": 12, "height": 12, "code": markdown}}
             else:
                 cid = f"CHART-{item}"
                 spec = specs[item]
                 layout[cid] = {"type": "CHART", "id": cid, "children": [], "parents": ["ROOT_ID", "GRID_ID", row_id],
-                               "meta": {"chartId": item, "width": width, "height": spec.get("height", heights[spec["viz"]]), "sliceName": spec["name"]}}
+                               "meta": {"chartId": item, "width": spec.get("width", width), "height": spec.get("height", heights[spec["viz"]]),
+                                        "sliceName": spec["name"]}}
             layout[row_id]["children"].append(cid)
     return layout
 
 
-def native_filters(slug: str, dataset_ids: dict[str, int], chart_ids: list[int], dataset_of_chart: dict[int, str]) -> list[dict]:
+def native_filters(slug: str, dataset_ids: dict[str, int], chart_ids: list[int], dataset_of_chart: dict[int, str],
+                   chart_ids_by_key: dict[str, int]) -> list[dict]:
+    """Multi-select optional filters, or (with "default") a required single choice.
+
+    A filter applies to the charts whose dataset has its column, or to the
+    listed "charts"; "parent" narrows the options to the parent's choice.
+    """
+
+    def filter_id(column: str) -> str:
+        return f"NATIVE_FILTER-{uuid.uuid5(uuid.NAMESPACE_URL, slug + column).hex[:10]}"
+
     configs = []
-    for label, column in NATIVE_FILTERS.get(slug, []):
-        target = next(name for name in dataset_ids if any(dataset_of_chart[c] == name for c in chart_ids) and column in DATASETS[name])
+    for entry in NATIVE_FILTERS.get(slug, []):
+        f = entry if isinstance(entry, dict) else {"label": entry[0], "column": entry[1]}
+        column, default = f["column"], f.get("default")
+        target = f.get("dataset") or next(
+            name for name in dataset_ids if any(dataset_of_chart[c] == name for c in chart_ids) and has_column(name, column))
+        in_scope = ([chart_ids_by_key[k] for k in f["charts"]] if f.get("charts")
+                    else [c for c in chart_ids if has_column(dataset_of_chart[c], column)])
+        mask = ({"filterState": {"value": [default], "label": default},
+                 "extraFormData": {"filters": [{"col": column, "op": "IN", "val": [default]}]}} if default
+                else {"filterState": {}, "extraFormData": {}})
         configs.append({
-            "id": f"NATIVE_FILTER-{uuid.uuid5(uuid.NAMESPACE_URL, slug + column).hex[:10]}",
-            "name": label, "filterType": "filter_select", "type": "NATIVE_FILTER",
+            "id": filter_id(column),
+            "name": f["label"], "filterType": "filter_select", "type": "NATIVE_FILTER",
             "targets": [{"datasetId": dataset_ids[target], "column": {"name": column}}],
-            "controlValues": {"multiSelect": True, "enableEmptyFilter": False, "searchAllOptions": True, "inverseSelection": False},
-            "defaultDataMask": {"filterState": {}, "extraFormData": {}},
-            "cascadeParentIds": [], "scope": {"rootPath": ["ROOT_ID"], "excluded": []}, "chartsInScope": chart_ids,
+            "controlValues": {"multiSelect": not default, "enableEmptyFilter": bool(default), "defaultToFirstItem": False,
+                              "searchAllOptions": True, "inverseSelection": False},
+            "defaultDataMask": mask,
+            "cascadeParentIds": [filter_id(f["parent"])] if f.get("parent") else [],
+            "scope": {"rootPath": ["ROOT_ID"], "excluded": [c for c in chart_ids if c not in in_scope]}, "chartsInScope": in_scope,
             "description": "",
         })
     return configs
@@ -402,15 +615,19 @@ def main() -> None:
         dataset_ids[name] = api.call("POST", "dataset/", json={
             "database": db_id, "schema": "gold", "table_name": PREFIX + name, "sql": " ".join(sql.split())})["id"]
         api.call("PUT", f"dataset/{dataset_ids[name]}/refresh")
+        DATASET_COLUMNS[name] = {c["column_name"] for c in api.call("GET", f"dataset/{dataset_ids[name]}")["result"]["columns"]}
 
     top = [r[0] for r in trino_rows(f"SELECT province_name FROM {G}.agg_market_overview WHERE province_name <> 'Không rõ' "
                                     "GROUP BY 1 ORDER BY SUM(n_listings) DESC LIMIT 6")]
     insights = compute_insights(trino_rows)
+    titles = {key: title for found in insights.values() for key, title in found.get("titles", {}).items()}
 
     chart_ids: dict[str, int] = {}
     specs_by_id: dict[int, dict] = {}
     checks = []
     for spec in CHARTS:
+        if spec.get("title_from_insights") and spec["key"] in titles:
+            spec["name"] = titles[spec["key"]]
         if spec.get("top_provinces"):
             spec["where"] = (spec.get("where", "1=1") + " AND province_name IN (" + ", ".join(f"'{p}'" for p in top) + ")")
         ds_id = dataset_ids[spec["dataset"]]
@@ -440,8 +657,8 @@ def main() -> None:
     for dash in DASHBOARDS:
         rows = [[item if item == "md" else chart_ids[item] for item in row] for row in dash["rows"]]
         ids = [cid for row in rows for cid in row if cid != "md"]
-        metadata = {"native_filter_configuration": native_filters(dash["slug"], dataset_ids, ids, dataset_of_chart),
-                    "color_scheme": "supersetColors", "refresh_frequency": 0, "cross_filters_enabled": False}
+        metadata = {"native_filter_configuration": native_filters(dash["slug"], dataset_ids, ids, dataset_of_chart, chart_ids),
+                    "color_scheme": "supersetColors", "label_colors": LABEL_COLORS, "refresh_frequency": 0, "cross_filters_enabled": False}
         dash_id = api.call("POST", "dashboard/", json={
             "dashboard_title": dash["title"], "slug": dash["slug"], "published": True,
             "position_json": json.dumps(position_json(rows, specs_by_id, insights[dash["slug"]]["markdown"])),

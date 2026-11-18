@@ -11,8 +11,9 @@ from pathlib import Path
 from xml.etree import ElementTree
 
 from src.common.atomic_io import write_json_atomic
+from src.dashboard.provision_superset import CHARTS
 from src.common.table_fingerprints import GRAINS, MULTISET_TABLES
-from src.orchestration.pipeline import SOURCES, validate_batch
+from src.orchestration.pipeline import DAG_TASK_COUNT, SOURCES, validate_batch
 from src.orchestration.snapshot_manifest import file_checksum
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -151,9 +152,9 @@ def verify(root, work):
         "latest_observed_batch_complete": current_inputs["latest_complete_batch"] == current_inputs["latest_observed_batch"],
         "all_calendar_gaps_declared": inventory["all_gaps_declared"],
         "correct_airflow_run": run["run_id"] == baseline["run_id"],
-        "airflow_24_success": run["state"] == "success" and len(run["tasks"]) == 24 and all(t["state"] == "success" for t in run["tasks"]),
+        "airflow_all_tasks_success": run["state"] == "success" and len(run["tasks"]) == DAG_TASK_COUNT and all(t["state"] == "success" for t in run["tasks"]),
         "failure_blocks_downstream": failure.get("verification_status") == "PASS" and all_pass(failure.get("checks", {}))
-            and len(failure["tasks"]) == 24 and sum(t["state"] == "upstream_failed" for t in failure["tasks"]) == 23,
+            and len(failure["tasks"]) == DAG_TASK_COUNT and sum(t["state"] == "upstream_failed" for t in failure["tasks"]) == DAG_TASK_COUNT - 1,
         "silver_quality": silver["status"] == "PASS" and len(silver["checks"]) >= 30 and all_pass(silver["checks"]),
         "gold_quality": gold["status"] == "PASS" and len(gold["checks"]) >= 108 and all_pass(gold["checks"]),
         "bronze_audit": docs["bronze_state_audit"]["status"] == "PASS",
@@ -164,7 +165,7 @@ def verify(root, work):
         "history_fixtures": len(history["fixture_checks"]) >= 11 and all(v.get("status") == "PASS" for v in history["fixture_checks"].values()),
         "iceberg_demo": docs["iceberg_features"]["status"] == "PASS" and len(docs["iceberg_features"]["checks"]) >= 6 and all_pass(docs["iceberg_features"]["checks"]),
         "lifecycle_fixtures": docs["lifecycle_fixture_tests"]["status"] == "PASS" and len(docs["lifecycle_fixture_tests"]["checks"]) >= 12 and all_pass(docs["lifecycle_fixture_tests"]["checks"]),
-        "dashboard_live": chart["status"] == dashboard["status"] == "PASS" and len(chart["chart_checks"]) == 29
+        "dashboard_live": chart["status"] == dashboard["status"] == "PASS" and len(chart["chart_checks"]) == len(CHARTS)
             and all(c["match"] is True for c in chart["chart_checks"]) and all_pass(dashboard["checks"])
             and dashboard["run_id"] == baseline["run_id"],
         "unit_tests": junit_pass(work / "unit-tests.xml"),

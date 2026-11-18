@@ -1,77 +1,231 @@
 {
-  "generated_at": "2026-10-24T15:42:40.338676+00:00",
+  "generated_at": "2026-11-17T17:13:23.077643+00:00",
   "sample_rows": 198,
-  "labelers": [],
+  "labelers": [
+    "Claude (gán sơ bộ)"
+  ],
   "truth_definition": {
-    "true_category": "property type judged by a person from title, price, area and the listing page",
+    "true_category": "property type judged from title, price, area and the listing page",
     "true_<flag>": "1 if the title states the feature, 0 if not (\"?\" = cannot tell)"
   },
-  "labelled_rows": 0,
+  "label_process": "pre-labelled by an AI assistant without seeing the system predictions, then reviewed and corrected by two team members (review_1, review_2)",
+  "reviewers": [
+    "Hoàng",
+    "Huy"
+  ],
+  "labelled_rows": 198,
   "invalid_category_labels": [],
-  "category_accuracy": null,
-  "category_accuracy_by_source": {},
-  "category_per_class": {},
-  "category_confusion": {},
+  "category_accuracy": 0.8485,
+  "category_accuracy_by_source": {
+    "alonhadat": {
+      "n": 22,
+      "accuracy": 0.7727
+    },
+    "batdongsan": {
+      "n": 22,
+      "accuracy": 0.9091
+    },
+    "chotot": {
+      "n": 22,
+      "accuracy": 0.9091
+    },
+    "guland": {
+      "n": 22,
+      "accuracy": 0.7273
+    },
+    "homedy": {
+      "n": 22,
+      "accuracy": 0.8182
+    },
+    "luachonnhadat": {
+      "n": 22,
+      "accuracy": 0.9545
+    },
+    "mogi": {
+      "n": 22,
+      "accuracy": 0.7727
+    },
+    "muaban": {
+      "n": 22,
+      "accuracy": 0.7727
+    },
+    "nhadatvui": {
+      "n": 22,
+      "accuracy": 1.0
+    }
+  },
+  "category_per_class": {
+    "nha_pho": {
+      "support_true": 113,
+      "labelled": 198,
+      "tp": 105,
+      "fp": 11,
+      "fn": 8,
+      "tn": 74,
+      "precision": 0.9052,
+      "recall": 0.9292,
+      "f1": 0.917,
+      "accuracy": 0.904
+    },
+    "can_ho": {
+      "support_true": 31,
+      "labelled": 198,
+      "tp": 26,
+      "fp": 4,
+      "fn": 5,
+      "tn": 163,
+      "precision": 0.8667,
+      "recall": 0.8387,
+      "f1": 0.8525,
+      "accuracy": 0.9545
+    },
+    "biet_thu": {
+      "support_true": 9,
+      "labelled": 198,
+      "tp": 7,
+      "fp": 1,
+      "fn": 2,
+      "tn": 188,
+      "precision": 0.875,
+      "recall": 0.7778,
+      "f1": 0.8235,
+      "accuracy": 0.9848
+    },
+    "dat": {
+      "support_true": 31,
+      "labelled": 198,
+      "tp": 28,
+      "fp": 8,
+      "fn": 3,
+      "tn": 159,
+      "precision": 0.7778,
+      "recall": 0.9032,
+      "f1": 0.8358,
+      "accuracy": 0.9444
+    },
+    "phong_tro_khac": {
+      "support_true": 9,
+      "labelled": 198,
+      "tp": 2,
+      "fp": 2,
+      "fn": 7,
+      "tn": 187,
+      "precision": 0.5,
+      "recall": 0.2222,
+      "f1": 0.3077,
+      "accuracy": 0.9545
+    },
+    "khong_ro": {
+      "support_true": 5,
+      "labelled": 198,
+      "tp": 0,
+      "fp": 4,
+      "fn": 5,
+      "tn": 189,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "accuracy": 0.9545
+    }
+  },
+  "category_confusion": {
+    "biet_thu->biet_thu": 7,
+    "biet_thu->dat": 1,
+    "biet_thu->nha_pho": 1,
+    "can_ho->biet_thu": 1,
+    "can_ho->can_ho": 26,
+    "can_ho->dat": 1,
+    "can_ho->khong_ro": 1,
+    "can_ho->nha_pho": 2,
+    "dat->can_ho": 1,
+    "dat->dat": 28,
+    "dat->khong_ro": 1,
+    "dat->nha_pho": 1,
+    "khong_ro->dat": 1,
+    "khong_ro->nha_pho": 4,
+    "nha_pho->dat": 4,
+    "nha_pho->khong_ro": 2,
+    "nha_pho->nha_pho": 105,
+    "nha_pho->phong_tro_khac": 2,
+    "phong_tro_khac->can_ho": 3,
+    "phong_tro_khac->dat": 1,
+    "phong_tro_khac->nha_pho": 3,
+    "phong_tro_khac->phong_tro_khac": 2
+  },
   "flags": {
     "legal": {
-      "support_true": 0,
-      "labelled": 0,
-      "tp": 0,
+      "support_true": 36,
+      "labelled": 198,
+      "tp": 24,
       "fp": 0,
-      "fn": 0,
-      "tn": 0,
-      "precision": null,
-      "recall": null,
-      "f1": null,
-      "accuracy": null
+      "fn": 12,
+      "tn": 162,
+      "precision": 1.0,
+      "recall": 0.6667,
+      "f1": 0.8,
+      "accuracy": 0.9394
     },
     "furnished": {
-      "support_true": 0,
-      "labelled": 0,
-      "tp": 0,
+      "support_true": 13,
+      "labelled": 198,
+      "tp": 11,
       "fp": 0,
-      "fn": 0,
-      "tn": 0,
-      "precision": null,
-      "recall": null,
-      "f1": null,
-      "accuracy": null
+      "fn": 2,
+      "tn": 185,
+      "precision": 1.0,
+      "recall": 0.8462,
+      "f1": 0.9167,
+      "accuracy": 0.9899
     },
     "frontage": {
-      "support_true": 0,
-      "labelled": 0,
-      "tp": 0,
-      "fp": 0,
-      "fn": 0,
-      "tn": 0,
-      "precision": null,
-      "recall": null,
-      "f1": null,
-      "accuracy": null
+      "support_true": 47,
+      "labelled": 196,
+      "tp": 41,
+      "fp": 2,
+      "fn": 6,
+      "tn": 147,
+      "precision": 0.9535,
+      "recall": 0.8723,
+      "f1": 0.9111,
+      "accuracy": 0.9592
     },
     "elevator": {
-      "support_true": 0,
-      "labelled": 0,
-      "tp": 0,
+      "support_true": 3,
+      "labelled": 198,
+      "tp": 3,
       "fp": 0,
       "fn": 0,
-      "tn": 0,
-      "precision": null,
-      "recall": null,
-      "f1": null,
-      "accuracy": null
+      "tn": 195,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "accuracy": 1.0
     },
     "car_access": {
-      "support_true": 0,
-      "labelled": 0,
-      "tp": 0,
+      "support_true": 26,
+      "labelled": 196,
+      "tp": 22,
       "fp": 0,
-      "fn": 0,
-      "tn": 0,
-      "precision": null,
-      "recall": null,
-      "f1": null,
-      "accuracy": null
+      "fn": 4,
+      "tn": 170,
+      "precision": 1.0,
+      "recall": 0.8462,
+      "f1": 0.9167,
+      "accuracy": 0.9796
+    }
+  },
+  "review_changes": {
+    "rows_changed": 6,
+    "cells_changed": 6,
+    "cells": 1188,
+    "cell_change_rate": 0.0051,
+    "by_column": {
+      "true_category": 6,
+      "true_legal": 0,
+      "true_furnished": 0,
+      "true_frontage": 0,
+      "true_elevator": 0,
+      "true_car_access": 0
     }
   },
   "reviewed_rows": 0,

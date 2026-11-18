@@ -34,3 +34,24 @@ def test_evaluate_category_and_flags():
     assert r["invalid_category_labels"] == ["L4"]
     assert r["category_confusion"] == {"can_ho->nha_pho": 1, "nha_pho->nha_pho": 1}
     assert r["flags"]["frontage"]["precision"] == 1.0 and r["flags"]["frontage"]["labelled"] == 2
+
+
+from src.quality.evaluate_labels import review_changes, review_complete
+
+FULL = {"sample_id": "L001", "true_category": "nha_pho", "labeler": "Claude (gán sơ bộ)",
+        **{f"true_{f}": "0" for f in ("legal", "furnished", "frontage", "elevator", "car_access")}}
+
+
+def test_prelabelled_rows_need_two_reviewers():
+    assert review_complete(FULL)
+    assert not review_complete(FULL, needs_review=True)
+    assert not review_complete({**FULL, "review_1": "23133040"}, needs_review=True)
+    assert review_complete({**FULL, "review_1": "23133040", "review_2": "23133029"}, needs_review=True)
+
+
+def test_review_changes_counts_edited_cells():
+    before = [FULL, {**FULL, "sample_id": "L002"}]
+    after = [{**FULL, "true_category": "dat", "true_legal": "1"}, {**FULL, "sample_id": "L002"}]
+    changes = review_changes(before, after)
+    assert changes["rows_changed"] == 1 and changes["cells_changed"] == 2 and changes["cells"] == 12
+    assert changes["by_column"]["true_category"] == 1 and changes["by_column"]["true_legal"] == 1

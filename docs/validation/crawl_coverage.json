@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-17T14:17:01.259102+00:00",
+  "generated_at": "2026-11-17T16:03:05.792567+00:00",
   "as_of": "20261117",
   "baseline_cutoff": "20261027",
   "scope": "Local raw CSV diagnostic, not Silver/Gold acceptance or confirmed website availability",
@@ -204,7 +204,7 @@
       "source": "batdongsan",
       "batch_id": "20261030",
       "path": "data/incoming/snapshots/batdongsan/20261030/batdongsan_raw.csv",
-      "matches_pipeline_manifest": null
+      "matches_pipeline_manifest": true
     },
     {
       "rows": 4000,
@@ -220,7 +220,7 @@
       "source": "batdongsan",
       "batch_id": "20261103",
       "path": "data/incoming/snapshots/batdongsan/20261103/batdongsan_raw.csv",
-      "matches_pipeline_manifest": null
+      "matches_pipeline_manifest": true
     },
     {
       "rows": 4000,
@@ -236,7 +236,7 @@
       "source": "batdongsan",
       "batch_id": "20261106",
       "path": "data/incoming/snapshots/batdongsan/20261106/batdongsan_raw.csv",
-      "matches_pipeline_manifest": null
+      "matches_pipeline_manifest": true
     },
     {
       "rows": 4000,
@@ -252,7 +252,7 @@
       "source": "batdongsan",
       "batch_id": "20261110",
       "path": "data/incoming/snapshots/batdongsan/20261110/batdongsan_raw.csv",
-      "matches_pipeline_manifest": null
+      "matches_pipeline_manifest": true
     },
     {
       "rows": 4000,
@@ -268,7 +268,7 @@
       "source": "batdongsan",
       "batch_id": "20261113",
       "path": "data/incoming/snapshots/batdongsan/20261113/batdongsan_raw.csv",
-      "matches_pipeline_manifest": null
+      "matches_pipeline_manifest": true
     },
     {
       "rows": 4000,
@@ -284,7 +284,7 @@
       "source": "batdongsan",
       "batch_id": "20261117",
       "path": "data/incoming/snapshots/batdongsan/20261117/batdongsan_raw.csv",
-      "matches_pipeline_manifest": null
+      "matches_pipeline_manifest": true
     },
     {
       "rows": 45664,
@@ -460,7 +460,7 @@
       "source": "guland",
       "batch_id": "20261103",
       "path": "data/incoming/snapshots/guland/20261103/guland_raw.csv",
-      "matches_pipeline_manifest": null
+      "matches_pipeline_manifest": true
     },
     {
       "rows": 1350,
@@ -476,7 +476,7 @@
       "source": "guland",
       "batch_id": "20261106",
       "path": "data/incoming/snapshots/guland/20261106/guland_raw.csv",
-      "matches_pipeline_manifest": null
+      "matches_pipeline_manifest": true
     },
     {
       "rows": 1350,
@@ -492,7 +492,7 @@
       "source": "guland",
       "batch_id": "20261110",
       "path": "data/incoming/snapshots/guland/20261110/guland_raw.csv",
-      "matches_pipeline_manifest": null
+      "matches_pipeline_manifest": true
     },
     {
       "rows": 1350,
@@ -508,7 +508,7 @@
       "source": "guland",
       "batch_id": "20261113",
       "path": "data/incoming/snapshots/guland/20261113/guland_raw.csv",
-      "matches_pipeline_manifest": null
+      "matches_pipeline_manifest": true
     },
     {
       "rows": 1350,
@@ -524,7 +524,7 @@
       "source": "guland",
       "batch_id": "20261117",
       "path": "data/incoming/snapshots/guland/20261117/guland_raw.csv",
-      "matches_pipeline_manifest": null
+      "matches_pipeline_manifest": true
     },
     {
       "rows": 16860,
@@ -732,7 +732,7 @@
       "source": "nhadatvui",
       "batch_id": "20261103",
       "path": "data/incoming/snapshots/nhadatvui/20261103/nhadatvui_raw.csv",
-      "matches_pipeline_manifest": null
+      "matches_pipeline_manifest": true
     },
     {
       "rows": 3600,
@@ -748,7 +748,7 @@
       "source": "nhadatvui",
       "batch_id": "20261106",
       "path": "data/incoming/snapshots/nhadatvui/20261106/nhadatvui_raw.csv",
-      "matches_pipeline_manifest": null
+      "matches_pipeline_manifest": true
     },
     {
       "rows": 3600,
@@ -764,7 +764,7 @@
       "source": "nhadatvui",
       "batch_id": "20261113",
       "path": "data/incoming/snapshots/nhadatvui/20261113/nhadatvui_raw.csv",
-      "matches_pipeline_manifest": null
+      "matches_pipeline_manifest": true
     },
     {
       "rows": 3600,
@@ -780,7 +780,7 @@
       "source": "nhadatvui",
       "batch_id": "20261117",
       "path": "data/incoming/snapshots/nhadatvui/20261117/nhadatvui_raw.csv",
-      "matches_pipeline_manifest": null
+      "matches_pipeline_manifest": true
     }
   ],
   "sources": {

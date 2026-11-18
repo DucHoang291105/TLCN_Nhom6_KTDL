@@ -1,14 +1,20 @@
 {
-  "generated_at": "2026-11-17T15:17:41.535658+00:00",
+  "generated_at": "2026-11-17T17:39:26.040674+00:00",
   "superset": "http://localhost:8088",
   "database": "Lakehouse Gold (Trino)",
   "datasets": {
     "market_overview": "tlcn_market_overview",
+    "map_price": "tlcn_map_price",
     "funnel": "tlcn_funnel",
-    "price_assessment": "tlcn_price_assessment",
+    "price_check": "tlcn_price_check",
+    "price_factor": "tlcn_price_factor",
     "budget_tradeoff": "tlcn_budget_tradeoff",
     "budget_pareto": "tlcn_budget_pareto",
-    "area_substitution": "tlcn_area_substitution"
+    "commute_district": "tlcn_commute_district",
+    "commute_map": "tlcn_commute_map",
+    "commute_substitution": "tlcn_commute_substitution",
+    "commute_listings": "tlcn_commute_listings",
+    "data_quality": "tlcn_data_quality"
   },
   "dashboards": [
     {
@@ -16,106 +22,170 @@
       "url": "http://localhost:8088/superset/dashboard/tlcn-tong-quan/",
       "charts": 8,
       "insights": {
-        "total": 133495,
-        "hcm_share": 0.6340237462077232,
-        "most_expensive_house": [
-          "Hà Nội",
-          276.1904761904762
+        "total": 133480,
+        "hcm_share": 0.6339751273599041,
+        "latest_crawl_date": "2026-11-17",
+        "hcm_ring": {
+          "outer": 26.509306276389943,
+          "null": 104.75192410637527,
+          "center": 163.873212405359
+        },
+        "hcm_red_districts": [
+          "Q.1",
+          "Q.3",
+          "Q.10"
         ],
-        "cheapest_house": [
-          "Tây Ninh",
-          17.595111618989332
+        "hn_red_districts": [
+          "Q.Cầu Giấy",
+          "Q.Thanh Xuân",
+          "Q.Đống Đa"
         ],
-        "median_house": 122.27880284424799,
-        "median_apartment": 58.23456635514513,
-        "bronze_rows": 346558,
-        "representative_rows": 133495
+        "house_median": {
+          "Hà Nội": 272.72727272727275,
+          "Hồ Chí Minh": 114.8936170212766
+        }
       }
     },
     {
       "title": "BQ1 – Cùng ngân sách, người mua đánh đổi gì?",
       "url": "http://localhost:8088/superset/dashboard/tlcn-bq1/",
-      "charts": 7,
+      "charts": 6,
       "insights": {
+        "scenario": {
+          "province_name": "Hồ Chí Minh",
+          "category_label": "Nhà phố / nhà riêng",
+          "ngan_sach": "3 - 5 tỷ"
+        },
         "largest": [
           "Huyện Củ Chi",
-          169.0,
-          28.9681955,
-          3.0
+          168.0,
+          74
         ],
         "smallest": [
           "Quận 1",
-          34.0,
-          2.037038,
-          3.0
+          35.5,
+          96
         ],
-        "corr_area_distance": 0.8825193220818404,
-        "pareto_share": 0.09983452840595698,
-        "pareto_n": 9065
+        "slope_m2_per_km": 3.596735429467147,
+        "corr": 0.9015458193111782,
+        "pareto_share": 0.10065177903622181
       }
     },
     {
-      "title": "BQ2 – Tin nào rao cao/thấp bất thường so với căn tương đồng?",
+      "title": "BQ2 – Tin này đắt hay rẻ so với căn tương đồng?",
       "url": "http://localhost:8088/superset/dashboard/tlcn-bq2/",
+      "charts": 7,
+      "insights": {
+        "scenario": {
+          "category_label": "Nhà phố / nhà riêng",
+          "province_name": "Hồ Chí Minh"
+        },
+        "share_over_30": 0.25151312580173085,
+        "share_under_30": 0.18253265641655675,
+        "top_district": [
+          "Quận 1",
+          0.41147741147741146,
+          1638
+        ],
+        "factors": {
+          "Ô tô tiếp cận được nêu": [
+            0.08069,
+            0.070317,
+            0.091164
+          ],
+          "Thang máy được nêu": [
+            0.311839,
+            0.287504,
+            0.336634
+          ],
+          "Mặt tiền được nêu": [
+            0.536803,
+            0.52115,
+            0.552617
+          ],
+          "Nội thất được nêu": [
+            0.000158,
+            -0.018057,
+            0.018712
+          ],
+          "Pháp lý (sổ) được nêu": [
+            -0.152929,
+            -0.162562,
+            -0.143185
+          ]
+        }
+      }
+    },
+    {
+      "title": "BQ3 – Đi làm/học ở đây: mua ở quận nào thì đường đi tương đương mà rẻ hơn?",
+      "url": "http://localhost:8088/superset/dashboard/tlcn-bq3/",
       "charts": 8,
       "insights": {
-        "share_over_25pct": 0.2765899696779347,
-        "share_double": 0.07434722254534738,
-        "share_under_20pct": 0.27198349735166616,
-        "low_missing_legal": 0.8241047338729458,
-        "top_district": [
-          "Quận Bình Tân",
-          0.3018867924528302,
-          265
-        ],
-        "suspect": 195
+        "scenario": {
+          "noi_den": "Khu công nghệ cao (Thủ Đức)",
+          "quan_goc": "Quận Phú Nhuận",
+          "category_label": "Nhà phố / nhà riêng",
+          "area_band": "50 - 80 m²"
+        },
+        "options": 6,
+        "best": [
+          "Thành phố Thủ Đức",
+          0.536437,
+          14.01,
+          3.746
+        ]
       }
     },
     {
-      "title": "BQ3 – Không mua được ở quận này thì xem quận nào?",
-      "url": "http://localhost:8088/superset/dashboard/tlcn-bq3/",
-      "charts": 6,
+      "title": "Chất lượng dữ liệu – số liệu trên dashboard đáng tin đến đâu?",
+      "url": "http://localhost:8088/superset/dashboard/tlcn-chat-luong/",
+      "charts": 7,
       "insights": {
-        "alternatives": 4,
-        "best_near": [
-          "Huyện Bình Chánh",
-          0.628823,
-          3.7637978927203064,
-          3.473,
-          62.0
+        "warn_top": [
+          "guland",
+          0.6929434933229836
         ],
-        "cheapest": [
-          "Huyện Bình Chánh",
-          0.628823,
-          3.7637978927203064,
-          3.473,
-          62.0
-        ],
-        "hcm_origins_with_near_option": 21,
-        "hcm_origins": 25
+        "pass_rest_min": 0.9205367654622972,
+        "coordinate_coverage": 0.3560858450629308,
+        "legal_coverage": 0.16195319236589753,
+        "silver_checks": "30/30",
+        "gold_checks": "122/122",
+        "g4_test": {
+          "category_accuracy": 0.8947,
+          "legal_precision": 1.0,
+          "legal_recall": 1.0,
+          "furnished_precision": 1.0,
+          "furnished_recall": 0.8571,
+          "frontage_precision": 1.0,
+          "frontage_recall": 1.0,
+          "elevator_precision": 1.0,
+          "elevator_recall": 1.0,
+          "car_access_precision": 1.0,
+          "car_access_recall": 1.0
+        }
       }
     }
   ],
   "chart_checks": [
     {
       "chart": "Tin rao bán đang phân tích",
-      "chart_id": 117,
+      "chart_id": 182,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
       "error": null,
-      "expected": 133495.0,
-      "actual": 133495.0,
+      "expected": 133480.0,
+      "actual": 133480.0,
       "match": true,
       "sample": [
         {
-          "Tin": 133495
+          "Tin": 133480
         }
       ]
     },
     {
       "chart": "Tỷ trọng TP.HCM",
-      "chart_id": 118,
+      "chart_id": 183,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -123,13 +193,13 @@
       "match": true,
       "sample": [
         {
-          "TP.HCM": 0.6340237462077232
+          "TP.HCM": 0.6339751273599041
         }
       ]
     },
     {
       "chart": "Median giá chào/m² (triệu)",
-      "chart_id": 119,
+      "chart_id": 184,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -137,13 +207,13 @@
       "match": true,
       "sample": [
         {
-          "Triệu/m²": 95.099890843802
+          "Triệu/m²": 95.58689681787024
         }
       ]
     },
     {
       "chart": "Tỉnh/thành có tin",
-      "chart_id": 120,
+      "chart_id": 185,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -156,31 +226,34 @@
       ]
     },
     {
-      "chart": "Tin tập trung ở đâu? Số tin theo tỉnh (10 tỉnh nhiều nhất)",
-      "chart_id": 121,
-      "viz": "echarts_timeseries_bar",
+      "chart": "TP.HCM: chấm đỏ (> 200 tr/m²) dày ở Q.1, Q.3, Q.10 – 19% tin nhà phố ở mức này",
+      "chart_id": 186,
+      "viz": "deck_scatter",
       "status": "success",
-      "rows": 10,
+      "rows": 15839,
       "error": null,
       "match": true,
       "sample": [
         {
-          "province_name": "Hồ Chí Minh",
-          "Số tin": 84639
+          "lat": 10.74813,
+          "lon": 106.60836,
+          "muc_gia": "3. 100–200 tr/m²"
         },
         {
-          "province_name": "Hà Nội",
-          "Số tin": 25234
+          "lat": 10.780881,
+          "lon": 106.6759,
+          "muc_gia": "3. 100–200 tr/m²"
         },
         {
-          "province_name": "Đà Nẵng",
-          "Số tin": 6993
+          "lat": 10.406013,
+          "lon": 106.96331,
+          "muc_gia": "3. 100–200 tr/m²"
         }
       ]
     },
     {
-      "chart": "Loại hình nào được rao nhiều?",
-      "chart_id": 122,
+      "chart": "Ra xa trung tâm, giá nhà phố giảm mạnh: 164 tr/m² (< 5 km) → 27 tr/m² (≥ 15 km)",
+      "chart_id": 187,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 5,
@@ -188,48 +261,662 @@
       "match": true,
       "sample": [
         {
-          "category_label": "Nhà phố / nhà riêng",
-          "Số tin": 81711
+          "vanh_dai": "1. Dưới 5 km",
+          "Median triệu/m²": 164.3874855684636
         },
         {
-          "category_label": "Căn hộ chung cư",
-          "Số tin": 31842
+          "vanh_dai": "2. 5–10 km",
+          "Median triệu/m²": 118.97502002280105
         },
         {
-          "category_label": "Biệt thự / liền kề / shophouse",
-          "Số tin": 11631
+          "vanh_dai": "3. 10–15 km",
+          "Median triệu/m²": 85.92896999659307
         }
       ]
     },
     {
-      "chart": "Ở đâu đắt nhất? Median giá/m² (triệu) theo tỉnh và loại hình",
-      "chart_id": 123,
+      "chart": "Hà Nội: 77% tin nhà phố trên 200 tr/m², dày nhất ở Q.Cầu Giấy, Q.Thanh Xuân, Q.Đống Đa",
+      "chart_id": 188,
+      "viz": "deck_scatter",
+      "status": "success",
+      "rows": 4027,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "lat": 21.083495215,
+          "lon": 105.772511,
+          "muc_gia": "3. 100–200 tr/m²"
+        },
+        {
+          "lat": 21.091726799456,
+          "lon": 105.77206235378,
+          "muc_gia": "4. Trên 200 tr/m²"
+        },
+        {
+          "lat": 21.038796016613,
+          "lon": 105.81475068833,
+          "muc_gia": "3. 100–200 tr/m²"
+        }
+      ]
+    },
+    {
+      "chart": "Nhà phố Hà Nội 273 tr/m², gấp 2,4 lần TP.HCM (115 tr/m²) – median theo tỉnh, nhóm ≥ 30 tin",
+      "chart_id": 189,
       "viz": "echarts_timeseries_bar",
       "status": "success",
-      "rows": 18,
+      "rows": 12,
       "error": null,
       "match": true,
       "sample": [
         {
           "province_name": "Hà Nội",
           "category_label": "Nhà phố / nhà riêng",
-          "Triệu/m²": 276.1904761904762
-        },
-        {
-          "province_name": "Hà Nội",
-          "category_label": "Đất",
-          "Triệu/m²": 138.1578947368421
+          "Triệu/m²": 272.72727272727275
         },
         {
           "province_name": "Hồ Chí Minh",
           "category_label": "Nhà phố / nhà riêng",
-          "Triệu/m²": 116.95410842908117
+          "Triệu/m²": 114.8936170212766
+        },
+        {
+          "province_name": "Đà Nẵng",
+          "category_label": "Nhà phố / nhà riêng",
+          "Triệu/m²": 87.05882352941177
+        }
+      ]
+    },
+    {
+      "chart": "Tin trong phân khúc",
+      "chart_id": 190,
+      "viz": "big_number_total",
+      "status": "success",
+      "rows": 1,
+      "error": null,
+      "expected": 6865.0,
+      "actual": 6865.0,
+      "match": true,
+      "sample": [
+        {
+          "Tin": 6865
+        }
+      ]
+    },
+    {
+      "chart": "Quận đủ dữ liệu (≥ 5 tin)",
+      "chart_id": 191,
+      "viz": "big_number_total",
+      "status": "success",
+      "rows": 1,
+      "error": null,
+      "expected": 26.0,
+      "actual": 26.0,
+      "match": true,
+      "sample": [
+        {
+          "Quận": 26
+        }
+      ]
+    },
+    {
+      "chart": "Tin không bị trội",
+      "chart_id": 192,
+      "viz": "big_number_total",
+      "status": "success",
+      "rows": 1,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "Pareto": 0.10065177903622181
+        }
+      ]
+    },
+    {
+      "chart": "Với 3–5 tỷ: Quận 1 được 36 m², Huyện Củ Chi được 168 m² – vòng tròn càng to càng rộng",
+      "chart_id": 193,
+      "viz": "deck_scatter",
+      "status": "success",
+      "rows": 23,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "lat": 10.795692445,
+          "lon": 106.649671,
+          "dien_tich_nhan": "1. Dưới 50 m²",
+          "√ median diện tích": 6.48074069840786
+        },
+        {
+          "lat": 10.968843,
+          "lon": 106.50734,
+          "dien_tich_nhan": "4. Trên 150 m²",
+          "√ median diện tích": 12.96148139681572
+        },
+        {
+          "lat": 10.82986641,
+          "lon": 106.76435208,
+          "dien_tich_nhan": "2. 50–80 m²",
+          "√ median diện tích": 7.615773105863909
+        }
+      ]
+    },
+    {
+      "chart": "Mỗi 10 km xa trung tâm, cùng số tiền được thêm khoảng 36 m² (r = 0,90)",
+      "chart_id": 194,
+      "viz": "echarts_timeseries_bar",
+      "status": "success",
+      "rows": 26,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "quan_theo_khoang_cach": "02.0 km · Quận 1 · 96 tin",
+          "m²": 35.5
+        },
+        {
+          "quan_theo_khoang_cach": "02.1 km · Quận 4 · 104 tin",
+          "m²": 43.1
+        },
+        {
+          "quan_theo_khoang_cach": "02.4 km · Quận 3 · 216 tin",
+          "m²": 52.0
+        }
+      ]
+    },
+    {
+      "chart": "Tin nên xem trước: không có tin cùng quận vừa rẻ hơn vừa không kém (bỏ tin giá/m² lệch > 3 lần median quận)",
+      "chart_id": 195,
+      "viz": "table",
+      "status": "success",
+      "rows": 500,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "district_name": "Huyện Bàu Bàng",
+          "title": "Bán nhà 150m² full thổ cư ngang 5m giá 3 tỷ tại Đường D11 Xã Bàu Bàng",
+          "gia_ty": 3.0,
+          "area": 150.0,
+          "gia_m2_tr": 20.0,
+          "rooms": null,
+          "ad_url": "https://guland.vn/post/ban-nha-150m2-full-tho-cu-ngang-5m-gia-3-ty-tai-duong-d11-xa-bau-bang-2227512"
+        },
+        {
+          "district_name": "Huyện Bình Chánh",
+          "title": "Mặt tiên Lê Đình Chi- Bình Chánh- 4x22m- Gía 3.xTỷ",
+          "gia_ty": 3.0,
+          "area": 87.0,
+          "gia_m2_tr": 34.48275862068965,
+          "rooms": 2.0,
+          "ad_url": "https://www.chotot.com/133058596"
+        },
+        {
+          "district_name": "Huyện Bình Chánh",
+          "title": "Nhà mặt tiền An Hạ, xã Phạm Văn Hai, Bình Chánh dt 112m2 giá 3 tỷ",
+          "gia_ty": 3.0,
+          "area": 112.0,
+          "gia_m2_tr": 26.78571428571429,
+          "rooms": null,
+          "ad_url": "https://guland.vn/post/nha-mat-tien-an-ha-xa-pham-van-hai-binh-chanh-dt-112m2-gia-3-ty-1423599"
+        }
+      ]
+    },
+    {
+      "chart": "Sai số điển hình của giá ước tính (%)",
+      "chart_id": 196,
+      "viz": "big_number_total",
+      "status": "success",
+      "rows": 1,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "%": 25.045385623587727
+        }
+      ]
+    },
+    {
+      "chart": "Rao cao hơn ước tính ≥ 30%",
+      "chart_id": 197,
+      "viz": "big_number_total",
+      "status": "success",
+      "rows": 1,
+      "error": null,
+      "expected": 0.25151312580173085,
+      "actual": 0.25151312580173085,
+      "match": true,
+      "sample": [
+        {
+          "Tỷ lệ": 0.25151312580173085
+        }
+      ]
+    },
+    {
+      "chart": "Rao thấp hơn ước tính ≥ 30%",
+      "chart_id": 198,
+      "viz": "big_number_total",
+      "status": "success",
+      "rows": 1,
+      "error": null,
+      "expected": 0.18253265641655675,
+      "actual": 0.18253265641655675,
+      "match": true,
+      "sample": [
+        {
+          "Tỷ lệ": 0.18253265641655675
+        }
+      ]
+    },
+    {
+      "chart": "Nhà phố TP.HCM: 25% tin rao cao hơn ước tính ≥ 30% (đỏ), 18% rao thấp hơn ≥ 30% (xanh)",
+      "chart_id": 199,
+      "viz": "deck_scatter",
+      "status": "success",
+      "rows": 15164,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "lat": 10.83294,
+          "lon": 106.75646,
+          "muc_chenh": "1. Rao thấp hơn ước tính ≥ 30%"
+        },
+        {
+          "lat": 10.79179,
+          "lon": 106.75327,
+          "muc_chenh": "2. Trong ±30% ước tính"
+        },
+        {
+          "lat": 10.802467,
+          "lon": 106.627335,
+          "muc_chenh": "2. Trong ±30% ước tính"
+        }
+      ]
+    },
+    {
+      "chart": "Quận 1: 41% tin rao cao hơn ước tính ≥ 30% – cao nhất TP.HCM",
+      "chart_id": 200,
+      "viz": "echarts_timeseries_bar",
+      "status": "success",
+      "rows": 15,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "district_name": "Quận 1",
+          "Tỷ lệ": 0.41147741147741146
+        },
+        {
+          "district_name": "Huyện Hóc Môn",
+          "Tỷ lệ": 0.385989010989011
+        },
+        {
+          "district_name": "Quận 3",
+          "Tỷ lệ": 0.3326558265582656
+        }
+      ]
+    },
+    {
+      "chart": "Mặt tiền +54%, thang máy +31% giá/m²; tiêu đề nêu \"sổ\" đi kèm giá thấp hơn 15% (tin phân khúc rẻ hay nhấn mạnh sổ – tương quan) (KTC 95%, đã kiểm soát vị trí, diện tích, số phòng)",
+      "chart_id": 201,
+      "viz": "echarts_timeseries_bar",
+      "status": "success",
+      "rows": 5,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "dac_diem_nhan": "Mặt tiền (KTC 52…55%, 13733 tin)",
+          "do_tin_cay": "1. Chắc chắn (KTC 95% không chứa 0)",
+          "% chênh giá/m²": 53.6803
+        },
+        {
+          "dac_diem_nhan": "Thang máy (KTC 29…34%, 3334 tin)",
+          "do_tin_cay": "1. Chắc chắn (KTC 95% không chứa 0)",
+          "% chênh giá/m²": 31.183899999999998
+        },
+        {
+          "dac_diem_nhan": "Ô tô tiếp cận (KTC 7…9%, 14791 tin)",
+          "do_tin_cay": "1. Chắc chắn (KTC 95% không chứa 0)",
+          "% chênh giá/m²": 8.068999999999999
+        }
+      ]
+    },
+    {
+      "chart": "Tra cứu tin: giá chào so với giá ước tính và P25–P75 nhóm tương đồng (bỏ tin lệch > 200%: thường là xếp nhầm loại hình)",
+      "chart_id": 202,
+      "viz": "table",
+      "status": "success",
+      "rows": 1000,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "khu_vuc": "Huyện Bàu Bàng",
+          "title": "🏡 NHÀ ĐẸP BÌNH DƯƠNG – GIÁ CHỈ 1 TỶ 6 🏡",
+          "gia_ty": 1.6,
+          "area": 75.0,
+          "gia_m2_tr": 21.333333333333332,
+          "uoc_tinh_tr": 41.54390592,
+          "chenh_uoc_tinh_pct": -48.6487,
+          "p25_nhom_tr": 6.7491666666666665,
+          "p75_nhom_tr": 23.25,
+          "ad_url": "https://guland.vn/post/nha-dep-binh-duong-gia-chi-1-ty-6-2336292"
+        },
+        {
+          "khu_vuc": "Huyện Bàu Bàng",
+          "title": "Bán nhà 150m² full thổ cư ngang 5m giá 2.3 tỷ tại Đường Số 5B Xã Bàu Bàng",
+          "gia_ty": 2.3,
+          "area": 150.0,
+          "gia_m2_tr": 15.333333333333334,
+          "uoc_tinh_tr": 21.618788640000002,
+          "chenh_uoc_tinh_pct": -29.073999999999998,
+          "p25_nhom_tr": 6.7491666666666665,
+          "p75_nhom_tr": 23.25,
+          "ad_url": "https://guland.vn/post/ban-nha-150m2-full-tho-cu-ngang-5m-gia-23-ty-tai-duong-so-5b-xa-bau-bang-2227496"
+        },
+        {
+          "khu_vuc": "Huyện Bàu Bàng",
+          "title": "🏡 SỞ HỮU NHÀ 1 TRỆT 2 LẦU TẠI BÌNH DƯƠNG CHỈ TỪ 2 TỶ XXX",
+          "gia_ty": 2.9,
+          "area": 100.0,
+          "gia_m2_tr": 29.0,
+          "uoc_tinh_tr": 46.46750751,
+          "chenh_uoc_tinh_pct": -37.5908,
+          "p25_nhom_tr": 6.7491666666666665,
+          "p75_nhom_tr": 23.25,
+          "ad_url": "https://guland.vn/post/so-huu-nha-1-tret-2-lau-tai-binh-duong-chi-tu-2-ty-xxx-2291178"
+        }
+      ]
+    },
+    {
+      "chart": "Quãng đường từ quận đang nhắm (km)",
+      "chart_id": 203,
+      "viz": "big_number_total",
+      "status": "success",
+      "rows": 1,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "km": 14.01
+        }
+      ]
+    },
+    {
+      "chart": "Quận rẻ hơn, đường đi tương đương",
+      "chart_id": 204,
+      "viz": "big_number_total",
+      "status": "success",
+      "rows": 1,
+      "error": null,
+      "expected": 6.0,
+      "actual": 6.0,
+      "match": true,
+      "sample": [
+        {
+          "Quận": 6
+        }
+      ]
+    },
+    {
+      "chart": "Rẻ hơn nhiều nhất (%)",
+      "chart_id": 205,
+      "viz": "big_number_total",
+      "status": "success",
+      "rows": 1,
+      "error": null,
+      "expected": 53.6437,
+      "actual": 53.6437,
+      "match": true,
+      "sample": [
+        {
+          "%": 53.6437
+        }
+      ]
+    },
+    {
+      "chart": "Tiết kiệm tối đa (tỷ đồng)",
+      "chart_id": 206,
+      "viz": "big_number_total",
+      "status": "success",
+      "rows": 1,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "Tỷ": 6.549571875000001
+        }
+      ]
+    },
+    {
+      "chart": "Làm ở Khu công nghệ cao: Thành phố Thủ Đức cách 3,7 km, rẻ hơn 54% so với Quận Phú Nhuận (14,0 km) – chấm đen là nơi làm, xanh là quận đáng cân nhắc",
+      "chart_id": 207,
+      "viz": "deck_scatter",
+      "status": "success",
+      "rows": 23,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "lat": 10.94737,
+          "lon": 106.69939914725,
+          "lua_chon": "1. Đáng cân nhắc",
+          "Chi phí (tỷ) + 1": 3.82883064516129
+        },
+        {
+          "lat": 10.8621205315355,
+          "lon": 106.64272,
+          "lua_chon": "2. Có quận vừa gần hơn vừa rẻ hơn",
+          "Chi phí (tỷ) + 1": 6.136923076923076
+        },
+        {
+          "lat": 10.7585725,
+          "lon": 106.6095464,
+          "lua_chon": "2. Có quận vừa gần hơn vừa rẻ hơn",
+          "Chi phí (tỷ) + 1": 7.08125
+        }
+      ]
+    },
+    {
+      "chart": "6 quận rẻ hơn Quận Phú Nhuận mà đường tới Khu công nghệ cao không xa hơn quá 2 km",
+      "chart_id": 208,
+      "viz": "echarts_timeseries_bar",
+      "status": "success",
+      "rows": 6,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "quan_thay_the_qd": "Thành phố Thủ Đức · 3.7 km (-10.3) · 1826 tin",
+          "% thấp hơn": 53.6437
+        },
+        {
+          "quan_thay_the_qd": "Quận 4 · 13.8 km (-0.2) · 88 tin",
+          "% thấp hơn": 46.2895
+        },
+        {
+          "quan_thay_the_qd": "Quận Gò Vấp · 13.5 km (-0.5) · 854 tin",
+          "% thấp hơn": 41.950500000000005
+        }
+      ]
+    },
+    {
+      "chart": "Mọi quận: quãng đường tới nơi làm/học và chi phí (tỷ đồng) cho cùng diện tích",
+      "chart_id": 209,
+      "viz": "echarts_timeseries_bar",
+      "status": "success",
+      "rows": 24,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "quan_theo_quang_duong": "03.7 km · Thành phố Thủ Đức · 1826 tin",
+          "lua_chon": "1. Đáng cân nhắc",
+          "Tỷ đồng": 5.659828124999999
+        },
+        {
+          "quan_theo_quang_duong": "10.8 km · Quận Bình Thạnh · 997 tin",
+          "lua_chon": "2. Có quận vừa gần hơn vừa rẻ hơn",
+          "Tỷ đồng": 11.257377049180329
+        },
+        {
+          "quan_theo_quang_duong": "13.2 km · Quận 1 · 458 tin",
+          "lua_chon": "2. Có quận vừa gần hơn vừa rẻ hơn",
+          "Tỷ đồng": 21.365074204406366
+        }
+      ]
+    },
+    {
+      "chart": "Tin rao giá điển hình ở các quận thay thế (giá/m² 0,8–1,25× median quận đó)",
+      "chart_id": 210,
+      "viz": "table",
+      "status": "success",
+      "rows": 300,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "quan_thay_the": "Thành phố Thủ Đức",
+          "quang_duong_km": 3.746,
+          "title": "🚨 GẤP BÁN_ 3.650 TỶ_ 50M2_ CHỈ 70M RA TÔ NGỌC VÂN_ LINH ĐÔNG_ GẦN PHẠM VĂN ĐỒNG",
+          "gia_ty": 3.65,
+          "area": 50.0,
+          "gia_m2_tr": 73.0,
+          "ad_url": "https://guland.vn/post/gap-ban-3650-ty-50m2-chi-70m-ra-to-ngoc-van-linh-dong-gan-pham-van-dong-2157069"
+        },
+        {
+          "quan_thay_the": "Thành phố Thủ Đức",
+          "quang_duong_km": 3.746,
+          "title": "GIẢM MẠNH 300TR, CHỈ CÒN 3,65 TỶ SỞ HỮU NHÀ CẤP 4 ĐƯỜNG TÔ NGỌC VÂN, LINH ĐÔNG 50M2 – CÁCH MẶT TIỀN 20M",
+          "gia_ty": 3.65,
+          "area": 50.0,
+          "gia_m2_tr": 73.0,
+          "ad_url": "https://guland.vn/post/giam-manh-300tr-chi-con-365-ty-so-huu-nha-cap-4-duong-to-ngoc-van-linh-dong-50m2-cach-mat-tien-20m-2772259"
+        },
+        {
+          "quan_thay_the": "Thành phố Thủ Đức",
+          "quang_duong_km": 3.746,
+          "title": "Bán Nhà riêng 50m² thổ cư 50m² giá 3.69 tỷ tại Đường Cầu Xây 2 Phường Tăng Nhơn Phú A Quận 9 TP. Hồ Chí Minh",
+          "gia_ty": 3.69,
+          "area": 50.0,
+          "gia_m2_tr": 73.8,
+          "ad_url": "https://guland.vn/post/ban-nha-rieng-50m2-tho-cu-50m2-gia-369-ty-tai-duong-cau-xay-2-phuong-tang-nhon-phu-a-quan-9-tp-ho-chi-minh-2282167"
+        }
+      ]
+    },
+    {
+      "chart": "Bản ghi đạt PASS",
+      "chart_id": 211,
+      "viz": "big_number_total",
+      "status": "success",
+      "rows": 1,
+      "error": null,
+      "expected": 0.6865211158234276,
+      "actual": 0.6865211158234276,
+      "match": true,
+      "sample": [
+        {
+          "PASS": 0.6865211158234276
+        }
+      ]
+    },
+    {
+      "chart": "Bản ghi bị loại",
+      "chart_id": 212,
+      "viz": "big_number_total",
+      "status": "success",
+      "rows": 1,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "Dòng": 664
+        }
+      ]
+    },
+    {
+      "chart": "Tin nghi trùng giữa nguồn",
+      "chart_id": 213,
+      "viz": "big_number_total",
+      "status": "success",
+      "rows": 1,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "Tỷ lệ": 0.02049008103081651
+        }
+      ]
+    },
+    {
+      "chart": "guland có 69% bản ghi WARN (thiếu/sửa một trường); các nguồn khác ≥ 92% PASS",
+      "chart_id": 214,
+      "viz": "echarts_timeseries_bar",
+      "status": "success",
+      "rows": 9,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "source": "batdongsan",
+          "PASS": 80535,
+          "WARN": 6952,
+          "REJECT": 0
+        },
+        {
+          "source": "nhadatvui",
+          "PASS": 76537,
+          "WARN": 1345,
+          "REJECT": 0
+        },
+        {
+          "source": "guland",
+          "PASS": 42722,
+          "WARN": 96412,
+          "REJECT": 664
+        }
+      ]
+    },
+    {
+      "chart": "Tọa độ chỉ có ở 36% tin, pháp lý 16% – bản đồ và khoảng cách dựa trên phần tin có tọa độ",
+      "chart_id": 215,
+      "viz": "echarts_timeseries_bar",
+      "status": "success",
+      "rows": 9,
+      "error": null,
+      "match": true,
+      "sample": [
+        {
+          "source": "muaban",
+          "Giá": 1.0,
+          "Diện tích": 0.991736,
+          "Số phòng": 0.38843,
+          "Tọa độ": 0.0,
+          "Pháp lý": 0.046832
+        },
+        {
+          "source": "luachonnhadat",
+          "Giá": 1.0,
+          "Diện tích": 0.998867,
+          "Số phòng": 0.0,
+          "Tọa độ": 0.0,
+          "Pháp lý": 0.001133
+        },
+        {
+          "source": "mogi",
+          "Giá": 0.999895,
+          "Diện tích": 0.998899,
+          "Số phòng": 0.651481,
+          "Tọa độ": 0.325033,
+          "Pháp lý": 0.015098
         }
       ]
     },
     {
       "chart": "Từ dữ liệu crawl tới tin dùng để phân tích (số dòng mỗi tầng)",
-      "chart_id": 124,
+      "chart_id": 216,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 5,
@@ -253,465 +940,34 @@
       ]
     },
     {
-      "chart": "Rao cao hơn median nhóm ≥ 25%",
-      "chart_id": 125,
-      "viz": "big_number_total",
-      "status": "success",
-      "rows": 1,
-      "error": null,
-      "expected": 0.2765899696779347,
-      "actual": 0.2765899696779347,
-      "match": true,
-      "sample": [
-        {
-          "≥ 1,25×": 0.2765899696779347
-        }
-      ]
-    },
-    {
-      "chart": "Rao gấp đôi median nhóm",
-      "chart_id": 126,
-      "viz": "big_number_total",
-      "status": "success",
-      "rows": 1,
-      "error": null,
-      "match": true,
-      "sample": [
-        {
-          "≥ 2×": 0.07434722254534738
-        }
-      ]
-    },
-    {
-      "chart": "Giá thấp nhưng không nêu pháp lý",
-      "chart_id": 127,
-      "viz": "big_number_total",
-      "status": "success",
-      "rows": 1,
-      "error": null,
-      "match": true,
-      "sample": [
-        {
-          "Tỷ lệ": 0.8241047338729458
-        }
-      ]
-    },
-    {
-      "chart": "Outlier: giá/m² > 10× median nhóm",
-      "chart_id": 128,
-      "viz": "big_number_total",
-      "status": "success",
-      "rows": 1,
-      "error": null,
-      "expected": 195.0,
-      "actual": 195.0,
-      "match": true,
-      "sample": [
-        {
-          "Tin": 195
-        }
-      ]
-    },
-    {
-      "chart": "Loại hình nào hay bị rao cao? (tỷ lệ tin theo vị trí giá)",
-      "chart_id": 129,
-      "viz": "echarts_timeseries_bar",
-      "status": "success",
-      "rows": 20,
-      "error": null,
-      "match": true,
-      "sample": [
-        {
-          "category_label": "Nhà phố / nhà riêng",
-          "vi_tri_gia": "2. Trong P25–P75",
-          "Số tin": 39306
-        },
-        {
-          "category_label": "Nhà phố / nhà riêng",
-          "vi_tri_gia": "3. Trên P75",
-          "Số tin": 20859
-        },
-        {
-          "category_label": "Nhà phố / nhà riêng",
-          "vi_tri_gia": "1. Dưới P25",
-          "Số tin": 20463
-        }
-      ]
-    },
-    {
-      "chart": "Giá/m² lệch bao nhiêu so với median nhóm? (số tin)",
-      "chart_id": 130,
-      "viz": "echarts_timeseries_bar",
-      "status": "success",
-      "rows": 6,
-      "error": null,
-      "match": true,
-      "sample": [
-        {
-          "muc_lech": "1. < 0,5×",
-          "Số tin": 10411
-        },
-        {
-          "muc_lech": "2. 0,5–0,8×",
-          "Số tin": 24598
-        },
-        {
-          "muc_lech": "3. 0,8–1,25×",
-          "Số tin": 58274
-        }
-      ]
-    },
-    {
-      "chart": "Căn hộ TP.HCM: quận nào có nhiều tin rao cao hơn P75? (quận ≥ 100 tin)",
-      "chart_id": 131,
-      "viz": "echarts_timeseries_bar",
-      "status": "success",
-      "rows": 12,
-      "error": null,
-      "match": true,
-      "sample": [
-        {
-          "district_name": "Quận Bình Tân",
-          "Tỷ lệ trên P75": 0.3018867924528302
-        },
-        {
-          "district_name": "Quận Phú Nhuận",
-          "Tỷ lệ trên P75": 0.296551724137931
-        },
-        {
-          "district_name": "Quận Gò Vấp",
-          "Tỷ lệ trên P75": 0.2865853658536585
-        }
-      ]
-    },
-    {
-      "chart": "Chi tiết: tin rao cao nhất so với nhóm (≤ 10× median)",
-      "chart_id": 132,
+      "chart": "Nguồn dữ liệu và ngày quan sát mới nhất",
+      "chart_id": 217,
       "viz": "table",
       "status": "success",
-      "rows": 50,
+      "rows": 9,
       "error": null,
       "match": true,
       "sample": [
         {
-          "district_name": "Quận Tân Bình",
-          "category_label": "Căn hộ chung cư",
-          "title": "VIP – MTKD HOÀNG VĂN THỤ – VIEW CÔNG VIÊN HOÀNG VĂN THỤ – TÂN BÌNH – 5 TẦNG – CHỈ 16.9 TỶ",
-          "gia_ty": 16.9,
-          "area": 59.0,
-          "gia_m2_tr": 286.44067796610165,
-          "median_nhom_tr": 28.833333333333332,
-          "price_ratio": 9.934359
+          "source": "guland",
+          "loai_nguon": "Crawl định kỳ",
+          "ngay_moi_nhat": "2026-11-17",
+          "current_rows": 54130,
+          "representative_rows": 53703
         },
         {
-          "district_name": null,
-          "category_label": "Biệt thự / liền kề / shophouse",
-          "title": "BIỆT THỰ CỔ 234m2 CẠNH DINH ĐỘC LẬP - THU NHẬP 1.7 TỶ/NĂM",
-          "gia_ty": 250.0,
-          "area": 234.0,
-          "gia_m2_tr": 1068.3760683760684,
-          "median_nhom_tr": 108.2905982905983,
-          "price_ratio": 9.865825
+          "source": "batdongsan",
+          "loai_nguon": "Crawl định kỳ",
+          "ngay_moi_nhat": "2026-11-17",
+          "current_rows": 46222,
+          "representative_rows": 46079
         },
         {
-          "district_name": null,
-          "category_label": "Đất",
-          "title": "100m2/ 9,5 tỷ, Đất đường ĐOÀN KHUÊ, NHSơn, Đ Nẵng,sát 600 GIƯỜNG",
-          "gia_ty": 9.5,
-          "area": 100.0,
-          "gia_m2_tr": 95.0,
-          "median_nhom_tr": 9.65,
-          "price_ratio": 9.84456
-        }
-      ]
-    },
-    {
-      "chart": "Quận có đủ tin (≥ 20)",
-      "chart_id": 133,
-      "viz": "big_number_total",
-      "status": "success",
-      "rows": 1,
-      "error": null,
-      "match": true,
-      "sample": [
-        {
-          "Quận": 22
-        }
-      ]
-    },
-    {
-      "chart": "Chênh diện tích giữa các quận",
-      "chart_id": 134,
-      "viz": "big_number_total",
-      "status": "success",
-      "rows": 1,
-      "error": null,
-      "match": true,
-      "sample": [
-        {
-          "lần": 4.970588235294118
-        }
-      ]
-    },
-    {
-      "chart": "Tin không bị trội",
-      "chart_id": 135,
-      "viz": "big_number_total",
-      "status": "success",
-      "rows": 1,
-      "error": null,
-      "match": true,
-      "sample": [
-        {
-          "Pareto": 0.09983452840595698
-        }
-      ]
-    },
-    {
-      "chart": "Cùng 3–5 tỷ: càng xa trung tâm, nhà càng rộng – median diện tích (m²), quận xếp theo khoảng cách",
-      "chart_id": 136,
-      "viz": "echarts_timeseries_bar",
-      "status": "success",
-      "rows": 22,
-      "error": null,
-      "match": true,
-      "sample": [
-        {
-          "quan_theo_khoang_cach": "02.0 km · Quận 1",
-          "Median diện tích (m²)": 34.0
-        },
-        {
-          "quan_theo_khoang_cach": "02.1 km · Quận 4",
-          "Median diện tích (m²)": 43.0
-        },
-        {
-          "quan_theo_khoang_cach": "02.5 km · Quận 3",
-          "Median diện tích (m²)": 50.0
-        }
-      ]
-    },
-    {
-      "chart": "Giá/m² (triệu) theo quận – phần tiền trả cho vị trí",
-      "chart_id": 137,
-      "viz": "echarts_timeseries_bar",
-      "status": "success",
-      "rows": 22,
-      "error": null,
-      "match": true,
-      "sample": [
-        {
-          "district_name": "Quận 1",
-          "Triệu/m²": 112.5
-        },
-        {
-          "district_name": "Quận Tân Phú",
-          "Triệu/m²": 108.75
-        },
-        {
-          "district_name": "Quận 8",
-          "Triệu/m²": 101.16883116883118
-        }
-      ]
-    },
-    {
-      "chart": "Tỷ lệ tin nêu ô tô tiếp cận theo quận",
-      "chart_id": 138,
-      "viz": "echarts_timeseries_bar",
-      "status": "success",
-      "rows": 22,
-      "error": null,
-      "match": true,
-      "sample": [
-        {
-          "district_name": "Quận Bình Tân",
-          "Ô tô tiếp cận": 0.364623
-        },
-        {
-          "district_name": "Thành phố Thủ Đức",
-          "Ô tô tiếp cận": 0.344573
-        },
-        {
-          "district_name": "Quận 12",
-          "Ô tô tiếp cận": 0.336752
-        }
-      ]
-    },
-    {
-      "chart": "Chi tiết: tin không bị trội, nhà phố 3–5 tỷ TP.HCM",
-      "chart_id": 139,
-      "viz": "table",
-      "status": "success",
-      "rows": 100,
-      "error": null,
-      "match": true,
-      "sample": [
-        {
-          "district_name": null,
-          "title": "KHÔNG HÀO NHOÁNG, KHÔNG KỂ CHUYỆN TƯƠNG LAI, CHỈ ĐƠN GIẢN LÀ ĐÚNG GIÁ THỊ TRƯỜNG",
-          "gia_ty": 3.8,
-          "area": 3737.0,
-          "rooms": 2.0,
-          "title_has_frontage": false,
-          "title_has_car_access": false,
-          "title_has_legal": false
-        },
-        {
-          "district_name": "Huyện Củ Chi",
-          "title": "Bán nhà vườn xã Phú Hòa Đông tdt 1500m2 chưa thổ giá 3,8 tỷ",
-          "gia_ty": 3.8,
-          "area": 1500.0,
-          "rooms": null,
-          "title_has_frontage": false,
-          "title_has_car_access": false,
-          "title_has_legal": false
-        },
-        {
-          "district_name": "Huyện Củ Chi",
-          "title": "(L994) Bán nhà 1/ Tỉnh Lộ 7, xã An Nhơn Tây, dt 1.277m2, giá 4 tỷ 400",
-          "gia_ty": 4.4,
-          "area": 1277.0,
-          "rooms": 2.0,
-          "title_has_frontage": false,
-          "title_has_car_access": false,
-          "title_has_legal": false
-        }
-      ]
-    },
-    {
-      "chart": "Lựa chọn thay thế",
-      "chart_id": 140,
-      "viz": "big_number_total",
-      "status": "success",
-      "rows": 1,
-      "error": null,
-      "match": true,
-      "sample": [
-        {
-          "Quận": 4
-        }
-      ]
-    },
-    {
-      "chart": "Rẻ hơn nhiều nhất trong phạm vi +5 km",
-      "chart_id": 141,
-      "viz": "big_number_total",
-      "status": "success",
-      "rows": 1,
-      "error": null,
-      "match": true,
-      "sample": [
-        {
-          "%": 62.8823
-        }
-      ]
-    },
-    {
-      "chart": "Chi phí thấp hơn bao nhiêu % cho cùng diện tích – và xa trung tâm thêm bao nhiêu km",
-      "chart_id": 142,
-      "viz": "echarts_timeseries_bar",
-      "status": "success",
-      "rows": 4,
-      "error": null,
-      "match": true,
-      "sample": [
-        {
-          "quan_thay_the_km": "Huyện Bình Chánh (+3.5 km)",
-          "% thấp hơn": 62.8823
-        },
-        {
-          "quan_thay_the_km": "Huyện Nhà Bè (-0.6 km)",
-          "% thấp hơn": 17.1326
-        },
-        {
-          "quan_thay_the_km": "Quận 12 (+0.6 km)",
-          "% thấp hơn": 14.543000000000001
-        }
-      ]
-    },
-    {
-      "chart": "Ước tính chênh chi phí (tỷ đồng) cho căn 62 m² điển hình",
-      "chart_id": 143,
-      "viz": "echarts_timeseries_bar",
-      "status": "success",
-      "rows": 4,
-      "error": null,
-      "match": true,
-      "sample": [
-        {
-          "quan_thay_the": "Huyện Bình Chánh",
-          "Tỷ đồng": 3.7637978927203064
-        },
-        {
-          "quan_thay_the": "Huyện Nhà Bè",
-          "Tỷ đồng": 1.0254645593869733
-        },
-        {
-          "quan_thay_the": "Quận 12",
-          "Tỷ đồng": 0.8704645593869734
-        }
-      ]
-    },
-    {
-      "chart": "Quận gốc nào có nhiều lựa chọn thay thế? (TP.HCM, nhà phố 50–80 m²)",
-      "chart_id": 144,
-      "viz": "echarts_timeseries_bar",
-      "status": "success",
-      "rows": 12,
-      "error": null,
-      "match": true,
-      "sample": [
-        {
-          "quan_goc": "Quận 10",
-          "Số quận thay thế": 16
-        },
-        {
-          "quan_goc": "Quận 5",
-          "Số quận thay thế": 14
-        },
-        {
-          "quan_goc": "Quận Phú Nhuận",
-          "Số quận thay thế": 14
-        }
-      ]
-    },
-    {
-      "chart": "Chi tiết: khu vực thay thế (dùng bộ lọc Quận gốc)",
-      "chart_id": 145,
-      "viz": "table",
-      "status": "success",
-      "rows": 500,
-      "error": null,
-      "match": true,
-      "sample": [
-        {
-          "quan_goc": "Quận Bình Tân",
-          "category_label": "Nhà phố / nhà riêng",
-          "area_band": "50 - 80 m²",
-          "quan_thay_the": "Huyện Bình Chánh",
-          "re_hon_pct": 62.8823,
-          "chenh_chi_phi_ty": 3.7637978927203064,
-          "distance_diff_km": 3.473,
-          "feature_similarity": 0.914917
-        },
-        {
-          "quan_goc": "Quận Bình Tân",
-          "category_label": "Nhà phố / nhà riêng",
-          "area_band": "50 - 80 m²",
-          "quan_thay_the": "Quận 12",
-          "re_hon_pct": 14.543000000000001,
-          "chenh_chi_phi_ty": 0.8704645593869734,
-          "distance_diff_km": 0.565,
-          "feature_similarity": 0.956191
-        },
-        {
-          "quan_goc": "Quận Bình Tân",
-          "category_label": "Nhà phố / nhà riêng",
-          "area_band": "50 - 80 m²",
-          "quan_thay_the": "Huyện Nhà Bè",
-          "re_hon_pct": 17.1326,
-          "chenh_chi_phi_ty": 1.0254645593869733,
-          "distance_diff_km": -0.591,
-          "feature_similarity": 0.956775
+          "source": "nhadatvui",
+          "loai_nguon": "Crawl định kỳ",
+          "ngay_moi_nhat": "2026-11-17",
+          "current_rows": 19348,
+          "representative_rows": 19169
         }
       ]
     }

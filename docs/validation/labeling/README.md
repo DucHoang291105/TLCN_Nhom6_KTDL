@@ -52,3 +52,24 @@ python -m src.quality.evaluate_labels
 ```
 
 Kết quả nằm ở `docs/validation/label_accuracy.json`: độ chính xác loại hình (tổng và theo nguồn), precision, recall, F1 cho từng loại hình và từng cờ, ma trận nhầm lẫn. `status` chỉ là `COMPLETE` khi mọi dòng có loại hình hợp lệ, tên người gán và đủ 5 cờ (chấp nhận `?` cho cờ chưa xác định, không đưa cờ đó vào metric). Trùng/mất sample ID bị chặn; script sinh mẫu không ghi đè khi bất kỳ ô gán nhãn, tên, ngày hoặc ghi chú đã được điền.
+
+## Quy trình đang dùng: gán sơ bộ + 2 lượt review (từ 16/11/2026)
+
+Quy tắc chi tiết kèm ví dụ cho người review: [`QUY_TAC_GAN_NHAN.md`](QUY_TAC_GAN_NHAN.md).
+
+Để kịp tiến độ, nhãn được **gán sơ bộ bởi trợ lý AI (Claude)** chỉ từ `title`, `price`, `area`, `address`, **không mở `labeling_predictions.csv`**. Sau đó hai thành viên review độc lập lần lượt.
+
+| File / cột | Vai trò |
+|---|---|
+| `labeling_sheet_prelabel.csv` | Bản gán sơ bộ, **không sửa**. Dùng để đếm số nhãn người review đã thay đổi |
+| `labeling_sheet.csv` | Bản review: sửa trực tiếp vào các cột `true_*` |
+| `review_1`, `review_2` | MSSV người review lượt 1 và lượt 2; chỉ điền sau khi đã xem **cả 198 dòng** |
+| `note` | Ghi lý do khi sửa nhãn; các dòng mơ hồ đã có sẵn ghi chú của bản sơ bộ |
+
+Cách review:
+
+1. Đọc title; với dòng có `note` hoặc `khong_ro`, mở `url` để chốt loại hình.
+2. Sửa nhãn nếu không đồng ý. Không mở `labeling_predictions.csv` cho tới khi cả hai lượt review xong.
+3. Quy ước bản sơ bộ đã dùng (nhóm có thể đổi, nhưng phải đổi đồng loạt): "thổ cư", "hoàn công" tính là nêu pháp lý; "gần ô tô" → ô tô = 0; "hẻm xe tải" → ô tô = 1; "mặt tiền hẻm", "sát mặt tiền", "mặt tiền bờ sông" → mặt tiền = 0; title chỉ có "mặt tiền/lô góc" mà không rõ nhà hay đất → `khong_ro`.
+
+`evaluate_labels` chỉ báo `status = COMPLETE` khi mọi dòng có đủ `review_1` và `review_2`, và ghi `review_changes` (số dòng, số ô đã sửa so với bản sơ bộ) vào `label_accuracy.json`. Khi báo cáo G4 phải ghi rõ quy trình này và tỷ lệ sửa: nếu người review gần như không sửa gì, cần nói rõ đó là giới hạn (người review có thể bị bản sơ bộ dẫn dắt).

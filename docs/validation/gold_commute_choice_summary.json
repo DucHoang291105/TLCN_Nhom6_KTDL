@@ -1,0 +1,20 @@
+{
+  "started_at": "2026-11-17T17:29:50.174676+00:00",
+  "finished_at": "2026-11-17T17:29:57.221540+00:00",
+  "distance": "straight-line (haversine) km from the district centroid to the destination",
+  "min_centroid_listings": 10,
+  "commute_tolerance_km": 2.0,
+  "min_peer_group_size": 5,
+  "min_feature_similarity": 0.8,
+  "max_flag_share_gap": 0.3,
+  "destinations": 50,
+  "named_destinations": 16,
+  "districts_with_centroid": 61,
+  "district_groups": 643,
+  "district_rows": 5145,
+  "efficient_district_rows": 1851,
+  "substitution_pairs": 12005,
+  "origins_with_alternative": 3566,
+  "median_price_gap_pct": 0.265341,
+  "status": "PASS"
+}

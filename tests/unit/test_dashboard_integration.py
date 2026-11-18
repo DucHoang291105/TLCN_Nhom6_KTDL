@@ -12,7 +12,7 @@ def test_missing_dashboard_values_are_not_zero():
 
 
 def test_dashboard_header_declares_filter_scope():
-    assert "không tự đổi theo bộ lọc" in header("Question", ["Finding"], "Scope")
+    assert "không tự đổi theo bộ lọc" in header("Question", "Scope")
 
 
 @pytest.mark.parametrize("pairs", [[(True, False)], [(False, True)], [(True, False), (False, True)]])
