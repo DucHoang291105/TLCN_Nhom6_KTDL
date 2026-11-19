@@ -30,6 +30,9 @@ def main(folder: str) -> None:
         page = browser.new_page(viewport={"width": 1600, "height": 1000}, device_scale_factor=1)
         for attempt in range(3):
             page.goto(f"{BASE}/login/")
+            # Typing before the page settles races its background requests
+            # and the session is lost on the next navigation.
+            page.wait_for_load_state("networkidle")
             # Superset 6 renders a React form next to a hidden input; type into
             # the visible fields only, then press the "Sign in" button.
             fields = page.locator("input:visible")

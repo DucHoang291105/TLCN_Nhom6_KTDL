@@ -102,10 +102,31 @@ def index_predictions(rows):
     return dict(zip(ids, rows))
 
 
-def review_complete(row):
-    return (row.get("true_category") in CATEGORIES and bool((row.get("labeler") or "").strip()) and
+def review_complete(row, needs_review: bool = False):
+    """Labelled with a valid category and five flags; pre-labelled sheets also need two named reviewers."""
+
+    reviewed = all((row.get(column) or "").strip() for column in ("review_1", "review_2")) if needs_review else True
+    return (row.get("true_category") in CATEGORIES and bool((row.get("labeler") or "").strip()) and reviewed and
             all(parse_flag(row.get(f"true_{flag}")) is not None or
                 (row.get(f"true_{flag}") or "").strip() == "?" for flag in FLAGS))
+
+
+def review_changes(prelabels: list[Mapping[str, str]], sheet: list[Mapping[str, str]]) -> dict:
+    """How many label cells the reviewers changed from the pre-labels, per column."""
+
+    columns = ("true_category", *(f"true_{flag}" for flag in FLAGS))
+    before = {row["sample_id"]: row for row in prelabels}
+    changed = Counter()
+    rows_changed = 0
+    for row in sheet:
+        old = before.get(row["sample_id"], {})
+        diff = [c for c in columns if (row.get(c) or "").strip() != (old.get(c) or "").strip()]
+        changed.update(diff)
+        rows_changed += bool(diff)
+    cells = len(sheet) * len(columns)
+    return {"rows_changed": rows_changed, "cells_changed": sum(changed.values()), "cells": cells,
+            "cell_change_rate": round(sum(changed.values()) / cells, 4) if cells else None,
+            "by_column": {c: changed[c] for c in columns}}
 
 
 def main() -> None:
@@ -115,17 +136,30 @@ def main() -> None:
         predictions = index_predictions(list(csv.DictReader(handle)))
     result = evaluate(sheet, predictions)
     labelers = sorted({(row.get("labeler") or "").strip() for row in sheet if row.get("true_category")} - {""})
+    # Pre-labelled by an assistant, then reviewed twice by team members:
+    # the frozen pre-labels show how much the reviewers changed.
+    prelabel_path = LABEL_DIR / "labeling_sheet_prelabel.csv"
+    prelabels = None
+    if prelabel_path.exists():
+        with prelabel_path.open(encoding="utf-8-sig", newline="") as handle:
+            prelabels = list(csv.DictReader(handle))
+    needs_review = prelabels is not None
     summary = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "sample_rows": len(sheet),
         "labelers": labelers,
         "truth_definition": {
-            "true_category": "property type judged by a person from title, price, area and the listing page",
+            "true_category": "property type judged from title, price, area and the listing page",
             "true_<flag>": "1 if the title states the feature, 0 if not (\"?\" = cannot tell)",
         },
+        "label_process": ("pre-labelled by an AI assistant without seeing the system predictions, "
+                          "then reviewed and corrected by two team members (review_1, review_2)") if needs_review
+                         else "labelled by a person",
+        "reviewers": sorted({(row.get(c) or "").strip() for row in sheet for c in ("review_1", "review_2")} - {""}),
         **result,
-        "reviewed_rows": sum(review_complete(row) for row in sheet),
-        "status": "COMPLETE" if sheet and all(review_complete(row) for row in sheet) else "PARTIAL",
+        "review_changes": review_changes(prelabels, sheet) if needs_review else None,
+        "reviewed_rows": sum(review_complete(row, needs_review) for row in sheet),
+        "status": "COMPLETE" if sheet and all(review_complete(row, needs_review) for row in sheet) else "PARTIAL",
     }
     out = PROJECT_ROOT / "docs/validation/label_accuracy.json"
     out.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

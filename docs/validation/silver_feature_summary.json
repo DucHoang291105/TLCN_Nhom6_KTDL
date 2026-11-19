@@ -1,13 +1,13 @@
 {
-  "started_at": "2026-11-17T15:03:38.450088+00:00",
-  "finished_at": "2026-11-17T15:04:23.599074+00:00",
+  "started_at": "2026-11-19T08:14:58.279014+00:00",
+  "finished_at": "2026-11-19T08:15:46.762058+00:00",
   "inputs": [
     "lakehouse.silver.silver_listings_current_27",
     "lakehouse.silver.listing_location",
     "lakehouse.silver.listing_observation"
   ],
   "output": "lakehouse.silver.listing_feature",
-  "feature_rule_version": "listing_feature_rules_v4",
+  "feature_rule_version": "listing_feature_rules_v5",
   "input_rows": 150017,
   "output_rows": 150017,
   "category_name_counts": {
@@ -41,49 +41,51 @@
     "Căn hộ dịch vụ": 1
   },
   "model_category_counts": {
-    "nha_pho": 86422,
-    "dat": 7412,
-    "phong_tro_khac": 7313,
-    "biet_thu": 13419,
-    "can_ho": 35075,
-    "khong_ro": 376
+    "nha_pho": 85819,
+    "phong_tro_khac": 9821,
+    "dat": 6970,
+    "biet_thu": 13995,
+    "can_ho": 33035,
+    "khong_ro": 377
   },
   "model_category_method_counts": {
-    "ENDPOINT_CONTEXT": 26161,
-    "TITLE_OVER_ENDPOINT": 750,
-    "TITLE_FALLBACK": 1479,
-    "CATEGORY_NAME": 121251,
-    "UNMAPPED": 376
+    "TITLE_OVER_LABEL": 4344,
+    "TITLE_SERVICE_BUILDING": 2348,
+    "ENDPOINT_CONTEXT": 25693,
+    "TITLE_OVER_ENDPOINT": 746,
+    "TITLE_FALLBACK": 1478,
+    "CATEGORY_NAME": 115031,
+    "UNMAPPED": 377
   },
   "category_evidence_counts": {
     "ENDPOINT_CONTEXT": 26911,
     "SOURCE_LABEL": 57536,
     "SOURCE_STRUCTURED": 65570
   },
-  "category_title_conflict_rows": 5441,
+  "category_title_conflict_rows": 7438,
   "category_title_conflict_by_source": {
-    "muaban": 93,
+    "muaban": 94,
     "luachonnhadat": 10,
-    "alonhadat": 234,
-    "batdongsan": 2069,
-    "chotot": 463,
-    "nhadatvui": 682,
-    "guland": 1352,
-    "mogi": 518,
-    "homedy": 20
+    "alonhadat": 253,
+    "batdongsan": 2566,
+    "chotot": 483,
+    "nhadatvui": 857,
+    "guland": 2593,
+    "mogi": 560,
+    "homedy": 22
   },
-  "model_category_unmapped_share": 0.002506,
+  "model_category_unmapped_share": 0.002513,
   "true_rates": {
-    "title_has_legal": 0.098662,
-    "title_has_furnished": 0.083451,
-    "title_has_frontage": 0.164928,
+    "title_has_legal": 0.14645,
+    "title_has_furnished": 0.083591,
+    "title_has_frontage": 0.171774,
     "title_has_elevator": 0.039749,
-    "title_has_car_access": 0.123233,
+    "title_has_car_access": 0.143824,
     "price_known": 0.977129,
     "area_known": 0.999527,
     "rooms_known": 0.630849,
     "location_known": 0.998913,
-    "legal_known": 0.099435
+    "legal_known": 0.14723
   },
   "is_rent_counts": {
     "True": 15357,

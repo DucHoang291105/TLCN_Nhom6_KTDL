@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-17T15:04:59.924963+00:00",
+  "generated_at": "2026-11-19T08:16:23.260129+00:00",
   "catalog_namespace": "lakehouse.silver",
   "table_counts": {
     "listing_observation": 334820,
@@ -72,13 +72,13 @@
     "location_missing_ids": 0,
     "observation_bad_category_evidence": 0,
     "observation_category_evidence_mismatch": 0,
-    "model_category_mapped_rate": 0.997494,
+    "model_category_mapped_rate": 0.997487,
     "title_flag_true_rates": {
-      "title_has_legal": 0.098662,
-      "title_has_furnished": 0.083451,
-      "title_has_frontage": 0.164928,
+      "title_has_legal": 0.14645,
+      "title_has_furnished": 0.083591,
+      "title_has_frontage": 0.171774,
       "title_has_elevator": 0.039749,
-      "title_has_car_access": 0.123233
+      "title_has_car_access": 0.143824
     }
   },
   "warnings": [],

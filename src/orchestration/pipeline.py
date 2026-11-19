@@ -11,6 +11,25 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SOURCES = ("batdongsan", "guland", "nhadatvui")
 PACKAGES = "org.apache.hadoop:hadoop-aws:3.3.4,org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.11.0,org.apache.iceberg:iceberg-aws-bundle:1.11.0"
 
+# Spark stages of lakehouse_pipeline, in order (the DAG builds its tasks from
+# this). The DAG also has ACQUISITION_TASKS before them and publish_evidence
+# after them; acceptance checks derive the expected task count from here.
+STAGES = {
+    "bronze": [("ingest_snapshots", "src/bronze/ingest_snapshots_bronze.py"), ("audit_bronze", "src/bronze/audit_bronze_state.py")],
+    "silver": [("iceberg_smoke", "src/silver/iceberg_smoke_check.py"), ("listing_core", "src/silver/build_listing_core_spark.py"),
+               ("listing_history", "src/silver/build_listing_history.py"), ("location", "src/silver/build_location.py"),
+               ("feature", "src/silver/build_listing_feature.py"), ("verify_silver", "src/silver/verify_silver.py")],
+    "gold": [("dimensions", "src/gold/build_dimensions.py"), ("fact_listing", "src/gold/build_fact_listing.py"),
+             ("price_benchmark", "src/gold/build_price_benchmark.py"), ("price_model", "src/gold/build_price_model.py"),
+             ("budget_tradeoff", "src/gold/build_budget_tradeoff.py"),
+             ("area_substitution", "src/gold/build_area_substitution.py"),
+             ("commute_choice", "src/gold/build_commute_choice.py"), ("data_quality", "src/gold/build_data_quality.py"),
+             ("repricing", "src/gold/build_repricing.py"), ("market_overview", "src/gold/build_market_overview.py"),
+             ("listing_lifecycle", "src/gold/build_listing_lifecycle.py"), ("verify_gold", "src/gold/verify_gold.py")],
+}
+ACQUISITION_TASKS = ("prepare_guland", "prepare_nhadatvui", "wait_batdongsan_csv", "validate_snapshot_manifest")
+DAG_TASK_COUNT = len(ACQUISITION_TASKS) + sum(len(jobs) for jobs in STAGES.values()) + 1
+
 
 def validate_batch(batch):
     if len(batch) != 8 or datetime.strptime(batch, "%Y%m%d").strftime("%Y%m%d") != batch:

@@ -94,7 +94,7 @@ Các feature không thuộc 27 cột được ghi ở `lakehouse.silver.listing_
 | is_rent, category_name | boolean, string | Giữ từ Silver Core |
 | category_evidence | string | Nguồn gốc `category_name` (từ `listing_observation`): `SOURCE_STRUCTURED` (taxonomy của site: `category_id`/URL batdongsan, `product_slug` nhadatvui), `SOURCE_LABEL` (nhãn/tag của site, category của file historical), `ENDPOINT_CONTEXT` (chỉ dựa vào endpoint crawl, ví dụ guland không có tag loại hình), `NONE` |
 | model_category | string | `nha_pho`, `can_ho`, `biet_thu`, `dat`, `phong_tro_khac`, `khong_ro` |
-| model_category_method | string | `CATEGORY_NAME` (nhãn có bằng chứng từ nguồn), `ENDPOINT_CONTEXT` (giữ mặc định endpoint), `TITLE_OVER_ENDPOINT` (title có tín hiệu mạnh khác mặc định endpoint), `TITLE_FALLBACK` (nhãn thiếu hoặc chung chung), `UNMAPPED` |
+| model_category_method | string | `CATEGORY_NAME` (nhãn có bằng chứng từ nguồn), `ENDPOINT_CONTEXT` (giữ mặc định endpoint), `TITLE_OVER_ENDPOINT` (title có tín hiệu mạnh khác nhóm với mặc định endpoint), `TITLE_OVER_LABEL` (từ v5: title có tín hiệu mạnh khác nhóm nhà/căn hộ/đất với nhãn nguồn), `TITLE_SERVICE_BUILDING` (từ v5: title nêu cả tòa CHDV/CCMN), `TITLE_FALLBACK` (nhãn thiếu hoặc chung chung), `UNMAPPED` |
 | title_model_category | string | Loại hình đọc từ title (NULL nếu không đủ tín hiệu) |
 | category_title_conflict | boolean | Nhãn nguồn và tín hiệu **mạnh** trong title chỉ hai loại hình khác nhau. Nhãn có bằng chứng từ nguồn được giữ; cờ này để kiểm tra, không tự ghi đè |
 | title_has_legal / furnished / elevator | boolean | TRUE khi title nêu đặc điểm (có dấu/không dấu, viết tắt, xử lý phủ định) |

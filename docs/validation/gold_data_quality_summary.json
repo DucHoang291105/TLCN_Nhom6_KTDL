@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-11-17T15:09:04.560775+00:00",
-  "finished_at": "2026-11-17T15:09:25.187958+00:00",
+  "started_at": "2026-11-19T08:20:42.550014+00:00",
+  "finished_at": "2026-11-19T08:21:03.133669+00:00",
   "rows": 9,
   "totals": {
     "bronze_rows": 346558,
@@ -10,10 +10,10 @@
     "observation_rows": 334820,
     "current_rows": 150017,
     "fact_rows": 134660,
-    "representative_rows": 133495,
+    "representative_rows": 133480,
     "pass_rows": 229861,
     "warn_rows": 104959,
-    "dup_suspect_rows": 2312
+    "dup_suspect_rows": 2343
   },
   "status": "PASS"
 }

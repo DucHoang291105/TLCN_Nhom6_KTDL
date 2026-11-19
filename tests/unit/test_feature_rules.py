@@ -93,8 +93,12 @@ def test_weak_signals_need_agreement():
     assert category_from_title("Bán CC lô góc")==(None,None)
     assert map_model_category(None,"Bán CC lô góc")==("khong_ro","UNMAPPED",False)
 
-def test_structured_label_kept_but_conflict_flagged():
-    assert map_model_category("Căn hộ chung cư","Bán nhà 3 tầng 73m2 Gò Vấp","SOURCE_STRUCTURED")==("can_ho","CATEGORY_NAME",True)
+def test_structured_label_yields_to_strong_title_of_other_family():
+    # v5: the labelled sample showed the title right in most such conflicts.
+    assert map_model_category("Căn hộ chung cư","Bán nhà 3 tầng 73m2 Gò Vấp","SOURCE_STRUCTURED")==("nha_pho","TITLE_OVER_LABEL",True)
+
+def test_structured_label_kept_within_same_family():
+    assert map_model_category("Biệt thự","Bán nhà 3 tầng khu biệt thự cũ","SOURCE_STRUCTURED")[:2]==("biet_thu","CATEGORY_NAME")
 
 def test_endpoint_default_yields_to_strong_title():
     assert map_model_category("Nhà ở","Bán căn hộ Moonlight 2PN","ENDPOINT_CONTEXT")==("can_ho","TITLE_OVER_ENDPOINT",True)
@@ -129,7 +133,7 @@ def test_endpoint_default_kept_for_same_family():
     assert map_model_category("Nhà ở","Cho thuê mặt bằng kinh doanh 2 tầng","ENDPOINT_CONTEXT")==("nha_pho","ENDPOINT_CONTEXT",False)
 
 def test_land_label_with_house_title_is_conflict():
-    assert map_model_category("Đất","Bán nhà 3 tầng hẻm xe hơi","SOURCE_STRUCTURED")==("dat","CATEGORY_NAME",True)
+    assert map_model_category("Đất","Bán nhà 3 tầng hẻm xe hơi","SOURCE_STRUCTURED")==("nha_pho","TITLE_OVER_LABEL",True)
 
 
 @pytest.mark.parametrize("title,expected", [
@@ -145,3 +149,63 @@ def test_landmark_after_proximity_word_is_not_the_type(title, expected):
 def test_endpoint_house_not_overridden_by_nearby_apartment():
     title = "BÁN NHÀ 6 TẦNG – GẦN CHUNG CƯ SCREC TRƯỜNG SA"
     assert map_model_category("Nhà ở", title, "ENDPOINT_CONTEXT") == ("nha_pho", "ENDPOINT_CONTEXT", False)
+
+
+# --- v5: cases from the dev split of the labelled sample -----------------------
+@pytest.mark.parametrize("title", [
+    "Lô đất bán 6tỷ2 CÒN THƯƠNG LƯỢNG + THỔ CƯ TOÀN PHẦN",
+    "Nhà phố LK 126m2 gần trường học sẵn sổ giá bán nhanh",
+    "Masteri giá siêu tốt - bao pháp lý, cho vay 70%",
+    "NHÀ PHỐ 2 TẦNG HOÀN CÔNG ĐỦ – HXH LÃ XUÂN OAI",
+])
+def test_v5_legal_mentions(title):
+    assert feature_status("legal", title) == "POSITIVE"
+
+
+def test_v5_land_status_negated():
+    assert feature_status("legal", "Đất chưa thổ cư giá rẻ") == "NEGATIVE"
+
+
+def test_v5_furnished_with_intensifier():
+    assert feature_status("furnished", "penthouse 700m², nội thất siêu đẹp giá 36 tỷ") == "POSITIVE"
+
+
+@pytest.mark.parametrize("title,expected", [
+    ("Bán nhà khu Tên Lửa, góc 2MT đường Số 11A, DT 6 x 24.5m", "POSITIVE"),
+    ("Bán cặp nhà khu Tên Lửa gần Aeon, MT đường Số 13B, DT 10 x 20m", "POSITIVE"),   # "gần" belongs to Aeon
+    ("BÁN 232M2 ĐẤT MẶT TIỀN BỜ SÔNG SÀI GÒN", None),
+    ("60m2 có dòng tiền cho thuê xưởng, đường oto thông mặt phố", None),
+    ("Nhà hẻm 5m cách mặt tiền 20m", None),
+])
+def test_v5_frontage(title, expected):
+    assert feature_status("frontage", title) == expected
+
+
+@pytest.mark.parametrize("title,expected", [
+    ("Vũ Tông Phan, Thanh Xuân - Oto - Thang Máy - 55m, 7 Tầng", "POSITIVE"),
+    ("7 tầng - thang máy - gara ô tô - kinh doanh", "POSITIVE"),
+    ("đất hẻm xa tải rẻ nhất quận gò vấp", "POSITIVE"),
+    ("33,6m² x 4 tầng, Ngõ nông, Gần ôtô – Ở ngay", None),
+    ("Nhà ngõ 2m không ô tô", "NEGATIVE"),
+])
+def test_v5_car_access(title, expected):
+    assert feature_status("car_access", title) == expected
+
+
+@pytest.mark.parametrize("label,title,expected", [
+    ("Căn hộ chung cư", "Toà Nhà 32 CHDV Quận 1, 6 lầu, HĐ thuê 150tr", ("phong_tro_khac", "TITLE_SERVICE_BUILDING")),
+    ("Nhà ở", "Bán tòa CCMN Nguyễn Thị Định 137m2, lô góc", ("phong_tro_khac", "TITLE_SERVICE_BUILDING")),
+    ("Căn hộ", "Bán đất ngay chung cư C3 man thiện", ("dat", "TITLE_OVER_LABEL")),
+    ("Đất", "Nhượng đất tổ 10 Lê Văn Lương, xã Phước Kiển, Huyện Nhà Bè", ("dat", "CATEGORY_NAME")),
+    ("Đất", "Đất nền ngay nút xuống cao tốc Thủ Dầu Một", ("dat", "CATEGORY_NAME")),
+])
+def test_v5_category(label, title, expected):
+    assert map_model_category(label, title, "SOURCE_STRUCTURED")[:2] == expected
+
+
+def test_v5_avenue_is_not_a_lot():
+    assert map_model_category("Bất động sản khác", 'The Sun Avenue – "Đại lộ Mặt Trời" Mai Chí Thọ')[0] == "khong_ro"
+
+
+def test_v5_real_workshop_still_detected():
+    assert map_model_category(None, "Bán kho xưởng 1000m2 Bình Tân")[0] == "phong_tro_khac"

@@ -1,17 +1,18 @@
 {
-  "generated_at": "2026-11-17T15:17:46.028209+00:00",
-  "run_id": "acceptance_A_20261117_r2",
+  "generated_at": "2026-11-19T08:26:55.864856+00:00",
+  "run_id": "scheduled__2026-11-17T15:00:00+00:00",
   "checks": {
-    "airflow_24_tasks": true,
+    "airflow_all_tasks": true,
     "silver_30": true,
     "gold_108": true,
-    "dashboard_29_charts": true,
+    "dashboard_all_charts": true,
     "dashboards_checked_after_dag": true,
-    "all_30_trino_counts_match_spark": true,
+    "all_trino_counts_match_spark": true,
     "tlcn-tong-quan": true,
     "tlcn-bq1": true,
     "tlcn-bq2": true,
     "tlcn-bq3": true,
+    "tlcn-chat-luong": true,
     "interactive_province_filters_match_gold": true,
     "spark_writer_blocked_while_trino_active": true
   },
@@ -93,24 +94,24 @@
       "actual": 134660
     },
     "gold.agg_peer_group_benchmark": {
-      "expected": 2746,
-      "actual": 2746
+      "expected": 2876,
+      "actual": 2876
     },
     "gold.fact_listing_price_assessment": {
-      "expected": 133495,
-      "actual": 133495
+      "expected": 133480,
+      "actual": 133480
     },
     "gold.agg_budget_tradeoff": {
-      "expected": 2526,
-      "actual": 2526
+      "expected": 2652,
+      "actual": 2652
     },
     "gold.fact_budget_pareto": {
-      "expected": 130014,
-      "actual": 130014
+      "expected": 129999,
+      "actual": 129999
     },
     "gold.agg_area_substitution": {
-      "expected": 2593,
-      "actual": 2593
+      "expected": 2740,
+      "actual": 2740
     },
     "gold.agg_dq_kpi": {
       "expected": 9,
@@ -121,20 +122,28 @@
       "actual": 3021
     },
     "gold.agg_market_overview": {
-      "expected": 154,
-      "actual": 154
+      "expected": 155,
+      "actual": 155
     },
     "gold.fact_listing_lifecycle": {
       "expected": 150017,
       "actual": 150017
     },
     "gold.fact_listing_price_model": {
-      "expected": 128853,
-      "actual": 128853
+      "expected": 126394,
+      "actual": 126394
     },
     "gold.agg_price_model_coefficient": {
-      "expected": 971,
-      "actual": 971
+      "expected": 967,
+      "actual": 967
+    },
+    "gold.agg_commute_district": {
+      "expected": 5145,
+      "actual": 5145
+    },
+    "gold.agg_commute_substitution": {
+      "expected": 12005,
+      "actual": 12005
     }
   },
   "dashboards": [
@@ -153,26 +162,30 @@
     {
       "slug": "tlcn-bq3",
       "matches": 1
+    },
+    {
+      "slug": "tlcn-chat-luong",
+      "matches": 1
     }
   ],
   "filter_checks": [
     {
       "province": "Hồ Chí Minh",
-      "expected": 84639,
-      "actual": 84639,
+      "expected": 84623,
+      "actual": 84623,
       "match": true
     },
     {
       "province": "Hà Nội",
-      "expected": 25234,
-      "actual": 25234,
+      "expected": 25235,
+      "actual": 25235,
       "match": true
     }
   ],
   "manual_labeling": {
     "sample_rows": 198,
-    "labelled_rows": 0,
-    "category_accuracy": null,
+    "labelled_rows": 198,
+    "category_accuracy": 0.8485,
     "status": "PARTIAL"
   },
   "operation_mode": "Sequential Spark write window then Trino/Superset query window. Concurrent reading/writing on SQLite is not certified.",

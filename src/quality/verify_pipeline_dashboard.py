@@ -5,6 +5,7 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 from src.common.atomic_io import write_json_atomic
+from src.common.table_fingerprints import GRAINS
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -20,15 +21,16 @@ def quality_pass(data, minimum, required=()):
 
 
 def main(output=None):
-    from src.dashboard.provision_superset import Superset, DASHBOARDS, trino_rows
+    from src.dashboard.provision_superset import CHARTS, Superset, DASHBOARDS, trino_rows
+    from src.orchestration.pipeline import DAG_TASK_COUNT
     run, silver, gold = read("integration_airflow_run"), read("silver_final_verification"), read("gold_verification")
     dashboard = read("superset_dashboard_check")
     checks = {
-        "airflow_24_tasks": run["state"] == "success" and len(run["tasks"]) == 24 and all(t["state"] == "success" for t in run["tasks"]),
+        "airflow_all_tasks": run["state"] == "success" and len(run["tasks"]) == DAG_TASK_COUNT and all(t["state"] == "success" for t in run["tasks"]),
         "silver_30": quality_pass(silver, 30, ("schema_exact_27", "source_id_unique", "current_union_count")),
         "gold_108": quality_pass(gold, 108, ("fact_grain_unique", "fact_row_count_matches_silver",
                                              "price_model_covers_scope", "lifecycle_per_source_batch_calendar_correct")),
-        "dashboard_29_charts": dashboard["status"] == "PASS" and len(dashboard["chart_checks"]) == 29 and all(c["match"] for c in dashboard["chart_checks"]),
+        "dashboard_all_charts": dashboard["status"] == "PASS" and len(dashboard["chart_checks"]) == len(CHARTS) and all(c["match"] for c in dashboard["chart_checks"]),
         "dashboards_checked_after_dag": datetime.fromisoformat(dashboard["generated_at"]) >= datetime.fromisoformat(run["end_date"].replace("Z", "+00:00")),
     }
     counts = {}
@@ -36,7 +38,8 @@ def main(output=None):
         for table, expected in tables.items():
             actual = int(trino_rows(f"SELECT COUNT(*) FROM iceberg.{layer}.{table}")[0][0])
             counts[f"{layer}.{table}"] = {"expected": expected, "actual": actual}
-    checks["all_30_trino_counts_match_spark"] = len(counts) == 30 and all(c["expected"] == c["actual"] for c in counts.values())
+    # Every table Silver/Gold verification counted (30 before the commute tables).
+    checks["all_trino_counts_match_spark"] = set(counts) == set(GRAINS) and all(c["expected"] == c["actual"] for c in counts.values())
     api = Superset()
     dashboards = []
     for spec in DASHBOARDS:

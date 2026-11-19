@@ -1,0 +1,47 @@
+"""Rules for BQ3 by place of work or study (agg_commute_*)."""
+
+from src.gold.gold_rules import (
+    COMMUTE_TOLERANCE_KM, PROVINCE_CENTER_KIND, commute_allowed, commute_efficient_keys, load_destinations,
+)
+from src.silver.build_location import haversine_km
+
+
+def test_commute_tolerance():
+    assert commute_allowed(8.0, 8.0 + COMMUTE_TOLERANCE_KM)
+    assert commute_allowed(8.0, 3.0)                      # closer is always allowed
+    assert not commute_allowed(8.0, 8.0 + COMMUTE_TOLERANCE_KM + 0.01)
+    assert not commute_allowed(None, 3.0) and not commute_allowed(3.0, None)
+
+
+def test_efficient_districts_are_not_beaten_on_both_commute_and_cost():
+    rows = [
+        {"key": "near_expensive", "commute_km": 2.0, "cost": 9.0},
+        {"key": "mid", "commute_km": 6.0, "cost": 5.0},
+        {"key": "far_cheap", "commute_km": 15.0, "cost": 2.0},
+        {"key": "dominated", "commute_km": 7.0, "cost": 6.0},   # mid is closer and cheaper
+        {"key": "tie_far", "commute_km": 6.0, "cost": 5.5},     # same km as mid, costlier
+    ]
+    assert commute_efficient_keys(rows) == {"near_expensive", "mid", "far_cheap"}
+
+
+def test_identical_districts_do_not_dominate_each_other():
+    rows = [{"key": "a", "commute_km": 4.0, "cost": 3.0}, {"key": "b", "commute_km": 4.0, "cost": 3.0}]
+    assert commute_efficient_keys(rows) == {"a", "b"}
+
+
+def test_destinations_include_named_places_and_every_province_centre():
+    destinations = load_destinations()
+    ids = [d["destination_id"] for d in destinations]
+    assert len(ids) == len(set(ids))
+    centres = [d for d in destinations if d["destination_kind"] == PROVINCE_CENTER_KIND]
+    assert len(centres) == 34
+    named = [d for d in destinations if d["destination_kind"] != PROVINCE_CENTER_KIND]
+    assert {"Hồ Chí Minh", "Hà Nội", "Đà Nẵng"} <= {d["province_name"] for d in named}
+
+
+def test_named_destinations_lie_near_their_province_centre():
+    destinations = load_destinations()
+    centre = {d["province_name"]: d for d in destinations if d["destination_kind"] == PROVINCE_CENTER_KIND}
+    for d in destinations:
+        c = centre[d["province_name"]]
+        assert haversine_km(d["lat"], d["lon"], c["lat"], c["lon"]) < 40, d["destination_id"]

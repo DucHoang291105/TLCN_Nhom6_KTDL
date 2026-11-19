@@ -337,3 +337,66 @@ def cost_at_target_area(median_price_per_m2: float, target_area: float) -> float
     """
 
     return median_price_per_m2 * target_area
+
+
+# Commute choice (BQ3 by place of work or study). A district's position is the
+# median coordinate of its representative listings that have coordinates, and
+# needs at least MIN_CENTROID_LISTINGS of them. Commute distance is the
+# straight-line (haversine) distance from that centroid to the destination: a
+# proxy for travel distance that ignores roads, rivers and traffic.
+# An alternative has an "equivalent" commute when it is no more than
+# COMMUTE_TOLERANCE_KM farther from the destination than the origin district.
+DESTINATIONS_PATH = PROJECT_ROOT / "config/commute_destinations.csv"
+PROVINCE_CENTERS_PATH = PROJECT_ROOT / "config/vietnam_province_centers.csv"
+MIN_CENTROID_LISTINGS = 10
+COMMUTE_TOLERANCE_KM = 2.0
+PROVINCE_CENTER_KIND = "Trung tâm tỉnh"
+
+
+def load_destinations(path: Path = DESTINATIONS_PATH, centers_path: Path = PROVINCE_CENTERS_PATH) -> list[dict[str, Any]]:
+    """Named places of work/study plus every province centre as a fallback."""
+
+    destinations = []
+    with path.open(encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle):
+            destinations.append({**row, "lat": float(row["lat"]), "lon": float(row["lon"])})
+    with centers_path.open(encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle):
+            destinations.append({
+                "destination_id": "center_" + "_".join(fold_text(row["province_name"]).split()),
+                "destination_name": f"Trung tâm {row['province_name']} ({row['center_name']})",
+                "destination_kind": PROVINCE_CENTER_KIND, "province_name": row["province_name"],
+                "lat": float(row["center_lat"]), "lon": float(row["center_lon"]),
+            })
+    ids = [d["destination_id"] for d in destinations]
+    if len(ids) != len(set(ids)):
+        raise ValueError("duplicate destination_id in commute destinations")
+    return destinations
+
+
+def commute_allowed(origin_km: Any, alternative_km: Any) -> bool:
+    """Alternative's commute at most COMMUTE_TOLERANCE_KM longer than the origin's."""
+
+    if origin_km is None or alternative_km is None:
+        return False
+    return float(alternative_km) <= float(origin_km) + COMMUTE_TOLERANCE_KM
+
+
+def commute_efficient_keys(items: Iterable[Mapping[str, Any]]) -> set[Any]:
+    """Keys of districts no other district beats on both commute and cost.
+
+    A district is dominated when another one is at most as far *and* at most as
+    expensive, and strictly better on one of the two.
+    """
+
+    rows = list(items)
+    efficient = set()
+    for item in rows:
+        dominated = any(
+            other["commute_km"] <= item["commute_km"] and other["cost"] <= item["cost"]
+            and (other["commute_km"] < item["commute_km"] or other["cost"] < item["cost"])
+            for other in rows if other is not item
+        )
+        if not dominated:
+            efficient.add(item["key"])
+    return efficient

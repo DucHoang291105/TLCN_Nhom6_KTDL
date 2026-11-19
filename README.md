@@ -43,7 +43,7 @@ Airflow điều phối các bước và kiểm định chất lượng.
 
 Thành phần xử lý chính: Apache Spark 3.5.9, MinIO, Apache Iceberg REST Catalog, PostgreSQL 16, Apache Airflow 3.3.1, Trino và Docker Compose. Snapshot CSV được quản lý bằng Git LFS.
 
-Superset có 4 dashboard: tổng quan thị trường, lựa chọn theo ngân sách (BQ1), vị trí giá trong nhóm tương đồng (BQ2) và khu vực thay thế (BQ3). Dữ liệu đọc từ Gold qua Trino; script kiểm tra lại 29 biểu đồ và đối chiếu KPI.
+Superset có 5 dashboard: tổng quan thị trường, lựa chọn theo ngân sách (BQ1), vị trí giá trong nhóm tương đồng (BQ2), khu vực thay thế theo nơi làm/học (BQ3) và chất lượng dữ liệu. Dữ liệu đọc từ Gold qua Trino; script kiểm tra lại 36 biểu đồ và đối chiếu KPI. Các bản đồ dùng nền OpenStreetMap.
 
 Các bucket:
 
@@ -79,9 +79,10 @@ Dữ liệu historical đặt trong `data/incoming/historical/<nguồn>/`, theo 
 
 ## Kết quả đã kiểm chứng
 
-Dữ liệu tới batch **20261117**, ba nguồn crawl và sáu nguồn historical. Bộ
-nghiệm thu `acceptance_A_20261117_r2` đã PASS trên code và input được đóng
-băng trong suốt lượt chạy; không tạo batch thay thế cho những ngày thiếu.
+Dữ liệu tới batch **20261117**, ba nguồn crawl và sáu nguồn historical. Lượt
+tích hợp ngày **19/11/2026** chạy pipeline cùng bộ dashboard mới; không tạo
+batch thay thế cho những ngày thiếu. Bộ nghiệm thu toàn diện
+`acceptance_A_20261117_r2` là kết quả lịch sử của phiên bản trước khi bổ sung dashboard này.
 
 | Đầu ra | Số dòng | JSON nguồn trong `docs/validation/` |
 |---|---:|---|
@@ -96,18 +97,25 @@ băng trong suốt lượt chạy; không tạo batch thay thế cho những ng�
 | Gold `fact_listing` | 134.660 | `gold_verification.json` |
 | Gold `fact_listing_lifecycle` | 150.017 | `gold_verification.json` |
 | Gold `fact_listing_price_change` | 3.021 | `gold_verification.json` |
-| Gold `fact_listing_price_model` | 128.853 | `gold_verification.json` |
-| Gold `agg_price_model_coefficient` | 971 | `gold_verification.json` |
+| Gold `fact_listing_price_model` | 126.394 | `gold_verification.json` |
+| Gold `agg_price_model_coefficient` | 967 | `gold_verification.json` |
+| Gold `agg_commute_district` | 5.145 | `gold_verification.json` |
+| Gold `agg_commute_substitution` | 12.005 | `gold_verification.json` |
 
-- Nghiệm thu tổng: **66/66 PASS**, `code_unchanged = true`, toàn bộ 54 CSV đầu vào không đổi.
-- Airflow: **24/24 task SUCCESS**, thời gian **14 phút 17.59 giây**.
-- Silver **30/30 PASS**; Gold **113/113 PASS**.
-- Unit tests trong lượt nghiệm thu: **466/466 PASS**, không failure/error/skip.
-- Hai rebuild khớp đủ **30 bảng** về schema, grain, số dòng và SHA256 nội dung.
-- MERGE/SCD2 **11/11**, lifecycle **12/12**, demo Iceberg **6/6**; thử lỗi chặn đúng **23 task downstream**.
-- Trino đối chiếu đúng 30 bảng; **29 biểu đồ** và bộ lọc tỉnh khớp Gold.
+- Airflow: **25/25 task SUCCESS**, thời gian **14 phút 11.37 giây**.
+- Silver **30/30 PASS**; Gold **122/122 PASS**.
+- Unit tests: **499/499 PASS**, không failure/error/skip.
+- Đối chiếu số dòng Spark–Trino, kiểm tra grain và lưu schema/hash nội dung đủ **32 bảng**.
+- Superset: **36 biểu đồ**, **5 dashboard**; kiểm tra KPI, bản đồ và bộ lọc trên trình duyệt thật.
+- Toàn bộ **54 CSV** đầu vào giữ nguyên checksum.
 
-Nguồn: [nghiệm thu tổng](docs/validation/defense_verification.json),
+Lượt tích hợp này chạy một pipeline và lấy fingerprint của 32 bảng; **chưa chạy
+lại bộ nghiệm thu toàn diện gồm hai rebuild và fault probe trên DAG 25 task**.
+Kết quả 66/66, hai rebuild 30 bảng và fault probe 24 task trong các JSON nghiệm
+thu cũ chỉ áp dụng cho phiên bản trước, không chứng nhận lại phiên bản dashboard mới.
+
+Nguồn: [tích hợp dashboard ngày 19/11](docs/validation/dashboard_candidate_verification.json),
+[nghiệm thu toàn diện phiên bản trước](docs/validation/defense_verification.json),
 [Airflow](docs/validation/integration_airflow_run.json),
 [Silver](docs/validation/silver_final_verification.json),
 [Gold](docs/validation/gold_verification.json),
@@ -158,13 +166,15 @@ Chi tiết lệnh và giới hạn vận hành: [Iceberg history](docs/operation
 | `agg_peer_group_benchmark`, `fact_listing_price_assessment` | BQ2: so sánh giá/m² với nhóm listing tương đồng |
 | `fact_listing_price_model`, `agg_price_model_coefficient` | BQ2: mô hình hedonic giải thích giá/m² theo quận, diện tích, số phòng, 5 cờ đặc điểm, khoảng cách tới trung tâm và phường, kết hợp với baseline trung vị nhóm |
 | `agg_area_substitution` | BQ3: khu vực thay thế trong cùng tỉnh với chi phí thấp hơn cho cùng diện tích, không xa trung tâm tỉnh hơn quá 10 km |
+| `agg_commute_district` | BQ3 theo nơi làm/học: mỗi quận × nơi đến (`config/commute_destinations.csv` và trung tâm 34 tỉnh), quãng đường đường chim bay từ tâm quận, chi phí cho cùng diện tích, cờ không bị quận khác vừa gần hơn vừa rẻ hơn |
+| `agg_commute_substitution` | BQ3 theo nơi làm/học: quận rẻ hơn với quãng đường tới nơi đến không xa hơn quá 2 km so với quận đang nhắm |
 | `fact_listing_price_change` | Các sự kiện thay đổi giá đã quan sát |
 | `fact_listing_lifecycle` | Vòng đời quan sát của listing theo từng nguồn |
 | `agg_market_overview`, `agg_dq_kpi` | Tổng quan thị trường và chất lượng dữ liệu |
 
 Silver Current là bản ghi **mới nhất đã quan sát**, không xác nhận listing vẫn còn hiển thị. Cờ vắng hai batch không đồng nghĩa đã bán; `listed_days` là khoảng thời gian quan sát, không phải thời gian tới khi bán. Nguồn historical có trạng thái lifecycle `NOT_APPLICABLE`.
 
-Các nhóm nghi trùng cross-source được gắn cờ theo luật; chưa bảo đảm mỗi nhóm tương ứng đúng một bất động sản thực. BQ2 gồm benchmark mô tả (P25–P75) và mô hình hedonic kết hợp baseline (`hedonic_ols_blend`, tham số tại `config/price_model_blend.json`). Trên tập test dữ liệu tới 17/11, mô hình phủ 96.52% tin đại diện; R² log 0.732 so với 0.672 của baseline, MAE giá/m² thấp hơn 7.42%. Đây là kết quả đánh giá mô hình hiện tại trong [price_model_summary.json](docs/validation/price_model_summary.json); ý nghĩa và tiêu chí nghiệp vụ cần đọc theo [BQ acceptance](docs/business/bq_acceptance_criteria.md). Hệ số thể hiện tương quan trên giá chào bán, không phải tác động nhân quả. Backtest sơ bộ (`src/quality/bq2_backtest.py`, [kết quả](docs/validation/bq2_backtest.json), dữ liệu 22/09–27/10): tin trên P75 lúc mới đăng có tỷ lệ giảm giá 3,26% so với 2,15% của các tin còn lại, vẫn có ý nghĩa sau khi kiểm soát theo nguồn (p = 0,006); phần dư mô hình hedonic chưa cho tín hiệu có ý nghĩa. Với dữ liệu tới 23/10 kết quả H1 chưa đạt (p = 0,08), nên cần thêm batch để khẳng định. Silver Core và Gold vẫn rebuild từ Bronze; riêng `listing_history` cập nhật incremental qua MERGE và bảng state phục hồi được. Bronze tái sử dụng các batch đã hoàn tất.
+Các nhóm nghi trùng cross-source được gắn cờ theo luật; chưa bảo đảm mỗi nhóm tương ứng đúng một bất động sản thực. BQ2 gồm benchmark mô tả (P25–P75) và mô hình hedonic kết hợp baseline (`hedonic_ols_blend`, tham số tại `config/price_model_blend.json`). Trên tập test dữ liệu tới 17/11, mô hình phủ 94.69% tin đại diện; R² log 0.722 so với 0.656 của baseline, MAE giá/m² thấp hơn 7.36%. Đây là kết quả đánh giá mô hình hiện tại trong [price_model_summary.json](docs/validation/price_model_summary.json); ý nghĩa và tiêu chí nghiệp vụ cần đọc theo [BQ acceptance](docs/business/bq_acceptance_criteria.md). Hệ số thể hiện tương quan trên giá chào bán, không phải tác động nhân quả. Backtest sơ bộ (`src/quality/bq2_backtest.py`, [kết quả](docs/validation/bq2_backtest.json), dữ liệu 22/09–27/10): tin trên P75 lúc mới đăng có tỷ lệ giảm giá 3,26% so với 2,15% của các tin còn lại, vẫn có ý nghĩa sau khi kiểm soát theo nguồn (p = 0,006); phần dư mô hình hedonic chưa cho tín hiệu có ý nghĩa. Với dữ liệu tới 23/10 kết quả H1 chưa đạt (p = 0,08), nên cần thêm batch để khẳng định. Silver Core và Gold vẫn rebuild từ Bronze; riêng `listing_history` cập nhật incremental qua MERGE và bảng state phục hồi được. Bronze tái sử dụng các batch đã hoàn tất.
 
 ## Iceberg history và kiểm thử tự động
 
@@ -297,23 +307,23 @@ Sau khi pipeline đã hoàn tất:
 ```
 
 Mở Superset tại http://localhost:8088, đăng nhập bằng tài khoản trong `.env`.
-Dashboard: `/superset/dashboard/tlcn-tong-quan/`, `tlcn-bq1/`, `tlcn-bq2/`, `tlcn-bq3/`.
+Dashboard: `/superset/dashboard/tlcn-tong-quan/`, `tlcn-bq1/`, `tlcn-bq2/`, `tlcn-bq3/`, `tlcn-chat-luong/`.
 Provision chỉ dựng lại tài nguyên do script quản lý; sao lưu cấu hình Superset
 trước khi chạy nếu đã chỉnh sửa dashboard. Biểu đồ truy vấn Gold; phần nhận xét
 đầu trang được tính lúc provision và không tự đổi theo bộ lọc tương tác. Chạy lại
 provision sau batch mới để cập nhật phần nhận xét.
 
-- [Kiểm tra dashboard](docs/validation/superset_dashboard_check.json): 29 biểu đồ và KPI.
+- [Kiểm tra dashboard](docs/validation/superset_dashboard_check.json): 36 biểu đồ và KPI.
 - [Benchmark truy vấn](docs/validation/query_benchmark.json): so sánh thời gian mô tả; truy vấn Gold/Silver không tương đương hoàn toàn nên không xem tỷ lệ thời gian là speedup có kiểm soát.
 - [Kịch bản demo kỹ thuật](docs/demo/kich_ban_demo.md): Airflow, fault gate, lifecycle, Iceberg và Trino.
 - [Kết quả thử thao tác demo](docs/validation/demo_rehearsals.json): hai lượt browser tự động PASS trên dữ liệu đã lưu; có video local không lời thuyết minh.
-- [Hướng dẫn gán nhãn](docs/validation/labeling/README.md): 198 mẫu, hiện chưa có nhãn thủ công nên chưa có accuracy thực nghiệm. Không điền dự đoán làm nhãn thật.
+- [Hướng dẫn gán nhãn](docs/validation/labeling/README.md): 198 mẫu có nhãn AI sơ bộ và một lượt rà soát; **0 mẫu hoàn tất hai lượt rà soát**, trạng thái `PARTIAL`. Các metric so với bộ nhãn hiện tại là kết quả tạm thời, chưa phải nghiệm thu nhãn thủ công độc lập.
 
 `verify_pipeline_dashboard` dùng bằng chứng run tích hợp đã lưu, không tự chứng
 nhận cho batch mới. Khi kiểm chứng một run mới cần export lại trạng thái Airflow,
 chạy lại kiểm định và provision trước khi đọc kết quả này.
 
-Probe trước A3 từng phát hiện hai bảng mô hình cũ; [bằng chứng probe](docs/validation/predata_runtime_compatibility.json) được giữ để truy nguyên. Lần nghiệm thu mới đã rebuild và đối chiếu đúng toàn bộ 30 bảng qua Trino; dùng [kết quả hiện tại](docs/validation/pipeline_dashboard_integration.json) để đánh giá trạng thái đồng bộ.
+Probe trước A3 từng phát hiện hai bảng mô hình cũ; [bằng chứng probe](docs/validation/predata_runtime_compatibility.json) được giữ để truy nguyên. Lượt tích hợp dashboard mới đã rebuild và đối chiếu đúng toàn bộ 32 bảng qua Trino; dùng [kết quả hiện tại](docs/validation/pipeline_dashboard_integration.json) để đánh giá trạng thái đồng bộ.
 
 DAG được giữ paused trong cửa sổ đọc để tránh writer tự động trùng lúc Trino hoạt động. Khi có batch mới, chuyển write mode rồi nộp run theo hướng dẫn ở trên. Tag `v1.1-bao-ve` chỉ tạo sau nghiệm thu dữ liệu chốt và CI trên đúng commit; tag cũ được giữ nguyên.
 

@@ -1,0 +1,715 @@
+{
+  "generated_at": "2026-11-17T17:13:23.167674+00:00",
+  "split_salt": "labeling-split-v1",
+  "rules_after": "listing_feature_rules_v5",
+  "parts": {
+    "dev": {
+      "rows": 122,
+      "before": {
+        "category_accuracy": 0.8525,
+        "legal_precision": 1.0,
+        "legal_recall": 0.5238,
+        "furnished_precision": 1.0,
+        "furnished_recall": 0.8333,
+        "frontage_precision": 0.92,
+        "frontage_recall": 0.8846,
+        "elevator_precision": 1.0,
+        "elevator_recall": 1.0,
+        "car_access_precision": 1.0,
+        "car_access_recall": 0.8667
+      },
+      "after": {
+        "category_accuracy": 0.9016,
+        "legal_precision": 1.0,
+        "legal_recall": 1.0,
+        "furnished_precision": 1.0,
+        "furnished_recall": 1.0,
+        "frontage_precision": 1.0,
+        "frontage_recall": 1.0,
+        "elevator_precision": 1.0,
+        "elevator_recall": 1.0,
+        "car_access_precision": 1.0,
+        "car_access_recall": 1.0
+      },
+      "after_full": null
+    },
+    "test": {
+      "rows": 76,
+      "before": {
+        "category_accuracy": 0.8421,
+        "legal_precision": 1.0,
+        "legal_recall": 0.8667,
+        "furnished_precision": 1.0,
+        "furnished_recall": 0.8571,
+        "frontage_precision": 1.0,
+        "frontage_recall": 0.8571,
+        "elevator_precision": 1.0,
+        "elevator_recall": 1.0,
+        "car_access_precision": 1.0,
+        "car_access_recall": 0.8182
+      },
+      "after": {
+        "category_accuracy": 0.8947,
+        "legal_precision": 1.0,
+        "legal_recall": 1.0,
+        "furnished_precision": 1.0,
+        "furnished_recall": 0.8571,
+        "frontage_precision": 1.0,
+        "frontage_recall": 1.0,
+        "elevator_precision": 1.0,
+        "elevator_recall": 1.0,
+        "car_access_precision": 1.0,
+        "car_access_recall": 1.0
+      },
+      "after_full": null
+    },
+    "all": {
+      "rows": 198,
+      "before": {
+        "category_accuracy": 0.8485,
+        "legal_precision": 1.0,
+        "legal_recall": 0.6667,
+        "furnished_precision": 1.0,
+        "furnished_recall": 0.8462,
+        "frontage_precision": 0.9535,
+        "frontage_recall": 0.8723,
+        "elevator_precision": 1.0,
+        "elevator_recall": 1.0,
+        "car_access_precision": 1.0,
+        "car_access_recall": 0.8462
+      },
+      "after": {
+        "category_accuracy": 0.899,
+        "legal_precision": 1.0,
+        "legal_recall": 1.0,
+        "furnished_precision": 1.0,
+        "furnished_recall": 0.9231,
+        "frontage_precision": 1.0,
+        "frontage_recall": 1.0,
+        "elevator_precision": 1.0,
+        "elevator_recall": 1.0,
+        "car_access_precision": 1.0,
+        "car_access_recall": 1.0
+      },
+      "after_full": {
+        "labelled_rows": 198,
+        "invalid_category_labels": [],
+        "category_accuracy": 0.899,
+        "category_accuracy_by_source": {
+          "alonhadat": {
+            "n": 22,
+            "accuracy": 0.9545
+          },
+          "batdongsan": {
+            "n": 22,
+            "accuracy": 0.9545
+          },
+          "chotot": {
+            "n": 22,
+            "accuracy": 0.8636
+          },
+          "guland": {
+            "n": 22,
+            "accuracy": 0.7727
+          },
+          "homedy": {
+            "n": 22,
+            "accuracy": 0.9091
+          },
+          "luachonnhadat": {
+            "n": 22,
+            "accuracy": 1.0
+          },
+          "mogi": {
+            "n": 22,
+            "accuracy": 0.8182
+          },
+          "muaban": {
+            "n": 22,
+            "accuracy": 0.8182
+          },
+          "nhadatvui": {
+            "n": 22,
+            "accuracy": 1.0
+          }
+        },
+        "category_per_class": {
+          "nha_pho": {
+            "support_true": 113,
+            "labelled": 198,
+            "tp": 109,
+            "fp": 9,
+            "fn": 4,
+            "tn": 76,
+            "precision": 0.9237,
+            "recall": 0.9646,
+            "f1": 0.9437,
+            "accuracy": 0.9343
+          },
+          "can_ho": {
+            "support_true": 31,
+            "labelled": 198,
+            "tp": 26,
+            "fp": 0,
+            "fn": 5,
+            "tn": 167,
+            "precision": 1.0,
+            "recall": 0.8387,
+            "f1": 0.9123,
+            "accuracy": 0.9747
+          },
+          "biet_thu": {
+            "support_true": 9,
+            "labelled": 198,
+            "tp": 7,
+            "fp": 2,
+            "fn": 2,
+            "tn": 187,
+            "precision": 0.7778,
+            "recall": 0.7778,
+            "f1": 0.7778,
+            "accuracy": 0.9798
+          },
+          "dat": {
+            "support_true": 31,
+            "labelled": 198,
+            "tp": 27,
+            "fp": 2,
+            "fn": 4,
+            "tn": 165,
+            "precision": 0.931,
+            "recall": 0.871,
+            "f1": 0.9,
+            "accuracy": 0.9697
+          },
+          "phong_tro_khac": {
+            "support_true": 9,
+            "labelled": 198,
+            "tp": 9,
+            "fp": 2,
+            "fn": 0,
+            "tn": 187,
+            "precision": 0.8182,
+            "recall": 1.0,
+            "f1": 0.9,
+            "accuracy": 0.9899
+          },
+          "khong_ro": {
+            "support_true": 5,
+            "labelled": 198,
+            "tp": 0,
+            "fp": 5,
+            "fn": 5,
+            "tn": 188,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "accuracy": 0.9495
+          }
+        },
+        "category_confusion": {
+          "biet_thu->biet_thu": 7,
+          "biet_thu->dat": 1,
+          "biet_thu->nha_pho": 1,
+          "can_ho->biet_thu": 1,
+          "can_ho->can_ho": 26,
+          "can_ho->khong_ro": 2,
+          "can_ho->nha_pho": 2,
+          "dat->biet_thu": 1,
+          "dat->dat": 27,
+          "dat->khong_ro": 1,
+          "dat->nha_pho": 2,
+          "khong_ro->dat": 1,
+          "khong_ro->nha_pho": 4,
+          "nha_pho->khong_ro": 2,
+          "nha_pho->nha_pho": 109,
+          "nha_pho->phong_tro_khac": 2,
+          "phong_tro_khac->phong_tro_khac": 9
+        },
+        "flags": {
+          "legal": {
+            "support_true": 36,
+            "labelled": 198,
+            "tp": 36,
+            "fp": 0,
+            "fn": 0,
+            "tn": 162,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "accuracy": 1.0
+          },
+          "furnished": {
+            "support_true": 13,
+            "labelled": 198,
+            "tp": 12,
+            "fp": 0,
+            "fn": 1,
+            "tn": 185,
+            "precision": 1.0,
+            "recall": 0.9231,
+            "f1": 0.96,
+            "accuracy": 0.9949
+          },
+          "frontage": {
+            "support_true": 47,
+            "labelled": 196,
+            "tp": 47,
+            "fp": 0,
+            "fn": 0,
+            "tn": 149,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "accuracy": 1.0
+          },
+          "elevator": {
+            "support_true": 3,
+            "labelled": 198,
+            "tp": 3,
+            "fp": 0,
+            "fn": 0,
+            "tn": 195,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "accuracy": 1.0
+          },
+          "car_access": {
+            "support_true": 26,
+            "labelled": 196,
+            "tp": 26,
+            "fp": 0,
+            "fn": 0,
+            "tn": 170,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "accuracy": 1.0
+          }
+        }
+      }
+    }
+  },
+  "changed_predictions": [
+    {
+      "sample_id": "L003",
+      "split": "test",
+      "title": "Bán nhà Cửu Long khu sân bay Tân Bình - Tòa CHDV Hầm 5 tầng - HDT 135tr/tháng",
+      "changes": {
+        "model_category": [
+          "nha_pho",
+          "phong_tro_khac"
+        ]
+      }
+    },
+    {
+      "sample_id": "L006",
+      "split": "dev",
+      "title": "Toà Nhà 32 CHDV Quận 1. ngay Hai Bà Trưng -12 x 17m. 6 lầu- HĐ thuê 150tr - chỉ 3x tỷ",
+      "changes": {
+        "model_category": [
+          "can_ho",
+          "phong_tro_khac"
+        ]
+      }
+    },
+    {
+      "sample_id": "L007",
+      "split": "test",
+      "title": "BÁ.N GẤP KHO XƯỞNG - ĐẤT 1000M² – MÃ LÒ BÌNH TÂN – NGANG 12.5M–XƯỞNG SẴN - GI.Á 49.450 T.Ỷ",
+      "changes": {
+        "model_category": [
+          "dat",
+          "phong_tro_khac"
+        ]
+      }
+    },
+    {
+      "sample_id": "L011",
+      "split": "dev",
+      "title": "BÁN TÒA NHÀ CĂN HỘ DỊCH VỤ QUẬN 11 – 343M² THỔ CƯ – THU NHẬP 150TR/THÁNG",
+      "changes": {
+        "model_category": [
+          "can_ho",
+          "phong_tro_khac"
+        ],
+        "title_has_legal": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L014",
+      "split": "dev",
+      "title": "Mặt Tiền Thụt - 9.25 Tỷ - 67m2 - 4 Tầng Sân Thượng Mới - Lê Quang Định - P14 - Bình Thạnh",
+      "changes": {
+        "model_category": [
+          "dat",
+          "nha_pho"
+        ]
+      }
+    },
+    {
+      "sample_id": "L016",
+      "split": "test",
+      "title": "Đại siêu phẩm góc 3 MT Phạm Văn Đồng - Quận Gò Vấp, DT 40x50m, XD: 3 Hầm 15 tầng",
+      "changes": {
+        "model_category": [
+          "dat",
+          "nha_pho"
+        ]
+      }
+    },
+    {
+      "sample_id": "L028",
+      "split": "dev",
+      "title": "Giá rẻ top 1: Nhà phố LK 126m2 trị trí gần trường học bệnh viện sẵn sổ giá bán nhanh 21.5 tỷ total",
+      "changes": {
+        "title_has_legal": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L030",
+      "split": "dev",
+      "title": "Chuyên chuyển nhượng Masteri giá siêu tốt - bao pháp lý, cho vay 70%. LH: 0906 574 *** Dung zalo",
+      "changes": {
+        "title_has_legal": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L031",
+      "split": "test",
+      "title": "Hoa hậu 7 tầng sau khách sạn Nhật Tân - thang máy - gara ô tô - kinh doanh vừa nhỏ - hơn 8 tỷ",
+      "changes": {
+        "title_has_car_access": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L032",
+      "split": "dev",
+      "title": "Bán siêu phẩm penthouse 700m², duplex 3 tầng, chung cư TSQ - Euroland, nội thất siêu đẹp giá 36 tỷ",
+      "changes": {
+        "title_has_furnished": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L034",
+      "split": "test",
+      "title": "Bán nhà tại khu phố 4, phường Tân Thành, TP. Hồ Chí Minh mới. Diện tích 98m2 (60m2 thổ cư) 1,380 tỷ",
+      "changes": {
+        "title_has_legal": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L043",
+      "split": "test",
+      "title": "Chủ nợ 36 tỷ, cắt lỗ nặng giảm đáy bán tòa CCMN Nguyễn Thị Định 137m2, lô góc, sẵn thu 2.4 tỷ, ô tô",
+      "changes": {
+        "model_category": [
+          "nha_pho",
+          "phong_tro_khac"
+        ],
+        "title_has_car_access": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L044",
+      "split": "dev",
+      "title": "5.X tỷ, 60m2 Lã Côi Yên Viên, mua có sẵn dòng tiền cho thuê xưởng, đường oto thông mặt phố",
+      "changes": {
+        "title_has_frontage": [
+          "True",
+          "false"
+        ]
+      }
+    },
+    {
+      "sample_id": "L045",
+      "split": "dev",
+      "title": "Lô đất bán 6tỷ2 CÒN THƯƠNG LƯỢNG + ĐIỆN NC ĐẦY ĐỦ + THỔ CƯ TOÀN PHẦN",
+      "changes": {
+        "title_has_legal": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L052",
+      "split": "dev",
+      "title": "đất hẻm xa tải rẻ nhất quận gò vấp , 400m2 giá chỉ 76tr/m2 full thổ cư",
+      "changes": {
+        "title_has_legal": [
+          "False",
+          "true"
+        ],
+        "title_has_car_access": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L056",
+      "split": "dev",
+      "title": "BÁN 232M2 ĐẤT MẶT TIỀN BỜ SÔNG SÀI GÒN, GIÁ RẺ NHẤT KHU VỰC: 5,5 TỶ",
+      "changes": {
+        "title_has_frontage": [
+          "True",
+          "false"
+        ]
+      }
+    },
+    {
+      "sample_id": "L060",
+      "split": "dev",
+      "title": "Bán 309m thổ cư 198m (18m x 17m)",
+      "changes": {
+        "title_has_legal": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L062",
+      "split": "dev",
+      "title": "Đất làm nhà vườn (10x41) ngay Củ Chi gần BV Xuyên Á, giá 775tr SHR",
+      "changes": {
+        "model_category": [
+          "dat",
+          "biet_thu"
+        ]
+      }
+    },
+    {
+      "sample_id": "L072",
+      "split": "dev",
+      "title": "Bán CHDV đường số 3,P Tân Kiểng, Quận 7 dt 4x28m, hầm+5 tầng,st",
+      "changes": {
+        "model_category": [
+          "nha_pho",
+          "phong_tro_khac"
+        ]
+      }
+    },
+    {
+      "sample_id": "L073",
+      "split": "dev",
+      "title": "Bán nhà 80m² full thổ cư ngang 5m giá 4.35 tỷ tại Đường Tân Chánh Hiệp 8 Phường Trung Mỹ Tây",
+      "changes": {
+        "title_has_legal": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L075",
+      "split": "dev",
+      "title": "Bán Nhà riêng 82.5m2 có sẵn 82.5 m2 thổ cư giá 5.7 tỷ tại Đường Đông Phước Phường Phước Long Thành phố Nha Trang Khánh Hòa",
+      "changes": {
+        "title_has_legal": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L076",
+      "split": "dev",
+      "title": "CHỈ 4.6 TỶ (TL) – NHÀ PHỐ 2 TẦNG HOÀN CÔNG ĐỦ – HXH LÃ XUÂN OAI – NGAY UBND LONG TRƯỜNG, DỌN VÀO Ở NGAY",
+      "changes": {
+        "title_has_legal": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L083",
+      "split": "test",
+      "title": "🏡 1.490m² full thổ cư, Lê Văn Lương, Nhơn Đức, Nhà Bè. Tặng nhà cấp 4, xe hơi ngủ trong vườn. 💰 27 🧄 Còn TL. 📱 0768 226 634",
+      "changes": {
+        "title_has_legal": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L084",
+      "split": "dev",
+      "title": "Bán Nhà riêng 324 m2 thổ cư giá 12 tỷ tại Phường Tân Phong Quận 7 TP. Hồ Chí Minh",
+      "changes": {
+        "title_has_legal": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L095",
+      "split": "dev",
+      "title": "Bán tòa căn hộ dịch vụ Thảo Điền, khu LBC, 243.7m2 đất, 1 hầm + 6 tầng",
+      "changes": {
+        "model_category": [
+          "can_ho",
+          "phong_tro_khac"
+        ]
+      }
+    },
+    {
+      "sample_id": "L096",
+      "split": "test",
+      "title": "Bán nhà cấp 4 mặt tiền Quốc Hương, 8.6x20m đất, sổ hồng riêng, xây được 7 tầng",
+      "changes": {
+        "model_category": [
+          "dat",
+          "nha_pho"
+        ]
+      }
+    },
+    {
+      "sample_id": "L101",
+      "split": "test",
+      "title": "[Siêu Phẩm CÓ 1 không 2] GÓC 3MT Số 78 đường BA VÂN - Quận Tân Bình - 2.400M2 - Chỉ 379 TỶ",
+      "changes": {
+        "title_has_frontage": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L112",
+      "split": "dev",
+      "title": "Bán nhà khu Tên Lửa, góc 2MT đường Số 11A, DT 6 x 24.5m, NH 10.7m, 3.5 tấm, giá 30 tỷ",
+      "changes": {
+        "title_has_frontage": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L114",
+      "split": "dev",
+      "title": "Bán cặp nhà khu Tên Lửa gần Aeon, MT đường Số 13B, DT 10 x 20m, 3.5 tấm, giá 32 tỷ",
+      "changes": {
+        "title_has_frontage": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L126",
+      "split": "dev",
+      "title": "Bán nhà khu Bình Phú, góc 2MT đường Số 23, DT 15.5 x 20m, 3.5 tấm, giá 55 tỷ",
+      "changes": {
+        "title_has_frontage": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L129",
+      "split": "test",
+      "title": "Bán nhà Chính chủ, hẻm xe hơi 272 Đất Mới, P. Bình Trị Đông, 4 x 19m, 4 tấm, giá 9.9 tỷ",
+      "changes": {
+        "model_category": [
+          "dat",
+          "nha_pho"
+        ]
+      }
+    },
+    {
+      "sample_id": "L133",
+      "split": "test",
+      "title": "Góc 3MT P25 khu D2 nối dài Bình Thạnh",
+      "changes": {
+        "title_has_frontage": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L142",
+      "split": "dev",
+      "title": "Bán đất ngay chung cư C3 man thiện,P hiệp phú, tp thủ đức",
+      "changes": {
+        "model_category": [
+          "can_ho",
+          "dat"
+        ]
+      }
+    },
+    {
+      "sample_id": "L148",
+      "split": "test",
+      "title": "Bán nhà Góc 2MT Bùi Thị Xuân P, Bến Thành Quận 1, dt:4x25m giá 61 tỷ",
+      "changes": {
+        "title_has_frontage": [
+          "False",
+          "true"
+        ]
+      }
+    },
+    {
+      "sample_id": "L153",
+      "split": "dev",
+      "title": "The Sun Avenue – \"Đại lộ Mặt Trời\" Mai Chí Thọ – Giá cực sốc 1ty92",
+      "changes": {
+        "model_category": [
+          "dat",
+          "khong_ro"
+        ]
+      }
+    },
+    {
+      "sample_id": "L161",
+      "split": "dev",
+      "title": "HotChính chủ cần bán nhà mặt tiền đường Lê Bình, Phường Tân Sơn Nhất",
+      "changes": {
+        "model_category": [
+          "dat",
+          "nha_pho"
+        ]
+      }
+    },
+    {
+      "sample_id": "L177",
+      "split": "dev",
+      "title": "Siêu Phẩm ! Vũ Tông Phan, Thanh Xuân - Oto - Thang Máy - Ở Ngay - 55m, 7 Tầng - Nhỉnh 14 Tỷ.",
+      "changes": {
+        "title_has_car_access": [
+          "False",
+          "true"
+        ]
+      }
+    }
+  ]
+}
