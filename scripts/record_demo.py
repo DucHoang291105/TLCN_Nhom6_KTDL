@@ -132,7 +132,10 @@ def main():
                     page.goto('http://localhost:8088/superset/dashboard/tlcn-tong-quan/')
                     print(f'Rehearsal {number}: dashboard and filter', flush=True)
                     page.get_by_text(f'{total:,}', exact=True).wait_for()
-                    chart = page.get_by_text('Tin tập trung ở đâu? Số tin theo tỉnh (10 tỉnh nhiều nhất)', exact=True)
+                    # Titles are generated from data. The overview's first
+                    # canvas visualization is its main map; skip the markdown
+                    # header and KPI cards without matching their titles.
+                    chart = page.locator('.dashboard-component-chart-holder').filter(has=page.locator('canvas')).first
                     chart.scroll_into_view_if_needed()
                     time.sleep(args.hold_seconds)
                     combo = page.get_by_role('combobox', name='NATIVE_FILTER-6eefee667a', exact=True)

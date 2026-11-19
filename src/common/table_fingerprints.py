@@ -49,6 +49,8 @@ GRAINS = {
     "gold.agg_budget_tradeoff": ["price_band_key", "location_key", "property_category_key"],
     "gold.fact_budget_pareto": ["source_id"],
     "gold.agg_area_substitution": ["origin_location_key", "alternative_location_key", "property_category_key", "area_band_key"],
+    "gold.agg_commute_district": ["destination_id", "location_key", "property_category_key", "area_band_key"],
+    "gold.agg_commute_substitution": ["destination_id", "origin_location_key", "alternative_location_key", "property_category_key", "area_band_key"],
     "gold.agg_dq_kpi": ["source_key"],
     "gold.fact_listing_price_change": ["source_id", "version_number"],
     "gold.agg_market_overview": ["province_name", "property_category_key"],

@@ -5,6 +5,7 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 from src.common.atomic_io import write_json_atomic
+from src.common.table_fingerprints import GRAINS
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -38,7 +39,7 @@ def main(output=None):
             actual = int(trino_rows(f"SELECT COUNT(*) FROM iceberg.{layer}.{table}")[0][0])
             counts[f"{layer}.{table}"] = {"expected": expected, "actual": actual}
     # Every table Silver/Gold verification counted (30 before the commute tables).
-    checks["all_trino_counts_match_spark"] = len(counts) >= 30 and all(c["expected"] == c["actual"] for c in counts.values())
+    checks["all_trino_counts_match_spark"] = set(counts) == set(GRAINS) and all(c["expected"] == c["actual"] for c in counts.values())
     api = Superset()
     dashboards = []
     for spec in DASHBOARDS:

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-17T17:39:26.040674+00:00",
+  "generated_at": "2026-11-19T08:26:50.549575+00:00",
   "superset": "http://localhost:8088",
   "database": "Lakehouse Gold (Trino)",
   "datasets": {
@@ -26,9 +26,9 @@
         "hcm_share": 0.6339751273599041,
         "latest_crawl_date": "2026-11-17",
         "hcm_ring": {
-          "outer": 26.509306276389943,
-          "null": 104.75192410637527,
-          "center": 163.873212405359
+          "outer": 26.384943177571177,
+          "center": 164.07154358685767,
+          "null": 105.11182960345103
         },
         "hcm_red_districts": [
           "Q.1",
@@ -169,7 +169,7 @@
   "chart_checks": [
     {
       "chart": "Tin rao bán đang phân tích",
-      "chart_id": 182,
+      "chart_id": 146,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -185,7 +185,7 @@
     },
     {
       "chart": "Tỷ trọng TP.HCM",
-      "chart_id": 183,
+      "chart_id": 147,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -199,7 +199,7 @@
     },
     {
       "chart": "Median giá chào/m² (triệu)",
-      "chart_id": 184,
+      "chart_id": 148,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -213,7 +213,7 @@
     },
     {
       "chart": "Tỉnh/thành có tin",
-      "chart_id": 185,
+      "chart_id": 149,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -227,7 +227,7 @@
     },
     {
       "chart": "TP.HCM: chấm đỏ (> 200 tr/m²) dày ở Q.1, Q.3, Q.10 – 19% tin nhà phố ở mức này",
-      "chart_id": 186,
+      "chart_id": 150,
       "viz": "deck_scatter",
       "status": "success",
       "rows": 15839,
@@ -252,8 +252,8 @@
       ]
     },
     {
-      "chart": "Ra xa trung tâm, giá nhà phố giảm mạnh: 164 tr/m² (< 5 km) → 27 tr/m² (≥ 15 km)",
-      "chart_id": 187,
+      "chart": "Ra xa trung tâm, giá nhà phố giảm mạnh: 164 tr/m² (< 5 km) → 26 tr/m² (≥ 15 km)",
+      "chart_id": 151,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 5,
@@ -262,21 +262,21 @@
       "sample": [
         {
           "vanh_dai": "1. Dưới 5 km",
-          "Median triệu/m²": 164.3874855684636
+          "Median triệu/m²": 163.87932338138828
         },
         {
           "vanh_dai": "2. 5–10 km",
-          "Median triệu/m²": 118.97502002280105
+          "Median triệu/m²": 119.60095737856122
         },
         {
           "vanh_dai": "3. 10–15 km",
-          "Median triệu/m²": 85.92896999659307
+          "Median triệu/m²": 85.95117836486804
         }
       ]
     },
     {
       "chart": "Hà Nội: 77% tin nhà phố trên 200 tr/m², dày nhất ở Q.Cầu Giấy, Q.Thanh Xuân, Q.Đống Đa",
-      "chart_id": 188,
+      "chart_id": 152,
       "viz": "deck_scatter",
       "status": "success",
       "rows": 4027,
@@ -284,25 +284,25 @@
       "match": true,
       "sample": [
         {
-          "lat": 21.083495215,
-          "lon": 105.772511,
-          "muc_gia": "3. 100–200 tr/m²"
-        },
-        {
-          "lat": 21.091726799456,
-          "lon": 105.77206235378,
+          "lat": 21.0240134,
+          "lon": 105.8121135,
           "muc_gia": "4. Trên 200 tr/m²"
         },
         {
-          "lat": 21.038796016613,
-          "lon": 105.81475068833,
+          "lat": 21.081788545,
+          "lon": 105.784200595,
           "muc_gia": "3. 100–200 tr/m²"
+        },
+        {
+          "lat": 21.09234582,
+          "lon": 105.772662625,
+          "muc_gia": "4. Trên 200 tr/m²"
         }
       ]
     },
     {
       "chart": "Nhà phố Hà Nội 273 tr/m², gấp 2,4 lần TP.HCM (115 tr/m²) – median theo tỉnh, nhóm ≥ 30 tin",
-      "chart_id": 189,
+      "chart_id": 153,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 12,
@@ -328,7 +328,7 @@
     },
     {
       "chart": "Tin trong phân khúc",
-      "chart_id": 190,
+      "chart_id": 154,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -344,7 +344,7 @@
     },
     {
       "chart": "Quận đủ dữ liệu (≥ 5 tin)",
-      "chart_id": 191,
+      "chart_id": 155,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -360,7 +360,7 @@
     },
     {
       "chart": "Tin không bị trội",
-      "chart_id": 192,
+      "chart_id": 156,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -374,7 +374,7 @@
     },
     {
       "chart": "Với 3–5 tỷ: Quận 1 được 36 m², Huyện Củ Chi được 168 m² – vòng tròn càng to càng rộng",
-      "chart_id": 193,
+      "chart_id": 157,
       "viz": "deck_scatter",
       "status": "success",
       "rows": 23,
@@ -382,28 +382,28 @@
       "match": true,
       "sample": [
         {
-          "lat": 10.795692445,
-          "lon": 106.649671,
+          "lat": 10.7346625,
+          "lon": 106.6555098,
           "dien_tich_nhan": "1. Dưới 50 m²",
-          "√ median diện tích": 6.48074069840786
+          "√ median diện tích": 6.4031242374328485
         },
         {
-          "lat": 10.968843,
-          "lon": 106.50734,
-          "dien_tich_nhan": "4. Trên 150 m²",
-          "√ median diện tích": 12.96148139681572
-        },
-        {
-          "lat": 10.82986641,
-          "lon": 106.76435208,
+          "lat": 10.7585725,
+          "lon": 106.6095464,
           "dien_tich_nhan": "2. 50–80 m²",
-          "√ median diện tích": 7.615773105863909
+          "√ median diện tích": 7.0710678118654755
+        },
+        {
+          "lat": 10.71558722963361,
+          "lon": 106.5883255,
+          "dien_tich_nhan": "3. 80–150 m²",
+          "√ median diện tích": 9.591663046625438
         }
       ]
     },
     {
       "chart": "Mỗi 10 km xa trung tâm, cùng số tiền được thêm khoảng 36 m² (r = 0,90)",
-      "chart_id": 194,
+      "chart_id": 158,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 26,
@@ -426,7 +426,7 @@
     },
     {
       "chart": "Tin nên xem trước: không có tin cùng quận vừa rẻ hơn vừa không kém (bỏ tin giá/m² lệch > 3 lần median quận)",
-      "chart_id": 195,
+      "chart_id": 159,
       "viz": "table",
       "status": "success",
       "rows": 500,
@@ -444,27 +444,27 @@
         },
         {
           "district_name": "Huyện Bình Chánh",
-          "title": "Mặt tiên Lê Đình Chi- Bình Chánh- 4x22m- Gía 3.xTỷ",
-          "gia_ty": 3.0,
-          "area": 87.0,
-          "gia_m2_tr": 34.48275862068965,
-          "rooms": 2.0,
-          "ad_url": "https://www.chotot.com/133058596"
-        },
-        {
-          "district_name": "Huyện Bình Chánh",
           "title": "Nhà mặt tiền An Hạ, xã Phạm Văn Hai, Bình Chánh dt 112m2 giá 3 tỷ",
           "gia_ty": 3.0,
           "area": 112.0,
           "gia_m2_tr": 26.78571428571429,
           "rooms": null,
           "ad_url": "https://guland.vn/post/nha-mat-tien-an-ha-xa-pham-van-hai-binh-chanh-dt-112m2-gia-3-ty-1423599"
+        },
+        {
+          "district_name": "Huyện Bình Chánh",
+          "title": "Mặt tiên Lê Đình Chi- Bình Chánh- 4x22m- Gía 3.xTỷ",
+          "gia_ty": 3.0,
+          "area": 87.0,
+          "gia_m2_tr": 34.48275862068965,
+          "rooms": 2.0,
+          "ad_url": "https://www.chotot.com/133058596"
         }
       ]
     },
     {
       "chart": "Sai số điển hình của giá ước tính (%)",
-      "chart_id": 196,
+      "chart_id": 160,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -478,7 +478,7 @@
     },
     {
       "chart": "Rao cao hơn ước tính ≥ 30%",
-      "chart_id": 197,
+      "chart_id": 161,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -494,7 +494,7 @@
     },
     {
       "chart": "Rao thấp hơn ước tính ≥ 30%",
-      "chart_id": 198,
+      "chart_id": 162,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -510,7 +510,7 @@
     },
     {
       "chart": "Nhà phố TP.HCM: 25% tin rao cao hơn ước tính ≥ 30% (đỏ), 18% rao thấp hơn ≥ 30% (xanh)",
-      "chart_id": 199,
+      "chart_id": 163,
       "viz": "deck_scatter",
       "status": "success",
       "rows": 15164,
@@ -536,7 +536,7 @@
     },
     {
       "chart": "Quận 1: 41% tin rao cao hơn ước tính ≥ 30% – cao nhất TP.HCM",
-      "chart_id": 200,
+      "chart_id": 164,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 15,
@@ -559,7 +559,7 @@
     },
     {
       "chart": "Mặt tiền +54%, thang máy +31% giá/m²; tiêu đề nêu \"sổ\" đi kèm giá thấp hơn 15% (tin phân khúc rẻ hay nhấn mạnh sổ – tương quan) (KTC 95%, đã kiểm soát vị trí, diện tích, số phòng)",
-      "chart_id": 201,
+      "chart_id": 165,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 5,
@@ -585,7 +585,7 @@
     },
     {
       "chart": "Tra cứu tin: giá chào so với giá ước tính và P25–P75 nhóm tương đồng (bỏ tin lệch > 200%: thường là xếp nhầm loại hình)",
-      "chart_id": 202,
+      "chart_id": 166,
       "viz": "table",
       "status": "success",
       "rows": 1000,
@@ -632,7 +632,7 @@
     },
     {
       "chart": "Quãng đường từ quận đang nhắm (km)",
-      "chart_id": 203,
+      "chart_id": 167,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -646,7 +646,7 @@
     },
     {
       "chart": "Quận rẻ hơn, đường đi tương đương",
-      "chart_id": 204,
+      "chart_id": 168,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -662,7 +662,7 @@
     },
     {
       "chart": "Rẻ hơn nhiều nhất (%)",
-      "chart_id": 205,
+      "chart_id": 169,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -678,7 +678,7 @@
     },
     {
       "chart": "Tiết kiệm tối đa (tỷ đồng)",
-      "chart_id": 206,
+      "chart_id": 170,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -692,7 +692,7 @@
     },
     {
       "chart": "Làm ở Khu công nghệ cao: Thành phố Thủ Đức cách 3,7 km, rẻ hơn 54% so với Quận Phú Nhuận (14,0 km) – chấm đen là nơi làm, xanh là quận đáng cân nhắc",
-      "chart_id": 207,
+      "chart_id": 171,
       "viz": "deck_scatter",
       "status": "success",
       "rows": 23,
@@ -700,16 +700,16 @@
       "match": true,
       "sample": [
         {
-          "lat": 10.94737,
-          "lon": 106.69939914725,
-          "lua_chon": "1. Đáng cân nhắc",
-          "Chi phí (tỷ) + 1": 3.82883064516129
-        },
-        {
           "lat": 10.8621205315355,
           "lon": 106.64272,
           "lua_chon": "2. Có quận vừa gần hơn vừa rẻ hơn",
           "Chi phí (tỷ) + 1": 6.136923076923076
+        },
+        {
+          "lat": 10.748044275,
+          "lon": 106.63272495000001,
+          "lua_chon": "2. Có quận vừa gần hơn vừa rẻ hơn",
+          "Chi phí (tỷ) + 1": 7.840959618874773
         },
         {
           "lat": 10.7585725,
@@ -721,7 +721,7 @@
     },
     {
       "chart": "6 quận rẻ hơn Quận Phú Nhuận mà đường tới Khu công nghệ cao không xa hơn quá 2 km",
-      "chart_id": 208,
+      "chart_id": 172,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 6,
@@ -744,7 +744,7 @@
     },
     {
       "chart": "Mọi quận: quãng đường tới nơi làm/học và chi phí (tỷ đồng) cho cùng diện tích",
-      "chart_id": 209,
+      "chart_id": 173,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 24,
@@ -770,7 +770,7 @@
     },
     {
       "chart": "Tin rao giá điển hình ở các quận thay thế (giá/m² 0,8–1,25× median quận đó)",
-      "chart_id": 210,
+      "chart_id": 174,
       "viz": "table",
       "status": "success",
       "rows": 300,
@@ -780,20 +780,20 @@
         {
           "quan_thay_the": "Thành phố Thủ Đức",
           "quang_duong_km": 3.746,
-          "title": "🚨 GẤP BÁN_ 3.650 TỶ_ 50M2_ CHỈ 70M RA TÔ NGỌC VÂN_ LINH ĐÔNG_ GẦN PHẠM VĂN ĐỒNG",
-          "gia_ty": 3.65,
-          "area": 50.0,
-          "gia_m2_tr": 73.0,
-          "ad_url": "https://guland.vn/post/gap-ban-3650-ty-50m2-chi-70m-ra-to-ngoc-van-linh-dong-gan-pham-van-dong-2157069"
-        },
-        {
-          "quan_thay_the": "Thành phố Thủ Đức",
-          "quang_duong_km": 3.746,
           "title": "GIẢM MẠNH 300TR, CHỈ CÒN 3,65 TỶ SỞ HỮU NHÀ CẤP 4 ĐƯỜNG TÔ NGỌC VÂN, LINH ĐÔNG 50M2 – CÁCH MẶT TIỀN 20M",
           "gia_ty": 3.65,
           "area": 50.0,
           "gia_m2_tr": 73.0,
           "ad_url": "https://guland.vn/post/giam-manh-300tr-chi-con-365-ty-so-huu-nha-cap-4-duong-to-ngoc-van-linh-dong-50m2-cach-mat-tien-20m-2772259"
+        },
+        {
+          "quan_thay_the": "Thành phố Thủ Đức",
+          "quang_duong_km": 3.746,
+          "title": "🚨 GẤP BÁN_ 3.650 TỶ_ 50M2_ CHỈ 70M RA TÔ NGỌC VÂN_ LINH ĐÔNG_ GẦN PHẠM VĂN ĐỒNG",
+          "gia_ty": 3.65,
+          "area": 50.0,
+          "gia_m2_tr": 73.0,
+          "ad_url": "https://guland.vn/post/gap-ban-3650-ty-50m2-chi-70m-ra-to-ngoc-van-linh-dong-gan-pham-van-dong-2157069"
         },
         {
           "quan_thay_the": "Thành phố Thủ Đức",
@@ -808,7 +808,7 @@
     },
     {
       "chart": "Bản ghi đạt PASS",
-      "chart_id": 211,
+      "chart_id": 175,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -824,7 +824,7 @@
     },
     {
       "chart": "Bản ghi bị loại",
-      "chart_id": 212,
+      "chart_id": 176,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -838,7 +838,7 @@
     },
     {
       "chart": "Tin nghi trùng giữa nguồn",
-      "chart_id": 213,
+      "chart_id": 177,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -852,7 +852,7 @@
     },
     {
       "chart": "guland có 69% bản ghi WARN (thiếu/sửa một trường); các nguồn khác ≥ 92% PASS",
-      "chart_id": 214,
+      "chart_id": 178,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 9,
@@ -881,7 +881,7 @@
     },
     {
       "chart": "Tọa độ chỉ có ở 36% tin, pháp lý 16% – bản đồ và khoảng cách dựa trên phần tin có tọa độ",
-      "chart_id": 215,
+      "chart_id": 179,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 9,
@@ -889,20 +889,20 @@
       "match": true,
       "sample": [
         {
-          "source": "muaban",
-          "Giá": 1.0,
-          "Diện tích": 0.991736,
-          "Số phòng": 0.38843,
-          "Tọa độ": 0.0,
-          "Pháp lý": 0.046832
-        },
-        {
           "source": "luachonnhadat",
           "Giá": 1.0,
           "Diện tích": 0.998867,
           "Số phòng": 0.0,
           "Tọa độ": 0.0,
           "Pháp lý": 0.001133
+        },
+        {
+          "source": "muaban",
+          "Giá": 1.0,
+          "Diện tích": 0.991736,
+          "Số phòng": 0.38843,
+          "Tọa độ": 0.0,
+          "Pháp lý": 0.046832
         },
         {
           "source": "mogi",
@@ -916,7 +916,7 @@
     },
     {
       "chart": "Từ dữ liệu crawl tới tin dùng để phân tích (số dòng mỗi tầng)",
-      "chart_id": 216,
+      "chart_id": 180,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 5,
@@ -941,7 +941,7 @@
     },
     {
       "chart": "Nguồn dữ liệu và ngày quan sát mới nhất",
-      "chart_id": 217,
+      "chart_id": 181,
       "viz": "table",
       "status": "success",
       "rows": 9,

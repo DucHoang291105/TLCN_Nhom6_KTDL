@@ -1,0 +1,463 @@
+{
+  "generated_at": "2026-11-19T08:36:17.885690+00:00",
+  "scope": "Dashboard branch integration: one end-to-end DAG, 32-table fingerprint/grain inventory, Spark-Trino counts, real browser rendering/filters and stored-result demo walkthroughs. Not a full defense-suite rerun.",
+  "main_base_commit": "fe4d8d1e584abad5e2c153ef11ee9da0299265d4",
+  "dashboard_branch": "c/dashboard-v2",
+  "dashboard_branch_commit": "b9270b746faf4f4ba77d8c51bf1c76ba12c26aa4",
+  "run_id": "scheduled__2026-11-17T15:00:00+00:00",
+  "batch_id": "20261117",
+  "started_at": "2026-11-19T08:09:18.462975Z",
+  "finished_at": "2026-11-19T08:23:29.833110Z",
+  "elapsed_seconds": 851.370135,
+  "tested_code_sha256": "f4e38ff894cb306ad8d219e9b2783930daae47feed308127128ed646685ced6b",
+  "runtime_baseline_code_sha256": "d6809be2c8f7268c029f679ff70fd1499be07cba22e6efd7df0a671001076eec",
+  "post_start_code_changes": [
+    "scripts/record_demo.py"
+  ],
+  "post_start_code_change_note": "Only the browser demo recorder changed after the DAG started; the changed recorder passed two subsequent browser walkthroughs. Spark, DAG, schema, validation and provisioning code stayed unchanged.",
+  "checks": {
+    "runtime_code_unchanged_after_start": true,
+    "all_input_bytes_unchanged": true,
+    "expected_run_and_batch": true,
+    "all_25_tasks_success": true,
+    "silver_30_checks": true,
+    "gold_122_checks": true,
+    "fingerprints_cover_all_32_tables": true,
+    "table_grains_valid": true,
+    "trino_and_dashboard_integration": true,
+    "all_36_chart_api_checks": true,
+    "five_dashboards_render": true,
+    "osm_tiles_loaded_on_all_map_dashboards": true,
+    "interactive_filters_match_gold": true,
+    "two_browser_demo_walkthroughs": true,
+    "unit_tests": true,
+    "readme_headline_counts_match": true
+  },
+  "unit_tests": {
+    "tests": 499,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "input_csv_files": 54,
+  "input_snapshot_rows": 316241,
+  "fingerprints": {
+    "silver.listing_observation": {
+      "grain": [
+        "source_id",
+        "batch_id"
+      ],
+      "rows": 334820,
+      "distinct_keys": 334820,
+      "content_hash": "7aae9edd5206b9e6f3a73d6c59188fa7432ea25c71345bbc491b467730a2a605",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "silver.listing_dq_quarantine": {
+      "grain": [
+        "bronze_path",
+        "source_id",
+        "batch_id",
+        "record_hash"
+      ],
+      "rows": 664,
+      "distinct_keys": 1,
+      "content_hash": "90c98861c36bc497ab792938314beeeac9f8e0d33c83651f762d011df8c9a69c",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "silver.crawl_current_27": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 119700,
+      "distinct_keys": 119700,
+      "content_hash": "37f2ac8bd269d38cd12091ae5e9db4a4a5c4b86d400e8c018a56ceb9796bf17f",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "silver.historical_current_27": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 30317,
+      "distinct_keys": 30317,
+      "content_hash": "63c6b056da425af0a6c45e93bb93f66b2ed0cd4161b3eaa00aa6954a69b7bcad",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "silver.silver_listings_current_27": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 150017,
+      "distinct_keys": 150017,
+      "content_hash": "ffe6790c56f381184ffc12b9997ec0d9afd899ced5db98348ccc89598ff526f7",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "silver.listing_history": {
+      "grain": [
+        "source_id",
+        "version_number"
+      ],
+      "rows": 167794,
+      "distinct_keys": 167794,
+      "content_hash": "73f281208b86f94345fe5276c2ca674597e11c5e56e1b51b33ecf7fc2eba7e5a",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "silver.listing_history_state": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 150017,
+      "distinct_keys": 150017,
+      "content_hash": "618e79ad01613bdaf6f0f7b9a8ad04474e7272d90cfcffe47017221e9353d868",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "silver.listing_location": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 150017,
+      "distinct_keys": 150017,
+      "content_hash": "3fda81df7700789d215c7c17a45131d4a6239dbde1e46d1812d2b37e294ee17b",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "silver.listing_feature": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 150017,
+      "distinct_keys": 150017,
+      "content_hash": "4263ce117e688885312604ee3f87285f8cc9c37c12599a99fbf24e73ba65aa7a",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.dim_source": {
+      "grain": [
+        "source_key"
+      ],
+      "rows": 10,
+      "distinct_keys": 10,
+      "content_hash": "512dc91d7b7b8f5a8fefb2b051c879c3112be37b098b40f113a99a05593e31c4",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.dim_date": {
+      "grain": [
+        "date_key"
+      ],
+      "rows": 2694,
+      "distinct_keys": 2694,
+      "content_hash": "9ce57f3592d1960076d6f2e36443c7cc386be492d8bb5963d03de1fbf38aafa3",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.dim_location": {
+      "grain": [
+        "location_key"
+      ],
+      "rows": 263,
+      "distinct_keys": 263,
+      "content_hash": "3e0e4f40036fef04f425f064ada2813c96776fee59cad441f75b36247974863b",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.dim_property_category": {
+      "grain": [
+        "property_category_key"
+      ],
+      "rows": 6,
+      "distinct_keys": 6,
+      "content_hash": "f29e522eb8d2a5775bf2a610557e9b6cb5c770a130f1a9ff77ad21b85478ba63",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.dim_price_band": {
+      "grain": [
+        "band_key"
+      ],
+      "rows": 9,
+      "distinct_keys": 9,
+      "content_hash": "a93082f05671da885d431f0f7dd51ee0e72f7877da111e0feb9e7e9d2e767393",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.dim_area_band": {
+      "grain": [
+        "band_key"
+      ],
+      "rows": 7,
+      "distinct_keys": 7,
+      "content_hash": "b3033011bffd6f8f6bbe2b0d0e970ff8e65d32b5796f9737af7f1bbf11d332a0",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.dim_unit_price_band": {
+      "grain": [
+        "band_key"
+      ],
+      "rows": 8,
+      "distinct_keys": 8,
+      "content_hash": "62ca05732e2229d13954de4413c5e1a1a10659bbebfa51aa73d75c7372ed3f54",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.dim_room_band": {
+      "grain": [
+        "band_key"
+      ],
+      "rows": 6,
+      "distinct_keys": 6,
+      "content_hash": "3b5a815361f6204955cc35996adac1474244a2dacd607d678819ea8c191f6fb2",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.dim_dq_status": {
+      "grain": [
+        "dq_status_key"
+      ],
+      "rows": 3,
+      "distinct_keys": 3,
+      "content_hash": "477e7a6b2eb406318a5c633fa2bfc2a60ae73dc18eac78c8735676eafbdff52e",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.fact_listing": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 134660,
+      "distinct_keys": 134660,
+      "content_hash": "5796bc26860b16d26c84772cfcd903b80824cb171cd8d21c018c3ca05163c37b",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.fact_listing_lifecycle": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 150017,
+      "distinct_keys": 150017,
+      "content_hash": "f8af98648708d3230f9fee19ba3aefdd59e9f22eb321fbfa15cefccd5d3e25e8",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.fact_listing_price_model": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 126394,
+      "distinct_keys": 126394,
+      "content_hash": "0209910be50c19ba56a0e86ee2ed82f840fcb01182c3ef38470b4d2b2178b54e",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.agg_price_model_coefficient": {
+      "grain": [
+        "property_category_key",
+        "factor",
+        "level"
+      ],
+      "rows": 967,
+      "distinct_keys": 967,
+      "content_hash": "aa70825b61243b9b2a86c790b5d7e6923f4ecf94f33a2dc49cce758363a81729",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.agg_peer_group_benchmark": {
+      "grain": [
+        "peer_group_id"
+      ],
+      "rows": 2876,
+      "distinct_keys": 2876,
+      "content_hash": "40c9896ebca3f019abf2cb64bc3d48f5ddb4e72253904305077eeaad1e57b837",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.fact_listing_price_assessment": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 133480,
+      "distinct_keys": 133480,
+      "content_hash": "f0f1b8a3487fd109ce9f7491dfbabc56673ab805b7bdcf57f82e0b1f30f6e673",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.agg_budget_tradeoff": {
+      "grain": [
+        "price_band_key",
+        "location_key",
+        "property_category_key"
+      ],
+      "rows": 2652,
+      "distinct_keys": 2652,
+      "content_hash": "7cdce5deb6f8ca6ce02af5a574a104bb94302d006f46291977d1926e76671426",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.fact_budget_pareto": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 129999,
+      "distinct_keys": 129999,
+      "content_hash": "fd9eb9bef86da1aff999946fdbb30610a9055a50d00fc89591857997c0173162",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.agg_area_substitution": {
+      "grain": [
+        "origin_location_key",
+        "alternative_location_key",
+        "property_category_key",
+        "area_band_key"
+      ],
+      "rows": 2740,
+      "distinct_keys": 2740,
+      "content_hash": "09d66818858d923672f84d36cbf4e75572cc204878a877e00a00dcfa01f373d4",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.agg_commute_district": {
+      "grain": [
+        "destination_id",
+        "location_key",
+        "property_category_key",
+        "area_band_key"
+      ],
+      "rows": 5145,
+      "distinct_keys": 5145,
+      "content_hash": "cdd3d3f6f09a0fd04b4051c722a748858450752b62692dc8bf43bb4dce881795",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.agg_commute_substitution": {
+      "grain": [
+        "destination_id",
+        "origin_location_key",
+        "alternative_location_key",
+        "property_category_key",
+        "area_band_key"
+      ],
+      "rows": 12005,
+      "distinct_keys": 12005,
+      "content_hash": "af778358fe663b3f93230db56ad69a2ee89c31a4432c71ce051b01d16d099fa5",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.agg_dq_kpi": {
+      "grain": [
+        "source_key"
+      ],
+      "rows": 9,
+      "distinct_keys": 9,
+      "content_hash": "b8562c3e2f3185b4493e5fc24351fbd46877348fd85ce8beeb9c6b8fba520164",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.fact_listing_price_change": {
+      "grain": [
+        "source_id",
+        "version_number"
+      ],
+      "rows": 3021,
+      "distinct_keys": 3021,
+      "content_hash": "6dbc499d7ebb9f253fab04d27ace5583dcad5c1ba8623d1b426bc790290937ea",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.agg_market_overview": {
+      "grain": [
+        "province_name",
+        "property_category_key"
+      ],
+      "rows": 155,
+      "distinct_keys": 155,
+      "content_hash": "5bb56ea06dd1880aadaa4e8269bc12f43b3bcefcaa4334a7361a90afde0ea880",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    }
+  },
+  "browser": [
+    {
+      "slug": "tlcn-tong-quan",
+      "chart_count": 8,
+      "status": "PASS",
+      "page_errors": [],
+      "successful_osm_tiles": 25
+    },
+    {
+      "slug": "tlcn-bq1",
+      "chart_count": 6,
+      "status": "PASS",
+      "page_errors": [],
+      "successful_osm_tiles": 13
+    },
+    {
+      "slug": "tlcn-bq2",
+      "chart_count": 7,
+      "status": "PASS",
+      "page_errors": [],
+      "successful_osm_tiles": 17
+    },
+    {
+      "slug": "tlcn-bq3",
+      "chart_count": 8,
+      "status": "PASS",
+      "page_errors": [],
+      "successful_osm_tiles": 25
+    },
+    {
+      "slug": "tlcn-chat-luong",
+      "chart_count": 7,
+      "status": "PASS",
+      "page_errors": [],
+      "successful_osm_tiles": 0
+    }
+  ],
+  "interactive_filters": {
+    "generated_at": "2026-11-19T08:33:38.212762+00:00",
+    "checks": {
+      "overview_filter_matches_gold": true,
+      "overview_clear_restores_gold_total": true,
+      "bq3_destination_and_origin_options_match_gold": true,
+      "bq3_selected_distance_matches_gold": true,
+      "filtered_charts_without_error_alerts": true
+    },
+    "overview": {
+      "total": 133480,
+      "ho_chi_minh": 84623
+    },
+    "bq3": {
+      "destination": "Etown Cộng Hòa (Tân Bình)",
+      "origin": "Quận 1",
+      "category": "Nhà phố / nhà riêng",
+      "area_band": "50 - 80 m²",
+      "expected_options": 10,
+      "expected_km": 6.272,
+      "observed_options_card": "Quận rẻ hơn, đường đi tương đương\n4\n10\nxa hơn tối đa 2 km",
+      "observed_distance_card": "Quãng đường từ quận đang nhắm (km)\n4\n6.3\nđường chim bay tới nơi làm/học"
+    },
+    "status": "PASS"
+  },
+  "demo_walkthroughs": {
+    "status": "PASS",
+    "run_id": "scheduled__2026-11-17T15:00:00+00:00",
+    "stored_historical_failure_run": "acceptance_A_20261117_r2_failure_gate",
+    "results": [
+      {
+        "rehearsal": 1,
+        "status": "PASS",
+        "checks": [
+          "bronze_batch_visible",
+          "stored_success_run_visible",
+          "stored_failure_graph_visible",
+          "query_15_rows",
+          "query_5_rows",
+          "province_filter_133480_to_84623"
+        ],
+        "elapsed_seconds": 38.57
+      },
+      {
+        "rehearsal": 2,
+        "status": "PASS",
+        "checks": [
+          "bronze_batch_visible",
+          "stored_success_run_visible",
+          "stored_failure_graph_visible",
+          "query_15_rows",
+          "query_5_rows",
+          "province_filter_133480_to_84623"
+        ],
+        "elapsed_seconds": 33.32
+      }
+    ]
+  },
+  "full_defense_suite_rerun": false,
+  "two_rebuild_determinism_rechecked": false,
+  "new_25_task_fault_probe_run": false,
+  "historical_acceptance_note": "defense_verification.json, deterministic_rebuild.json and airflow_failure_gate.json retain the earlier A acceptance (24 tasks / 30 tables). They do not certify this 25-task / 32-table version.",
+  "manual_labeling": {
+    "sample_rows": 198,
+    "review_1_rows": 198,
+    "review_2_rows": 0,
+    "status": "PARTIAL",
+    "note": "AI preliminary labels with first-pass review; independent two-reviewer acceptance is incomplete."
+  },
+  "operation_mode": "Sequential Spark writes, then Trino/Superset reads; DAG paused while query services run.",
+  "status": "PASS"
+}

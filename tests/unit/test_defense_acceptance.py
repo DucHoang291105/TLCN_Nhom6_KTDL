@@ -25,6 +25,14 @@ def test_full_table_fingerprints_pass_and_quarantine_may_repeat():
     assert all_pass(fingerprint_checks(first, second))
 
 
+@pytest.mark.parametrize("table", ["gold.agg_commute_district", "gold.agg_commute_substitution"])
+def test_commute_tables_are_mandatory_for_release_fingerprints(table):
+    assert table in GRAINS
+    first, second = fingerprints(), fingerprints()
+    second["tables"].pop(table)
+    assert not all_pass(fingerprint_checks(first, second))
+
+
 @pytest.mark.parametrize("case", ["missing_table", "extra_table", "missing_schema", "changed_schema", "bad_hash", "changed_hash", "duplicate_grain", "legacy_hash"])
 def test_release_cannot_accept_partial_or_invalid_fingerprints(case):
     first, second = fingerprints(), fingerprints()
