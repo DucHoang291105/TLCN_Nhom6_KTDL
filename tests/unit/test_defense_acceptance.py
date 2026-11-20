@@ -25,7 +25,9 @@ def test_full_table_fingerprints_pass_and_quarantine_may_repeat():
     assert all_pass(fingerprint_checks(first, second))
 
 
-@pytest.mark.parametrize("table", ["gold.agg_commute_district", "gold.agg_commute_substitution"])
+@pytest.mark.parametrize("table", ["gold.agg_commute_district", "gold.agg_commute_substitution",
+    "gold.ev_budget_curve", "gold.ev_budget_pairs", "gold.ev_reprice",
+    "gold.ev_reprice_examples", "gold.ev_flag_check", "gold.ev_calibration"])
 def test_commute_tables_are_mandatory_for_release_fingerprints(table):
     assert table in GRAINS
     first, second = fingerprints(), fingerprints()

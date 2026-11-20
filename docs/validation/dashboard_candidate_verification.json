@@ -1,46 +1,47 @@
 {
-  "generated_at": "2026-11-19T08:36:17.885690+00:00",
-  "scope": "Dashboard branch integration: one end-to-end DAG, 32-table fingerprint/grain inventory, Spark-Trino counts, real browser rendering/filters and stored-result demo walkthroughs. Not a full defense-suite rerun.",
-  "main_base_commit": "fe4d8d1e584abad5e2c153ef11ee9da0299265d4",
+  "generated_at": "2026-11-20T22:54:45.832809+00:00",
+  "scope": "One full 26-task pipeline, 38-table fingerprint/grain inventory, Spark-Trino counts, 49 chart API checks and real browser checks. This is not a two-rebuild full defense acceptance.",
+  "main_base_commit": "de027ae2d9fd16f67fe5e2215d31d5473e773723",
   "dashboard_branch": "c/dashboard-v2",
-  "dashboard_branch_commit": "b9270b746faf4f4ba77d8c51bf1c76ba12c26aa4",
-  "run_id": "scheduled__2026-11-17T15:00:00+00:00",
+  "dashboard_branch_commit": "4c2f146d049077681353f77bb7d779f488faa588",
+  "run_id": "integration_dashboard_20261121",
   "batch_id": "20261117",
-  "started_at": "2026-11-19T08:09:18.462975Z",
-  "finished_at": "2026-11-19T08:23:29.833110Z",
-  "elapsed_seconds": 851.370135,
-  "tested_code_sha256": "f4e38ff894cb306ad8d219e9b2783930daae47feed308127128ed646685ced6b",
-  "runtime_baseline_code_sha256": "d6809be2c8f7268c029f679ff70fd1499be07cba22e6efd7df0a671001076eec",
-  "post_start_code_changes": [
-    "scripts/record_demo.py"
+  "started_at": "2026-11-20T22:27:44.013205Z",
+  "finished_at": "2026-11-20T22:42:15.347386Z",
+  "tested_code_sha256": "63bead2e8cbcbb88b8a37dd0a1697f98b4bf854a0273841499f0ba551948bc75",
+  "baseline_code_sha256": "22f7ae64e7a48a6046b600269f83a57d434b4d1f2c227115239370c6a7c06106",
+  "post_start_changes": [
+    "scripts/record_demo.py",
+    "src/dashboard/insights.py",
+    "src/dashboard/provision_superset.py"
   ],
-  "post_start_code_change_note": "Only the browser demo recorder changed after the DAG started; the changed recorder passed two subsequent browser walkthroughs. Spark, DAG, schema, validation and provisioning code stayed unchanged.",
+  "change_scope": "Only dashboard wording, finding-card scope and demo UI compatibility were refined after pipeline submission, before provisioning/browser checks. Spark/DAG sources were unchanged.",
   "checks": {
-    "runtime_code_unchanged_after_start": true,
-    "all_input_bytes_unchanged": true,
-    "expected_run_and_batch": true,
-    "all_25_tasks_success": true,
+    "pipeline_sources_unchanged_after_start": true,
+    "all_54_input_csvs_unchanged": true,
+    "correct_run_batch": true,
+    "airflow_26_tasks_success": true,
     "silver_30_checks": true,
-    "gold_122_checks": true,
-    "fingerprints_cover_all_32_tables": true,
+    "gold_138_checks": true,
+    "all_38_tables_fingerprinted": true,
     "table_grains_valid": true,
     "trino_and_dashboard_integration": true,
-    "all_36_chart_api_checks": true,
+    "all_49_chart_api_checks": true,
     "five_dashboards_render": true,
-    "osm_tiles_loaded_on_all_map_dashboards": true,
-    "interactive_filters_match_gold": true,
-    "two_browser_demo_walkthroughs": true,
+    "all_map_dashboards_load_osm_tiles": true,
+    "finding_cards_follow_four_filter_scenarios": true,
+    "two_demo_walkthroughs": true,
+    "missing_input_blocks_25_downstream_tasks": true,
     "unit_tests": true,
-    "readme_headline_counts_match": true
+    "readme_counts_match_saved_results": true
   },
   "unit_tests": {
-    "tests": 499,
+    "tests": 510,
     "failures": 0,
     "errors": 0,
     "skipped": 0
   },
   "input_csv_files": 54,
-  "input_snapshot_rows": 316241,
   "fingerprints": {
     "silver.listing_observation": {
       "grain": [
@@ -350,73 +351,191 @@
       "distinct_keys": 155,
       "content_hash": "5bb56ea06dd1880aadaa4e8269bc12f43b3bcefcaa4334a7361a90afde0ea880",
       "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.ev_budget_curve": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 127469,
+      "distinct_keys": 127469,
+      "content_hash": "37c8920099c23ca4942ed9034503bfc2f018e89901ae03dfe6753f9dc50fd513",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.ev_budget_pairs": {
+      "grain": [
+        "location_key",
+        "price_band_key",
+        "property_category_key"
+      ],
+      "rows": 167,
+      "distinct_keys": 167,
+      "content_hash": "390be8d85f47d84a8e2cc5dde54de926c774d08995705f510c93b9da44462583",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.ev_reprice": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 62595,
+      "distinct_keys": 62595,
+      "content_hash": "e98314e79e4d7016851ddfda4868e7c9d78e84eeb35b4d9b3f04a0c33e60a615",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.ev_reprice_examples": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 570,
+      "distinct_keys": 570,
+      "content_hash": "063328ad8bca18d1ca9ff6b80ca817bbce329a22a6de8b66920348819b322115",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.ev_flag_check": {
+      "grain": [
+        "location_key",
+        "property_category_key",
+        "area_band_key",
+        "dac_diem"
+      ],
+      "rows": 1083,
+      "distinct_keys": 1083,
+      "content_hash": "9b74db54eaf44e68e6257b0aa2ddc26064b5bd682163ac7e5705131910cdbdd2",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
+    },
+    "gold.ev_calibration": {
+      "grain": [
+        "source_id"
+      ],
+      "rows": 24819,
+      "distinct_keys": 24819,
+      "content_hash": "990734b7e86304b1a83431a6b0f4e5afcdd53c14bbaa44d6f8c94bd4ff258865",
+      "hash_method": "sha256_of_sorted_full_row_sha256_multiset_v2"
     }
   },
   "browser": [
     {
       "slug": "tlcn-tong-quan",
-      "chart_count": 8,
+      "charts": 8,
       "status": "PASS",
-      "page_errors": [],
-      "successful_osm_tiles": 25
+      "page_errors": []
     },
     {
       "slug": "tlcn-bq1",
-      "chart_count": 6,
+      "charts": 10,
       "status": "PASS",
-      "page_errors": [],
-      "successful_osm_tiles": 13
+      "page_errors": []
     },
     {
       "slug": "tlcn-bq2",
-      "chart_count": 7,
+      "charts": 12,
       "status": "PASS",
-      "page_errors": [],
-      "successful_osm_tiles": 17
+      "page_errors": []
     },
     {
       "slug": "tlcn-bq3",
-      "chart_count": 8,
+      "charts": 11,
       "status": "PASS",
-      "page_errors": [],
-      "successful_osm_tiles": 25
+      "page_errors": []
     },
     {
       "slug": "tlcn-chat-luong",
-      "chart_count": 7,
+      "charts": 8,
       "status": "PASS",
-      "page_errors": [],
-      "successful_osm_tiles": 0
+      "page_errors": []
     }
   ],
-  "interactive_filters": {
-    "generated_at": "2026-11-19T08:33:38.212762+00:00",
-    "checks": {
-      "overview_filter_matches_gold": true,
-      "overview_clear_restores_gold_total": true,
-      "bq3_destination_and_origin_options_match_gold": true,
-      "bq3_selected_distance_matches_gold": true,
-      "filtered_charts_without_error_alerts": true
-    },
-    "overview": {
-      "total": 133480,
-      "ho_chi_minh": 84623
-    },
-    "bq3": {
-      "destination": "Etown Cộng Hòa (Tân Bình)",
-      "origin": "Quận 1",
-      "category": "Nhà phố / nhà riêng",
-      "area_band": "50 - 80 m²",
-      "expected_options": 10,
-      "expected_km": 6.272,
-      "observed_options_card": "Quận rẻ hơn, đường đi tương đương\n4\n10\nxa hơn tối đa 2 km",
-      "observed_distance_card": "Quãng đường từ quận đang nhắm (km)\n4\n6.3\nđường chim bay tới nơi làm/học"
-    },
+  "interactive_cards": {
+    "generated_at": "2026-11-20T22:50:55.721751+00:00",
+    "cases": [
+      {
+        "slug": "tlcn-tong-quan",
+        "scope": {
+          "province_name": "Hà Nội",
+          "category_label": "Nhà phố / nhà riêng"
+        },
+        "expected": {
+          "so_tin": "12.770",
+          "median_m2": "273"
+        },
+        "observed_card": "Kết luận cho lựa chọn hiện tại\n2\nHà Nội · Nhà phố / nhà riêng – 12.770 tin có giá/m² hợp lệ, median 273 triệu/m²\nTrong 5 km quanh trung tâm: 298 triệu/m²; từ 15 km trở ra: 93 triệu/m² – chênh 3,2 lần.\n77% tin rao trên 200 triệu/m² (chấm đỏ trên bản đồ).\nBản đồ và khoảng cách chỉ dùng tin có tọa độ: 40% số tin ở lựa chọn này.",
+        "checks": {
+          "card_changes": true,
+          "selection_in_card": true,
+          "card_numbers_match_gold": true,
+          "card_no_template_tokens": true,
+          "charts_without_error_alerts": true
+        },
+        "status": "PASS"
+      },
+      {
+        "slug": "tlcn-bq1",
+        "scope": {
+          "province_name": "Đà Nẵng",
+          "category_label": "Nhà phố / nhà riêng",
+          "ngan_sach": "3 - 5 tỷ"
+        },
+        "expected": {
+          "so_tin": "922",
+          "so_quan": 8
+        },
+        "observed_card": "Kết luận cho lựa chọn hiện tại\n3\nĐà Nẵng · Nhà phố / nhà riêng · 3 - 5 tỷ – 922 tin, 8 quận đủ dữ liệu\nCùng số tiền: Quận Hải Châu chỉ được 48 m², Huyện Hòa Vang được 104 m² – gấp 2,2 lần (so các quận ≥ 30 tin).\nMỗi 10 km xa trung tâm, cùng số tiền được thêm khoảng 83 m² (tương quan r = 0,71, giữa các quận).\n82% tin có một tin cùng quận rẻ hơn mà không kém – danh sách nên xem và ví dụ cặp tin ở cuối trang.",
+        "checks": {
+          "card_changes": true,
+          "selection_in_card": true,
+          "card_numbers_match_gold": true,
+          "card_no_template_tokens": true,
+          "charts_without_error_alerts": true
+        },
+        "status": "PASS"
+      },
+      {
+        "slug": "tlcn-bq2",
+        "scope": {
+          "category_label": "Nhà phố / nhà riêng",
+          "province_name": "Hà Nội"
+        },
+        "expected": {
+          "so_tin": "6.723",
+          "ha_gia_tren_p75": "2,0%",
+          "ha_gia_con_lai": "3,0%"
+        },
+        "observed_card": "Kết luận cho lựa chọn hiện tại\n2\nHà Nội · Nhà phố / nhà riêng – 6.723 tin quan sát ≥ 2 lần. Thẻ tổng hợp theo tỉnh và loại hình; bộ lọc quận không áp dụng cho thẻ này.\nGiá đầu tiên đã quan sát so với P75 nhóm hiện tại: nhóm trên P75 có 2,0% hạ giá, còn lại 3,0% → ngược giả thuyết: tin rao cao lại ít hạ giá hơn (z = -2,2, p = 0,031). Đây là mô tả hồi cứu, chưa kiểm soát nguồn và thời gian quan sát.\nGiá ước tính lệch giá thật 23% (trung vị, tin mô hình chưa thấy): chỉ nên kết luận khi lệch ≥ 30%. 26% tin rao cao hơn ước tính ≥ 30%, 14% thấp hơn ≥ 30%.\nMặt tiền: dữ liệu thô +39% giá/m², mô hình (toàn quốc) +54%; đắt hơn ở 98% trong 50 nhóm cùng quận–diện tích.",
+        "checks": {
+          "card_changes": true,
+          "selection_in_card": true,
+          "card_numbers_match_gold": true,
+          "card_no_template_tokens": true,
+          "charts_without_error_alerts": true
+        },
+        "status": "PASS"
+      },
+      {
+        "slug": "tlcn-bq3",
+        "scope": {
+          "noi_den": "Hồ Hoàn Kiếm",
+          "quan_goc": "Quận Cầu Giấy",
+          "category_label": "Nhà phố / nhà riêng",
+          "area_band": "50 - 80 m²"
+        },
+        "expected": {
+          "goc_km": "5,7",
+          "so_quan": 7
+        },
+        "observed_card": "Kết luận cho lựa chọn hiện tại\n4\nLàm/học ở Hồ Hoàn Kiếm, đang nhắm Nhà phố / nhà riêng 50 - 80 m² ở Quận Cầu Giấy (5,7 km)\n7 quận rẻ hơn mà đường đi không xa hơn quá 2 km.\nGần nơi làm nhất: Quận Hai Bà Trưng – 2,9 km, rẻ hơn 36%.\nRẻ nhất: Quận Hoàng Mai – rẻ hơn 41%, 5,7 km; tiết kiệm tối đa khoảng 10,2 tỷ cho cùng diện tích.",
+        "checks": {
+          "card_changes": true,
+          "selection_in_card": true,
+          "card_numbers_match_gold": true,
+          "card_no_template_tokens": true,
+          "charts_without_error_alerts": true
+        },
+        "status": "PASS"
+      }
+    ],
     "status": "PASS"
   },
-  "demo_walkthroughs": {
-    "status": "PASS",
-    "run_id": "scheduled__2026-11-17T15:00:00+00:00",
+  "demo": {
+    "run_id": "integration_dashboard_20261121",
     "stored_historical_failure_run": "acceptance_A_20261117_r2_failure_gate",
     "results": [
       {
@@ -428,9 +547,9 @@
           "stored_failure_graph_visible",
           "query_15_rows",
           "query_5_rows",
-          "province_filter_133480_to_84623"
+          "province_filter_55760_to_13021"
         ],
-        "elapsed_seconds": 38.57
+        "elapsed_seconds": 24.69
       },
       {
         "rehearsal": 2,
@@ -441,23 +560,29 @@
           "stored_failure_graph_visible",
           "query_15_rows",
           "query_5_rows",
-          "province_filter_133480_to_84623"
+          "province_filter_55760_to_13021"
         ],
-        "elapsed_seconds": 33.32
+        "elapsed_seconds": 22.93
       }
     ]
   },
-  "full_defense_suite_rerun": false,
-  "two_rebuild_determinism_rechecked": false,
-  "new_25_task_fault_probe_run": false,
-  "historical_acceptance_note": "defense_verification.json, deterministic_rebuild.json and airflow_failure_gate.json retain the earlier A acceptance (24 tasks / 30 tables). They do not certify this 25-task / 32-table version.",
-  "manual_labeling": {
-    "sample_rows": 198,
-    "review_1_rows": 198,
-    "review_2_rows": 0,
-    "status": "PARTIAL",
-    "note": "AI preliminary labels with first-pass review; independent two-reviewer acceptance is incomplete."
+  "missing_input_gate": {
+    "run_id": "scheduled__2026-11-20T15:00:00+00:00",
+    "batch_id": "20261120",
+    "tasks": 26,
+    "note": "Actual overdue scheduled run lacked the November 20 input; no raw input was deleted or fabricated for this check."
   },
-  "operation_mode": "Sequential Spark writes, then Trino/Superset reads; DAG paused while query services run.",
+  "manual_labeling": {
+    "status": "PARTIAL",
+    "sample_rows": 198,
+    "second_review_complete": 0
+  },
+  "limitations": [
+    "No two-rebuild determinism rerun for these 38 tables.",
+    "Repricing uses first observed price/current area versus current peer quartiles; retrospective, with no source/exposure adjustment.",
+    "Commute distance is straight-line from listing-derived district centroids.",
+    "AI preliminary labels have one review; independent second review is incomplete."
+  ],
+  "operation_mode": "Sequential Spark writing then Trino/Superset reading; DAG paused in query window.",
   "status": "PASS"
 }

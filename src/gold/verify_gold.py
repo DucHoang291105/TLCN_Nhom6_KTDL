@@ -8,6 +8,7 @@ from pyspark.sql import functions as F
 PROJECT_ROOT=Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path: sys.path.insert(0,str(PROJECT_ROOT))
 from src.common.spark_session import build_spark_session,ensure_gold_namespace,ensure_silver_namespace,table_location
+from src.common.table_fingerprints import GRAINS
 from src.gold.gold_rules import COMMUTE_TOLERANCE_KM,MAX_DISTANCE_DIFF_KM,MAX_FLAG_SHARE_GAP,MIN_PEER_GROUP_SIZE,MIN_SUBSTITUTION_SIMILARITY,UNKNOWN_KEY,load_bands
 
 DIMENSIONS={"dim_source":"source_key","dim_date":"date_key","dim_location":"location_key","dim_property_category":"property_category_key","dim_price_band":"band_key","dim_area_band":"band_key","dim_unit_price_band":"band_key","dim_room_band":"band_key","dim_dq_status":"dq_status_key"}
@@ -20,6 +21,7 @@ BQ_GRAINS["fact_listing_price_model"]=["source_id"]
 BQ_GRAINS["agg_price_model_coefficient"]=["property_category_key","factor","level"]
 BQ_GRAINS["agg_commute_district"]=["destination_id","location_key","property_category_key","area_band_key"]
 BQ_GRAINS["agg_commute_substitution"]=["destination_id","origin_location_key","alternative_location_key","property_category_key","area_band_key"]
+BQ_GRAINS.update({name.removeprefix("gold."): grain for name, grain in GRAINS.items() if name.startswith("gold.ev_")})
 BQ_FKS={"date_key":"dim_date","location_key":"dim_location","origin_location_key":"dim_location","alternative_location_key":"dim_location","property_category_key":"dim_property_category","area_band_key":"dim_area_band","room_band_key":"dim_room_band","price_band_key":"dim_price_band","source_key":"dim_source"}
 FACT_FKS={"source_key":"dim_source","date_key":"dim_date","posted_date_key":"dim_date","location_key":"dim_location","property_category_key":"dim_property_category","price_band_key":"dim_price_band","area_band_key":"dim_area_band","unit_price_band_key":"dim_unit_price_band","room_band_key":"dim_room_band","dq_status_key":"dim_dq_status"}
 
@@ -134,6 +136,13 @@ def main() -> None:
     metrics["commute_efficient_label_mismatch"]=cdist.filter("is_commute_efficient").select(*seg,"location_key").intersect(beaten).count()+cdist.filter("NOT is_commute_efficient").select(*seg,"location_key").exceptAll(beaten).count()
     checks["commute_efficient_labels_recomputed"]=metrics["commute_efficient_label_mismatch"]==0
     checks["commute_every_segment_has_efficient_district"]=cdist.groupBy(*seg).agg(F.max(F.col("is_commute_efficient").cast("int")).alias("m")).filter("m<>1").count()==0
+    # BQ evidence tables (build_bq_evidence): the constraints the dashboards state.
+    ev={name:spark.table(f"{gold}.{name}") for name in ("ev_budget_pairs","ev_reprice","ev_calibration","ev_flag_check")}
+    pairs=ev["ev_budget_pairs"]
+    checks["evidence_pairs_constraints"]=pairs.count()>0 and pairs.filter("NOT (gia_b_ty <= 0.9*gia_a_ty + 1e-9 AND dt_b BETWEEN 1.2*dt_a AND 2*dt_a AND phong_b >= phong_a)").count()==0
+    checks["evidence_reprice_one_row_per_listing"]=ev["ev_reprice"].count()==ev["ev_reprice"].select("source_id").distinct().count()>0
+    checks["evidence_calibration_test_deciles"]=ev["ev_calibration"].filter("nhom_gia_uoc_tinh NOT RLIKE '^D(0[1-9]|10)$'").count()==0
+    checks["evidence_flag_groups_min_size"]=ev["ev_flag_check"].filter("n_co < 5 OR n_khong < 5").count()==0
     kpi=bq["agg_dq_kpi"].agg(*[F.sum(c).alias(c) for c in ("bronze_rows","reject_rows","observation_rows","current_rows","fact_rows","representative_rows")]).first()
     quarantine=spark.table(f"{silver}.listing_dq_quarantine").count(); observation=spark.table(f"{silver}.listing_observation").count()
     checks["dq_kpi_matches_silver_and_gold"]=(kpi["reject_rows"]==quarantine and kpi["observation_rows"]==observation and kpi["current_rows"]==current.count() and kpi["fact_rows"]==counts["fact_listing"] and kpi["representative_rows"]==metrics["representative_rows"] and kpi["bronze_rows"]-kpi["reject_rows"]>=kpi["observation_rows"])

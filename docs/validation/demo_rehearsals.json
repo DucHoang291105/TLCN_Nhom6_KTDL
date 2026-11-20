@@ -1,12 +1,20 @@
 {
-  "generated_at": "2026-11-19T08:33:08.077919+00:00",
+  "generated_at": "2026-11-20T22:54:15.770704+00:00",
   "scope": "Automated UI walkthrough, no voice; not an A3 pipeline execution or human presentation rehearsal",
-  "run_id": "scheduled__2026-11-17T15:00:00+00:00",
+  "run_id": "integration_dashboard_20261121",
   "batch_id": "20261117",
   "failure_run_id": "acceptance_A_20261117_r2_failure_gate",
   "expected_kpis": {
-    "total": 133480,
-    "ho_chi_minh": 84623
+    "default_selection": {
+      "province_name": "Hồ Chí Minh",
+      "category_label": "Nhà phố / nhà riêng",
+      "count": 55760
+    },
+    "filtered_selection": {
+      "province_name": "Hà Nội",
+      "category_label": "Nhà phố / nhà riêng",
+      "count": 13021
+    }
   },
   "results": [
     {
@@ -18,12 +26,12 @@
         "stored_failure_graph_visible",
         "query_15_rows",
         "query_5_rows",
-        "province_filter_133480_to_84623"
+        "province_filter_55760_to_13021"
       ],
-      "elapsed_seconds": 38.57,
-      "video": "outputs/c_dashboard_review_20261119/demo/rehearsal_1/page@955e5fd573281c377a921ff95eb3b529.webm",
-      "video_bytes": 3937044,
-      "sha256": "5af2a0198223b180372d41c3beb8b9481ec2740d58e4fa85c3b195c8939e8a4b"
+      "elapsed_seconds": 24.69,
+      "video": "outputs/dashboard_review_20261121/demo-final/rehearsal_1/page@a45174b9c6485236212099d1eb42c1b1.webm",
+      "video_bytes": 2643086,
+      "sha256": "0e882b1cf3041df0b23ce32290f70019e54cf89736cd4af2ffe1737105371a39"
     },
     {
       "rehearsal": 2,
@@ -34,14 +42,14 @@
         "stored_failure_graph_visible",
         "query_15_rows",
         "query_5_rows",
-        "province_filter_133480_to_84623"
+        "province_filter_55760_to_13021"
       ],
-      "elapsed_seconds": 33.32,
-      "video": "outputs/c_dashboard_review_20261119/demo/rehearsal_2/page@7bf25199cb18016d7acb11732c0664a6.webm",
-      "video_bytes": 3287609,
-      "sha256": "408f36a9b9627aa89516288b19288ba2a35668cd61c6c93c3b83ff654283df17"
+      "elapsed_seconds": 22.93,
+      "video": "outputs/dashboard_review_20261121/demo-final/rehearsal_2/page@5411f23df21ef7099531b46209f363a5.webm",
+      "video_bytes": 2557565,
+      "sha256": "c1822bf1a6fad5e215b2b2c3eff06761bbce4d2f8050335f758b5df24c83e0eb"
     }
   ],
   "status": "PASS",
-  "historical_failure_note": "The fault graph is the stored prior 24-task acceptance run; no new 25-task fault probe is claimed."
+  "historical_failure_note": "The demo displays the stored earlier 24-task fault run. The current 26-task missing-input gate is saved separately in dashboard_missing_input_gate.json."
 }

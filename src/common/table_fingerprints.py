@@ -54,6 +54,12 @@ GRAINS = {
     "gold.agg_dq_kpi": ["source_key"],
     "gold.fact_listing_price_change": ["source_id", "version_number"],
     "gold.agg_market_overview": ["province_name", "property_category_key"],
+    "gold.ev_budget_curve": ["source_id"],
+    "gold.ev_budget_pairs": ["location_key", "price_band_key", "property_category_key"],
+    "gold.ev_reprice": ["source_id"],
+    "gold.ev_reprice_examples": ["source_id"],
+    "gold.ev_flag_check": ["location_key", "property_category_key", "area_band_key", "dac_diem"],
+    "gold.ev_calibration": ["source_id"],
 }
 
 # Quarantine preserves every rejected observation, including identical raw rows.
