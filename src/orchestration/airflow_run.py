@@ -78,9 +78,10 @@ def main():
         "schedule": "0 22 * * 2,5", "timezone": "Asia/Ho_Chi_Minh",
         "tasks": [{k: t.get(k) for k in ("task_id", "state", "start_date", "end_date", "duration", "try_number")} for t in tasks]}
     if args.expect_failure:
+        from src.orchestration.pipeline import failure_gate_tasks_valid
         checks = {"run_failed": run["state"] == "failed",
                   "first_task_failed": any(t["task_id"] == "acquisition.prepare_guland" and t["state"] == "failed" for t in tasks),
-                  "all_downstream_blocked": all(t["state"] == "upstream_failed" for t in tasks if t["task_id"] != "acquisition.prepare_guland")}
+                  "all_downstream_blocked": failure_gate_tasks_valid(tasks)}
         payload.update({"expected_failure_probe": True, "checks": checks, "verification_status": "PASS" if all(checks.values()) else "FAIL"})
         if not all(checks.values()):
             raise RuntimeError("Failure-gate probe did not block all downstream tasks")

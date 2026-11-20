@@ -52,6 +52,13 @@ from urllib.parse import urlencode
 
 import requests
 
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+from src.common.atomic_io import write_json_atomic
+from src.ingestion.crawl_runtime import (CrawlBlocked, batch_id, integer_setting,
+    output_directory, page_fingerprint, request_response, validate_nhadatvui_page, write_progress)
+
 
 # ============================================================
 # CONFIG - CHỈNH Ở ĐÂY
@@ -60,25 +67,27 @@ import requests
 BASE_URL = "https://www.nhadatvui.vn/mua-ban-nha-dat"
 
 # Trang bắt đầu
-START_PAGE = 1
+START_PAGE = integer_setting('CRAWL_START_PAGE', 1, maximum=10000)
 
 # Số trang muốn crawl (site có ~16724 tin, limit=18/trang -> cần ~930 trang).
 # Giữ cố định giữa các lần crawl; đổi qua biến môi trường CRAWL_PAGES.
-PAGES_TO_CRAWL = int(os.getenv("CRAWL_PAGES", "200"))
+PAGES_TO_CRAWL = integer_setting('CRAWL_PAGES', 200, maximum=5000)
 
 # Delay cơ bản giữa 2 trang
 # Tăng lên so với bản gốc (2.0) vì crawl liên tục ~900+ trang trong 1 lần
 # chạy có rủi ro bị rate-limit/block cao hơn crawl vài chục trang.
-DELAY_SECONDS = 3.5
+DELAY_SECONDS = float(os.getenv('CRAWL_DELAY_SECONDS', '3.5'))
 
 # Thêm jitter ngẫu nhiên để request không quá đều
 DELAY_JITTER_SECONDS = 1.2
 
 # Timeout
-REQUEST_TIMEOUT = 30
+REQUEST_TIMEOUT = integer_setting('CRAWL_REQUEST_TIMEOUT', 30, maximum=60)
 
 # Retry nếu lỗi mạng / 5xx / 429
-MAX_RETRIES = 3
+MAX_RETRIES = integer_setting('CRAWL_MAX_RETRIES', 3, maximum=5)
+MAX_CONSECUTIVE_FAILURES = integer_setting('CRAWL_MAX_CONSECUTIVE_FAILURES', 2, maximum=5)
+RUN_TIMEOUT_SECONDS = integer_setting('CRAWL_RUN_TIMEOUT_SECONDS', 2100)
 
 # ------------------------------------------------------------
 # RESUME
@@ -115,7 +124,7 @@ RUN_NAME: str | None = None
 RUN_ID = (
     RESUME_RUN_ID
     or RUN_NAME
-    or os.getenv("CRAWL_BATCH_ID", datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%Y%m%d"))
+    or batch_id()
 )
 if not re.fullmatch(r"\d{8}", RUN_ID):
     raise ValueError("Batch id (RESUME_RUN_ID / RUN_NAME / CRAWL_BATCH_ID) must be YYYYMMDD")
@@ -128,14 +137,7 @@ IS_RESUME = RESUME_RUN_ID is not None
 # Vì vậy gửi project cho máy khác vẫn chạy được nếu giữ đúng cấu trúc thư mục.
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
-OUTPUT_DIR = (
-    PROJECT_ROOT
-    / "data"
-    / "incoming"
-    / "snapshots"
-    / "nhadatvui"
-    / RUN_ID
-)
+OUTPUT_DIR = output_directory('nhadatvui', RUN_ID)
 
 PAGES_DIR = OUTPUT_DIR / "pages"
 
@@ -376,98 +378,14 @@ def parse_nhadatvui_result(
 # REQUEST
 # ============================================================
 
-def request_page(
-    page: int,
-) -> tuple[str, str, int]:
-
+def request_page(page: int) -> tuple[str, str, int]:
     url = build_page_url(page)
-
-    last_error: Exception | None = None
-
-    for attempt in range(
-        1,
-        MAX_RETRIES + 1,
-    ):
-        try:
-            response = session.get(
-                url,
-                timeout=REQUEST_TIMEOUT,
-            )
-
-            status = response.status_code
-
-            if status == 403:
-                raise RuntimeError(
-                    f"Page {page}: HTTP 403. "
-                    "Website đang chặn request tự động."
-                )
-
-            if status == 429:
-                wait_seconds = max(
-                    10.0,
-                    DELAY_SECONDS * 4,
-                )
-
-                log(
-                    f"[WARN] Page {page}: HTTP 429. "
-                    f"Chờ {wait_seconds:.1f}s..."
-                )
-
-                time.sleep(wait_seconds)
-                continue
-
-            if status >= 500:
-                raise requests.HTTPError(
-                    f"HTTP {status}"
-                )
-
-            response.raise_for_status()
-
-            # Quan trọng:
-            # ép UTF-8 để tránh lỗi kiểu "BÃ¡n nhÃ ..."
-            response.encoding = "utf-8"
-
-            return (
-                response.text,
-                url,
-                status,
-            )
-
-        except Exception as exc:
-            last_error = exc
-
-            # 403 thì không cố bypass
-            if "403" in str(exc):
-                break
-
-            if attempt < MAX_RETRIES:
-                wait_seconds = (
-                    max(DELAY_SECONDS, 2.0)
-                    * attempt
-                )
-
-                log(
-                    f"[WARN] Page {page}: "
-                    f"lỗi lần {attempt}/{MAX_RETRIES}: "
-                    f"{exc}"
-                )
-
-                log(
-                    f"[WAIT] Retry sau "
-                    f"{wait_seconds:.1f}s..."
-                )
-
-                time.sleep(wait_seconds)
-
-    raise RuntimeError(
-        f"Không lấy được page={page}: "
-        f"{last_error}"
-    )
+    response = request_response(session, url, timeout=REQUEST_TIMEOUT,
+        retries=MAX_RETRIES, delay=DELAY_SECONDS)
+    response.encoding = 'utf-8'
+    return response.text, url, response.status_code
 
 
-# ============================================================
-# RAW RECORD
-# ============================================================
 
 def enrich_raw_record(
     record: dict,
@@ -852,7 +770,7 @@ def load_existing_listing_ids() -> set[str]:
 # MAIN
 # ============================================================
 
-def main() -> None:
+def main() -> int:
     # A new run never overwrites a finished batch; a resume continues it.
     if CSV_PATH.exists() and not IS_RESUME:
         raise FileExistsError(f"Existing batch is preserved: {CSV_PATH}")
@@ -922,6 +840,14 @@ def main() -> None:
     )
 
     stop_reason = "requested range completed"
+    end_of_listing = False
+    consecutive = 0
+    fingerprints = set()
+    started = time.monotonic()
+    previous_completed = []
+    if IS_RESUME and SUMMARY_PATH.exists():
+        previous_completed = json.loads(SUMMARY_PATH.read_text(encoding='utf-8')).get('completed_pages', [])
+    write_progress(SUMMARY_PATH, 'nhadatvui', RUN_ID, previous_completed, existing_rows)
 
     # Toàn bộ vòng crawl bọc trong try/finally để summary luôn
     # được ghi ra, kể cả khi có lỗi bất ngờ (vd: hết dung lượng
@@ -932,6 +858,9 @@ def main() -> None:
             START_PAGE,
             last_page + 1,
         ):
+            if time.monotonic() - started >= RUN_TIMEOUT_SECONDS:
+                stop_reason = 'run time budget exceeded'
+                break
             log("")
 
             # ----- RESUME: bỏ qua page đã crawl xong -----
@@ -960,6 +889,7 @@ def main() -> None:
                     response_text
                 )
 
+                at_end = validate_nhadatvui_page(result, page)
                 raw_records = safe_list(
                     result.get("data")
                 )
@@ -985,6 +915,14 @@ def main() -> None:
                     if isinstance(record, dict)
                 ]
 
+                if records:
+                    fingerprint = page_fingerprint(records)
+                    if fingerprint in fingerprints:
+                        stop_reason = 'repeated listing page'
+                        failed_pages.append({'page':page, 'error':stop_reason})
+                        break
+                    fingerprints.add(fingerprint)
+                consecutive = 0
                 duplicate_count = 0
 
                 for record in records:
@@ -1032,7 +970,9 @@ def main() -> None:
                 )
 
                 # Hết data
+                write_progress(SUMMARY_PATH, 'nhadatvui', RUN_ID, sorted(set(previous_completed + completed_pages)), existing_rows + total_records)
                 if len(records) == 0:
+                    end_of_listing = at_end
                     stop_reason = "empty page (no more listings)"
                     log("[STOP] Trang không còn listing.")
                     break
@@ -1046,6 +986,7 @@ def main() -> None:
                     and isinstance(total, int)
                     and skip + count >= total
                 ):
+                    end_of_listing = at_end
                     stop_reason = "reached end of listing (skip+count>=total)"
                     log("[STOP] Đã tới cuối danh sách.")
                     break
@@ -1068,12 +1009,16 @@ def main() -> None:
                 )
 
                 # 403 thì dừng, không cố bypass.
-                if "403" in str(exc):
-                    stop_reason = "blocked by site (HTTP 403)"
+                consecutive += 1
+                if isinstance(exc, CrawlBlocked):
+                    stop_reason = "blocked or rate limited by site"
                     log(
                         "[STOP] Website đang chặn "
                         "request tự động."
                     )
+                    break
+                if consecutive >= MAX_CONSECUTIVE_FAILURES:
+                    stop_reason = 'consecutive failure limit reached'
                     break
 
             if (
@@ -1106,8 +1051,9 @@ def main() -> None:
         # ====================================================
 
         summary = {
+            'crawl_contract_version': 1,
             "records_written": existing_rows + total_records,
-            "status": "PASS" if not failed_pages and stop_reason in {
+            "status": "PASS" if existing_rows + total_records > 0 and not failed_pages and stop_reason in {
                 "requested range completed", "empty page (no more listings)",
                 "reached end of listing (skip+count>=total)"} else "FAIL",
             "source":
@@ -1121,6 +1067,9 @@ def main() -> None:
 
             "is_resume":
                 IS_RESUME,
+            "end_of_listing": end_of_listing,
+            "elapsed_seconds": round(time.monotonic() - started, 2),
+            "max_consecutive_failures": MAX_CONSECUTIVE_FAILURES,
 
             "started_page":
                 START_PAGE,
@@ -1173,20 +1122,7 @@ def main() -> None:
             ),
         }
 
-        try:
-            with SUMMARY_PATH.open(
-                "w",
-                encoding="utf-8",
-            ) as file:
-
-                json.dump(
-                    summary,
-                    file,
-                    ensure_ascii=False,
-                    indent=2,
-                )
-        except Exception as exc:
-            log(f"[ERROR] Không ghi được summary: {exc}")
+        write_json_atomic(SUMMARY_PATH, summary)
 
         log("")
         log("=" * 76)
@@ -1215,5 +1151,8 @@ def main() -> None:
             )
 
 
+    return 0 if summary['status'] == 'PASS' else 1
+
+
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

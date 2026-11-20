@@ -1,4 +1,5 @@
 # Host-side dashboard and Trino tools; Spark/Airflow use Docker images.
 requests>=2.32,<3
+beautifulsoup4>=4.13,<5
 trino>=0.330,<1
 tzdata>=2025.2

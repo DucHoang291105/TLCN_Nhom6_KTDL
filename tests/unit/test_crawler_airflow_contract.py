@@ -1,5 +1,6 @@
 import csv
 import json
+from pathlib import Path
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import pytest
@@ -21,25 +22,36 @@ def configured_crawler(tmp_path, monkeypatch, interrupted=False):
         return "fixture", "https://example.test/listings", 200
     monkeypatch.setattr(crawler, "request_page", request_page)
     monkeypatch.setattr(crawler, "parse_nhadatvui_result", lambda text: {"data": [{"_id": "fixture1"}], "total": 100, "skip": 0, "count": 1})
-    monkeypatch.setattr(crawler, "to_csv_record", lambda row: {"listing_id": row["_id"]})
+    monkeypatch.setattr(crawler, "to_csv_record", lambda row: {"listing_id": row["_id"], 'title':'Fixture', '_scraped_at':row['_scraped_at']})
     monkeypatch.setattr(crawler, "setup_logging", lambda: None)
     monkeypatch.setattr(crawler, "log", lambda message: None)
     monkeypatch.setattr(pipeline, "PROJECT_ROOT", tmp_path)
-    monkeypatch.setattr(pipeline.subprocess, "run", lambda *args, **kwargs: crawler.main())
+    monkeypatch.setenv('NHADATVUI_CRAWL_PAGES', str(crawler.PAGES_TO_CRAWL))
+    def worker(*args, **kwargs):
+        stage = Path(kwargs['env']['CRAWL_OUTPUT_DIR'])
+        for key, value in {'OUTPUT_DIR':stage, 'PAGES_DIR':stage/'pages',
+            'CSV_PATH':stage/'nhadatvui_raw.csv', 'JSONL_PATH':stage/'nhadatvui_raw.jsonl',
+            'SUMMARY_PATH':stage/'crawl_summary.json'}.items():
+            monkeypatch.setattr(crawler,key,value)
+        return crawler.main()
+    monkeypatch.setattr(pipeline.subprocess, "run", worker)
     return crawler, batch
 
 
 def test_new_batch_crawler_matches_airflow_contract(tmp_path, monkeypatch):
     crawler, batch = configured_crawler(tmp_path, monkeypatch)
     pipeline.prepare_web_source("nhadatvui", batch)
-    summary = json.loads(crawler.SUMMARY_PATH.read_text())
+    published = pipeline.snapshot_path('nhadatvui', batch)
+    summary = json.loads((published.parent/'crawl_summary.json').read_text())
     assert summary["status"] == "PASS"
     assert summary["records_written"] == summary["records_written_this_run"] == 1
-    with crawler.CSV_PATH.open(encoding="utf-8-sig", newline="") as handle:
+    with published.open(encoding="utf-8-sig", newline="") as handle:
         assert len(list(csv.DictReader(handle))) == 1
-    before = crawler.CSV_PATH.read_bytes()
+    before = published.read_bytes()
     pipeline.prepare_web_source("nhadatvui", batch)
-    assert crawler.CSV_PATH.read_bytes() == before
+    assert published.read_bytes() == before
+    assert summary['csv_sha256'] == pipeline.csv_checksum(published)
+    monkeypatch.setattr(crawler,'CSV_PATH',published)
     with pytest.raises(FileExistsError):
         crawler.main()
 
@@ -51,7 +63,8 @@ def test_interrupted_partial_crawl_cannot_pass_airflow(tmp_path, monkeypatch):
     summary = json.loads(crawler.SUMMARY_PATH.read_text())
     assert summary["records_written"] == 1
     assert summary["status"] == "FAIL" and not summary["failed_pages"]
-    with pytest.raises(RuntimeError, match="incomplete"):
+    assert not pipeline.snapshot_path('nhadatvui',batch).exists()
+    with pytest.raises(RuntimeError, match="[Ii]ncomplete"):
         pipeline.prepare_web_source("nhadatvui", batch)
 
 

@@ -11,6 +11,7 @@ import csv
 import json
 import os
 import re
+import sys
 import time
 from datetime import datetime, timezone
 from html import unescape
@@ -21,27 +22,36 @@ from urllib.parse import unquote, urljoin
 import requests
 from bs4 import BeautifulSoup
 
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+from src.common.atomic_io import write_json_atomic
+from src.ingestion.crawl_runtime import (CrawlBlocked, batch_id, integer_setting,
+    output_directory, page_fingerprint, request_response, write_progress)
+
 # ============================================================
 # CONFIG - CHỈNH Ở ĐÂY
 # ============================================================
 
 BASE_URL = "https://guland.vn/mua-ban-nha-mat-pho-mat-tien"
-START_PAGE = 1
+START_PAGE = integer_setting('CRAWL_START_PAGE', 1, maximum=10000)
 
 # Muốn crawl bao nhiêu page thì sửa số này.
-PAGES_TO_CRAWL = int(os.getenv("CRAWL_PAGES", "200"))
+PAGES_TO_CRAWL = integer_setting('CRAWL_PAGES', 20, maximum=5000)
 
 # Delay giữa 2 request, đơn vị giây.
-DELAY_SECONDS = 2.0
+DELAY_SECONDS = float(os.getenv('CRAWL_DELAY_SECONDS', '2'))
 
-REQUEST_TIMEOUT = 200
-MAX_RETRIES = 3
+REQUEST_TIMEOUT = integer_setting('CRAWL_REQUEST_TIMEOUT', 30, maximum=60)
+MAX_RETRIES = integer_setting('CRAWL_MAX_RETRIES', 3, maximum=5)
+MAX_CONSECUTIVE_FAILURES = integer_setting('CRAWL_MAX_CONSECUTIVE_FAILURES', 2, maximum=5)
+RUN_TIMEOUT_SECONDS = integer_setting('CRAWL_RUN_TIMEOUT_SECONDS', 2100)
 
 # ============================================================
 # OUTPUT
 # ============================================================
 
-RUN_ID = os.getenv("CRAWL_BATCH_ID", datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%Y%m%d"))
+RUN_ID = batch_id()
 if not re.fullmatch(r"\d{8}", RUN_ID):
     raise ValueError("CRAWL_BATCH_ID must be YYYYMMDD")
 
@@ -52,14 +62,7 @@ if not re.fullmatch(r"\d{8}", RUN_ID):
 # Vì vậy gửi project cho máy khác vẫn chạy được nếu giữ đúng cấu trúc thư mục.
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
-OUTPUT_DIR = (
-    PROJECT_ROOT
-    / "data"
-    / "incoming"
-    / "snapshots"
-    / "guland"
-    / RUN_ID
-)
+OUTPUT_DIR = output_directory('guland', RUN_ID)
 
 PAGES_DIR = OUTPUT_DIR / "pages"
 JSONL_PATH = OUTPUT_DIR / "guland_raw.jsonl"
@@ -113,44 +116,20 @@ def get_xhr_headers() -> dict[str, str]:
 
 
 def bootstrap_session() -> None:
-    print("[BOOTSTRAP] Mở trang Guland để lấy cookie/session...")
-    response = session.get(BASE_URL, timeout=REQUEST_TIMEOUT)
-    response.raise_for_status()
-    print(f"[BOOTSTRAP] OK | status={response.status_code} | cookies={len(session.cookies)}")
+    response = request_response(session, BASE_URL, timeout=REQUEST_TIMEOUT,
+                                retries=MAX_RETRIES, delay=DELAY_SECONDS)
+    print(f"[BOOTSTRAP] HTTP {response.status_code}; cookies={len(session.cookies)}", flush=True)
 
 
 def request_page(page: int) -> dict:
-    last_error = None
-
-    for attempt in range(1, MAX_RETRIES + 1):
-        try:
-            response = session.get(
-                BASE_URL,
-                params={"page": page},
-                headers=get_xhr_headers(),
-                timeout=REQUEST_TIMEOUT,
-            )
-
-            if response.status_code == 429:
-                wait_seconds = max(DELAY_SECONDS * 3, 10)
-                print(f"[WARN] Page {page}: HTTP 429. Chờ {wait_seconds:.1f}s rồi thử lại...")
-                time.sleep(wait_seconds)
-                continue
-
-            response.raise_for_status()
-            return response.json()
-
-        except (requests.RequestException, ValueError) as exc:
-            last_error = exc
-            if attempt < MAX_RETRIES:
-                wait_seconds = max(DELAY_SECONDS, 2) * attempt
-                print(f"[WARN] Page {page}: lỗi lần {attempt}/{MAX_RETRIES}: {exc}")
-                print(f"[WARN] Chờ {wait_seconds:.1f}s rồi thử lại...")
-                time.sleep(wait_seconds)
-
-    raise RuntimeError(
-        f"Không lấy được page={page} sau {MAX_RETRIES} lần thử: {last_error}"
-    )
+    response = request_response(session, BASE_URL, params={"page": page},
+        headers=get_xhr_headers, timeout=REQUEST_TIMEOUT, retries=MAX_RETRIES, delay=DELAY_SECONDS)
+    payload = response.json()
+    if not isinstance(payload, dict) or not isinstance(payload.get('data'), str):
+        raise ValueError('Unexpected Guland payload: HTML listing data is missing')
+    if 'has_more' in payload and type(payload['has_more']) is not bool:
+        raise ValueError('Invalid Guland has_more flag')
+    return payload
 
 
 def extract_lat_lon(card) -> tuple[str | None, str | None]:
@@ -346,101 +325,81 @@ def append_csv(records: list[dict], header_written: bool) -> bool:
     return True
 
 
-def main() -> None:
+def main() -> int:
     if CSV_PATH.exists():
         raise FileExistsError(f"Existing batch is preserved: {CSV_PATH}")
-    if PAGES_TO_CRAWL <= 0:
-        raise ValueError("PAGES_TO_CRAWL phải lớn hơn 0.")
-    if DELAY_SECONDS < 0:
-        raise ValueError("DELAY_SECONDS không được âm.")
-
+    if PAGES_TO_CRAWL <= 0 or DELAY_SECONDS < 0:
+        raise ValueError('Pages must be positive and delay non-negative')
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     PAGES_DIR.mkdir(parents=True, exist_ok=True)
-
-    print("=" * 72)
-    print("GULAND RAW CRAWLER")
-    print("=" * 72)
-    print(f"URL           : {BASE_URL}")
-    print(f"Start page    : {START_PAGE}")
-    print(f"Pages         : {PAGES_TO_CRAWL}")
-    print(f"Delay         : {DELAY_SECONDS} giây")
-    print(f"Output        : {OUTPUT_DIR}")
-    print("=" * 72)
-
-    bootstrap_session()
-
-    total_records = 0
-    completed_pages = []
-    failed_pages = []
+    completed, failed, fingerprints = [], [], set()
+    total_records, consecutive = 0, 0
     header_written = False
-
-    last_page = START_PAGE + PAGES_TO_CRAWL - 1
-
-    for page in range(START_PAGE, last_page + 1):
-        print(f"\n[PAGE {page}] Đang crawl...")
-
-        try:
-            payload = request_page(page)
-            save_page_response(page, payload)
-
-            html = payload.get("data", "") or ""
-            records = parse_page_html(html, page)
-
-            append_jsonl(records)
-            header_written = append_csv(records, header_written)
-
-            total_records += len(records)
-            completed_pages.append(page)
-
-            print(
-                f"[PAGE {page}] records={len(records)} "
-                f"| total_site={payload.get('total')} "
-                f"| has_more={payload.get('has_more')}"
-            )
-
-            if payload.get("has_more") is False:
-                print(f"[STOP] Guland báo has_more=false tại page={page}.")
+    started = time.monotonic()
+    stop_reason = 'requested page limit reached'
+    end_of_listing = False
+    write_progress(SUMMARY_PATH, 'guland', RUN_ID, completed, total_records)
+    try:
+        bootstrap_session()
+        for page in range(START_PAGE, START_PAGE + PAGES_TO_CRAWL):
+            if time.monotonic() - started >= RUN_TIMEOUT_SECONDS:
+                stop_reason = 'run time budget exceeded'
                 break
+            try:
+                payload = request_page(page)
+                save_page_response(page, payload)
+                records = parse_page_html(payload['data'], page)
+                at_end = payload.get('has_more') is False
+                if not records and (not at_end or not total_records):
+                    raise ValueError('Empty/unparseable listing page before a verified end')
+                if records:
+                    fingerprint = page_fingerprint(records)
+                    if fingerprint in fingerprints:
+                        stop_reason = 'repeated listing page'
+                        failed.append({'page':page, 'error':stop_reason})
+                        break
+                    fingerprints.add(fingerprint)
+                append_jsonl(records)
+                header_written = append_csv(records, header_written)
+                total_records += len(records)
+                completed.append(page)
+                consecutive = 0
+                write_progress(SUMMARY_PATH, 'guland', RUN_ID, completed, total_records)
+                print(f'[PAGE {page}] records={len(records)}; total={total_records}; has_more={payload.get("has_more")}', flush=True)
+                if at_end:
+                    end_of_listing = True
+                    stop_reason = 'verified end of listing'
+                    break
+            except Exception as exc:
+                failed.append({'page':page, 'error':str(exc)})
+                consecutive += 1
+                print(f'[ERROR] Page {page}: {exc}', flush=True)
+                if isinstance(exc, CrawlBlocked):
+                    stop_reason = 'blocked or rate limited by site'
+                    break
+                if consecutive >= MAX_CONSECUTIVE_FAILURES:
+                    stop_reason = 'consecutive failure limit reached'
+                    break
+            if page < START_PAGE + PAGES_TO_CRAWL - 1 and DELAY_SECONDS:
+                time.sleep(DELAY_SECONDS)
+    except KeyboardInterrupt:
+        stop_reason = 'interrupted'
+    except Exception as exc:
+        stop_reason = 'bootstrap or unexpected error'
+        failed.append({'page':START_PAGE, 'error':str(exc)})
+    finally:
+        status = 'PASS' if total_records > 0 and not failed and stop_reason in (
+            'requested page limit reached', 'verified end of listing') else 'FAIL'
+        summary = {'crawl_contract_version':1,'source':'guland','base_url':BASE_URL,'run_id':RUN_ID,'status':status,
+            'start_page':START_PAGE,'requested_pages':PAGES_TO_CRAWL,'completed_pages':completed,
+            'failed_pages':failed,'records_written':total_records,'stop_reason':stop_reason,
+            'end_of_listing':end_of_listing,'max_consecutive_failures':MAX_CONSECUTIVE_FAILURES,
+            'elapsed_seconds':round(time.monotonic()-started,2),'finished_at':now_iso(),
+            'output_jsonl':str(JSONL_PATH),'output_csv':str(CSV_PATH),'pages_dir':str(PAGES_DIR)}
+        write_json_atomic(SUMMARY_PATH, summary)
+        print(f'[DONE] status={status}; records={total_records}; reason={stop_reason}', flush=True)
+    return 0 if status == 'PASS' else 1
 
-        except Exception as exc:
-            failed_pages.append({"page": page, "error": str(exc)})
-            print(f"[ERROR] Page {page}: {exc}")
 
-        if page < last_page and DELAY_SECONDS > 0:
-            print(f"[WAIT] {DELAY_SECONDS} giây...")
-            time.sleep(DELAY_SECONDS)
-
-    summary = {
-        "source": "guland",
-        "base_url": BASE_URL,
-        "run_id": RUN_ID,
-        "start_page": START_PAGE,
-        "requested_pages": PAGES_TO_CRAWL,
-        "completed_pages": completed_pages,
-        "failed_pages": failed_pages,
-        "records_written": total_records,
-        "delay_seconds": DELAY_SECONDS,
-        "finished_at": now_iso(),
-        "output_jsonl": str(JSONL_PATH),
-        "output_csv": str(CSV_PATH),
-        "pages_dir": str(PAGES_DIR),
-    }
-
-    with SUMMARY_PATH.open("w", encoding="utf-8") as file:
-        json.dump(summary, file, ensure_ascii=False, indent=2)
-
-    print("\n" + "=" * 72)
-    print("DONE")
-    print("=" * 72)
-    print(f"Pages OK      : {len(completed_pages)}")
-    print(f"Pages failed  : {len(failed_pages)}")
-    print(f"Records       : {total_records}")
-    print(f"JSONL         : {JSONL_PATH}")
-    print(f"CSV           : {CSV_PATH}")
-    print(f"Raw pages     : {PAGES_DIR}")
-    print(f"Summary       : {SUMMARY_PATH}")
-    print("=" * 72)
-
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    raise SystemExit(main())

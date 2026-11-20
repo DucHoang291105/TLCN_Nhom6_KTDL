@@ -1,9 +1,12 @@
 """Run Spark in the existing Docker cluster and propagate failures to Airflow."""
 from __future__ import annotations
 import json
+import csv
+import hashlib
 import os
 import subprocess
 import sys
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -33,6 +36,18 @@ ACQUISITION_TASKS = ("prepare_guland", "prepare_nhadatvui", "wait_batdongsan_csv
 DAG_TASK_COUNT = len(ACQUISITION_TASKS) + sum(len(jobs) for jobs in STAGES.values()) + 1
 
 
+def failure_gate_tasks_valid(tasks):
+    """A failed Guland probe blocks processing; the other crawler may finish."""
+    expected = {f'acquisition.{t}' for t in ACQUISITION_TASKS} | {'publish_evidence'}
+    expected.update(f'{group}.{name}' for group,jobs in STAGES.items() for name,_ in jobs)
+    states = {t['task_id']:t['state'] for t in tasks}
+    if len(states) != len(tasks) or set(states) != expected:
+        return False
+    guland, ndv = 'acquisition.prepare_guland', 'acquisition.prepare_nhadatvui'
+    return (states[guland] == 'failed' and states[ndv] in {'success','failed','upstream_failed'}
+            and all(state == 'upstream_failed' for name,state in states.items() if name not in {guland,ndv}))
+
+
 def validate_batch(batch):
     if len(batch) != 8 or datetime.strptime(batch, "%Y%m%d").strftime("%Y%m%d") != batch:
         raise ValueError("Batch must be an actual date in YYYYMMDD")
@@ -55,6 +70,10 @@ def prepare_web_source(source, batch):
             summary = json.loads(summary_path.read_text(encoding="utf-8"))
             if summary.get("failed_pages") or summary.get("status", "PASS") != "PASS":
                 raise RuntimeError(f"Existing {source}/{batch} crawl is incomplete; inspect its summary")
+            if summary.get('csv_sha256') and csv_checksum(path) != summary['csv_sha256']:
+                raise RuntimeError(f'Existing {source}/{batch} CSV changed after publication')
+            if summary.get('crawl_contract_version') == 1:
+                validate_crawl_output(path.parent, source, batch, summary.get('requested_pages'))
         print(f"REUSE existing {source}/{batch}; no crawl requested")
         return
     if source not in ("guland", "nhadatvui"):
@@ -62,12 +81,80 @@ def prepare_web_source(source, batch):
     today = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%Y%m%d")
     if batch != today:
         raise ValueError("Cannot recreate a historical crawl by changing its batch date")
-    env = {**os.environ, "CRAWL_BATCH_ID": batch, "CRAWL_PAGES": os.getenv(f"{source.upper()}_CRAWL_PAGES", "200")}
-    subprocess.run([sys.executable, str(PROJECT_ROOT / f"src/ingestion/{source}/{source}_raw_crawler.py")], env=env, check=True)
-    summary = json.loads((path.parent / "crawl_summary.json").read_text(encoding="utf-8"))
-    if (not path.exists() or not summary.get("records_written") or summary.get("failed_pages") or
-            summary.get("status", "PASS") != "PASS"):
-        raise RuntimeError(f"Incomplete {source} crawl; inspect crawl_summary.json before retrying")
+    from src.common.atomic_io import write_json_atomic
+    from src.ingestion.crawl_runtime import integer_setting
+    pages = integer_setting(f'{source.upper()}_CRAWL_PAGES', 20 if source == 'guland' else 200, maximum=5000)
+    budget = integer_setting('CRAWL_RUN_TIMEOUT_SECONDS', 2100)
+    # A sibling directory stays on the same bind mount in Docker. Its name
+    # cannot be mistaken for a YYYYMMDD batch by Bronze/manifest discovery.
+    staging = path.parent.parent / f'.{batch}.crawl-{uuid.uuid4().hex}'
+    staging.mkdir(parents=True)
+    env = {**os.environ, 'CRAWL_BATCH_ID':batch, 'CRAWL_PAGES':str(pages),
+           'CRAWL_START_PAGE':'1', 'CRAWL_OUTPUT_DIR':str(staging),
+           'CRAWL_RUN_TIMEOUT_SECONDS':str(budget), 'PYTHONUTF8':'1', 'PYTHONUNBUFFERED':'1'}
+    try:
+        subprocess.run([sys.executable, str(PROJECT_ROOT / f'src/ingestion/{source}/{source}_raw_crawler.py')],
+                       env=env, check=True, timeout=budget + 15)
+        summary = validate_crawl_output(staging, source, batch, pages)
+        for name, filename in (('output_csv',f'{source}_raw.csv'),('output_jsonl',f'{source}_raw.jsonl'),
+                               ('pages_dir','pages'),('log_file','crawl.log')):
+            if name in summary:
+                summary[name] = str(path.parent / filename)
+        summary['publication'] = 'validated staging directory renamed into the canonical batch'
+        write_json_atomic(staging / 'crawl_summary.json', summary)
+        if path.parent.exists():
+            raise RuntimeError(f'Batch directory appeared during crawl; preserve it: {path.parent}')
+        staging.rename(path.parent)
+        print(f'PUBLISH {source}/{batch}: {summary["records_written"]} records')
+    except Exception as exc:
+        marker = staging / 'crawl_summary.json'
+        if marker.exists():
+            try:
+                failed = json.loads(marker.read_text(encoding='utf-8'))
+                failed['worker_status'] = failed.get('status')
+                failed['status'] = 'FAIL'
+                failed['publication_error'] = str(exc)
+                write_json_atomic(marker, failed)
+            except (OSError, ValueError):
+                pass
+        raise RuntimeError(f'Incomplete {source} crawl; unpublished files retained at {staging}: {exc}') from exc
+
+
+def csv_checksum(path):
+    digest = hashlib.sha256()
+    with Path(path).open('rb') as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b''):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def validate_crawl_output(folder, source, batch, requested_pages):
+    if type(requested_pages) is not int or not 1 <= requested_pages <= 5000:
+        raise ValueError('Invalid requested page count in crawl contract')
+    folder = Path(folder)
+    summary = json.loads((folder/'crawl_summary.json').read_text(encoding='utf-8'))
+    pages = summary.get('completed_pages', [])
+    start = summary.get('start_page', summary.get('started_page'))
+    if (summary.get('status') != 'PASS' or summary.get('failed_pages') or
+        summary.get('source') != source or summary.get('run_id') != batch or start != 1 or
+        summary.get('requested_pages') != requested_pages or not pages or
+        any(type(p) is not int for p in pages) or pages != list(range(1,len(pages)+1)) or
+        len(pages) > requested_pages or (len(pages) < requested_pages and summary.get('end_of_listing') is not True)):
+        raise ValueError('Crawl summary does not certify the requested page range')
+    path = folder/f'{source}_raw.csv'
+    with path.open(encoding='utf-8-sig', newline='') as handle:
+        reader = csv.DictReader(handle)
+        if not {'listing_id','title','_scraped_at'} <= set(reader.fieldnames or []):
+            raise ValueError('Crawl CSV does not match the source contract')
+        rows = 0
+        for row in reader:
+            if not (row.get('listing_id') or '').strip() or not (row.get('_scraped_at') or '').strip():
+                raise ValueError('Crawl CSV contains an incomplete row')
+            rows += 1
+    if rows <= 0 or rows != summary.get('records_written'):
+        raise ValueError('CSV row count does not match the successful crawl summary')
+    summary['csv_sha256'] = csv_checksum(path)
+    return summary
 
 
 def require_bronze_pass():
