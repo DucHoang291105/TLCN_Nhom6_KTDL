@@ -45,3 +45,26 @@ def test_named_destinations_lie_near_their_province_centre():
     for d in destinations:
         c = centre[d["province_name"]]
         assert haversine_km(d["lat"], d["lon"], c["lat"], c["lon"]) < 40, d["destination_id"]
+
+
+# --- BQ evidence (build_bq_evidence) ---------------------------------------------
+from src.gold.build_bq_evidence import FLAG_LABELS, GENUINE_CUT, evidence_sql, two_proportion_z
+from src.gold.gold_common import FLAG_COLUMNS
+
+
+def test_two_proportion_z_matches_known_value():
+    z, p = two_proportion_z(611, 14863, 1398, 47732)   # H1 on the 17/11 data
+    assert round(z, 1) == 7.1 and p < 1e-11
+    z0, p0 = two_proportion_z(10, 100, 10, 100)
+    assert z0 == 0 and p0 == 1
+
+
+def test_genuine_cut_excludes_typo_sized_drops():
+    assert "0.70 * c.previous_price AND 0.99 * c.previous_price" in GENUINE_CUT
+
+
+def test_evidence_tables_cover_every_flag():
+    assert set(FLAG_LABELS) == set(FLAG_COLUMNS)
+    sql = evidence_sql("g", "s")
+    assert set(sql) == {"ev_budget_curve", "ev_budget_pairs", "ev_reprice", "ev_reprice_examples", "ev_flag_check", "ev_calibration"}
+    assert all(f"f.{flag}" in sql["ev_flag_check"] for flag in FLAG_COLUMNS)

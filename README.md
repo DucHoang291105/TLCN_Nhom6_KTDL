@@ -160,6 +160,9 @@ Chi tiết lệnh và giới hạn vận hành: [Iceberg history](docs/operation
 | `agg_area_substitution` | BQ3: khu vực thay thế trong cùng tỉnh với chi phí thấp hơn cho cùng diện tích, không xa trung tâm tỉnh hơn quá 10 km |
 | `agg_commute_district` | BQ3 theo nơi làm/học: mỗi quận × nơi đến (`config/commute_destinations.csv` và trung tâm 34 tỉnh), quãng đường đường chim bay từ tâm quận, chi phí cho cùng diện tích, cờ không bị quận khác vừa gần hơn vừa rẻ hơn |
 | `agg_commute_substitution` | BQ3 theo nơi làm/học: quận rẻ hơn với quãng đường tới nơi đến không xa hơn quá 2 km so với quận đang nhắm |
+| `ev_budget_curve`, `ev_budget_pairs` | Bằng chứng BQ1: diện tích theo ngân sách và vùng khoảng cách; mỗi quận một cặp tin thật (tin B rẻ hơn ≥ 10%, rộng hơn ≥ 20%) |
+| `ev_reprice`, `ev_reprice_examples` | Bằng chứng BQ2: vị trí giá lúc mới đăng và việc hạ giá 1–30% sau đó (H1), kèm tin thật |
+| `ev_flag_check`, `ev_calibration` | Kiểm chứng mô hình BQ2: chênh giá thô theo cờ trong cùng quận–diện tích so với hệ số; giá ước tính so với giá thật trên tập test |
 | `fact_listing_price_change` | Các sự kiện thay đổi giá đã quan sát |
 | `fact_listing_lifecycle` | Vòng đời quan sát của listing theo từng nguồn |
 | `agg_market_overview`, `agg_dq_kpi` | Tổng quan thị trường và chất lượng dữ liệu |

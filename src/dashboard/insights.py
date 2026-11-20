@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import csv
 import json
+import math
 from pathlib import Path
 from typing import Any, Callable
 
@@ -40,13 +41,60 @@ def signed(value: float) -> str:
 def header(question: str, scope: str) -> str:
     """Markdown header: the question and one short line on scope.
 
-    Chart titles state findings for the default selection, so the header says
-    they do not follow the interactive filters.
+    The finding card and the charts follow the filters; charts marked
+    "(Cố định)" or "(Tất cả …)" compare fixed groups, which the header says.
     """
 
     newline = chr(10)
-    note = "Kết luận trong tiêu đề biểu đồ tính ở lựa chọn mặc định, không tự đổi theo bộ lọc."
+    note = "Thẻ kết luận và các biểu đồ đổi theo bộ lọc; biểu đồ ghi (Cố định) hoặc (Tất cả…) thì không tự đổi theo bộ lọc."
     return newline.join([f"### {question}", f"<small style='color:#6b6b6b'>{scope} {note}</small>", ""])
+
+
+def two_proportion_z(events_a: float, n_a: float, events_b: float, n_b: float) -> tuple[float, float]:
+    """(z, two-sided p) for the difference of two proportions."""
+
+    p_a, p_b, pooled = events_a / n_a, events_b / n_b, (events_a + events_b) / (n_a + n_b)
+    z = (p_a - p_b) / math.sqrt(pooled * (1 - pooled) * (1 / n_a + 1 / n_b))
+    return z, math.erfc(abs(z) / math.sqrt(2))
+
+
+def evidence_titles(run: Callable[[str], list[tuple]]) -> dict[str, dict[str, str]]:
+    """Titles of the evidence charts, queried from the dashboards' own datasets."""
+
+    from src.dashboard.provision_superset import BQ1_DEFAULT, BQ2_DEFAULT, BQ3_DEFAULT, DATASETS, _ACCURACY
+
+    def ds(name: str) -> str:
+        return f"({DATASETS[name]}) t"
+
+    titles: dict[str, dict[str, str]] = {}
+
+    # overview: same distance ring, Hà Nội vs TP.HCM (fixed comparison chart)
+    rings = run(f"""SELECT vanh_dai, approx_percentile(CASE WHEN thanh_pho = 'Hà Nội' THEN gia_m2_tr END, 0.5),
+        approx_percentile(CASE WHEN thanh_pho = '{HCM}' THEN gia_m2_tr END, 0.5), COUNT_IF(thanh_pho = 'Hà Nội'), COUNT_IF(thanh_pho = '{HCM}')
+        FROM {ds('city_compare')} WHERE vanh_dai <> '5. Trên 25 km' GROUP BY 1 ORDER BY 1""")
+    both = [r for r in rings if r[3] >= 30 and r[4] >= 30]
+    ring = next(r for r in both if r[0].startswith("2."))
+    always = "Hà Nội đắt hơn ở mọi vành đai đủ dữ liệu" if all(r[1] > r[2] for r in both) else "không phải vành đai nào Hà Nội cũng đắt hơn"
+    titles["tlcn-tong-quan"] = {"ov_compare": f"(Cố định) Cùng cách trung tâm 5–10 km: nhà phố Hà Nội {vn(ring[1])} tr/m², TP.HCM {vn(ring[2])} tr/m² "
+                                              f"– gấp {vn(ring[1] / ring[2], 1)} lần; {always}"}
+
+    # BQ3: best move per destination; centroid validation
+    best = run(f"""SELECT doi_quan, re_hon_pct FROM {ds('commute_best')}
+        WHERE category_label = '{BQ3_DEFAULT["category_label"]}' AND area_band = '{BQ3_DEFAULT["area_band"]}' ORDER BY re_hon_pct DESC""")
+    centroid = run(f"SELECT COUNT_IF(ket_qua LIKE '1.%'), COUNT(*) FROM {ds('centroid_check')}")[0]
+    titles["tlcn-bq3"] = {
+        "bq3_centroid": f"(Cố định) Kiểm chứng tọa độ: {centroid[0]}/{centroid[1]} điểm đến nằm gần tâm đúng quận chứa nó nhất; số còn lại rơi vào quận giáp ranh",
+    }
+    if best:
+        titles["tlcn-bq3"]["bq3_best_moves"] = (f"(Tất cả nơi làm/học) Ở cả {len(best)} nơi, luôn có quận rẻ hơn {pct(best[-1][1] / 100)}–{pct(best[0][1] / 100)} "
+                                                f"mà đường đi không xa hơn – lớn nhất: {best[0][0]}")
+
+    # data quality: label accuracy before/after the rule fix
+    acc = {row[0]: row[1:] for row in _ACCURACY}
+    cat = acc.get("Loại hình – độ chính xác")
+    titles["tlcn-chat-luong"] = {"dq_g4": (f"Sửa luật bằng nhãn thủ công: loại hình đúng {pct(cat[0], 1)} → {pct(cat[1], 1)}; "
+                                           "recall pháp lý, mặt tiền, ô tô lên 100%, precision giữ 100% (76 tin test)") if cat else ""}
+    return titles
 
 
 def compute_insights(run: Callable[[str], list[tuple]]) -> dict[str, dict[str, Any]]:
@@ -87,7 +135,7 @@ def compute_insights(run: Callable[[str], list[tuple]]) -> dict[str, dict[str, A
             "ov_map_hcm": f"TP.HCM: chấm đỏ (> 200 tr/m²) dày ở {', '.join(hcm_red)} – {pct(hcm_red_share)} tin nhà phố ở mức này",
             "ov_ring": f"Ra xa trung tâm, giá nhà phố giảm mạnh: {vn(ring.get('center'))} tr/m² (< 5 km) → {vn(ring.get('outer'))} tr/m² (≥ 15 km)",
             "ov_map_hn": f"Hà Nội: {pct(hn_red_share)} tin nhà phố trên 200 tr/m², dày nhất ở {', '.join(hn_red)}",
-            "ov_price": f"Nhà phố Hà Nội {vn(medians.get('Hà Nội'))} tr/m², gấp {vn(medians['Hà Nội'] / medians[HCM], 1)} lần TP.HCM "
+            "ov_price": f"(Cố định) Nhà phố Hà Nội {vn(medians.get('Hà Nội'))} tr/m², gấp {vn(medians['Hà Nội'] / medians[HCM], 1)} lần TP.HCM "
                         f"({vn(medians.get(HCM))} tr/m²) – median theo tỉnh, nhóm ≥ 30 tin",
         },
     }
@@ -203,4 +251,6 @@ def compute_insights(run: Callable[[str], list[tuple]]) -> dict[str, dict[str, A
             "dq_coverage": f"Tọa độ chỉ có ở {pct(coordinate)} tin, pháp lý {pct(legal_cov)} – bản đồ và khoảng cách dựa trên phần tin có tọa độ",
         },
     }
+    for slug, extra in evidence_titles(run).items():
+        out[slug]["titles"].update({key: title for key, title in extra.items() if title})
     return out

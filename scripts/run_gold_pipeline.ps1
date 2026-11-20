@@ -10,6 +10,7 @@ $jobs = @(
     "src\gold\build_budget_tradeoff.py",
     "src\gold\build_area_substitution.py",
     "src\gold\build_commute_choice.py",
+    "src\gold\build_bq_evidence.py",
     "src\gold\build_data_quality.py",
     "src\gold\build_repricing.py",
     "src\gold\build_market_overview.py",

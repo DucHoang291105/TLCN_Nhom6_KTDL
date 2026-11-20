@@ -134,6 +134,13 @@ def main() -> None:
     metrics["commute_efficient_label_mismatch"]=cdist.filter("is_commute_efficient").select(*seg,"location_key").intersect(beaten).count()+cdist.filter("NOT is_commute_efficient").select(*seg,"location_key").exceptAll(beaten).count()
     checks["commute_efficient_labels_recomputed"]=metrics["commute_efficient_label_mismatch"]==0
     checks["commute_every_segment_has_efficient_district"]=cdist.groupBy(*seg).agg(F.max(F.col("is_commute_efficient").cast("int")).alias("m")).filter("m<>1").count()==0
+    # BQ evidence tables (build_bq_evidence): the constraints the dashboards state.
+    ev={name:spark.table(f"{gold}.{name}") for name in ("ev_budget_pairs","ev_reprice","ev_calibration","ev_flag_check")}
+    pairs=ev["ev_budget_pairs"]
+    checks["evidence_pairs_constraints"]=pairs.count()>0 and pairs.filter("NOT (gia_b_ty <= 0.9*gia_a_ty + 1e-9 AND dt_b BETWEEN 1.2*dt_a AND 2*dt_a AND phong_b >= phong_a)").count()==0
+    checks["evidence_reprice_one_row_per_listing"]=ev["ev_reprice"].count()==ev["ev_reprice"].select("source_id").distinct().count()>0
+    checks["evidence_calibration_test_deciles"]=ev["ev_calibration"].filter("nhom_gia_uoc_tinh NOT RLIKE '^D(0[1-9]|10)$'").count()==0
+    checks["evidence_flag_groups_min_size"]=ev["ev_flag_check"].filter("n_co < 5 OR n_khong < 5").count()==0
     kpi=bq["agg_dq_kpi"].agg(*[F.sum(c).alias(c) for c in ("bronze_rows","reject_rows","observation_rows","current_rows","fact_rows","representative_rows")]).first()
     quarantine=spark.table(f"{silver}.listing_dq_quarantine").count(); observation=spark.table(f"{silver}.listing_observation").count()
     checks["dq_kpi_matches_silver_and_gold"]=(kpi["reject_rows"]==quarantine and kpi["observation_rows"]==observation and kpi["current_rows"]==current.count() and kpi["fact_rows"]==counts["fact_listing"] and kpi["representative_rows"]==metrics["representative_rows"] and kpi["bronze_rows"]-kpi["reject_rows"]>=kpi["observation_rows"])

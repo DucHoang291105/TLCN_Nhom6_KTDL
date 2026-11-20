@@ -48,7 +48,11 @@ def main(folder: str) -> None:
                     raise SystemExit("Superset login failed; no screenshot written")
         for index, dash in enumerate(check["dashboards"], start=1):
             page.goto(dash["url"] + "?standalone=2")
-            page.wait_for_load_state("networkidle")
+            try:
+                # Map tiles keep the network busy; the spinner wait below is what counts.
+                page.wait_for_load_state("networkidle", timeout=60_000)
+            except Exception:
+                pass
             # Never save a login or error page as evidence.
             if "/login" in page.url:
                 raise SystemExit(f"Not logged in while opening {dash['url']}")
