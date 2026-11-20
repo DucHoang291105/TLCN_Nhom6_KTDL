@@ -35,9 +35,16 @@ def main():
     run = run_info['run_id']
     batch = run_info['batch_id']
     sys.path.insert(0, str(ROOT))
-    from src.dashboard.provision_superset import trino_rows
-    total = int(trino_rows('SELECT SUM(n_listings) FROM iceberg.gold.agg_market_overview')[0][0])
-    hcm = int(trino_rows("SELECT SUM(n_listings) FROM iceberg.gold.agg_market_overview WHERE province_name='Hồ Chí Minh'")[0][0])
+    from src.dashboard.provision_superset import DATASETS, NATIVE_FILTERS, trino_rows
+    overview = {f['column']: f['default'] for f in NATIVE_FILTERS['tlcn-tong-quan'] if isinstance(f, dict) and f.get('default')}
+    default_province = overview['province_name']
+    alternate_province = 'Hà Nội' if default_province != 'Hà Nội' else 'Hồ Chí Minh'
+    def overview_count(province):
+        scope = {**overview, 'province_name': province}
+        where = ' AND '.join(k + "='" + v.replace("'", "''") + "'" for k, v in scope.items())
+        return int(trino_rows('SELECT SUM(n_listings) FROM (' + DATASETS['market_overview'] + ') t WHERE ' + where)[0][0])
+    total = overview_count(default_province)
+    filtered = overview_count(alternate_province)
     lifecycle_rows = int(trino_rows('SELECT COUNT(*) FROM (SELECT source, lifecycle_status FROM iceberg.gold.fact_listing_lifecycle GROUP BY source, lifecycle_status)')[0][0])
     failure = json.loads((ROOT / 'docs/validation/airflow_failure_gate.json').read_text())
     failure_run = failure.get('run_id') or failure.get('dag_run_id')
@@ -131,7 +138,7 @@ def main():
                     page.keyboard.insert_text(LIFECYCLE)
                     page.goto('http://localhost:8088/superset/dashboard/tlcn-tong-quan/')
                     print(f'Rehearsal {number}: dashboard and filter', flush=True)
-                    page.get_by_text(f'{total:,}', exact=True).wait_for()
+                    page.get_by_text(f'{total:,}'.replace(',', '.'), exact=True).wait_for()
                     # Titles are generated from data. The overview's first
                     # canvas visualization is its main map; skip the markdown
                     # header and KPI cards without matching their titles.
@@ -139,17 +146,20 @@ def main():
                     chart.scroll_into_view_if_needed()
                     time.sleep(args.hold_seconds)
                     combo = page.get_by_role('combobox', name='NATIVE_FILTER-6eefee667a', exact=True)
-                    combo.click()
-                    combo.fill('Hồ Chí Minh')
-                    page.get_by_role('option', name='Hồ Chí Minh', exact=True).click()
+                    combo.locator('xpath=ancestor::*[contains(@class,"ant-select-selector")][1]').click()
+                    combo.fill(alternate_province)
+                    page.locator('.ant-select-dropdown:visible').get_by_title(alternate_province, exact=True).click()
                     combo.press('Escape')
                     page.get_by_role('button', name='Apply filters', exact=True).click()
-                    page.get_by_text(f'{hcm:,}', exact=True).wait_for()
-                    checks.append(f'province_filter_{total}_to_{hcm}')
+                    page.get_by_text(f'{filtered:,}'.replace(',', '.'), exact=True).wait_for()
+                    checks.append(f'province_filter_{total}_to_{filtered}')
                     time.sleep(args.hold_seconds)
-                    page.get_by_role('button', name='Clear all', exact=True).click()
+                    combo.locator('xpath=ancestor::*[contains(@class,"ant-select-selector")][1]').click()
+                    combo.fill(default_province)
+                    page.locator('.ant-select-dropdown:visible').get_by_title(default_province, exact=True).click()
+                    combo.press('Escape')
                     page.get_by_role('button', name='Apply filters', exact=True).click()
-                    page.get_by_text(f'{total:,}', exact=True).wait_for()
+                    page.get_by_text(f'{total:,}'.replace(',', '.'), exact=True).wait_for()
                     results.append({'rehearsal': number, 'status': 'PASS', 'checks': checks,
                                     'elapsed_seconds': round(time.perf_counter() - started, 2),
                                     'video': str(page.video.path())})
@@ -160,7 +170,8 @@ def main():
                         'generated_at': datetime.now(timezone.utc).isoformat(),
                         'scope': 'Automated UI walkthrough, no voice; not an A3 pipeline execution or human presentation rehearsal',
                         'run_id': run, 'batch_id': batch, 'failure_run_id': failure_run,
-                        'expected_kpis': {'total': total, 'ho_chi_minh': hcm}, 'results': results,
+                        'expected_kpis': {'default_selection': {**overview, 'count': total},
+                                          'filtered_selection': {**overview, 'province_name': alternate_province, 'count': filtered}}, 'results': results,
                         'status': 'PASS' if len(results) == 2 else 'INCOMPLETE'}, indent=2), encoding='utf-8')
         finally:
             browser.close()

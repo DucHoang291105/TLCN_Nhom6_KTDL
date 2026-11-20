@@ -1,17 +1,17 @@
-destination_id,destination_name,destination_kind,province_name,lat,lon
-hcm_ben_thanh,Trung tâm Quận 1 (chợ Bến Thành),Đi làm,Hồ Chí Minh,10.7725,106.6980
-hcm_tan_son_nhat,Sân bay Tân Sơn Nhất,Đi làm,Hồ Chí Minh,10.8185,106.6588
-hcm_etown_cong_hoa,Etown Cộng Hòa (Tân Bình),Đi làm,Hồ Chí Minh,10.8015,106.6400
-hcm_landmark81,Landmark 81 (Bình Thạnh),Đi làm,Hồ Chí Minh,10.7950,106.7218
-hcm_phu_my_hung,Phú Mỹ Hưng (Quận 7),Đi làm,Hồ Chí Minh,10.7290,106.7190
-hcm_tan_thuan,Khu chế xuất Tân Thuận (Quận 7),Đi làm,Hồ Chí Minh,10.7550,106.7400
-hcm_shtp,Khu công nghệ cao (Thủ Đức),Đi làm,Hồ Chí Minh,10.8450,106.7950
-hcm_dhqg,Làng Đại học Quốc gia (Thủ Đức),Đi học,Hồ Chí Minh,10.8700,106.8030
-hcm_bach_khoa,ĐH Bách khoa TP.HCM (Quận 10),Đi học,Hồ Chí Minh,10.7725,106.6580
-hn_hoan_kiem,Hồ Hoàn Kiếm,Đi làm,Hà Nội,21.0285,105.8520
-hn_my_dinh,Mỹ Đình – Keangnam (Nam Từ Liêm),Đi làm,Hà Nội,21.0170,105.7840
-hn_cau_giay,ĐH Quốc gia Hà Nội (Cầu Giấy),Đi học,Hà Nội,21.0380,105.7825
-hn_bach_khoa,ĐH Bách khoa Hà Nội (Hai Bà Trưng),Đi học,Hà Nội,21.0050,105.8430
-hn_noi_bai,Sân bay Nội Bài,Đi làm,Hà Nội,21.2187,105.8042
-dn_cau_rong,Trung tâm Đà Nẵng (cầu Rồng),Đi làm,Đà Nẵng,16.0610,108.2270
-dn_san_bay,Sân bay Đà Nẵng,Đi làm,Đà Nẵng,16.0439,108.1994
+destination_id,destination_name,destination_kind,province_name,lat,lon,district_name
+hcm_ben_thanh,Trung tâm Quận 1 (chợ Bến Thành),Đi làm,Hồ Chí Minh,10.7725,106.6980,Quận 1
+hcm_tan_son_nhat,Sân bay Tân Sơn Nhất,Đi làm,Hồ Chí Minh,10.8185,106.6588,Quận Tân Bình
+hcm_etown_cong_hoa,Etown Cộng Hòa (Tân Bình),Đi làm,Hồ Chí Minh,10.8015,106.6400,Quận Tân Bình
+hcm_landmark81,Landmark 81 (Bình Thạnh),Đi làm,Hồ Chí Minh,10.7950,106.7218,Quận Bình Thạnh
+hcm_phu_my_hung,Phú Mỹ Hưng (Quận 7),Đi làm,Hồ Chí Minh,10.7290,106.7190,Quận 7
+hcm_tan_thuan,Khu chế xuất Tân Thuận (Quận 7),Đi làm,Hồ Chí Minh,10.7550,106.7400,Quận 7
+hcm_shtp,Khu công nghệ cao (Thủ Đức),Đi làm,Hồ Chí Minh,10.8450,106.7950,Thành phố Thủ Đức
+hcm_dhqg,Làng Đại học Quốc gia (Thủ Đức),Đi học,Hồ Chí Minh,10.8700,106.8030,Thành phố Thủ Đức
+hcm_bach_khoa,ĐH Bách khoa TP.HCM (Quận 10),Đi học,Hồ Chí Minh,10.7725,106.6580,Quận 10
+hn_hoan_kiem,Hồ Hoàn Kiếm,Đi làm,Hà Nội,21.0285,105.8520,Quận Hoàn Kiếm
+hn_my_dinh,Mỹ Đình – Keangnam (Nam Từ Liêm),Đi làm,Hà Nội,21.0170,105.7840,Quận Nam Từ Liêm
+hn_cau_giay,ĐH Quốc gia Hà Nội (Cầu Giấy),Đi học,Hà Nội,21.0380,105.7825,Quận Cầu Giấy
+hn_bach_khoa,ĐH Bách khoa Hà Nội (Hai Bà Trưng),Đi học,Hà Nội,21.0050,105.8430,Quận Hai Bà Trưng
+hn_noi_bai,Sân bay Nội Bài,Đi làm,Hà Nội,21.2187,105.8042,Huyện Sóc Sơn
+dn_cau_rong,Trung tâm Đà Nẵng (cầu Rồng),Đi làm,Đà Nẵng,16.0610,108.2270,Quận Hải Châu
+dn_san_bay,Sân bay Đà Nẵng,Đi làm,Đà Nẵng,16.0439,108.1994,Quận Hải Châu

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-19T08:26:55.864856+00:00",
-  "run_id": "scheduled__2026-11-17T15:00:00+00:00",
+  "generated_at": "2026-11-20T22:54:20.779200+00:00",
+  "run_id": "integration_dashboard_20261121",
   "checks": {
     "airflow_all_tasks": true,
     "silver_30": true,
@@ -144,6 +144,30 @@
     "gold.agg_commute_substitution": {
       "expected": 12005,
       "actual": 12005
+    },
+    "gold.ev_budget_curve": {
+      "expected": 127469,
+      "actual": 127469
+    },
+    "gold.ev_budget_pairs": {
+      "expected": 167,
+      "actual": 167
+    },
+    "gold.ev_reprice": {
+      "expected": 62595,
+      "actual": 62595
+    },
+    "gold.ev_reprice_examples": {
+      "expected": 570,
+      "actual": 570
+    },
+    "gold.ev_flag_check": {
+      "expected": 1083,
+      "actual": 1083
+    },
+    "gold.ev_calibration": {
+      "expected": 24819,
+      "actual": 24819
     }
   },
   "dashboards": [

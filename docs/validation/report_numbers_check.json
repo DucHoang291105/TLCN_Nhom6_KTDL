@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-19T08:36:15.888809+00:00",
+  "generated_at": "2026-11-20T22:43:42.597736+00:00",
   "scope": "README headline table and selected disclosures vs saved JSON; not a live pipeline acceptance",
   "checks": {
     "headline_counts_match_json": true,

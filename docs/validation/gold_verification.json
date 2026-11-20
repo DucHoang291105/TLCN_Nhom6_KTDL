@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-19T08:23:27.979919+00:00",
+  "generated_at": "2026-11-20T22:42:13.521144+00:00",
   "namespace": "lakehouse.gold",
   "table_counts": {
     "dim_source": 10,
@@ -24,7 +24,13 @@
     "fact_listing_price_model": 126394,
     "agg_price_model_coefficient": 967,
     "agg_commute_district": 5145,
-    "agg_commute_substitution": 12005
+    "agg_commute_substitution": 12005,
+    "ev_budget_curve": 127469,
+    "ev_budget_pairs": 167,
+    "ev_reprice": 62595,
+    "ev_reprice_examples": 570,
+    "ev_flag_check": 1083,
+    "ev_calibration": 24819
   },
   "checks": {
     "dim_source_one_unknown_row": true,
@@ -99,6 +105,18 @@
     "agg_commute_district_fk_valid": true,
     "agg_commute_substitution_grain_unique": true,
     "agg_commute_substitution_fk_valid": true,
+    "ev_budget_curve_grain_unique": true,
+    "ev_budget_curve_fk_valid": true,
+    "ev_budget_pairs_grain_unique": true,
+    "ev_budget_pairs_fk_valid": true,
+    "ev_reprice_grain_unique": true,
+    "ev_reprice_fk_valid": true,
+    "ev_reprice_examples_grain_unique": true,
+    "ev_reprice_examples_fk_valid": true,
+    "ev_flag_check_grain_unique": true,
+    "ev_flag_check_fk_valid": true,
+    "ev_calibration_grain_unique": true,
+    "ev_calibration_fk_valid": true,
     "benchmark_min_group_size": true,
     "benchmark_counts_match_fact": true,
     "assessment_covers_representatives": true,
@@ -120,6 +138,10 @@
     "commute_substitution_target_area_is_origin_median": true,
     "commute_efficient_labels_recomputed": true,
     "commute_every_segment_has_efficient_district": true,
+    "evidence_pairs_constraints": true,
+    "evidence_reprice_one_row_per_listing": true,
+    "evidence_calibration_test_deciles": true,
+    "evidence_flag_groups_min_size": true,
     "dq_kpi_matches_silver_and_gold": true,
     "price_change_nonzero": true,
     "market_overview_sum_matches": true,
@@ -219,7 +241,13 @@
     "fact_listing_price_model": "s3://lakehouse-gold/real_estate/fact_listing_price_model",
     "agg_price_model_coefficient": "s3://lakehouse-gold/real_estate/agg_price_model_coefficient",
     "agg_commute_district": "s3://lakehouse-gold/real_estate/agg_commute_district",
-    "agg_commute_substitution": "s3://lakehouse-gold/real_estate/agg_commute_substitution"
+    "agg_commute_substitution": "s3://lakehouse-gold/real_estate/agg_commute_substitution",
+    "ev_budget_curve": "s3://lakehouse-gold/real_estate/ev_budget_curve",
+    "ev_budget_pairs": "s3://lakehouse-gold/real_estate/ev_budget_pairs",
+    "ev_reprice": "s3://lakehouse-gold/real_estate/ev_reprice",
+    "ev_reprice_examples": "s3://lakehouse-gold/real_estate/ev_reprice_examples",
+    "ev_flag_check": "s3://lakehouse-gold/real_estate/ev_flag_check",
+    "ev_calibration": "s3://lakehouse-gold/real_estate/ev_calibration"
   },
   "status": "PASS",
   "failures": []

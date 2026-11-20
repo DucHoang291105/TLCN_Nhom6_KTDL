@@ -14,6 +14,7 @@ $jobs = @(
     "src\gold\build_repricing.py",
     "src\gold\build_market_overview.py",
     "src\gold\build_listing_lifecycle.py",
+    "src\gold\build_bq_evidence.py",
     "src\gold\verify_gold.py"
 )
 

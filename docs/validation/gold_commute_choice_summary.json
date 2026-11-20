@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-11-19T08:20:21.759701+00:00",
-  "finished_at": "2026-11-19T08:20:32.627734+00:00",
+  "started_at": "2026-11-20T22:38:37.589121+00:00",
+  "finished_at": "2026-11-20T22:38:48.437612+00:00",
   "distance": "straight-line (haversine) km from the district centroid to the destination",
   "min_centroid_listings": 10,
   "commute_tolerance_km": 2.0,

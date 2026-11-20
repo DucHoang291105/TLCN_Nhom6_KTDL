@@ -43,7 +43,7 @@ Airflow điều phối các bước và kiểm định chất lượng.
 
 Thành phần xử lý chính: Apache Spark 3.5.9, MinIO, Apache Iceberg REST Catalog, PostgreSQL 16, Apache Airflow 3.3.1, Trino và Docker Compose. Snapshot CSV được quản lý bằng Git LFS.
 
-Superset có 5 dashboard: tổng quan thị trường, lựa chọn theo ngân sách (BQ1), vị trí giá trong nhóm tương đồng (BQ2), khu vực thay thế theo nơi làm/học (BQ3) và chất lượng dữ liệu. Dữ liệu đọc từ Gold qua Trino; script kiểm tra lại 36 biểu đồ và đối chiếu KPI. Các bản đồ dùng nền OpenStreetMap.
+Superset có 5 dashboard: tổng quan thị trường, lựa chọn theo ngân sách (BQ1), vị trí giá trong nhóm tương đồng (BQ2), khu vực thay thế theo nơi làm/học (BQ3) và chất lượng dữ liệu. Dữ liệu đọc từ Gold qua Trino; script kiểm tra lại 49 biểu đồ và đối chiếu KPI. Các bản đồ dùng nền OpenStreetMap.
 
 Các bucket:
 
@@ -80,7 +80,7 @@ Dữ liệu historical đặt trong `data/incoming/historical/<nguồn>/`, theo 
 ## Kết quả đã kiểm chứng
 
 Dữ liệu tới batch **20261117**, ba nguồn crawl và sáu nguồn historical. Lượt
-tích hợp ngày **19/11/2026** chạy pipeline cùng bộ dashboard mới; không tạo
+tích hợp ngày **21/11/2026** chạy pipeline cùng bộ dashboard mới; không tạo
 batch thay thế cho những ngày thiếu. Bộ nghiệm thu toàn diện
 `acceptance_A_20261117_r2` là kết quả lịch sử của phiên bản trước khi bổ sung dashboard này.
 
@@ -102,19 +102,20 @@ batch thay thế cho những ngày thiếu. Bộ nghiệm thu toàn diện
 | Gold `agg_commute_district` | 5.145 | `gold_verification.json` |
 | Gold `agg_commute_substitution` | 12.005 | `gold_verification.json` |
 
-- Airflow: **25/25 task SUCCESS**, thời gian **14 phút 11.37 giây**.
-- Silver **30/30 PASS**; Gold **122/122 PASS**.
-- Unit tests: **499/499 PASS**, không failure/error/skip.
-- Đối chiếu số dòng Spark–Trino, kiểm tra grain và lưu schema/hash nội dung đủ **32 bảng**.
-- Superset: **36 biểu đồ**, **5 dashboard**; kiểm tra KPI, bản đồ và bộ lọc trên trình duyệt thật.
+- Airflow: **26/26 task SUCCESS**; job `bq_evidence` chạy sau repricing và lifecycle để đọc đúng dữ liệu của lượt hiện tại.
+- Silver **30/30 PASS**; Gold **138/138 PASS**.
+- Unit tests: **510/510 PASS**, không failure/error/skip.
+- Đối chiếu số dòng Spark–Trino, kiểm tra grain và lưu schema/hash nội dung đủ **38 bảng**.
+- Superset: **49 biểu đồ**, **5 dashboard**; kiểm tra KPI, bản đồ và thẻ kết luận theo bộ lọc trên trình duyệt thật.
 - Toàn bộ **54 CSV** đầu vào giữ nguyên checksum.
 
-Lượt tích hợp này chạy một pipeline và lấy fingerprint của 32 bảng; **chưa chạy
-lại bộ nghiệm thu toàn diện gồm hai rebuild và fault probe trên DAG 25 task**.
+Lượt tích hợp này chạy một pipeline và lấy fingerprint của 38 bảng; **chưa chạy
+lại bộ nghiệm thu toàn diện gồm hai rebuild**. Run theo lịch thiếu batch 20/11
+được xác minh dừng ở bước chuẩn bị và chặn toàn bộ downstream của DAG 26 task.
 Kết quả 66/66, hai rebuild 30 bảng và fault probe 24 task trong các JSON nghiệm
 thu cũ chỉ áp dụng cho phiên bản trước, không chứng nhận lại phiên bản dashboard mới.
 
-Nguồn: [tích hợp dashboard ngày 19/11](docs/validation/dashboard_candidate_verification.json),
+Nguồn: [tích hợp dashboard ngày 21/11](docs/validation/dashboard_candidate_verification.json),
 [nghiệm thu toàn diện phiên bản trước](docs/validation/defense_verification.json),
 [Airflow](docs/validation/integration_airflow_run.json),
 [Silver](docs/validation/silver_final_verification.json),
@@ -168,6 +169,9 @@ Chi tiết lệnh và giới hạn vận hành: [Iceberg history](docs/operation
 | `agg_area_substitution` | BQ3: khu vực thay thế trong cùng tỉnh với chi phí thấp hơn cho cùng diện tích, không xa trung tâm tỉnh hơn quá 10 km |
 | `agg_commute_district` | BQ3 theo nơi làm/học: mỗi quận × nơi đến (`config/commute_destinations.csv` và trung tâm 34 tỉnh), quãng đường đường chim bay từ tâm quận, chi phí cho cùng diện tích, cờ không bị quận khác vừa gần hơn vừa rẻ hơn |
 | `agg_commute_substitution` | BQ3 theo nơi làm/học: quận rẻ hơn với quãng đường tới nơi đến không xa hơn quá 2 km so với quận đang nhắm |
+| `ev_budget_curve`, `ev_budget_pairs` | Bằng chứng BQ1: diện tích theo ngân sách và vùng khoảng cách; mỗi quận một cặp tin thật (tin B rẻ hơn ≥ 10%, rộng hơn ≥ 20%) |
+| `ev_reprice`, `ev_reprice_examples` | Bằng chứng BQ2: vị trí giá lúc mới đăng và việc hạ giá 1–30% sau đó (H1), kèm tin thật |
+| `ev_flag_check`, `ev_calibration` | Kiểm chứng mô hình BQ2: chênh giá thô theo cờ trong cùng quận–diện tích so với hệ số; giá ước tính so với giá thật trên tập test |
 | `fact_listing_price_change` | Các sự kiện thay đổi giá đã quan sát |
 | `fact_listing_lifecycle` | Vòng đời quan sát của listing theo từng nguồn |
 | `agg_market_overview`, `agg_dq_kpi` | Tổng quan thị trường và chất lượng dữ liệu |
@@ -309,11 +313,13 @@ Sau khi pipeline đã hoàn tất:
 Mở Superset tại http://localhost:8088, đăng nhập bằng tài khoản trong `.env`.
 Dashboard: `/superset/dashboard/tlcn-tong-quan/`, `tlcn-bq1/`, `tlcn-bq2/`, `tlcn-bq3/`, `tlcn-chat-luong/`.
 Provision chỉ dựng lại tài nguyên do script quản lý; sao lưu cấu hình Superset
-trước khi chạy nếu đã chỉnh sửa dashboard. Biểu đồ truy vấn Gold; phần nhận xét
-đầu trang được tính lúc provision và không tự đổi theo bộ lọc tương tác. Chạy lại
-provision sau batch mới để cập nhật phần nhận xét.
+trước khi chạy nếu đã chỉnh sửa dashboard. Thẻ kết luận truy vấn SQL theo bộ lọc
+tỉnh, loại hình, ngân sách hoặc nơi làm/học. Riêng thẻ BQ2 tổng hợp theo tỉnh và
+loại hình, không theo quận. Các biểu đồ ghi `(Cố định)` hoặc `(Tất cả…)` giữ phạm
+vi so sánh riêng; tiêu đề nhận xét của chúng được tính khi provision. Chạy lại
+provision sau batch mới để cập nhật cấu hình và tiêu đề nhận xét.
 
-- [Kiểm tra dashboard](docs/validation/superset_dashboard_check.json): 36 biểu đồ và KPI.
+- [Kiểm tra dashboard](docs/validation/superset_dashboard_check.json): 49 biểu đồ và KPI.
 - [Benchmark truy vấn](docs/validation/query_benchmark.json): so sánh thời gian mô tả; truy vấn Gold/Silver không tương đương hoàn toàn nên không xem tỷ lệ thời gian là speedup có kiểm soát.
 - [Kịch bản demo kỹ thuật](docs/demo/kich_ban_demo.md): Airflow, fault gate, lifecycle, Iceberg và Trino.
 - [Kết quả thử thao tác demo](docs/validation/demo_rehearsals.json): hai lượt browser tự động PASS trên dữ liệu đã lưu; có video local không lời thuyết minh.
@@ -323,7 +329,7 @@ provision sau batch mới để cập nhật phần nhận xét.
 nhận cho batch mới. Khi kiểm chứng một run mới cần export lại trạng thái Airflow,
 chạy lại kiểm định và provision trước khi đọc kết quả này.
 
-Probe trước A3 từng phát hiện hai bảng mô hình cũ; [bằng chứng probe](docs/validation/predata_runtime_compatibility.json) được giữ để truy nguyên. Lượt tích hợp dashboard mới đã rebuild và đối chiếu đúng toàn bộ 32 bảng qua Trino; dùng [kết quả hiện tại](docs/validation/pipeline_dashboard_integration.json) để đánh giá trạng thái đồng bộ.
+Probe trước A3 từng phát hiện hai bảng mô hình cũ; [bằng chứng probe](docs/validation/predata_runtime_compatibility.json) được giữ để truy nguyên. Lượt tích hợp dashboard mới đã rebuild và đối chiếu đúng toàn bộ 38 bảng qua Trino; dùng [kết quả hiện tại](docs/validation/pipeline_dashboard_integration.json) để đánh giá trạng thái đồng bộ.
 
 DAG được giữ paused trong cửa sổ đọc để tránh writer tự động trùng lúc Trino hoạt động. Khi có batch mới, chuyển write mode rồi nộp run theo hướng dẫn ở trên. Tag `v1.1-bao-ve` chỉ tạo sau nghiệm thu dữ liệu chốt và CI trên đúng commit; tag cũ được giữ nguyên.
 

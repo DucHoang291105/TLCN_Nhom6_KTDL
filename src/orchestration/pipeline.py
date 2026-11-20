@@ -23,9 +23,11 @@ STAGES = {
              ("price_benchmark", "src/gold/build_price_benchmark.py"), ("price_model", "src/gold/build_price_model.py"),
              ("budget_tradeoff", "src/gold/build_budget_tradeoff.py"),
              ("area_substitution", "src/gold/build_area_substitution.py"),
-             ("commute_choice", "src/gold/build_commute_choice.py"), ("data_quality", "src/gold/build_data_quality.py"),
+             ("commute_choice", "src/gold/build_commute_choice.py"),
+             ("data_quality", "src/gold/build_data_quality.py"),
              ("repricing", "src/gold/build_repricing.py"), ("market_overview", "src/gold/build_market_overview.py"),
-             ("listing_lifecycle", "src/gold/build_listing_lifecycle.py"), ("verify_gold", "src/gold/verify_gold.py")],
+             ("listing_lifecycle", "src/gold/build_listing_lifecycle.py"),
+             ("bq_evidence", "src/gold/build_bq_evidence.py"), ("verify_gold", "src/gold/verify_gold.py")],
 }
 ACQUISITION_TASKS = ("prepare_guland", "prepare_nhadatvui", "wait_batdongsan_csv", "validate_snapshot_manifest")
 DAG_TASK_COUNT = len(ACQUISITION_TASKS) + sum(len(jobs) for jobs in STAGES.values()) + 1

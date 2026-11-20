@@ -45,3 +45,39 @@ def test_named_destinations_lie_near_their_province_centre():
     for d in destinations:
         c = centre[d["province_name"]]
         assert haversine_km(d["lat"], d["lon"], c["lat"], c["lon"]) < 40, d["destination_id"]
+
+
+# --- BQ evidence (build_bq_evidence) ---------------------------------------------
+from src.gold.build_bq_evidence import FLAG_LABELS, GENUINE_CUT, evidence_sql, two_proportion_z
+from src.gold.gold_common import FLAG_COLUMNS
+
+
+def test_two_proportion_z_matches_known_value():
+    z, p = two_proportion_z(611, 14863, 1398, 47732)   # H1 on the 17/11 data
+    assert round(z, 1) == 7.1 and p < 1e-11
+    z0, p0 = two_proportion_z(10, 100, 10, 100)
+    assert z0 == 0 and p0 == 1
+
+
+def test_two_proportion_z_handles_empty_and_constant_groups():
+    assert two_proportion_z(0, 0, 1, 5) == (None, None)
+    assert two_proportion_z(0, 10, 0, 20) == (0.0, 1.0)
+    assert two_proportion_z(10, 10, 20, 20) == (0.0, 1.0)
+
+
+def test_evidence_stage_reads_current_run_dependencies():
+    from src.orchestration.pipeline import STAGES
+    jobs = [name for name, _ in STAGES["gold"]]
+    assert jobs.index("bq_evidence") > max(jobs.index(name) for name in ("repricing", "listing_lifecycle", "price_model", "budget_tradeoff"))
+    assert jobs.index("bq_evidence") < jobs.index("verify_gold")
+
+
+def test_genuine_cut_excludes_typo_sized_drops():
+    assert "0.70 * c.previous_price AND 0.99 * c.previous_price" in GENUINE_CUT
+
+
+def test_evidence_tables_cover_every_flag():
+    assert set(FLAG_LABELS) == set(FLAG_COLUMNS)
+    sql = evidence_sql("g", "s")
+    assert set(sql) == {"ev_budget_curve", "ev_budget_pairs", "ev_reprice", "ev_reprice_examples", "ev_flag_check", "ev_calibration"}
+    assert all(f"f.{flag}" in sql["ev_flag_check"] for flag in FLAG_COLUMNS)
