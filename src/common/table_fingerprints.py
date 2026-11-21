@@ -11,7 +11,6 @@ Usage (Spark): .\\scripts\\run_spark.ps1 "src\\common\\table_fingerprints.py" <o
 
 from __future__ import annotations
 
-import json
 import hashlib
 import sys
 from datetime import datetime, timezone

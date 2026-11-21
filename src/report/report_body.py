@@ -72,7 +72,7 @@ def write_body(r: ReportDocument, ev: dict[str, Any], data: dict[str, Any], test
                snippet, category_labels: dict[str, str], bands) -> None:
     feature, sv, dims_summary, fact = ev["feature"], ev["silver_verify"], ev["dims"], ev["fact"]
     gv, bench, budget, sub = ev["gold_verify"], ev["benchmark"], ev["budget"], ev["substitution"]
-    dq, repricing, overview, det, loc, before = ev["dq"], ev["repricing"], ev["overview"], ev["determinism"], ev["location"], ev["before"]
+    _dq, repricing, overview, det, loc, before = ev["dq"], ev["repricing"], ev["overview"], ev["determinism"], ev["location"], ev["before"]
     content_ok = det.get("status") == "PASS" and "content" in det.get("method", "")
 
     # ================================================================ CHƯƠNG 1
