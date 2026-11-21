@@ -17,8 +17,7 @@ flowchart TD
     P -.-> U
 ```
 
-Hadoop/HDFS/YARN, FastAPI và web-ui thuộc các profile thử nghiệm, ngoài phạm vi
-pipeline trên. Không cần bật chúng để chạy hoặc bảo vệ các kết quả hiện tại.
+Compose chỉ chứa các dịch vụ của pipeline trên.
 Các volume cũ được giữ nguyên; không cần xóa dữ liệu khi đổi chế độ vận hành.
 
 ## Cửa sổ vận hành
@@ -49,4 +48,4 @@ Tag `v1.1-bao-ve` chỉ được tạo khi suite PASS, code/input/minh chứng k
 working tree sạch và CI xanh trên chính commit được tag. Nếu bổ sung dữ liệu
 sau đó, chạy lại suite và tạo bản phát hành tiếp theo; không di chuyển tag cũ.
 
-Dịch vụ thử nghiệm được tách sang `docker-compose.experimental.yml`. Cửa sổ đọc yêu cầu bản công bố đã kiểm định theo đúng code/input hiện tại; xem [công bố và phục hồi](operations/publication_and_recovery.md).
+Cửa sổ đọc yêu cầu bản công bố đã kiểm định theo đúng code/input hiện tại; xem [công bố và phục hồi](operations/publication_and_recovery.md).

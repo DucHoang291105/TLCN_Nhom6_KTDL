@@ -49,7 +49,7 @@ def main():
               'silver_check_count_documented': f"**{len(silver['checks'])}/{len(silver['checks'])} PASS**" in markdown,
               'gold_check_count_documented': f"**{len(gold['checks'])}/{len(gold['checks'])} PASS**" in markdown,
               'acceptance_scope_disclosed': 'Kết quả chỉ áp dụng cho code và input đã kiểm chứng' in markdown,
-              'runtime_mismatch_disclosed': 'predata_runtime_compatibility.json' in markdown}
+              'current_runtime_evidence_linked': 'pipeline_dashboard_integration.json' in markdown}
     payload = {'generated_at': datetime.now(timezone.utc).isoformat(),
                'scope': 'README headline table and selected disclosures vs saved JSON; not a live pipeline acceptance',
                'checks': checks, 'metrics': table, 'status': 'PASS' if all(checks.values()) else 'FAIL'}

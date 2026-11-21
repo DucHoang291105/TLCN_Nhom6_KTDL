@@ -66,3 +66,10 @@ airflow/logs/
 /Ra_soat_TLCN_Nhom6_21-11.docx
 /R*so*t*b*n*v1.1.md
 /Viec_vai_B_da_lam_TLCN_Nhom6_21-11.docx
+
+# Retired root launchers and local historical diagnostics
+/guland_raw_crawler.py
+/nhadatvui_raw_crawler.py
+/docs/validation/person_a_*
+/docs/evidence/week1_*/
+/docs/evidence/iceberg_20261023/

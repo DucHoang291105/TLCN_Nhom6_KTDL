@@ -61,7 +61,7 @@ Backup gồm MinIO, SQLite catalog, PostgreSQL, Superset và Airflow cùng thờ
 
 Compose ghim image ngoài bằng digest; `config/runtime_images.json` ghi tham chiếu đã dùng. MinIO dùng image Chainguard đã kiểm tra pull và ghi/đọc bốn bucket trên volume mới, kể cả sau restart. Tài liệu nhà cung cấp: [MinIO image](https://images.chainguard.dev/directory/image/minio/overview). Server và init đều dùng image này; init dừng ngay khi tạo bucket lỗi. Kiểm tra lại bằng `python -m src.quality.fresh_runtime_check`.
 
-`requirements-verified.txt` ghi chính xác bộ runtime/test trên Windows/Python 3.12; nền tảng khác dùng `requirements-dev.txt` rồi chạy lại test. Image build Airflow/Superset có base digest riêng. Hadoop/YARN và FastAPI/web-ui nằm trong `docker-compose.experimental.yml`; chỉ bật có chủ đích bằng hai cờ `-f`, không thuộc pipeline chính.
+`requirements-verified.txt` ghi chính xác bộ runtime/test trên Windows/Python 3.12; nền tảng khác dùng `requirements-dev.txt` rồi chạy lại test. Image build Airflow/Superset có base digest riêng. Compose chỉ chứa các dịch vụ dùng trong pipeline; cấu hình thử nghiệm không còn thuộc bản nộp.
 
 Toàn bộ `CRAWL_REQUEST_TIMEOUT`, `CRAWL_MAX_RETRIES`, `CRAWL_MAX_CONSECUTIVE_FAILURES`, `CRAWL_RUN_TIMEOUT_SECONDS`, `CRAWL_DELAY_SECONDS` và số trang mỗi nguồn được truyền từ Compose vào Airflow. Đổi `.env` cần recreate container Airflow. Delay phải hữu hạn trong 0–60 giây, các ngưỡng số nguyên có giới hạn; không bypass 403/429. Độ sâu từng nguồn/batch được đo trong `crawl_coverage.json`. “Vắng hai batch” luôn là vắng trong mẫu quan sát, không xác nhận đã bán.
 

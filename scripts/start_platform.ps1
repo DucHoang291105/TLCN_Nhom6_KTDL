@@ -1,7 +1,6 @@
 param(
-    [ValidateSet("core", "query", "application", "orchestration", "dashboard", "hadoop", "full")]
-    [string]$Profile = "core",
-    [switch]$AllowHighMemory
+    [ValidateSet("core", "query", "orchestration", "dashboard")]
+    [string]$Profile = "core"
 )
 
 $ErrorActionPreference = "Stop"
@@ -14,11 +13,7 @@ try {
         if ($LASTEXITCODE -ne 0) { throw "Verified publication is required before starting readers" }
         return
     }
-    if ($Profile -eq "full" -and -not $AllowHighMemory) {
-        throw "Profile 'full' can exhaust a 16 GB machine. Start one profile at a time, or add -AllowHighMemory."
-    }
     $composeFiles = @("-f", "docker-compose.yml")
-    if ($Profile -in @("application", "hadoop", "full")) { $composeFiles += @("-f", "docker-compose.experimental.yml") }
     if ($Profile -eq "core") {
         docker compose @composeFiles up -d
     } else {

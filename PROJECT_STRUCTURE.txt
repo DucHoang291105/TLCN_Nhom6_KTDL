@@ -24,6 +24,5 @@ TLCN_BDS_Lakehouse/
 |-- tests/unit/                     # Pure rules, failure gates and host behavior
 |-- outputs/                        # Private logs/backups/runtime state (ignored)
 |-- docker-compose.yml              # Actual local pipeline
-|-- docker-compose.experimental.yml # Optional Hadoop/FastAPI/web experiments
 |-- requirements*.txt               # Dependencies and verified runtime/test versions
 `-- README.md

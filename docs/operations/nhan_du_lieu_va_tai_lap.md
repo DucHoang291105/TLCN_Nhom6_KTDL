@@ -84,12 +84,7 @@ riêng ở `outputs/reproduction/dashboard_check.json`, không thay bằng chứ
 nghiệm thu lịch sử. Bất kỳ bảng nào lệch số dòng so với JSON của pipeline vừa
 chạy đều làm phase FAIL, không tự điều chỉnh expected về dữ liệu cũ.
 
-Máy Hoàng ngày 17/11: preflight 8/8 PASS với 54 CSV, 2,507 giây ở lượt đo
-trong `environment_preflight.json`; đây không phải thời gian cài đặt mới.
-Probe trước A3 từng phát hiện hai bảng mô hình cũ; bằng chứng lịch sử ở
-`predata_runtime_compatibility.json` được giữ nguyên. Lượt A3 mới đã rebuild
-Gold; dùng `pipeline_dashboard_integration.json` của lần nghiệm thu mới để
-xác nhận trạng thái đồng bộ cuối, không dùng probe cũ thay cho kết quả mới.
+Dùng `snapshot_manifest.json` và `pipeline_dashboard_integration.json` của lượt nghiệm thu hiện hành để xác nhận dữ liệu và trạng thái đồng bộ. Kết quả preflight chỉ kiểm tra điều kiện máy, không thay thế kiểm chứng pipeline đầy đủ.
 
 ## Nhật ký bắt buộc khi người khác thực hiện
 

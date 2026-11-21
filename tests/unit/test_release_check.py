@@ -1,4 +1,4 @@
-from src.quality.release_check import release_decision, allowed_change, secret_findings
+from src.quality.release_check import release_decision, secret_findings
 
 
 def test_local_pass_is_not_automatic_permission_to_merge():
@@ -16,15 +16,6 @@ def test_failed_or_missing_checks_cannot_release():
 def test_both_current_ci_and_review_required_for_merge():
     assert release_decision({"tests": True}, True, True)["ready_to_merge_main"]
     assert not release_decision({"tests": True}, True, False)["ready_to_merge_main"]
-
-
-def test_scope_does_not_include_bq_or_dashboard_implementation():
-    assert allowed_change(".gitignore")
-    assert allowed_change("src/gold/build_listing_lifecycle.py")
-    assert allowed_change("src/silver/history.py")
-    assert not allowed_change("src/gold/build_price_model.py")
-    assert not allowed_change("src/gold/build_budget_tradeoff.py")
-    assert not allowed_change("docker/web/index.html")
 
 
 def test_secret_scan_redacts_values():

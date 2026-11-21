@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 $projectRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $projectRoot
 try {
-    docker compose -f docker-compose.yml -f docker-compose.experimental.yml --profile full ps
+    docker compose --profile orchestration --profile query --profile dashboard ps
     Write-Output ""
     Write-Output "Service URLs"
     Write-Output "MinIO:            http://localhost:9001"
@@ -11,10 +11,6 @@ try {
     Write-Output "Trino:            http://localhost:8090"
     Write-Output "Airflow:          http://localhost:8082"
     Write-Output "Superset:         http://localhost:8088"
-    Write-Output "FastAPI:          http://localhost:8000/docs"
-    Write-Output "Web UI:           http://localhost:3000"
-    Write-Output "HDFS NameNode:    http://localhost:9870"
-    Write-Output "YARN:             http://localhost:8089"
 } finally {
     Pop-Location
 }

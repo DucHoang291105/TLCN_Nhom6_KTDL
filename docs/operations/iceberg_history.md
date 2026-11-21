@@ -47,7 +47,7 @@ Trino còn hoạt động. Sau khi pipeline xong, khởi động lại profile q
 Kiểm tra này không tự di chuyển catalog hoặc tự dừng dịch vụ của người dùng.
 
 ```powershell
-docker stop tlcn_superset tlcn_trino
+python -m src.orchestration.environment write
 # Cần đủ ba CSV cho batch yêu cầu; không crawl lại batch đã có.
 python -c "from src.orchestration.pipeline import validate_snapshots; validate_snapshots('20261023')"
 ./scripts/run_spark.ps1 src/bronze/ingest_snapshots_bronze.py --skip-existing
@@ -68,7 +68,7 @@ python -c "from src.orchestration.pipeline import validate_snapshots; validate_s
 python -m pytest -q
 
 # Chỉ sau khi các job Spark đã kết thúc:
-docker compose --profile query --profile dashboard up -d trino superset
+python -m src.orchestration.environment read
 ```
 
 Bronze `--skip-existing` chỉ tái sử dụng batch có `_SUCCESS`; batch chưa hoàn
@@ -129,10 +129,7 @@ docker compose config --quiet
 docker compose up -d spark-master spark-worker
 ```
 
-Đã đọc cgroup `memory.events`, `memory.peak`, `memory.swap.current` trước/sau;
-số đếm sự kiện là tích lũy theo vòng đời container, không dùng để kết luận một task
-cụ thể gây toàn bộ áp lực. Xem [probe bộ nhớ](../validation/person_a_driver_memory.json)
-và [lượt chạy Airflow](../validation/person_a_airflow_run_final.json) để đối chiếu số đo thực tế.
+Khi điều tra sự cố bộ nhớ, đọc `memory.events`, `memory.peak` và log container. Sự kiện là số tích lũy theo vòng đời container; không quy mọi áp lực cho một task. Kết quả vận hành hiện hành nằm trong `integration_airflow_run.json`.
 
 Nguồn kỹ thuật: [Spark 3.5.9 configuration](https://spark.apache.org/docs/3.5.9/configuration.html),
 [Linux cgroup v2 memory controller](https://docs.kernel.org/admin-guide/cgroup-v2.html),
@@ -154,10 +151,7 @@ Nguồn kỹ thuật: [Spark 3.5.9 configuration](https://spark.apache.org/docs/
   giả lập rằng CI đã chạy Spark. Spark/Iceberg integration chạy bằng Docker
   tại máy và lưu bằng chứng JSON riêng.
 
-Benchmark cũ là một lần đo; benchmark tối ưu mới chạy 3 lượt AB/BA trên cùng input
-đã cache, tính cả kiểm tra, signature và ghi history/state. MERGE có thể chậm hơn rebuild trên tập nhỏ;
-điều kiện bắt buộc là kết quả giống nhau và retry an toàn, không ép kết quả
-thời gian để chứng minh nhanh hơn.
+Thời gian MERGE và rebuild được đo trên cùng input trong `history_incremental_verification.json`. MERGE có thể chậm hơn rebuild trên tập nhỏ; điều kiện bắt buộc là nội dung giống nhau và retry an toàn.
 
 Spark mặc định 16 shuffle partition cho cụm local 2 core; có thể đổi bằng
 `SPARK_SHUFFLE_PARTITIONS` trong môi trường của driver khi mở rộng tài nguyên.
@@ -165,14 +159,7 @@ Spark mặc định 16 shuffle partition cho cụm local 2 core; có thể đổ
 Các bảng benchmark/fixture ở namespace `lakehouse.smoke_test`; không union
 dữ liệu tổng hợp vào Silver/Gold production.
 
-Các file `person_a_*` trong `docs/validation` ghi benchmark mới, so sánh toàn bộ
-28 bảng và kết quả vận hành. Fingerprint v2 là SHA256 trên multiset full row
-SHA256 đã sắp thứ tự; không so trực tiếp với fingerprint tổng rút gọn của bản cũ.
-Chỉ cột thời gian build bị loại, không bỏ cột nghiệp vụ để ép kết quả giống nhau.
-Xem [đối chiếu nội dung](../validation/person_a_output_equivalence.json),
-[benchmark history](../validation/person_a_history_optimization.json),
-[benchmark lifecycle](../validation/person_a_lifecycle_optimization.json) và
-[benchmark manifest](../validation/person_a_manifest_benchmark.json).
+`deterministic_rebuild.json` đối chiếu đủ 38 bảng. Fingerprint v2 là SHA256 trên multiset full row SHA256 đã sắp thứ tự. Chỉ bỏ cột thời điểm build, không bỏ cột nghiệp vụ để ép kết quả giống nhau. Benchmark checksum hiện hành nằm ở `identity_benchmark.json`.
 
 Tham khảo kỹ thuật: [Iceberg Spark writes](https://iceberg.apache.org/docs/latest/spark-writes/),
 [Spark DDL](https://iceberg.apache.org/docs/latest/spark-ddl/),

@@ -55,7 +55,7 @@ def code_state(root):
                 or p.startswith('requirements') and p.endswith('.txt')
                 or p.startswith('docker-compose') and p.endswith('.yml') and 'override' not in p
                 or p in {"docker-compose.yml", ".gitignore", ".gitattributes", ".env.example",
-                         "requirements.txt", "requirements-dev.txt", "guland_raw_crawler.py", "nhadatvui_raw_crawler.py"}
+                         "requirements.txt", "requirements-dev.txt"}
                 or p in {"docs/operations/release_validation.md", "docs/architecture.md"}}
     files = {}
     for name in sorted(selected):

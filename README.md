@@ -171,12 +171,11 @@ Kết quả chỉ áp dụng cho code và input đã kiểm chứng. Sau thay đ
 - History chỉ MERGE các dòng thực sự đổi; có khóa writer local, kiểm tra location/schema, checkpoint phục hồi và fast path cho snapshot đã xác minh không đổi. Dùng `--force-verify` để bỏ fast path.
 - Manifest, summary history và công cụ kiểm chứng ghi JSON nguyên tử, đọc được giữa UID Airflow/Spark. Runner không xóa thư mục app đang chạy.
 - Giới hạn container master 1536 MiB để chừa bộ nhớ ngoài heap driver; Ivy cache nằm đúng named volume, có init quyền cho lần tạo volume đầu.
-- Benchmark tối ưu trước tích hợp: manifest cached trung vị 3,64 giây (rehash 29 CSV); history MERGE 13,64 → 12,23 giây; lifecycle 2,89 → 2,66 giây. Đây là dataset đối chứng cố định cũ, không phải thời gian cam kết cho batch mới. Chỉ history incremental, không khẳng định cả pipeline nhanh theo cùng tỷ lệ.
-- Đối chiếu tối ưu trước đây giữ nguyên nội dung 28/28 bảng. Sau tích hợp Silver có sửa giá/diện tích và thêm một batch thật nên dữ liệu thay đổi có chủ đích; kiểm chứng hiện tại đối chiếu số liệu Spark với Trino và dashboard, không ép hash về kết quả cũ.
+- Bộ kiểm chứng hiện hành đối chiếu đủ 38 bảng qua hai rebuild, gồm schema, grain và hash toàn bộ nội dung. Benchmark checksum một/bốn worker được lưu trong `identity_benchmark.json`; không dùng thời gian của bộ dữ liệu cũ để cam kết hiệu năng cho batch mới.
 
-Kết quả kỹ thuật: [đối chiếu 28 bảng](docs/validation/person_a_output_equivalence.json),
-[benchmark history](docs/validation/person_a_history_optimization.json),
-[benchmark manifest](docs/validation/person_a_manifest_benchmark.json).
+Kết quả kỹ thuật: [hai rebuild](docs/validation/deterministic_rebuild.json),
+[history và retry](docs/validation/history_incremental_verification.json),
+[benchmark checksum](docs/validation/identity_benchmark.json).
 Chi tiết lệnh và giới hạn vận hành: [Iceberg history](docs/operations/iceberg_history.md).
 
 ## Bảng dữ liệu phục vụ phân tích
@@ -345,14 +344,13 @@ provision sau batch mới để cập nhật cấu hình và tiêu đề nhận 
 - [Kiểm tra dashboard](docs/validation/superset_dashboard_check.json): 49 biểu đồ và KPI.
 - [Benchmark truy vấn](docs/validation/query_benchmark.json): so sánh thời gian mô tả; truy vấn Gold/Silver không tương đương hoàn toàn nên không xem tỷ lệ thời gian là speedup có kiểm soát.
 - [Kịch bản demo kỹ thuật](docs/demo/kich_ban_demo.md): Airflow, fault gate, lifecycle, Iceberg và Trino.
-- [Kết quả thử thao tác demo](docs/validation/demo_rehearsals.json): hai lượt browser tự động PASS trên dữ liệu đã lưu; có video local không lời thuyết minh.
 - [Hướng dẫn gán nhãn](docs/validation/labeling/README.md): 198 mẫu có nhãn AI sơ bộ và một lượt rà soát; **0 mẫu hoàn tất hai lượt rà soát**, trạng thái `PARTIAL`. Các metric so với bộ nhãn hiện tại là kết quả tạm thời, chưa phải nghiệm thu nhãn thủ công độc lập.
 
 `verify_pipeline_dashboard` dùng bằng chứng run tích hợp đã lưu, không tự chứng
 nhận cho batch mới. Khi kiểm chứng một run mới cần export lại trạng thái Airflow,
 chạy lại kiểm định và provision trước khi đọc kết quả này.
 
-Probe trước A3 từng phát hiện hai bảng mô hình cũ; [bằng chứng probe](docs/validation/predata_runtime_compatibility.json) được giữ để truy nguyên. Lượt tích hợp dashboard mới đã rebuild và đối chiếu đúng toàn bộ 38 bảng qua Trino; dùng [kết quả hiện tại](docs/validation/pipeline_dashboard_integration.json) để đánh giá trạng thái đồng bộ.
+Dùng [kiểm định tích hợp hiện hành](docs/validation/pipeline_dashboard_integration.json) để đối chiếu 38 bảng Spark–Trino, biểu đồ và bộ lọc.
 
 DAG được giữ paused trong cửa sổ đọc để tránh writer tự động trùng lúc Trino hoạt động. Khi có batch mới, chuyển write mode rồi nộp run theo hướng dẫn ở trên. Một tag version mới chỉ tạo sau nghiệm thu dữ liệu chốt và CI trên đúng commit; mọi tag cũ được giữ nguyên.
 

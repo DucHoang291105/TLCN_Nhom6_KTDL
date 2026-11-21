@@ -1,7 +1,6 @@
 name: tlcn_bds_lakehouse
 
 # Production local stack: MinIO, Spark/Iceberg, Airflow, Trino and Superset.
-# Optional experiments are in docker-compose.experimental.yml.
 
 x-common-restart: &common-restart
   restart: unless-stopped
@@ -166,7 +165,7 @@ services:
     <<: *common-restart
     image: trinodb/trino@sha256:db58cc93e593a2706553745f276bb119c9810e69918be56ecde088ba7ccb0534
     container_name: tlcn_trino
-    profiles: [query, full]
+    profiles: [query]
     depends_on:
       postgres:
         condition: service_healthy
@@ -187,7 +186,7 @@ services:
 
   airflow-permissions:
     image: apache/airflow@sha256:26c73230367b57b118f59897db3f24fc56733b029ee2993cdba5365c33f77556
-    profiles: [orchestration, full]
+    profiles: [orchestration]
     user: "0:0"
     entrypoint: ["python", "-c", "from pathlib import Path; p=Path('/shared/validation'); p.mkdir(parents=True, exist_ok=True); p.chmod(0o777)"]
     volumes:
@@ -200,7 +199,7 @@ services:
       context: ./docker/airflow
     image: tlcn-airflow:3.3.1-week1
     container_name: tlcn_airflow
-    profiles: [orchestration, full]
+    profiles: [orchestration]
     depends_on:
       airflow-permissions:
         condition: service_completed_successfully
@@ -263,7 +262,7 @@ services:
       context: ./docker/superset
     image: tlcn-superset:6.0.0
     container_name: tlcn_superset_init
-    profiles: [dashboard, full]
+    profiles: [dashboard]
     depends_on:
       postgres:
         condition: service_healthy
@@ -295,7 +294,7 @@ services:
     <<: *common-restart
     image: tlcn-superset:6.0.0
     container_name: tlcn_superset
-    profiles: [dashboard, full]
+    profiles: [dashboard]
     depends_on:
       superset-init:
         condition: service_completed_successfully
@@ -318,10 +317,6 @@ volumes:
   trino_data:
   airflow_home:
   superset_home:
-  hadoop_namenode:
-  hadoop_datanode:
-  hadoop_yarn_local:
-  hadoop_yarn_logs:
 
 networks:
   tlcn_network:

@@ -20,9 +20,7 @@ flowchart TD
 ```
 
 PostgreSQL lưu metadata của Airflow và Superset; dữ liệu nghiệp vụ nằm trên
-MinIO. Hadoop/YARN, FastAPI và web-ui thuộc các profile thử nghiệm `hadoop` và
-`application`, ngoài phạm vi pipeline bảo vệ. Không cần bật các dịch vụ này.
-Không dùng profile `full` vì sẽ khởi động đồng thời writer và query engine.
+MinIO. Compose chỉ gồm các dịch vụ phục vụ pipeline; không chạy đồng thời cửa sổ ghi Spark và cửa sổ đọc Trino/Superset.
 
 Khi chuyển sang write mode, `src.orchestration.environment` kiểm tra không có
 writer/run đang hoạt động, dừng Superset/Trino, rồi mở lại các kết nối của
