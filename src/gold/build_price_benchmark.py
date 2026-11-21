@@ -26,7 +26,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.gold.gold_common import FLAG_COLUMNS, quartiles, representatives, share, write_summary
-from src.gold.gold_rules import BENCHMARK_LEVELS, MIN_PEER_GROUP_SIZE, UNKNOWN_KEY, legal_not_stated_by_position
+from src.gold.gold_rules import BENCHMARK_LEVELS, MIN_PEER_GROUP_SIZE, UNKNOWN_KEY, legal_not_stated_by_category, legal_not_stated_by_position
 
 LEVEL_KEYS = {
     "LOC_CAT_AREA_ROOM": ["location_key", "property_category_key", "area_band_key", "room_band_key"],
@@ -140,6 +140,13 @@ def main() -> None:
         "legal_not_stated_by_position": legal_not_stated_by_position(
             (r["price_position"], r["legal_known"], r["count"])
             for r in written.groupBy("price_position", "legal_known").count().collect()
+        ),
+        # Same comparison inside each property category, to see whether the category mix explains the difference.
+        "legal_not_stated_by_category": legal_not_stated_by_category(
+            (r["category_label"], r["price_position"], r["legal_known"], r["count"])
+            for r in written.join(spark.table(f"{gold}.dim_property_category").select("property_category_key", "category_label"),
+                                  "property_category_key", "left")
+            .groupBy("category_label", "price_position", "legal_known").count().collect()
         ),
         "status": "PASS",
     }

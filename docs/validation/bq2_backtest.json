@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-11-21T13:59:59.506754+00:00",
-  "finished_at": "2026-11-21T14:00:19.878630+00:00",
+  "started_at": "2026-11-21T14:45:58.704987+00:00",
+  "finished_at": "2026-11-21T14:46:11.994320+00:00",
   "preliminary": true,
   "observation_window": {
     "first_seen": "2026-09-22",
@@ -628,6 +628,11 @@
     "H1_supported": true,
     "H2_supported": false,
     "H2_supported_on_test_split": false
+  },
+  "conclusion_notes": {
+    "H1_supported": "Legacy key: significant at 5% without multiple-testing correction. Report H1_supported_after_multiple_testing instead.",
+    "H2_supported": "Legacy key: significant at 5% without multiple-testing correction.",
+    "preliminary": "Associations from a short observation window; not a forecast and not causal."
   },
   "limitations": [
     "Short window of twice-weekly crawls: few listings can show a price change.",

@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-11-21T14:25:06.627761+00:00",
-  "finished_at": "2026-11-21T14:25:26.785843+00:00",
+  "started_at": "2026-11-21T14:44:32.592120+00:00",
+  "finished_at": "2026-11-21T14:44:52.281225+00:00",
   "min_peer_group_size": 5,
   "representative_listings": 133480,
   "benchmark_groups_by_level": {
@@ -47,7 +47,48 @@
     },
     "below_p25_share": 0.767693,
     "other_priced_share": 0.856751,
-    "difference_points": -0.089058
+    "difference_share": -0.089058
+  },
+  "legal_not_stated_by_category": {
+    "by_category": {
+      "Biệt thự / liền kề / shophouse": {
+        "below_p25_listings": 2830,
+        "below_p25_share": 0.873145,
+        "other_priced_share": 0.888152,
+        "difference_share": -0.015007
+      },
+      "Căn hộ chung cư": {
+        "below_p25_listings": 7140,
+        "below_p25_share": 0.656303,
+        "other_priced_share": 0.805282,
+        "difference_share": -0.148979
+      },
+      "Không rõ": {
+        "below_p25_listings": 0,
+        "below_p25_share": null,
+        "other_priced_share": null,
+        "difference_share": null
+      },
+      "Nhà phố / nhà riêng": {
+        "below_p25_listings": 20113,
+        "below_p25_share": 0.78755,
+        "other_priced_share": 0.872481,
+        "difference_share": -0.084931
+      },
+      "Phòng trọ / thương mại / khác": {
+        "below_p25_listings": 847,
+        "below_p25_share": 0.92562,
+        "other_priced_share": 0.95026,
+        "difference_share": -0.02464
+      },
+      "Đất": {
+        "below_p25_listings": 1626,
+        "below_p25_share": 0.745387,
+        "other_priced_share": 0.792598,
+        "difference_share": -0.047211
+      }
+    },
+    "standardized_difference_share": -0.089447
   },
   "status": "PASS"
 }
