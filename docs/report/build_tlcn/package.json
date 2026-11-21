@@ -1,0 +1,6 @@
+{
+  "name": "build-tlcn-report",
+  "private": true,
+  "description": "Dựng báo cáo TLCN nhóm 6 theo mẫu trình bày của Khoa",
+  "dependencies": { "docx": "9.5.1" }
+}
