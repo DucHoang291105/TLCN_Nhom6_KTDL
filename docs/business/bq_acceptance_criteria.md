@@ -2,7 +2,7 @@
 
 Tài liệu này định nghĩa khi nào kết quả của mỗi Business Question được coi là **chấp nhận được** để đưa lên dashboard và báo cáo. Mỗi tiêu chí có ngưỡng đo được và chỉ ra minh chứng: một check trong `verify_gold.py` hoặc một số liệu trong `docs/validation/`.
 
-Số liệu hiện trạng lấy từ lần chạy dữ liệu tới batch **20261027** (pipeline chạy ngày 29/10, cùng bộ dữ liệu với tag `v1.0-bao-ve`). Riêng mục 3.2 đến 3.4 (mô hình hedonic và backtest BQ2) đã cập nhật theo dữ liệu tới batch **20261117**. Ngưỡng ở đây là đề xuất của vai B; nhóm thống nhất trong buổi họp, sửa trực tiếp file này nếu đổi ngưỡng.
+Số liệu hiện trạng lấy từ lần chạy dữ liệu tới batch **20261117** (Gold 138/138 check đạt). Một số bảng đếm ở các mục BQ1 và BQ3 có thể còn ghi số của lần chạy tới batch 20261027; khi trích vào báo cáo cần đối chiếu lại với file JSON tương ứng. Ngưỡng ở đây là đề xuất của vai B; nhóm thống nhất trong buổi họp, sửa trực tiếp file này nếu đổi ngưỡng.
 
 Trạng thái:
 
@@ -25,7 +25,7 @@ Người dùng lấy từ `problem_definition.md` (người mua) và `target_use
 
 | Mã | Tiêu chí | Ngưỡng | Minh chứng | Trạng thái |
 |---|---|---|---|---|
-| G1 | Gold kiểm định đầy đủ | `verify_gold` status PASS, không check nào FAIL | `gold_verification.json` | Đạt (108/108, dữ liệu tới batch 20261027) |
+| G1 | Gold kiểm định đầy đủ | `verify_gold` status PASS, không check nào FAIL | `gold_verification.json` | Đạt (138/138, dữ liệu tới batch 20261117) |
 | G2 | Chỉ dùng tin đại diện, tin nghi trùng chỉ đếm một lần | Các check `dup_*`, `non_suspect_is_representative` PASS | `gold_verification.json` | Đạt |
 | G3 | Kết quả tái lập được | Rebuild hai lần cho cùng nội dung bảng | `deterministic_rebuild.json` | Đạt |
 | G4 | Độ chính xác của 5 cờ đặc điểm và phân loại BĐS được đo | Có precision/recall cho từng cờ trên mẫu gán nhãn ≥ 150 tin; precision mỗi cờ ≥ 0,80 | `label_accuracy.json`, `label_accuracy_rules_compare.json` | Đạt sơ bộ (`status = PARTIAL`): mẫu 198 tin (22 tin × 9 nguồn). Trên dự đoán trước bộ quy tắc v5, precision cả 5 cờ từ 0,95 đến 1,00; recall từ 0,67 (pháp lý) đến 1,00; phân loại BĐS đúng 84,9%. Sau khi sửa quy tắc (v5) trên phần dev (122 tin), phần test giữ riêng 76 tin: precision 1,00 cả 5 cờ, recall pháp lý 1,00, mặt tiền 1,00, ô tô 1,00, nội thất 0,86, phân loại đúng 89,5%. Chưa chốt: nhãn gán sơ bộ bằng AI, hai người rà soát chỉ sửa 6/1.188 ô (0,5%), còn 4 tin tranh cãi |
@@ -136,26 +136,28 @@ Nếu một loại bất động sản không tốt hơn baseline có ý nghĩa 
 
 | Mã | Tiêu chí | Ngưỡng | Minh chứng | Trạng thái |
 |---|---|---|---|---|
-| B2.10 | Vị trí giá có ý nghĩa với hành vi thị trường | So sánh tỷ lệ giảm giá và số ngày quan sát giữa nhóm `tren_p75` (hoặc `residual_pct` lớn) và phần còn lại; kiểm định khác biệt p < 0,05 | `bq2_backtest.json` | Đạt một phần: H1 (vị trí so với P75) đạt cả khi kiểm soát nguồn (p = 0,0025); H2 (phần dư mô hình) đạt trên toàn bộ tin nhưng chưa đạt trên riêng tập test (p = 0,40); H3 không. Xem mục 3.4 |
+| B2.10 | Vị trí giá có ý nghĩa với hành vi thị trường | So sánh tỷ lệ giảm giá và số ngày quan sát giữa nhóm `tren_p75` (hoặc `residual_pct` lớn) và phần còn lại; kiểm định khác biệt p < 0,05 | `bq2_backtest.json` | Đạt một phần: H1 (vị trí so với P75) đạt ở mức yếu, p = 0,047 khi kiểm soát nguồn (chưa vượt hiệu chỉnh Bonferroni) và chỉ rõ ở TP.HCM; H2 (phần dư mô hình) chưa đạt khi kiểm soát nguồn (p = 0,25 toàn bộ, p = 0,59 tập test); H3 không. Xem mục 3.4 |
 
 ### 3.4. Kết quả backtest
 
-Nguồn: `docs/validation/bq2_backtest.json`, script `src/quality/bq2_backtest.py`. Đối tượng: 64.381 tin đại diện của 3 nguồn crawl, quan sát ít nhất 2 batch, từ 22/09 đến 17/11/2026 (62.472 tin có vị trí giá lúc mới đăng, 61.521 tin có phần dư mô hình). Vị trí giá tính theo **giá lúc mới đăng** (phiên bản đầu trong `listing_history`), vì giá hiện tại đã bao gồm lần giảm giá. Kết quả vẫn mang tính quan sát: tin không được gán ngẫu nhiên vào các mức giá.
+Nguồn: `docs/validation/bq2_backtest.json`, script `src/quality/bq2_backtest.py`. Đối tượng: 64.381 tin đại diện của 3 nguồn crawl, quan sát ít nhất 2 batch, từ 22/09 đến 17/11/2026 (62.472 tin có vị trí giá lúc mới đăng, 61.521 tin có phần dư mô hình). "Giảm giá" tính theo cùng định nghĩa với dashboard BQ2: lần giảm từ 1% đến 30% so với giá trước đó (`GENUINE_CUT` trong `build_bq_evidence.py`), để loại các lần đổi giá quá lớn, nhiều khả năng là sửa lỗi nhập liệu. Vị trí giá tính theo **giá lúc mới đăng** (phiên bản đầu trong `listing_history`), vì giá hiện tại đã bao gồm lần giảm giá. Kết quả vẫn mang tính quan sát: tin không được gán ngẫu nhiên vào các mức giá.
 
 | Vị trí lúc mới đăng | Số tin | Tỷ lệ có giảm giá |
 |---|---:|---:|
-| Dưới P25 | 16.634 | 2,22% |
-| P25–P75 | 31.010 | 3,52% |
-| Trên P75 | 14.828 | 4,48% |
+| Dưới P25 | 16.634 | 2,16% |
+| P25–P75 | 31.010 | 3,32% |
+| Trên P75 | 14.828 | 4,09% |
 
-- **H1 (trên P75 giảm giá nhiều hơn): đạt.** Nhóm trên P75 giảm giá 4,48% so với 3,07% của các tin còn lại (gấp 1,46 lần, khoảng tin cậy 95% của chênh lệch 1,05 đến 1,79 điểm phần trăm, p < 0,001). Kiểm soát theo nguồn bằng CMH: tỷ số odds 1,16, p = 0,0025, vẫn đạt nếu hiệu chỉnh Bonferroni cho 3 kiểm định chính (ngưỡng 0,017). Mức chênh tuyệt đối nhỏ, khoảng 1,4 điểm phần trăm.
-- **H2 (phần dư mô hình cao giảm giá nhiều hơn): đạt một phần.** Trên toàn bộ tin, tỷ lệ tăng từ 2,63% (Q1) lên 4,46% (Q5); kiểm soát nguồn bằng CMH cho p = 0,017, sát ngưỡng Bonferroni 0,017 nên chỉ đạt ở mức 5% khi không hiệu chỉnh. Phần dư của tin huấn luyện nằm trong mẫu của mô hình, nên kiểm định đúng hơn là riêng tập test (12.354 tin): tỷ lệ 4,53% so với 3,14%, nhưng sau khi kiểm soát nguồn p = 0,40 (chưa đạt). Báo cáo là "chưa khẳng định".
+- **H1 (trên P75 giảm giá nhiều hơn): đạt ở mức yếu.** Nhóm trên P75 giảm giá 4,09% so với 2,92% của các tin còn lại (gấp 1,40 lần, chênh 1,17 điểm phần trăm, khoảng tin cậy 95% từ 0,81 đến 1,52). Khi so sánh thô p < 0,001, nhưng sau khi kiểm soát nguồn bằng CMH, tỷ số odds chỉ còn 1,11 với p = 0,047, tức sát ngưỡng 0,05 và không vượt ngưỡng Bonferroni 0,017 cho 3 kiểm định chính. Kiểm soát đồng thời tỉnh và nguồn cho tỷ số odds 1,12, p = 0,030. Vì vậy kết luận được diễn đạt là "có xu hướng", không phải khẳng định chắc.
+- **H1 theo tỉnh:** hiệu ứng tập trung ở TP.HCM (3,73% so với 2,23%, gấp 1,67 lần; CMH theo nguồn p = 0,013). Hà Nội gần như không có khác biệt (6,09% so với 5,93%, p = 0,63), Đà Nẵng và nhóm tỉnh khác chưa có ý nghĩa sau khi kiểm soát nguồn (p = 0,75 và 0,10). Mặt bằng giảm giá ở Hà Nội cao hơn hẳn các nơi khác nên nhận định "tin đắt giảm giá nhiều hơn" không nên áp dụng chung cho mọi tỉnh.
+- **Độ nhạy theo định nghĩa giảm giá:** nếu tính mọi lần giảm kể cả trên 30%, tỷ lệ là 4,48% so với 3,07% và CMH cho p = 0,0025. Chênh lệch giữa hai định nghĩa cho thấy các lần giảm rất lớn đóng góp đáng kể vào kết quả mạnh hơn, nên báo cáo dùng định nghĩa chặt (1–30%) làm kết quả chính.
+- **H2 (phần dư mô hình cao giảm giá nhiều hơn): chưa khẳng định.** Trên toàn bộ tin, tỷ lệ tăng từ 2,45% (Q1) lên 4,03% (Q5) và so sánh thô có ý nghĩa, nhưng kiểm soát nguồn bằng CMH cho p = 0,25. Phần dư của tin huấn luyện nằm trong mẫu của mô hình, nên kiểm định đúng hơn là riêng tập test (12.354 tin): 4,25% so với 3,02%, sau khi kiểm soát nguồn p = 0,59. Phần lớn chênh lệch thô đến từ khác biệt giữa các nguồn.
 - **H3 (tin đắt được quan sát lâu hơn): không.** Trung vị mọi nhóm là 3 ngày; khác biệt có ý nghĩa thống kê nhưng gần bằng 0 (xác suất trội 0,49) và ngược chiều.
-- **Kết quả nhạy với lượng dữ liệu:** với dữ liệu tới 23/10, kiểm định CMH của H1 cho p = 0,08 (chưa đạt); thêm batch 27/10 thì p = 0,006; với dữ liệu tới 17/11 thì p = 0,0025. Kết quả H1 ổn định từ 27/10 trở đi, nhưng cần tiếp tục theo dõi khi có thêm batch.
-- **Độ lệch khi dùng giá hiện tại được xác nhận:** xếp theo giá hiện tại thì nhóm trên P75 chỉ còn 3,45% giảm giá, thấp hơn nhóm P25–P75 (3,62%), thay vì 4,48%.
+- **Kết quả nhạy với lượng dữ liệu:** các giá trị p của H1 ở phần trên và ở mục độ nhạy dao động theo lượng dữ liệu (với định nghĩa tính mọi lần giảm: p = 0,08 tới 23/10, 0,006 tới 27/10, 0,0025 tới 17/11; định nghĩa chặt chưa chạy trên các mốc cũ). Cần chạy lại khi có thêm batch.
+- **Độ lệch khi dùng giá hiện tại được xác nhận:** xếp theo giá hiện tại thì nhóm trên P75 chỉ còn 3,21% giảm giá, thấp hơn nhóm P25–P75 (3,38%), thay vì 4,09% khi xếp theo giá lúc mới đăng.
 - **Chỉ số "biến mất" chưa dùng được:** khoảng 87% số tin vắng ở 2 batch gần nhất, quá cao để là tin đã bán; nhiều khả năng do crawler chỉ lấy một số trang đầu.
 
-Giới hạn: khoảng 5 tuần dữ liệu, 1.376 tin từng giảm giá; kết quả là tương quan, không phải quan hệ nhân quả.
+Giới hạn: khoảng 8 tuần dữ liệu (22/09 đến 17/11), 1.997 tin từng giảm giá theo định nghĩa 1–30% (606 trong nhóm trên P75, 1.391 ở nhóm còn lại); kết quả là tương quan, không phải quan hệ nhân quả.
 
 ## 4. BQ3 – Khu vực thay thế cùng tỉnh
 

@@ -111,3 +111,26 @@ def test_backtest_residual_analysis_needs_enough_rows():
     from src.quality.bq2_backtest import residual_analysis
 
     assert "note" in residual_analysis([_row("guland", "p25_p75", False, 3, None, 0.1)])
+
+
+def _province_row(source, province, position, genuine_drop, any_drop):
+    return (source, position, position, genuine_drop, 5, False, None, "train", province, any_drop)
+
+
+def test_backtest_province_groups_and_outcome_swap():
+    from src.quality.bq2_backtest import ANY_DROP, HAS_DROP, by_province, province_group, province_source_cmh, with_outcome
+
+    assert province_group("Hà Nội") == "Hà Nội" and province_group("Cần Thơ") == "Tỉnh khác"
+    assert province_group(None) == "Tỉnh khác"
+    row = _province_row("guland", "Hà Nội", "tren_p75", False, True)
+    swapped = with_outcome([row], ANY_DROP)[0]
+    assert swapped[HAS_DROP] is True and len(swapped) == len(row)
+
+    rng = random.Random(5)
+    sources = ["batdongsan", "guland", "nhadatvui"]
+    expensive = [_province_row(rng.choice(sources), "Hồ Chí Minh", "tren_p75", rng.random() < 0.3, False) for _ in range(300)]
+    others = [_province_row(rng.choice(sources), "Hồ Chí Minh", "p25_p75", rng.random() < 0.1, False) for _ in range(600)]
+    result = by_province(expensive, others)
+    assert result["Hồ Chí Minh"]["listings_a"] == 300 and result["Hà Nội"]["listings_a"] == 0
+    assert result["Hồ Chí Minh"]["price_drop"]["difference"] > 0
+    assert province_source_cmh(expensive, others)["p_value"] < 0.05

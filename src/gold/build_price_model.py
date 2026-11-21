@@ -184,7 +184,7 @@ def main() -> None:
     fit_rdd = fit.select(*TERM_COLUMNS, "log_price_per_m2").rdd
     term_counts: dict[int, dict[str, int]] = defaultdict(dict)
     for (category, term), count in fit_rdd.flatMap(
-        lambda row: [((row["property_category_key"], term), 1) for term in row_terms(row)]
+        lambda row: [((row["property_category_key"], name), 1) for name in row_terms(row)]
     ).reduceByKey(add).collect():
         term_counts[category][term] = count
     vocabularies = {category: build_vocabulary(counts) for category, counts in sorted(term_counts.items())}
