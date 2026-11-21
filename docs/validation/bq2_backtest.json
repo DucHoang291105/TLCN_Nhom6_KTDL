@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-11-21T13:12:55.799185+00:00",
-  "finished_at": "2026-11-21T13:13:12.285456+00:00",
+  "started_at": "2026-11-21T13:59:59.506754+00:00",
+  "finished_at": "2026-11-21T14:00:19.878630+00:00",
   "preliminary": true,
   "observation_window": {
     "first_seen": "2026-09-22",
@@ -269,6 +269,120 @@
     },
     "price_drop_higher_and_significant": true
   },
+  "H1_by_crawl_depth": {
+    "note": "Same comparison within listings first seen after each source's crawl depth became constant (stable_crawl_depth) and within the earlier, deeper-crawled listings. Exploratory, not corrected.",
+    "stable_depth_from": {
+      "batdongsan": "2026-09-29",
+      "guland": "2026-10-23",
+      "nhadatvui": "2026-09-29"
+    },
+    "stable_crawl_depth": {
+      "listings_a": 3085,
+      "listings_b": 8610,
+      "price_drop": {
+        "n_a": 3085,
+        "events_a": 205,
+        "n_b": 8610,
+        "events_b": 422,
+        "rate_a": 0.066451,
+        "rate_b": 0.049013,
+        "difference": 0.017438,
+        "ci95_difference": [
+          0.007536,
+          0.02734
+        ],
+        "relative_risk": 1.3558,
+        "z": 3.6894,
+        "p_value": 0.00022480861195452582
+      },
+      "price_drop_by_source_cmh": {
+        "strata": 3,
+        "odds_ratio_mh": 1.2206,
+        "chi2": 5.1141,
+        "p_value": 0.02373216184661218
+      },
+      "listed_days_mann_whitney": {
+        "n_a": 3085,
+        "n_b": 8610,
+        "median_a": 7.0,
+        "median_b": 7.0,
+        "u_a": 12901425.5,
+        "z": -2.3898,
+        "p_value": 0.016858656510514037,
+        "prob_a_greater": 0.485713
+      },
+      "disappeared": {
+        "n_a": 3085,
+        "events_a": 1904,
+        "n_b": 8610,
+        "events_b": 4844,
+        "rate_a": 0.61718,
+        "rate_b": 0.562602,
+        "difference": 0.054578,
+        "ci95_difference": [
+          0.034478,
+          0.074678
+        ],
+        "relative_risk": 1.097,
+        "z": 5.2649,
+        "p_value": 1.4026130588241408e-07
+      },
+      "price_drop_higher_and_significant": true
+    },
+    "early_deeper_crawls": {
+      "listings_a": 11743,
+      "listings_b": 39034,
+      "price_drop": {
+        "n_a": 11743,
+        "events_a": 401,
+        "n_b": 39034,
+        "events_b": 969,
+        "rate_a": 0.034148,
+        "rate_b": 0.024825,
+        "difference": 0.009323,
+        "ci95_difference": [
+          0.005694,
+          0.012953
+        ],
+        "relative_risk": 1.3756,
+        "z": 5.4672,
+        "p_value": 4.570815674586549e-08
+      },
+      "price_drop_by_source_cmh": {
+        "strata": 3,
+        "odds_ratio_mh": 1.0367,
+        "chi2": 0.3299,
+        "p_value": 0.56573961608012
+      },
+      "listed_days_mann_whitney": {
+        "n_a": 11743,
+        "n_b": 39034,
+        "median_a": 3.0,
+        "median_b": 3.0,
+        "u_a": 224690047.5,
+        "z": -3.5654,
+        "p_value": 0.00036333092649697547,
+        "prob_a_greater": 0.490187
+      },
+      "disappeared": {
+        "n_a": 11743,
+        "events_a": 11009,
+        "n_b": 39034,
+        "events_b": 36080,
+        "rate_a": 0.937495,
+        "rate_b": 0.924322,
+        "difference": 0.013172,
+        "ci95_difference": [
+          0.008068,
+          0.018277
+        ],
+        "relative_risk": 1.0143,
+        "z": 4.8223,
+        "p_value": 1.419398311477989e-06
+      },
+      "price_drop_higher_and_significant": false
+    }
+  },
   "H2_residual_all_listings": {
     "listings": 61521,
     "residual_quintile_edges_log": [
@@ -510,6 +624,7 @@
     "H2_supported_after_multiple_testing": false,
     "H2_supported_on_test_split_at_5pct": false,
     "H2_supported_on_test_split_after_multiple_testing": false,
+    "H1_supported_at_5pct_stable_crawl_depth": true,
     "H1_supported": true,
     "H2_supported": false,
     "H2_supported_on_test_split": false
@@ -519,6 +634,7 @@
     "listed_days is the span between first and last observation, not time to sale.",
     "Absence from the two latest batches is not a sale.",
     "Peer-group P25/P75 are computed on current prices.",
+    "Crawl depth changed over time (rows per batch fell from tens of thousands to 1.350 to 4.000); a price change can only be seen on a listing that is crawled again, so observed drop rates depend on depth. H1_by_crawl_depth repeats H1 on listings first seen at constant depth.",
     "Associations only; listings were not randomly assigned to price positions."
   ],
   "status": "PASS"
