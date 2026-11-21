@@ -26,7 +26,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.gold.gold_common import FLAG_COLUMNS, quartiles, representatives, share, write_summary
-from src.gold.gold_rules import BENCHMARK_LEVELS, MIN_PEER_GROUP_SIZE, UNKNOWN_KEY
+from src.gold.gold_rules import BENCHMARK_LEVELS, MIN_PEER_GROUP_SIZE, UNKNOWN_KEY, legal_not_stated_by_position
 
 LEVEL_KEYS = {
     "LOC_CAT_AREA_ROOM": ["location_key", "property_category_key", "area_band_key", "room_band_key"],
@@ -121,6 +121,7 @@ def main() -> None:
         flag_count.alias("feature_count"),
         F.when(has_peer, F.round(flag_count - peer_flag_expectation, 6)).alias("feature_count_vs_peer"),
         (position.eqNullSafe("duoi_p25") & ~F.col("legal_known")).alias("is_low_price_missing_legal"),
+        F.col("legal_known"),
     )
     write_iceberg_table(assessment, f"{gold}.fact_listing_price_assessment")
     written = spark.table(f"{gold}.fact_listing_price_assessment")
@@ -135,6 +136,11 @@ def main() -> None:
         "assessment_by_level": {str(r["benchmark_level"]): int(r["count"]) for r in written.groupBy("benchmark_level").count().collect()},
         "price_position_counts": {str(r["price_position"]): int(r["count"]) for r in written.groupBy("price_position").count().collect()},
         "low_price_missing_legal": written.filter("is_low_price_missing_legal").count(),
+        # The flag above only exists below P25, so compare the underlying legal_known by position.
+        "legal_not_stated_by_position": legal_not_stated_by_position(
+            (r["price_position"], r["legal_known"], r["count"])
+            for r in written.groupBy("price_position", "legal_known").count().collect()
+        ),
         "status": "PASS",
     }
     write_summary("gold_price_benchmark_summary.json", summary)
