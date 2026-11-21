@@ -19,8 +19,8 @@ larger drops are mostly corrected typing errors), days between first and last
 observation, and absence from the source's two latest batches. Tests:
 two-proportion z-test, Cochran–Mantel–Haenszel by source, Mann–Whitney U
 (``backtest_stats.py``). Sensitivity: the same test counting every drop, the
-test stratified by province and source, and the result within the largest
-provinces.
+test stratified by province and source, the result within the largest
+provinces, and the result within listings first seen at constant crawl depth.
 
 Limits: a few weeks of twice-weekly crawls; listed_days is an observation
 window, not time to sale; absence is not a sale; peer groups use current
@@ -33,7 +33,7 @@ from __future__ import annotations
 
 import sys
 from collections import Counter, defaultdict
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -57,7 +57,35 @@ PROVINCE_GROUPS = ("Hồ Chí Minh", "Hà Nội", "Đà Nẵng")
 OTHER_PROVINCES = "Tỉnh khác"
 
 # Columns of the collected rows. HAS_DROP is a genuine cut; ANY_DROP counts every drop.
-SOURCE, INITIAL_POSITION, CURRENT_POSITION, HAS_DROP, LISTED_DAYS, DISAPPEARED, RESIDUAL, SPLIT, PROVINCE, ANY_DROP = range(10)
+(SOURCE, INITIAL_POSITION, CURRENT_POSITION, HAS_DROP, LISTED_DAYS, DISAPPEARED, RESIDUAL, SPLIT, PROVINCE, ANY_DROP,
+ FIRST_SEEN) = range(11)
+
+# First batch from which each source was crawled to a constant depth (rows per batch in
+# docs/validation/crawl_coverage.json: Batdongsan 4.000 and Nhadatvui 3.600 from 29/09, Guland 1.350, i.e.
+# 30 pages, from 23/10). Before that date a batch was much deeper than the ones after it, so a listing seen in a
+# deep batch but missing from a shallow one is "not re-crawled", not "gone".
+STABLE_CRAWL_DEPTH_FROM = {
+    "batdongsan": date(2026, 9, 29),
+    "guland": date(2026, 10, 23),
+    "nhadatvui": date(2026, 9, 29),
+}
+
+
+def is_stable_crawl_depth(row: tuple) -> bool:
+    first_seen, source = row[FIRST_SEEN], row[SOURCE]
+    return first_seen is not None and source in STABLE_CRAWL_DEPTH_FROM and first_seen >= STABLE_CRAWL_DEPTH_FROM[source]
+
+
+def split_by_crawl_depth(rows: list[tuple]) -> tuple[list[tuple], list[tuple]]:
+    """(stable, early): rows first seen once the source's crawl depth had stopped changing, and the rest.
+
+    Re-observation depends on how deep the later batches reach (a listing outside the crawled pages cannot show a
+    price change), so the stable cohort removes the depth differences between early and late listings.
+    """
+
+    stable = [row for row in rows if is_stable_crawl_depth(row)]
+    early = [row for row in rows if not is_stable_crawl_depth(row)]
+    return stable, early
 
 
 def describe(rows: list[tuple]) -> dict[str, Any]:
@@ -225,7 +253,7 @@ def main() -> None:
         "source", initial_position.alias("initial_position"), "current_position",
         F.coalesce(F.col("_drop") == 1, F.lit(False)).alias("has_drop"),
         "listed_days", "is_disappeared", residual.alias("residual"), "split", "province",
-        F.coalesce(F.col("_any_drop") == 1, F.lit(False)).alias("any_drop"),
+        F.coalesce(F.col("_any_drop") == 1, F.lit(False)).alias("any_drop"), "first_seen_date",
     ).rdd.map(tuple).collect()
     window = base.agg(F.min("first_seen_date").alias("first"), F.max("last_seen_date").alias("last")).first()
 
@@ -237,6 +265,12 @@ def main() -> None:
     position_test["price_drop_by_province_source_cmh"] = province_source_cmh(expensive, not_expensive)
     position_by_province = by_province(expensive, not_expensive)
     position_all_drops = compare(with_outcome(expensive, ANY_DROP), with_outcome(not_expensive, ANY_DROP))
+    stable_depth_rows, early_rows = split_by_crawl_depth(rows)
+    by_depth = {}
+    for name, members in (("stable_crawl_depth", stable_depth_rows), ("early_deeper_crawls", early_rows)):
+        top = [row for row in members if row[INITIAL_POSITION] == "tren_p75"]
+        rest = [row for row in members if row[INITIAL_POSITION] in ("duoi_p25", "p25_p75")]
+        by_depth[name] = {"listings_a": len(top), "listings_b": len(rest), **compare(top, rest)}
     residual_all = residual_analysis(rows)
     residual_test_split = residual_analysis([row for row in rows if row[SPLIT] == "test"])
 
@@ -266,6 +300,12 @@ def main() -> None:
             "note": "Same comparison counting every price decrease, including cuts larger than 30%.",
             **position_all_drops,
         },
+        "H1_by_crawl_depth": {
+            "note": "Same comparison within listings first seen after each source's crawl depth became constant "
+                    "(stable_crawl_depth) and within the earlier, deeper-crawled listings. Exploratory, not corrected.",
+            "stable_depth_from": {source: day.isoformat() for source, day in STABLE_CRAWL_DEPTH_FROM.items()},
+            **by_depth,
+        },
         "H2_residual_all_listings": residual_all,
         "H2_residual_test_split_only": residual_test_split,
         "reference_current_position_biased": {
@@ -293,6 +333,7 @@ def main() -> None:
                 residual_test_split.get("top_quintile_vs_rest")
                 and supported_after_multiple_testing(residual_test_split["top_quintile_vs_rest"])
             ),
+            "H1_supported_at_5pct_stable_crawl_depth": by_depth["stable_crawl_depth"]["price_drop_higher_and_significant"],
             "H1_supported": position_test["price_drop_higher_and_significant"],
             "H2_supported": bool(residual_all.get("top_quintile_vs_rest", {}).get("price_drop_higher_and_significant")),
             "H2_supported_on_test_split": bool(residual_test_split.get("top_quintile_vs_rest", {}).get("price_drop_higher_and_significant")),
@@ -302,6 +343,9 @@ def main() -> None:
             "listed_days is the span between first and last observation, not time to sale.",
             "Absence from the two latest batches is not a sale.",
             "Peer-group P25/P75 are computed on current prices.",
+            "Crawl depth changed over time (rows per batch fell from tens of thousands to 1.350 to 4.000); a price change "
+            "can only be seen on a listing that is crawled again, so observed drop rates depend on depth. "
+            "H1_by_crawl_depth repeats H1 on listings first seen at constant depth.",
             "Associations only; listings were not randomly assigned to price positions.",
         ],
         "status": "PASS",

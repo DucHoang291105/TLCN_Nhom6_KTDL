@@ -148,3 +148,30 @@ def test_multiple_testing_uses_exact_bonferroni_threshold():
     assert backtest.supported_after_multiple_testing(comparison(1e-9, 0.0166))
     assert not backtest.supported_after_multiple_testing(comparison(1e-9, 0.001, difference=-0.01))
     assert not backtest.supported_after_multiple_testing(comparison(None, 0.001))
+
+
+def test_split_by_crawl_depth_uses_each_sources_stable_date():
+    from datetime import date
+
+    from src.quality import bq2_backtest as backtest
+
+    def row(source, first_seen):
+        values = [None] * 11
+        values[backtest.SOURCE], values[backtest.FIRST_SEEN] = source, first_seen
+        return tuple(values)
+
+    rows = [
+        row("guland", date(2026, 10, 22)),      # day before Guland's 30-page batches: early
+        row("guland", date(2026, 10, 23)),      # first stable day
+        row("batdongsan", date(2026, 9, 25)),   # deep 14.000-row batch: early
+        row("batdongsan", date(2026, 9, 29)),
+        row("nhadatvui", date(2026, 11, 17)),
+        row("nhadatvui", None),                 # unknown first-seen date is never counted as stable
+        row("unknown_source", date(2026, 11, 1)),
+    ]
+    stable, early = backtest.split_by_crawl_depth(rows)
+    assert [(r[backtest.SOURCE], r[backtest.FIRST_SEEN]) for r in stable] == [
+        ("guland", date(2026, 10, 23)), ("batdongsan", date(2026, 9, 29)), ("nhadatvui", date(2026, 11, 17)),
+    ]
+    assert len(stable) + len(early) == len(rows)
+    assert set(backtest.STABLE_CRAWL_DEPTH_FROM) == set(backtest.CRAWL_SOURCES)
