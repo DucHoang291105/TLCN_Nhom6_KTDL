@@ -168,7 +168,7 @@ def lineage():
     edges = [((0, 0), (1, 0)), ((0, 1), (1, 0)), ((0, 0), (1, 1)), ((1, 0), (2, 0)), ((1, 0), (2, 1)),
              ((2, 2), (3, 0)), ((2, 2), (3, 1)), ((3, 0), (4, 0)), ((3, 1), (4, 0)), ((3, 1), (4, 1)), ((2, 3), (4, 2))]
     for (a, b) in edges:
-        (ax1, bx1, ay), (ax2, bx2, by) = centers[a], centers[b]
+        (ax1, bx1, ay), (ax2, _bx2, by) = centers[a], centers[b]
         if a[0] == b[0]:
             ax.annotate("", xy=(ax1 + 0.1, by + 0.48), xytext=(ax1 + 0.1, ay - 0.48), arrowprops=dict(arrowstyle="-|>", lw=0.8, color=LINE, connectionstyle="arc3,rad=0.35"))
         else:
