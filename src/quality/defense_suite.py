@@ -97,6 +97,8 @@ def suite(batch, run_id, attach=False):
         shutil.copy2(ROOT / f"outputs/determinism/run{number}.json", work / f"run{number}.json")
     for job in ("verify_history_incremental", "verify_lifecycle_fixtures", "demo_iceberg_features"):
         execute(work, job, [*ps, "scripts/run_spark.ps1", f"src/quality/{job}.py"])
+    execute(work, "pause-scheduler", ["docker", "exec", "tlcn_airflow", "python", "-c",
+        "from src.orchestration.airflow_run import session; r=session().patch('http://localhost:8080/api/v2/dags/lakehouse_pipeline',json={'is_paused':True},timeout=30); r.raise_for_status(); print('Paused for query window')"])
     execute(work, "read-window", [sys.executable, "-m", "src.orchestration.environment", "read"])
     archive = f"/app/superset_home/before_{run_id}.zip"
     execute(work, "dashboard-backup", ["docker", "exec", "tlcn_superset", "superset", "export-dashboards", "-f", archive])

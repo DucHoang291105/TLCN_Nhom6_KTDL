@@ -7,7 +7,7 @@ import subprocess
 from pathlib import Path
 
 from src.orchestration.snapshot_manifest import file_checksum
-from src.quality.defense_evidence import ROOT, all_pass, code_state, inputs, read
+from src.quality.defense_evidence import ROOT, all_pass, code_state, inputs, read, evidence_checksum
 
 PLANNED_TAGS = ("v1.0-bao-ve", "v1.1-bao-ve")
 
@@ -19,7 +19,9 @@ def verified_candidate(root, evidence):
     if inputs(root) != evidence["inputs"]:
         raise ValueError("Source data changed after verification; rerun the acceptance suite")
     for name, reference in evidence["evidence"].items():
-        if file_checksum(Path(root) / "docs/validation" / f"{name}.json")[0] != reference["sha256"]:
+        path = Path(root) / "docs/validation" / f"{name}.json"
+        checksum = evidence_checksum(path) if reference.get('hash_normalization') == 'LF' else file_checksum(path)[0]
+        if checksum != reference["sha256"]:
             raise ValueError(f"Evidence changed after verification: {name}")
 
 

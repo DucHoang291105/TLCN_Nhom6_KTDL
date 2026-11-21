@@ -22,6 +22,7 @@ ARTIFACTS = (
     "silver_final_verification", "gold_verification", "deterministic_rebuild",
     "history_incremental_verification", "lifecycle_fixture_tests", "iceberg_features",
     "superset_dashboard_check", "pipeline_dashboard_integration",
+    "price_model_summary", "gold_bq_evidence_summary",
 )
 
 
@@ -33,12 +34,22 @@ def all_pass(checks):
     return bool(checks) and all(value is True for value in checks.values())
 
 
+def evidence_checksum(path):
+    """Bind JSON content while tolerating Git's LF/CRLF checkout conversion.
+
+    Input CSV checksums remain byte-for-byte; only versioned JSON evidence
+    uses this explicitly recorded newline normalization.
+    """
+    return hashlib.sha256(Path(path).read_bytes().replace(b'\r\n', b'\n')).hexdigest()
+
+
 def code_state(root):
     """Hash tracked and not-ignored code/config; omit secrets and runtime outputs."""
     raw = subprocess.check_output(["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"], cwd=root)
     paths = {p.decode("utf-8") for p in raw.split(b"\0") if p}
     selected = {p for p in paths if p.startswith(("src/", "scripts/", "tests/", "dags/", "config/", "docker/", ".github/"))
-                or p in {"docker-compose.yml", ".gitignore", ".gitattributes", "requirements.txt", "requirements-dev.txt"}
+                or p in {"docker-compose.yml", ".gitignore", ".gitattributes", ".env.example",
+                         "requirements.txt", "requirements-dev.txt", "guland_raw_crawler.py", "nhadatvui_raw_crawler.py"}
                 or p in {"docs/operations/release_validation.md", "docs/architecture.md"}}
     files = {}
     for name in sorted(selected):
@@ -176,9 +187,9 @@ def verify(root, work):
     evidence = {}
     for name, data in docs.items():
         path = root / "docs/validation" / f"{name}.json"
-        timestamp = data.get("generated_at") or datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat()
+        timestamp = data.get("generated_at") or data.get("finished_at") or datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat()
         checks[f"fresh:{name}"] = datetime.fromisoformat(timestamp.replace("Z", "+00:00")) >= started
-        evidence[name] = {"sha256": file_checksum(path)[0], "timestamp": timestamp}
+        evidence[name] = {"sha256": evidence_checksum(path), "hash_normalization": "LF", "timestamp": timestamp}
     for label, data in (("first", first), ("second", second)):
         checks[f"fresh_fingerprint:{label}"] = datetime.fromisoformat(data["generated_at"]) >= started
     payload = {"generated_at": datetime.now(timezone.utc).isoformat(), "scope": "Person A: pipeline and operation across the three-week plan",

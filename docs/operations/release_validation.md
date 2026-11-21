@@ -11,7 +11,7 @@ flowchart TD
     Bronze --> Silver[Silver Iceberg: observation, current, history, location, feature]
     Silver --> Gold[Gold Iceberg: dimension, fact, lifecycle, BQ1-BQ3, mô hình giá]
     Gold --> Trino[Trino]
-    Trino --> Superset[Superset: 4 dashboard]
+    Trino --> Superset[Superset: 5 dashboard, 49 biểu đồ]
     Airflow[Airflow: manifest, Bronze, Silver, verify, Gold, verify] -. điều phối .-> Bronze
     Airflow -. điều phối .-> Silver
     Airflow -. điều phối .-> Gold
@@ -46,9 +46,9 @@ không phải kiểm chứng đọc/ghi đồng thời hoặc catalog nhiều wr
 1. Chọn ngày batch thực sự có đủ ba CSV, kiểm tra manifest và checksum.
    Không đổi ngày dữ liệu cũ và không tự tái tạo một batch lịch sử bị thiếu.
 2. Dừng query/dashboard; khởi động dịch vụ core và orchestration.
-3. Chạy DAG đủ 24 task, gồm mô hình giá; xuất trạng thái và thời gian từng task.
+3. Chạy DAG đủ 26 task, gồm mô hình giá và các bảng minh chứng BQ; xuất trạng thái và thời gian từng task.
 4. Rebuild Silver/Gold hai lần từ cùng Bronze, history ở chế độ `rebuild`.
-   Fingerprint phải phủ đủ 30 bảng, so số dòng, khóa grain, schema và SHA256
+   Fingerprint phải phủ đủ 38 bảng, so số dòng, khóa grain, schema và SHA256
    của toàn bộ multiset row hash. Chỉ bỏ cột thời điểm build.
    Quarantine giữ đủ các dòng raw bị loại, kể cả dòng giống hệt nhau; kiểm
    tra đủ số lần xuất hiện bằng multiset hash thay vì ép khóa quarantine duy nhất.
@@ -56,7 +56,7 @@ không phải kiểm chứng đọc/ghi đồng thời hoặc catalog nhiều wr
    lifecycle và demo Iceberg trong namespace sandbox riêng.
 6. Sau khi mọi Spark job kết thúc, bật Trino/Superset. Sao lưu dashboard trước
    khi chạy provisioning (script tái tạo các dashboard/dataset do nó quản lý).
-   Đối chiếu đủ 30 bảng, 29 chart và bộ lọc tỉnh; refresh nhận xét dashboard
+   Đối chiếu đủ 38 bảng, 49 chart và bộ lọc tỉnh; refresh nhận xét dashboard
    vì số cặp BQ3 đã thay đổi.
 7. Chạy pytest, compileall và kiểm tra diff; lưu kết quả thực tế trong
    `docs/validation/`, log đầy đủ và bản sao kết quả cũ trong `outputs/`.
@@ -96,21 +96,27 @@ báo. Guland 20/10/2026 thiếu do lỗi website; không tạo batch giả để
 Sau khi commit/push bản đã kiểm chứng và CI xanh trên đúng commit:
 
 ```powershell
-python -m src.quality.tag_defense --tag v1.0-bao-ve --push
+python -m src.quality.tag_defense --tag v1.1-bao-ve --push
 ```
 
 Lệnh tag từ chối nếu code, input hoặc file minh chứng thay đổi sau test, hoặc
 CI chỉ thuộc một commit khác. Tag đã tồn tại ở commit khác sẽ không bị ghi đè.
 
+Checksum input CSV so sánh từng byte. JSON minh chứng mới ghi rõ quy tắc chuẩn
+hóa LF/CRLF để bản checkout Windows và Linux kiểm chứng cùng nội dung; mọi thay
+đổi nội dung khác vẫn làm tag bị từ chối. Báo cáo mô hình giá và minh chứng BQ
+cũng được đóng checksum trong bộ nghiệm thu. Scheduler được pause trước khi
+mở cửa sổ Trino/Superset.
+
 ## Điều kiện chốt
 
 - Manifest và Bronze audit PASS; dữ liệu đầu vào không đổi qua hai rebuild.
-- Airflow 24/24 SUCCESS; Silver 30/30 và Gold 108/108 PASS.
-- Hai rebuild đủ 30 bảng giống schema, grain, số dòng và nội dung.
+- Airflow 26/26 SUCCESS; Silver 30/30 và toàn bộ kiểm định Gold hiện hành PASS.
+- Hai rebuild đủ 38 bảng giống schema, grain, số dòng và nội dung.
 - Kiểm chứng SCD2, lifecycle, demo Iceberg và dashboard PASS.
 - Unit test và CI trên đúng commit chuẩn bị phát hành đều xanh.
 - Có batch mới nhất thực tế của nhóm, review PR và kiểm chứng cuối trước mốc
-  đóng băng; khi đó mới tạo tag `v1.0-bao-ve`. Không tạo tag sớm chỉ vì test
+  đóng băng; khi đó mới tạo tag `v1.1-bao-ve`. Không tạo tag sớm chỉ vì test
   trên batch cũ đã qua.
 
 Mô hình giá hoặc độ chính xác nhãn có thể chưa đạt tiêu chí nghiệp vụ dù

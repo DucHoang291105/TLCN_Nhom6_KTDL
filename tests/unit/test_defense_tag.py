@@ -25,6 +25,18 @@ def test_exact_verified_candidate_is_accepted(tmp_path, monkeypatch):
     release.verified_candidate(tmp_path, proof)
 
 
+def test_json_evidence_normalizes_only_line_endings(tmp_path, monkeypatch):
+    proof, _, _, artifact = candidate(tmp_path, monkeypatch)
+    artifact.write_bytes(b'{\n  "status": "PASS"\n}\n')
+    reference = proof['evidence']['gold_verification']
+    reference.update(sha256=release.evidence_checksum(artifact), hash_normalization='LF')
+    artifact.write_bytes(artifact.read_bytes().replace(b'\n', b'\r\n'))
+    release.verified_candidate(tmp_path, proof)
+    artifact.write_bytes(artifact.read_bytes().replace(b'PASS', b'FAIL'))
+    with pytest.raises(ValueError, match='Evidence changed'):
+        release.verified_candidate(tmp_path, proof)
+
+
 @pytest.mark.parametrize("change", ["code", "input", "evidence", "failed", "empty", "string_pass"])
 def test_tag_rejects_changed_or_incomplete_verification(tmp_path, monkeypatch, change):
     proof, code, data, artifact = candidate(tmp_path, monkeypatch)
