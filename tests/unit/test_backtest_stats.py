@@ -134,3 +134,17 @@ def test_backtest_province_groups_and_outcome_swap():
     assert result["Hồ Chí Minh"]["listings_a"] == 300 and result["Hà Nội"]["listings_a"] == 0
     assert result["Hồ Chí Minh"]["price_drop"]["difference"] > 0
     assert province_source_cmh(expensive, others)["p_value"] < 0.05
+
+
+def test_multiple_testing_uses_exact_bonferroni_threshold():
+    from src.quality import bq2_backtest as backtest
+
+    def comparison(p, cmh_p, difference=0.01):
+        return {"price_drop": {"p_value": p, "difference": difference}, "price_drop_by_source_cmh": {"p_value": cmh_p}}
+
+    assert backtest.BONFERRONI_ALPHA == 0.05 / 3
+    assert not backtest.supported_after_multiple_testing(comparison(1e-9, 0.047))  # H1 of v1.1.1
+    assert not backtest.supported_after_multiple_testing(comparison(1e-9, 0.0168))  # above 0.05/3, below the rounded 0.017
+    assert backtest.supported_after_multiple_testing(comparison(1e-9, 0.0166))
+    assert not backtest.supported_after_multiple_testing(comparison(1e-9, 0.001, difference=-0.01))
+    assert not backtest.supported_after_multiple_testing(comparison(None, 0.001))

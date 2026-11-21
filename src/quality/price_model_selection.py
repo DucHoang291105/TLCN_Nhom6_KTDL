@@ -36,6 +36,7 @@ import random
 import sys
 import zlib
 from collections import Counter, defaultdict
+from collections.abc import Iterable
 from datetime import datetime, timezone
 from pathlib import Path
 from statistics import median as statistics_median
@@ -74,6 +75,7 @@ BASELINE_LEVELS = (
 BOOTSTRAP_SEED = 20261117
 RESAMPLES = 2000
 OVERALL_RESAMPLES = 500
+MIN_AGREEMENT_SHARE = 0.999  # refit vs published prediction within 1% for at least this share of test listings
 
 
 # ---- model terms and fitting -------------------------------------------------
@@ -164,6 +166,24 @@ def term_comparison(train: list[dict[str, Any]], test: list[dict[str, Any]]) -> 
 
 
 # ---- step 2: blend selection by cross-validation on train ---------------------
+
+def prediction_agreement(pairs: Iterable[tuple[float | None, float]], tolerance: float = 0.01) -> dict[str, Any]:
+    """How closely the refit predictions match the published ones, listing by listing.
+
+    ``pairs`` holds ``(refit prediction, published prediction)``. Matching R² alone
+    does not show that every listing gets the same prediction.
+    """
+
+    differences = [abs(math.log(refit) - math.log(published)) for refit, published in pairs if refit and published]
+    within = sum(1 for value in differences if value <= math.log1p(tolerance))
+    return {
+        "n": len(differences),
+        "tolerance_relative": tolerance,
+        "share_within_tolerance": round(within / len(differences), 6) if differences else None,
+        "max_abs_log_difference": round(max(differences), 6) if differences else None,
+        "median_abs_log_difference": round(sorted(differences)[len(differences) // 2], 8) if differences else None,
+    }
+
 
 def fold_of(source_id: str) -> int:
     return zlib.crc32(source_id.encode("utf-8")) % FOLDS
@@ -283,7 +303,14 @@ def main() -> None:
     gold_model = regression_metrics((row["price_per_m2"], row["gold_model_price_per_m2"]) for row in test)
     refit = comparison["all_terms"]["overall"]["model"]
     difference = abs((refit["r2_log"] or 0) - (gold_model["r2_log"] or 0))
-    reproduces = refit["n"] == gold_model["n"] and difference < 1e-3
+    refit_models = fit_terms(train, ALL_TERMS)
+    agreement = prediction_agreement(
+        (predict_price(refit_models, row, ALL_TERMS), row["gold_model_price_per_m2"]) for row in test
+    )
+    reproduces = bool(
+        refit["n"] == gold_model["n"] and difference < 1e-3
+        and agreement["n"] == gold_model["n"] and (agreement["share_within_tolerance"] or 0) >= MIN_AGREEMENT_SHARE
+    )
 
     by_category: dict[str, Any] = {}
     pairs: dict[str, list] = {"model_only": [], "blend": [], "baseline": []}
@@ -344,6 +371,11 @@ def main() -> None:
         },
         "gold_model_reproduced": reproduces,
         "r2_log_difference_vs_gold_model": round(difference, 6),
+        "prediction_agreement_vs_gold_model": agreement,
+        "limitations": [
+            "Cross-validation folds reuse the location terms and trim range fitted on the whole train split; "
+            "only the baseline is rebuilt inside each fold. The outer test rows are never used for either.",
+        ],
         "status": "PASS" if reproduces else "FAIL",
     }
     write_summary("price_model_selection.json", summary)

@@ -49,6 +49,8 @@ from src.quality.backtest_stats import (
 )
 
 ALPHA = 0.05
+MAIN_HYPOTHESES = 3  # H1, H2 and H3 are the pre-declared tests; everything else is exploratory
+BONFERRONI_ALPHA = ALPHA / MAIN_HYPOTHESES
 RESIDUAL_GROUPS = 5
 POSITIONS = ("duoi_p25", "p25_p75", "tren_p75", "khong_du_du_lieu")
 PROVINCE_GROUPS = ("Hồ Chí Minh", "Hà Nội", "Đà Nẵng")
@@ -99,6 +101,16 @@ def compare(group_a: list[tuple], group_b: list[tuple]) -> dict[str, Any]:
             and stratified["p_value"] is not None and stratified["p_value"] < ALPHA
         ),
     }
+
+
+def supported_after_multiple_testing(comparison: dict[str, Any]) -> bool:
+    """Same rule as ``price_drop_higher_and_significant`` but both p-values must pass 0.05 / 3."""
+
+    drop, stratified = comparison["price_drop"], comparison["price_drop_by_source_cmh"]
+    return bool(
+        drop["p_value"] is not None and drop["difference"] > 0 and drop["p_value"] < BONFERRONI_ALPHA
+        and stratified["p_value"] is not None and stratified["p_value"] < BONFERRONI_ALPHA
+    )
 
 
 def province_group(province: str | None) -> str:
@@ -260,7 +272,27 @@ def main() -> None:
             "note": "Position on the current price (after any cut). Shown only to illustrate the bias; not used for conclusions.",
             "by_current_position": {position: describe(members) for position, members in by_current.items()},
         },
+        "initial_price_definition": "price of the first version in silver.listing_history (min_by(price, version_number)); "
+                                    "gold.ev_reprice takes the price before the first change and falls back to the current price, "
+                                    "so the two cohorts can differ for a small number of listings",
+        "multiple_testing": {
+            "main_hypotheses": MAIN_HYPOTHESES,
+            "nominal_alpha": ALPHA,
+            "bonferroni_alpha": BONFERRONI_ALPHA,
+            "note": "H1 by province, H1 with all drops and any other table are exploratory and not corrected.",
+        },
         "conclusion": {
+            "H1_supported_at_5pct": position_test["price_drop_higher_and_significant"],
+            "H1_supported_after_multiple_testing": supported_after_multiple_testing(position_test),
+            "H2_supported_at_5pct": bool(residual_all.get("top_quintile_vs_rest", {}).get("price_drop_higher_and_significant")),
+            "H2_supported_after_multiple_testing": bool(
+                residual_all.get("top_quintile_vs_rest") and supported_after_multiple_testing(residual_all["top_quintile_vs_rest"])
+            ),
+            "H2_supported_on_test_split_at_5pct": bool(residual_test_split.get("top_quintile_vs_rest", {}).get("price_drop_higher_and_significant")),
+            "H2_supported_on_test_split_after_multiple_testing": bool(
+                residual_test_split.get("top_quintile_vs_rest")
+                and supported_after_multiple_testing(residual_test_split["top_quintile_vs_rest"])
+            ),
             "H1_supported": position_test["price_drop_higher_and_significant"],
             "H2_supported": bool(residual_all.get("top_quintile_vs_rest", {}).get("price_drop_higher_and_significant")),
             "H2_supported_on_test_split": bool(residual_test_split.get("top_quintile_vs_rest", {}).get("price_drop_higher_and_significant")),

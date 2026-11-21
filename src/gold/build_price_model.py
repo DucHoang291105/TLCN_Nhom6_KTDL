@@ -367,6 +367,14 @@ def main() -> None:
     all_test = [row for row in clean if row[1] == "test"]
     overall_model, overall_baseline = metrics(all_test, 4), metrics(all_test, 5)
     overall_model_only = metrics(all_test, 7)
+    # Test rows outside the train trim range are reported separately above; this adds them back.
+    every_test = [row for row in rows if row[1] == "test"]
+    overall_incl_outside_trim = {
+        "n": len(every_test),
+        "model": metrics(every_test, 4),
+        "model_only": metrics(every_test, 7),
+        "baseline": metrics(every_test, 5),
+    }
     by_location_level = {}
     for level in MODELLED_LOCATION_LEVELS:
         selected = [row for row in all_test if row[6] == level]
@@ -416,6 +424,7 @@ def main() -> None:
             str(row["baseline_level"]): int(row["count"])
             for row in written.filter("split = 'test' AND NOT is_outlier_trimmed").groupBy("baseline_level").count().collect()
         },
+        "overall_test_including_outside_trim": overall_incl_outside_trim,
         "overall_test": {
             "model": overall_model,
             "model_only": overall_model_only,
