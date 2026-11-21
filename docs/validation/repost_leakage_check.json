@@ -1,0 +1,128 @@
+{
+  "started_at": "2026-11-21T15:14:12.237147+00:00",
+  "finished_at": "2026-11-21T15:14:32.885622+00:00",
+  "scope": "published train/test split of fact_listing_price_model, rows outside the train trim range removed",
+  "train_listings": 99044,
+  "test_listings": 24819,
+  "settings": {
+    "strict": {
+      "area_tolerance": 0.01,
+      "price_tolerance": 0.02,
+      "min_title_jaccard": 0.5,
+      "test_listings": 24819,
+      "with_near_duplicate_in_train": 3191,
+      "share_with_near_duplicate_in_train": 0.128571,
+      "same_source_near_duplicate": 3158,
+      "all_test": {
+        "n": 24819,
+        "mae": 41763651.48,
+        "mape": 0.421444,
+        "median_ape": 0.250071,
+        "r2_log": 0.720097,
+        "share_within_25pct": 0.4969
+      },
+      "without_near_duplicates": {
+        "n": 21628,
+        "mae": 41677514.12,
+        "mape": 0.421518,
+        "median_ape": 0.249953,
+        "r2_log": 0.713505,
+        "share_within_25pct": 0.4951
+      },
+      "only_near_duplicates": {
+        "n": 3191,
+        "mae": 42347474.4,
+        "mape": 0.420944,
+        "median_ape": 0.252099,
+        "r2_log": 0.755069,
+        "share_within_25pct": 0.5092
+      },
+      "change_when_removed": {
+        "median_ape": -0.000118,
+        "mape": 7.4e-05,
+        "share_within_25pct": -0.0018
+      }
+    },
+    "default": {
+      "area_tolerance": 0.02,
+      "price_tolerance": 0.03,
+      "min_title_jaccard": 0.35,
+      "test_listings": 24819,
+      "with_near_duplicate_in_train": 5124,
+      "share_with_near_duplicate_in_train": 0.206455,
+      "same_source_near_duplicate": 5065,
+      "all_test": {
+        "n": 24819,
+        "mae": 41763651.48,
+        "mape": 0.421444,
+        "median_ape": 0.250071,
+        "r2_log": 0.720097,
+        "share_within_25pct": 0.4969
+      },
+      "without_near_duplicates": {
+        "n": 19695,
+        "mae": 43075049.5,
+        "mape": 0.432167,
+        "median_ape": 0.25503,
+        "r2_log": 0.70287,
+        "share_within_25pct": 0.4852
+      },
+      "only_near_duplicates": {
+        "n": 5124,
+        "mae": 36723061.32,
+        "mape": 0.380226,
+        "median_ape": 0.231727,
+        "r2_log": 0.775418,
+        "share_within_25pct": 0.542
+      },
+      "change_when_removed": {
+        "median_ape": 0.004959,
+        "mape": 0.010723,
+        "share_within_25pct": -0.0117
+      }
+    },
+    "loose": {
+      "area_tolerance": 0.03,
+      "price_tolerance": 0.05,
+      "min_title_jaccard": 0.25,
+      "test_listings": 24819,
+      "with_near_duplicate_in_train": 9468,
+      "share_with_near_duplicate_in_train": 0.381482,
+      "same_source_near_duplicate": 8793,
+      "all_test": {
+        "n": 24819,
+        "mae": 41763651.48,
+        "mape": 0.421444,
+        "median_ape": 0.250071,
+        "r2_log": 0.720097,
+        "share_within_25pct": 0.4969
+      },
+      "without_near_duplicates": {
+        "n": 15351,
+        "mae": 45864118.51,
+        "mape": 0.470959,
+        "median_ape": 0.276215,
+        "r2_log": 0.677288,
+        "share_within_25pct": 0.455
+      },
+      "only_near_duplicates": {
+        "n": 9468,
+        "mae": 35115334.07,
+        "mape": 0.341163,
+        "median_ape": 0.218115,
+        "r2_log": 0.791023,
+        "share_within_25pct": 0.565
+      },
+      "change_when_removed": {
+        "median_ape": 0.026144,
+        "mape": 0.049515,
+        "share_within_25pct": -0.0419
+      }
+    }
+  },
+  "limitations": [
+    "Near-duplicates are found with the same title-token rule used for cross-source duplicates; reposts with a changed price, area or title are not found.",
+    "The check measures how much the test error changes when listings with a near-duplicate in train are removed. It does not retrain the model without them."
+  ],
+  "status": "PASS"
+}
