@@ -116,10 +116,10 @@ Dữ liệu historical đặt trong `data/incoming/historical/<nguồn>/`, theo 
 
 ## Kết quả đã kiểm chứng
 
-Dữ liệu tới batch **20261117**, ba nguồn crawl và sáu nguồn historical. Lượt
-tích hợp ngày **21/11/2026** chạy pipeline cùng bộ dashboard mới; không tạo
-batch thay thế cho những ngày thiếu. Bộ nghiệm thu toàn diện
-`acceptance_A_20261117_r2` là kết quả lịch sử của phiên bản trước khi bổ sung dashboard này.
+Dữ liệu tới batch **20261117**, ba nguồn crawl và sáu nguồn historical. Bộ
+nghiệm thu chính thức **`official_v11_20261121`** ngày **21/11/2026** đã PASS
+**76/76 điều kiện**, bao gồm cấu hình mô hình giá mới và bộ dashboard hiện hành.
+Không tạo batch thay thế cho những ngày thiếu.
 
 | Đầu ra | Số dòng | JSON nguồn trong `docs/validation/` |
 |---|---:|---|
@@ -141,19 +141,19 @@ batch thay thế cho những ngày thiếu. Bộ nghiệm thu toàn diện
 
 - Airflow: **26/26 task SUCCESS**; job `bq_evidence` chạy sau repricing và lifecycle để đọc đúng dữ liệu của lượt hiện tại.
 - Silver **30/30 PASS**; Gold **138/138 PASS**.
-- Unit tests: **510/510 PASS**, không failure/error/skip.
+- Unit tests: **541/541 PASS**, không failure/error/skip.
 - Đối chiếu số dòng Spark–Trino, kiểm tra grain và lưu schema/hash nội dung đủ **38 bảng**.
 - Superset: **49 biểu đồ**, **5 dashboard**; kiểm tra KPI, bản đồ và thẻ kết luận theo bộ lọc trên trình duyệt thật.
 - Toàn bộ **54 CSV** đầu vào giữ nguyên checksum.
 
-Lượt tích hợp này chạy một pipeline và lấy fingerprint của 38 bảng; **chưa chạy
-lại bộ nghiệm thu toàn diện gồm hai rebuild**. Run theo lịch thiếu batch 20/11
-được xác minh dừng ở bước chuẩn bị và chặn toàn bộ downstream của DAG 26 task.
-Kết quả 66/66, hai rebuild 30 bảng và fault probe 24 task trong các JSON nghiệm
-thu cũ chỉ áp dụng cho phiên bản trước, không chứng nhận lại phiên bản dashboard mới.
+Hai lần rebuild Silver/Gold từ cùng Bronze cho kết quả giống nhau trên đủ
+**38 bảng** về schema, số dòng, khóa grain và SHA256 toàn bộ nội dung. Thử lỗi
+đầu vào trong cùng bộ nghiệm thu xác nhận hai task chuẩn bị nguồn thất bại
+và **24 task downstream bị chặn**. Kiểm chứng SCD2 gồm 11 fixture; lifecycle
+gồm 12 kiểm thử; demo Iceberg gồm 6 kiểm tra, tất cả PASS.
 
 Nguồn: [tích hợp dashboard ngày 21/11](docs/validation/dashboard_candidate_verification.json),
-[nghiệm thu toàn diện phiên bản trước](docs/validation/defense_verification.json),
+[nghiệm thu chính thức](docs/validation/defense_verification.json),
 [Airflow](docs/validation/integration_airflow_run.json),
 [Silver](docs/validation/silver_final_verification.json),
 [Gold](docs/validation/gold_verification.json),
@@ -165,7 +165,7 @@ batch, chạy lại kiểm chứng trước khi công bố kết quả hoặc g�
 Đối chứng history hiện tại: MERGE và rebuild cùng **167.794 dòng**, SHA256
 bằng nhau và không có khác biệt hai chiều. Trong benchmark từ baseline
 16/10, MERGE xử lý **26.668 ID**, staging **22.260 dòng**,
-mất **17.74 giây**; rebuild **9.96 giây**. Retry không đổi
+mất **16,02 giây**; rebuild **9,92 giây**. Retry không đổi
 input giữ nguyên snapshot. Đây là kiểm chứng tính đúng; không khẳng định
 MERGE luôn nhanh hơn rebuild. Xem [history](docs/validation/history_incremental_verification.json).
 

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-20T22:42:13.521144+00:00",
+  "generated_at": "2026-11-21T05:32:01.867289+00:00",
   "namespace": "lakehouse.gold",
   "table_counts": {
     "dim_source": 10,

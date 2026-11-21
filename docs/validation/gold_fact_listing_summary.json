@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-11-20T22:35:14.103445+00:00",
-  "finished_at": "2026-11-20T22:36:17.690305+00:00",
+  "started_at": "2026-11-21T05:25:21.744008+00:00",
+  "finished_at": "2026-11-21T05:26:22.991101+00:00",
   "output": "lakehouse.gold.fact_listing",
   "filter_counts": {
     "current_rows": 150017,

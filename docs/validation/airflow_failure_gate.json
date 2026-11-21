@@ -1,203 +1,219 @@
 {
   "dag_id": "lakehouse_pipeline",
-  "run_id": "acceptance_A_20261117_r2_failure_gate",
+  "run_id": "official_v11_20261121_failure_gate",
   "state": "failed",
   "batch_id": "20000101",
   "history_mode": "incremental",
-  "start_date": "2026-11-17T14:25:43.774938Z",
-  "end_date": "2026-11-17T14:26:08.389115Z",
+  "start_date": "2026-11-21T04:47:46.208589Z",
+  "end_date": "2026-11-21T04:48:20.156959Z",
   "schedule": "0 22 * * 2,5",
   "timezone": "Asia/Ho_Chi_Minh",
   "tasks": [
     {
       "task_id": "acquisition.prepare_guland",
       "state": "failed",
-      "start_date": "2026-11-17T14:25:43.841360Z",
-      "end_date": "2026-11-17T14:25:44.058825Z",
-      "duration": 0.217465,
+      "start_date": "2026-11-21T04:47:46.996528Z",
+      "end_date": "2026-11-21T04:47:53.431506Z",
+      "duration": 6.434978,
       "try_number": 1
     },
     {
       "task_id": "acquisition.prepare_nhadatvui",
-      "state": "upstream_failed",
-      "start_date": "2026-11-17T14:25:44.924048Z",
-      "end_date": "2026-11-17T14:25:44.924048Z",
-      "duration": 0.0,
-      "try_number": 0
+      "state": "failed",
+      "start_date": "2026-11-21T04:47:57.580574Z",
+      "end_date": "2026-11-21T04:47:57.791270Z",
+      "duration": 0.210696,
+      "try_number": 1
     },
     {
       "task_id": "acquisition.wait_batdongsan_csv",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:25:45.905893Z",
-      "end_date": "2026-11-17T14:25:45.905893Z",
+      "start_date": "2026-11-21T04:47:57.547881Z",
+      "end_date": "2026-11-21T04:47:57.547881Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "acquisition.validate_snapshot_manifest",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:25:46.972677Z",
-      "end_date": "2026-11-17T14:25:46.972677Z",
+      "start_date": "2026-11-21T04:47:57.630857Z",
+      "end_date": "2026-11-21T04:47:57.630857Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "bronze.ingest_snapshots",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:25:48.022411Z",
-      "end_date": "2026-11-17T14:25:48.022411Z",
+      "start_date": "2026-11-21T04:47:58.085253Z",
+      "end_date": "2026-11-21T04:47:58.085253Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "bronze.audit_bronze",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:25:48.613851Z",
-      "end_date": "2026-11-17T14:25:48.613851Z",
+      "start_date": "2026-11-21T04:47:59.154586Z",
+      "end_date": "2026-11-21T04:47:59.154586Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "silver.iceberg_smoke",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:25:49.670709Z",
-      "end_date": "2026-11-17T14:25:49.670709Z",
+      "start_date": "2026-11-21T04:48:00.209133Z",
+      "end_date": "2026-11-21T04:48:00.209133Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "silver.listing_core",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:25:50.720119Z",
-      "end_date": "2026-11-17T14:25:50.720119Z",
+      "start_date": "2026-11-21T04:48:01.263426Z",
+      "end_date": "2026-11-21T04:48:01.263426Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "silver.listing_history",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:25:51.768621Z",
-      "end_date": "2026-11-17T14:25:51.768621Z",
+      "start_date": "2026-11-21T04:48:02.311495Z",
+      "end_date": "2026-11-21T04:48:02.311495Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "silver.location",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:25:52.825182Z",
-      "end_date": "2026-11-17T14:25:52.825182Z",
+      "start_date": "2026-11-21T04:48:03.368842Z",
+      "end_date": "2026-11-21T04:48:03.368842Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "silver.feature",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:25:53.882131Z",
-      "end_date": "2026-11-17T14:25:53.882131Z",
+      "start_date": "2026-11-21T04:48:04.429426Z",
+      "end_date": "2026-11-21T04:48:04.429426Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "silver.verify_silver",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:25:54.440868Z",
-      "end_date": "2026-11-17T14:25:54.440868Z",
+      "start_date": "2026-11-21T04:48:05.095995Z",
+      "end_date": "2026-11-21T04:48:05.095995Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "gold.dimensions",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:25:55.489211Z",
-      "end_date": "2026-11-17T14:25:55.489211Z",
+      "start_date": "2026-11-21T04:48:06.155850Z",
+      "end_date": "2026-11-21T04:48:06.155850Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "gold.fact_listing",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:25:56.536138Z",
-      "end_date": "2026-11-17T14:25:56.536138Z",
+      "start_date": "2026-11-21T04:48:07.208198Z",
+      "end_date": "2026-11-21T04:48:07.208198Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "gold.price_benchmark",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:25:57.587432Z",
-      "end_date": "2026-11-17T14:25:57.587432Z",
+      "start_date": "2026-11-21T04:48:08.277237Z",
+      "end_date": "2026-11-21T04:48:08.277237Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "gold.price_model",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:25:59.710100Z",
-      "end_date": "2026-11-17T14:25:59.710100Z",
+      "start_date": "2026-11-21T04:48:09.338527Z",
+      "end_date": "2026-11-21T04:48:09.338527Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "gold.budget_tradeoff",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:26:00.770096Z",
-      "end_date": "2026-11-17T14:26:00.770096Z",
+      "start_date": "2026-11-21T04:48:10.388676Z",
+      "end_date": "2026-11-21T04:48:10.388676Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "gold.area_substitution",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:26:01.820329Z",
-      "end_date": "2026-11-17T14:26:01.820329Z",
+      "start_date": "2026-11-21T04:48:11.432425Z",
+      "end_date": "2026-11-21T04:48:11.432425Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "gold.commute_choice",
+      "state": "upstream_failed",
+      "start_date": "2026-11-21T04:48:12.318235Z",
+      "end_date": "2026-11-21T04:48:12.318235Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "gold.data_quality",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:26:02.040825Z",
-      "end_date": "2026-11-17T14:26:02.040825Z",
+      "start_date": "2026-11-21T04:48:13.383351Z",
+      "end_date": "2026-11-21T04:48:13.383351Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "gold.repricing",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:26:03.100700Z",
-      "end_date": "2026-11-17T14:26:03.100700Z",
+      "start_date": "2026-11-21T04:48:14.440257Z",
+      "end_date": "2026-11-21T04:48:14.440257Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "gold.market_overview",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:26:04.170826Z",
-      "end_date": "2026-11-17T14:26:04.170826Z",
+      "start_date": "2026-11-21T04:48:15.495045Z",
+      "end_date": "2026-11-21T04:48:15.495045Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "gold.listing_lifecycle",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:26:05.223327Z",
-      "end_date": "2026-11-17T14:26:05.223327Z",
+      "start_date": "2026-11-21T04:48:16.548383Z",
+      "end_date": "2026-11-21T04:48:16.548383Z",
+      "duration": 0.0,
+      "try_number": 0
+    },
+    {
+      "task_id": "gold.bq_evidence",
+      "state": "upstream_failed",
+      "start_date": "2026-11-21T04:48:17.604437Z",
+      "end_date": "2026-11-21T04:48:17.604437Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "gold.verify_gold",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:26:06.277937Z",
-      "end_date": "2026-11-17T14:26:06.277937Z",
+      "start_date": "2026-11-21T04:48:18.667184Z",
+      "end_date": "2026-11-21T04:48:18.667184Z",
       "duration": 0.0,
       "try_number": 0
     },
     {
       "task_id": "publish_evidence",
       "state": "upstream_failed",
-      "start_date": "2026-11-17T14:26:07.332079Z",
-      "end_date": "2026-11-17T14:26:07.332079Z",
+      "start_date": "2026-11-21T04:48:19.619105Z",
+      "end_date": "2026-11-21T04:48:19.619105Z",
       "duration": 0.0,
       "try_number": 0
     }
