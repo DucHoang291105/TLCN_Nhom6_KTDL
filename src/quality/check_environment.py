@@ -42,7 +42,7 @@ def inspect(root=ROOT):
     versions = {}
     for name, command in commands.items():
         try:
-            result = subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=30)
+            result = subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=30, check=False)
             checks[name] = result.returncode == 0
             # Do not collect compose output, environment variables or daemon config.
             if name != 'compose_config' and checks[name]:

@@ -1,0 +1,11 @@
+{
+  "external_images": {
+    "postgres:16-alpine": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+    "apache/iceberg-rest-fixture:1.10.0": "apache/iceberg-rest-fixture@sha256:df2e9dd421928b7aab01557678ce8e2bb73064d0e253baebd72adad3439ffc2e",
+    "apache/spark:3.5.9-scala2.12-java17-python3-r-ubuntu": "apache/spark@sha256:2442368ef4a5ca60e81604cf48d22d847344d009237cd21a1943b060278898bb",
+    "trinodb/trino:483": "trinodb/trino@sha256:db58cc93e593a2706553745f276bb119c9810e69918be56ecde088ba7ccb0534",
+    "apache/airflow:3.3.1-python3.10": "apache/airflow@sha256:26c73230367b57b118f59897db3f24fc56733b029ee2993cdba5365c33f77556",
+    "minio": "cgr.dev/chainguard/minio@sha256:e9cf6b99c226e9539ed0f14b6f00e37b07da153c7ba1f4f8709c807574b471ec"
+  },
+  "note": "Local builds additionally use versioned Dockerfiles; MinIO registry pull verified 2026-11-21."
+}

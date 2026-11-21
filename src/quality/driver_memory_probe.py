@@ -1,4 +1,4 @@
-"""Read cgroup evidence around the A-owned Spark driver resource change."""
+"""Read cgroup evidence around the Pipeline Spark driver resource change."""
 import argparse
 import json
 import subprocess

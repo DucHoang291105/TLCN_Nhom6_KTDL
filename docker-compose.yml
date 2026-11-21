@@ -1,9 +1,7 @@
 name: tlcn_bds_lakehouse
 
-# Defense scope: MinIO -> Spark/Iceberg -> Trino -> Superset, orchestrated by Airflow.
-# Hadoop/YARN (profile hadoop) and FastAPI/web-ui (profile application) are
-# optional experiments outside this pipeline. Do not use profile full for the
-# defense: start orchestration for Spark writes, then query/dashboard for reads.
+# Production local stack: MinIO, Spark/Iceberg, Airflow, Trino and Superset.
+# Optional experiments are in docker-compose.experimental.yml.
 
 x-common-restart: &common-restart
   restart: unless-stopped
@@ -11,8 +9,10 @@ x-common-restart: &common-restart
 services:
   minio:
     <<: *common-restart
-    image: quay.io/minio/minio:latest
+    image: cgr.dev/chainguard/minio@sha256:e9cf6b99c226e9539ed0f14b6f00e37b07da153c7ba1f4f8709c807574b471ec
     container_name: tlcn_minio
+    # Preserve ownership compatibility with the existing local MinIO volume.
+    user: "0:0"
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
@@ -30,7 +30,7 @@ services:
     networks: [tlcn_network]
 
   minio-init:
-    image: quay.io/minio/minio:latest
+    image: cgr.dev/chainguard/minio@sha256:e9cf6b99c226e9539ed0f14b6f00e37b07da153c7ba1f4f8709c807574b471ec
     container_name: tlcn_minio_init
     depends_on:
       minio:
@@ -39,20 +39,19 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     entrypoint: >-
-      /bin/sh -c "
+      /bin/sh -ec "
       mc alias set local http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD;
       mc mb --ignore-existing local/lakehouse-bronze;
       mc mb --ignore-existing local/lakehouse-silver;
       mc mb --ignore-existing local/lakehouse-gold;
       mc mb --ignore-existing local/warehouse;
-      exit 0;
       "
     restart: "no"
     networks: [tlcn_network]
 
   postgres:
     <<: *common-restart
-    image: postgres:16-alpine
+    image: postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
     container_name: tlcn_postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -73,7 +72,7 @@ services:
 
   iceberg-rest:
     <<: *common-restart
-    image: apache/iceberg-rest-fixture:1.10.0
+    image: apache/iceberg-rest-fixture@sha256:df2e9dd421928b7aab01557678ce8e2bb73064d0e253baebd72adad3439ffc2e
     container_name: tlcn_iceberg_rest
     # The fixture image normally runs as an unprivileged user, while a newly
     # created named volume is owned by root.  Running this local-only catalog
@@ -104,7 +103,7 @@ services:
     networks: [tlcn_network]
 
   spark-ivy-init:
-    image: apache/spark:3.5.9-scala2.12-java17-python3-r-ubuntu
+    image: apache/spark@sha256:2442368ef4a5ca60e81604cf48d22d847344d009237cd21a1943b060278898bb
     user: "0:0"
     entrypoint: ["/bin/sh", "-c"]
     command: ["chown 185:185 /cache && chmod 755 /cache"]
@@ -116,7 +115,7 @@ services:
 
   spark-master:
     <<: *common-restart
-    image: apache/spark:3.5.9-scala2.12-java17-python3-r-ubuntu
+    image: apache/spark@sha256:2442368ef4a5ca60e81604cf48d22d847344d009237cd21a1943b060278898bb
     container_name: tlcn_spark_master
     depends_on:
       spark-ivy-init:
@@ -141,7 +140,7 @@ services:
 
   spark-worker:
     <<: *common-restart
-    image: apache/spark:3.5.9-scala2.12-java17-python3-r-ubuntu
+    image: apache/spark@sha256:2442368ef4a5ca60e81604cf48d22d847344d009237cd21a1943b060278898bb
     container_name: tlcn_spark_worker
     depends_on: [spark-master]
     command:
@@ -165,7 +164,7 @@ services:
 
   trino:
     <<: *common-restart
-    image: trinodb/trino:483
+    image: trinodb/trino@sha256:db58cc93e593a2706553745f276bb119c9810e69918be56ecde088ba7ccb0534
     container_name: tlcn_trino
     profiles: [query, full]
     depends_on:
@@ -186,38 +185,8 @@ services:
     mem_limit: 2g
     networks: [tlcn_network]
 
-  fastapi:
-    <<: *common-restart
-    build:
-      context: ./docker/fastapi
-    image: tlcn-fastapi:1.0
-    container_name: tlcn_fastapi
-    profiles: [application, full]
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      POSTGRES_DSN: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-      TRINO_URL: http://trino:8080
-    ports:
-      - "8000:8000"
-    mem_limit: 384m
-    networks: [tlcn_network]
-
-  web-ui:
-    <<: *common-restart
-    image: nginx:1.28-alpine
-    container_name: tlcn_web_ui
-    profiles: [application, full]
-    ports:
-      - "3000:80"
-    volumes:
-      - ./docker/web:/usr/share/nginx/html:ro
-    mem_limit: 128m
-    networks: [tlcn_network]
-
   airflow-permissions:
-    image: apache/airflow:3.3.1-python3.10
+    image: apache/airflow@sha256:26c73230367b57b118f59897db3f24fc56733b029ee2993cdba5365c33f77556
     profiles: [orchestration, full]
     user: "0:0"
     entrypoint: ["python", "-c", "from pathlib import Path; p=Path('/shared/validation'); p.mkdir(parents=True, exist_ok=True); p.chmod(0o777)"]
@@ -257,6 +226,11 @@ services:
       PYTHONPATH: /opt/project
       GULAND_CRAWL_PAGES: ${GULAND_CRAWL_PAGES:-20}
       NHADATVUI_CRAWL_PAGES: ${NHADATVUI_CRAWL_PAGES:-200}
+      CRAWL_REQUEST_TIMEOUT: ${CRAWL_REQUEST_TIMEOUT:-30}
+      CRAWL_MAX_RETRIES: ${CRAWL_MAX_RETRIES:-3}
+      CRAWL_MAX_CONSECUTIVE_FAILURES: ${CRAWL_MAX_CONSECUTIVE_FAILURES:-2}
+      CRAWL_RUN_TIMEOUT_SECONDS: ${CRAWL_RUN_TIMEOUT_SECONDS:-2100}
+      CRAWL_DELAY_SECONDS: ${CRAWL_DELAY_SECONDS:-3.5}
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/airflow
       AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_JWT_SECRET}
       AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY}
@@ -264,6 +238,9 @@ services:
       - "8082:8080"
     volumes:
       - airflow_home:/opt/airflow
+      # Publication hashes must see exactly the same source/input tree as Spark.
+      # Nested writable mounts below remain the only writable project paths.
+      - ./:/opt/project:ro
       - ./dags:/opt/airflow/dags
       - ./src:/opt/project/src:ro
       - ./config:/opt/project/config:ro
@@ -332,92 +309,6 @@ services:
     mem_limit: 1536m
     networks: [tlcn_network]
 
-  hadoop-init:
-    image: ghcr.io/apache/hadoop:3.4.2
-    container_name: tlcn_hadoop_init
-    profiles: [hadoop, full]
-    user: "0:0"
-    volumes:
-      - hadoop_namenode:/data/name
-      - ./docker/hadoop:/opt/hadoop/etc/hadoop:ro
-    command:
-      - /bin/bash
-      - -c
-      - >-
-        if [ ! -d /data/name/current ]; then
-          hdfs namenode -format -force -nonInteractive;
-        else
-          echo 'HDFS NameNode already formatted';
-        fi
-    restart: "no"
-    networks: [tlcn_network]
-
-  namenode:
-    <<: *common-restart
-    image: ghcr.io/apache/hadoop:3.4.2
-    container_name: tlcn_namenode
-    profiles: [hadoop, full]
-    user: "0:0"
-    depends_on:
-      hadoop-init:
-        condition: service_completed_successfully
-    volumes:
-      - hadoop_namenode:/data/name
-      - ./docker/hadoop:/opt/hadoop/etc/hadoop:ro
-    command: [hdfs, namenode]
-    ports:
-      - "8020:8020"
-      - "9870:9870"
-    mem_limit: 1g
-    networks: [tlcn_network]
-
-  datanode:
-    <<: *common-restart
-    image: ghcr.io/apache/hadoop:3.4.2
-    container_name: tlcn_datanode
-    profiles: [hadoop, full]
-    user: "0:0"
-    depends_on: [namenode]
-    volumes:
-      - hadoop_datanode:/data/data
-      - ./docker/hadoop:/opt/hadoop/etc/hadoop:ro
-    command: [hdfs, datanode]
-    ports:
-      - "9864:9864"
-    mem_limit: 768m
-    networks: [tlcn_network]
-
-  resourcemanager:
-    <<: *common-restart
-    image: ghcr.io/apache/hadoop:3.4.2
-    container_name: tlcn_resourcemanager
-    profiles: [hadoop, full]
-    user: "0:0"
-    volumes:
-      - ./docker/hadoop:/opt/hadoop/etc/hadoop:ro
-    command: [yarn, resourcemanager]
-    ports:
-      - "8032:8032"
-      - "8089:8088"
-    mem_limit: 768m
-    networks: [tlcn_network]
-
-  nodemanager:
-    <<: *common-restart
-    image: ghcr.io/apache/hadoop:3.4.2
-    container_name: tlcn_nodemanager
-    profiles: [hadoop, full]
-    user: "0:0"
-    depends_on: [resourcemanager]
-    volumes:
-      - hadoop_yarn_local:/data/yarn/local
-      - hadoop_yarn_logs:/data/yarn/logs
-      - ./docker/hadoop:/opt/hadoop/etc/hadoop:ro
-    command: [yarn, nodemanager]
-    ports:
-      - "8042:8042"
-    mem_limit: 1g
-    networks: [tlcn_network]
 
 volumes:
   minio_data:

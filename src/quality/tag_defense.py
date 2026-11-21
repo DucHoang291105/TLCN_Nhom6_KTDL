@@ -3,13 +3,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 from pathlib import Path
 
 from src.orchestration.snapshot_manifest import file_checksum
 from src.quality.defense_evidence import ROOT, all_pass, code_state, inputs, read, evidence_checksum
 
-PLANNED_TAGS = ("v1.0-bao-ve", "v1.1-bao-ve", "v1.1.1-bao-ve")
+DEFENSE_TAG = re.compile(r'v(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:\.(?:0|[1-9][0-9]*))?-bao-ve\Z')
 
 def verified_candidate(root, evidence):
     if evidence.get("status") != "PASS" or not all_pass(evidence.get("checks", {})):
@@ -18,11 +19,23 @@ def verified_candidate(root, evidence):
         raise ValueError("Code/config changed after verification; rerun the acceptance suite")
     if inputs(root) != evidence["inputs"]:
         raise ValueError("Source data changed after verification; rerun the acceptance suite")
+    if evidence.get('acceptance_version') == 2:
+        from src.quality.defense_evidence import latest_scheduled_batch
+        if evidence['inputs']['latest_complete_batch'] < latest_scheduled_batch():
+            raise ValueError('A newer scheduled collection is due; refresh inputs and verification before tagging')
     for name, reference in evidence["evidence"].items():
         path = Path(root) / "docs/validation" / f"{name}.json"
         checksum = evidence_checksum(path) if reference.get('hash_normalization') == 'LF' else file_checksum(path)[0]
         if checksum != reference["sha256"]:
             raise ValueError(f"Evidence changed after verification: {name}")
+    context = evidence.get('business_context', {})
+    if evidence.get('acceptance_version') == 2 and not context:
+        raise ValueError('Business context hashes are required, even for technical acceptance')
+    for name, reference in context.items():
+        path = Path(root) / name
+        digest = evidence_checksum(path) if reference.get('hash_normalization') == 'LF' else file_checksum(path)[0]
+        if digest != reference['sha256']:
+            raise ValueError(f'Business context changed after verification: {name}')
 
 
 def git(*args):
@@ -30,8 +43,8 @@ def git(*args):
 
 
 def create_tag(tag, push=False):
-    if tag not in PLANNED_TAGS:
-        raise ValueError("Use a planned defense tag: " + ", ".join(PLANNED_TAGS))
+    if not DEFENSE_TAG.fullmatch(tag):
+        raise ValueError('Use a planned defense tag in the form vMAJOR.MINOR[.PATCH]-bao-ve')
     if git("status", "--porcelain"):
         raise ValueError("Commit the reviewed source, inputs and evidence before tagging")
     evidence = read(ROOT / "docs/validation/defense_verification.json")
@@ -48,14 +61,14 @@ def create_tag(tag, push=False):
     if ci is None:
         raise ValueError("CI must pass on this exact commit; another commit's CI is insufficient")
     existing = subprocess.run(["git", "rev-parse", "--verify", f"refs/tags/{tag}^{{commit}}"],
-                              cwd=ROOT, capture_output=True, text=True)
+                              cwd=ROOT, capture_output=True, text=True, check=False)
     if existing.returncode == 0:
         if existing.stdout.strip() != sha:
             raise ValueError("The tag already points elsewhere; never move a defense tag")
     else:
         message = (f"Pipeline and operation acceptance verified.\n\nBatch: {evidence['batch_id']}\n"
                    f"Run: {evidence['run_id']}\nCode SHA256: {evidence['code']['sha256']}\nCI: {ci['url']}\n"
-                   "Scope: person A pipeline/operation; business-model acceptance and manual labels remain separate.\n")
+                   "Scope: pipeline/operation; business-model acceptance and manual labels remain separate.\n")
         subprocess.run(["git", "tag", "-a", tag, "-m", message], cwd=ROOT, check=True)
     if push:
         subprocess.run(["git", "push", "origin", f"refs/tags/{tag}"], cwd=ROOT, check=True)
@@ -64,7 +77,7 @@ def create_tag(tag, push=False):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--tag", default="v1.0-bao-ve")
+    parser.add_argument("--tag", required=True)
     parser.add_argument("--push", action="store_true")
     args = parser.parse_args()
     create_tag(args.tag, args.push)

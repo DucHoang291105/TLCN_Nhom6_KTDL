@@ -102,9 +102,9 @@ Có thể thử hai file chạy từ thư mục gốc mà không tạo batch s�
 ```powershell
 $env:CRAWL_PAGES = "3"
 $env:CRAWL_OUTPUT_DIR = "$PWD\outputs\crawl_try_guland"
-.\.venv\Scripts\python.exe guland_raw_crawler.py
+.\.venv\Scripts\python.exe -m src.ingestion.guland.guland_raw_crawler
 $env:CRAWL_OUTPUT_DIR = "$PWD\outputs\crawl_try_nhadatvui"
-.\.venv\Scripts\python.exe nhadatvui_raw_crawler.py
+.\.venv\Scripts\python.exe -m src.ingestion.nhadatvui.nhadatvui_raw_crawler
 Remove-Item Env:CRAWL_PAGES, Env:CRAWL_OUTPUT_DIR
 ```
 
@@ -112,74 +112,58 @@ Chọn thư mục output mới cho mỗi lần thử; crawler không ghi đè CS
 Summary `PASS` chỉ chứng nhận phạm vi trang đã yêu cầu hoặc điểm kết thúc được
 website xác nhận. `FAIL` / `RUNNING` không đủ điều kiện cho bước nạp Bronze.
 
-Dữ liệu historical đặt trong `data/incoming/historical/<nguồn>/`, theo tên file cấu hình tại `src/bronze/ingest_bronze.py`.
+Dữ liệu historical đặt trong `data/incoming/historical/<nguồn>/`, theo hợp đồng tại `src/bronze/historical_contract.py`.
 
-## Kết quả đã kiểm chứng
+## Kết quả kiểm định hiện hành
 
-Dữ liệu tới batch **20261117**, ba nguồn crawl và sáu nguồn historical. Bộ
-nghiệm thu chính thức **`official_v111_20261121`** ngày **21/11/2026** đã PASS
-**77/77 điều kiện**, gồm mô hình giá, bộ dashboard hiện hành và backtest sau PR #18.
-Không tạo batch thay thế cho những ngày thiếu.
+Nguồn số liệu chính thức là [defense_verification.json](docs/validation/defense_verification.json):
+run, batch, số điều kiện PASS, hash code/input và số dòng Silver/Gold. Kiểm tra
+báo cáo còn đúng với code và dữ liệu trên máy bằng:
 
-| Đầu ra | Số dòng | JSON nguồn trong `docs/validation/` |
-|---|---:|---|
-| Bronze historical | 30.317 | `bronze_state_audit.json` |
-| Bronze snapshot — 48 CSV | 316.241 | `snapshot_manifest.json` |
-| Tổng Bronze | 346.558 | `bronze_state_audit.json` |
-| Silver `listing_observation` | 334.820 | `silver_final_verification.json` |
-| Silver `listing_dq_quarantine` | 664 | `silver_final_verification.json` |
-| Silver Current / Location / Feature | 150.017 | `silver_final_verification.json` |
-| Silver `listing_history` | 167.794 | `silver_final_verification.json` |
-| Silver `listing_history_state` | 150.017 | `silver_final_verification.json` |
-| Gold `fact_listing` | 134.660 | `gold_verification.json` |
-| Gold `fact_listing_lifecycle` | 150.017 | `gold_verification.json` |
-| Gold `fact_listing_price_change` | 3.021 | `gold_verification.json` |
-| Gold `fact_listing_price_model` | 126.394 | `gold_verification.json` |
-| Gold `agg_price_model_coefficient` | 967 | `gold_verification.json` |
-| Gold `agg_commute_district` | 5.145 | `gold_verification.json` |
-| Gold `agg_commute_substitution` | 12.005 | `gold_verification.json` |
+```powershell
+.\.venv\Scripts\python.exe -m src.orchestration.status
+```
 
-- Airflow: **26/26 task SUCCESS**; job `bq_evidence` chạy sau repricing và lifecycle để đọc đúng dữ liệu của lượt hiện tại.
-- Silver **30/30 PASS**; Gold **138/138 PASS**.
-- Unit tests: **543/543 PASS**, không failure/error/skip.
-- Đối chiếu số dòng Spark–Trino, kiểm tra grain và lưu schema/hash nội dung đủ **38 bảng**.
-- Superset: **49 biểu đồ**, **5 dashboard**; đối chiếu data API, KPI và bộ lọc tỉnh. Các walkthrough trình duyệt được lưu riêng.
-- Toàn bộ **54 CSV** đầu vào giữ nguyên checksum.
+Báo cáo của tag cũ chứng nhận đúng phiên bản cũ; thêm batch hoặc thay code cần
+nghiệm thu lại. Tập dữ liệu nhận tới 20/11 gồm 51 snapshot CSV (325.191 dòng)
+và 6 historical CSV (30.317 dòng). Số dòng đầu ra phải đọc từ lượt kiểm định
+hiện hành, vì còn phụ thuộc DQ và dedup.
 
-Hai lần rebuild Silver/Gold từ cùng Bronze cho kết quả giống nhau trên đủ
-**38 bảng** về schema, số dòng, khóa grain và SHA256 toàn bộ nội dung. Thử lỗi
-đầu vào trong cùng bộ nghiệm thu xác nhận hai task chuẩn bị nguồn thất bại
-và **24 task downstream bị chặn**. Kiểm chứng SCD2 gồm 11 fixture; lifecycle
-gồm 12 kiểm thử; demo Iceberg gồm 6 kiểm tra, tất cả PASS.
+Suite chạy DAG 26 task; hai rebuild so schema, grain và multiset SHA256 trên
+38 bảng; SCD2, lifecycle, Iceberg, truy vấn Trino, 49 chart/5 dashboard và bộ lọc.
+Backtest, tái tạo mô hình và kiểm tra repost dùng Gold vừa dựng. Đề xuất chọn
+trọng số trên dữ liệu mới được lưu riêng, không tự đổi cấu hình mô hình.
+Kết quả kỹ thuật không thay thế nghiệm thu BQ hoặc nhãn thủ công G4.
 
-Nguồn: [tích hợp dashboard ngày 21/11](docs/validation/dashboard_candidate_verification.json),
-[nghiệm thu chính thức](docs/validation/defense_verification.json),
-[Airflow](docs/validation/integration_airflow_run.json),
-[Silver](docs/validation/silver_final_verification.json),
-[Gold](docs/validation/gold_verification.json),
-[hai rebuild](docs/validation/deterministic_rebuild.json),
-[tích hợp dashboard](docs/validation/pipeline_dashboard_integration.json).
-Kết quả chỉ áp dụng cho code và input đã kiểm chứng. Sau sửa code hoặc thêm
-batch, chạy lại kiểm chứng trước khi công bố kết quả hoặc gắn tag mới.
+Guland thiếu 20/10, 30/10; Nhadatvui thiếu 30/10, 10/11, đã được chấp nhận và
+khai báo trong `config/source_gaps.json`. Quyết định chỉnh ngày Guland 10/11
+và checksum được lưu ở `input_date_review.json`; chưa xác minh độc lập ngày
+thu thập. Tin vắng hai batch chỉ là vắng trong mẫu crawl, chưa xác nhận đã bán.
+Độ sâu từng nguồn và batch: [crawl_coverage.json](docs/validation/crawl_coverage.json).
 
-Đối chứng history hiện tại: MERGE và rebuild cùng **167.794 dòng**, SHA256
-bằng nhau và không có khác biệt hai chiều. Trong benchmark từ baseline
-16/10, MERGE xử lý **26.668 ID**, staging **22.260 dòng**,
-mất **17,14 giây**; rebuild **9,60 giây**. Retry không đổi
-input giữ nguyên snapshot. Đây là kiểm chứng tính đúng; không khẳng định
-MERGE luôn nhanh hơn rebuild. Xem [history](docs/validation/history_incremental_verification.json).
+### Số liệu đầu ra
 
-Guland thiếu **20/10 và 30/10**; Nhadatvui thiếu **30/10 và 10/11**, đã được
-chấp nhận và khai báo trong `config/source_gaps.json`. CSV Guland batch 10/11
-được chủ dữ liệu hiệu chỉnh timestamp từ 12/11 về 10/11 trước ingest; quyết
-định và checksum trước/sau ở [input date review](docs/validation/input_date_review.json).
-Ngày thu thập của file này chưa được xác minh độc lập; phân tích theo thời
-gian cần công bố giới hạn đó.
+Bảng này được xuất từ JSON của dữ liệu 20/11 sau hai rebuild; trạng thái nghiệm thu đầy đủ xem `defense_verification.json`.
 
-Dữ liệu hiện có **108.415/119.700 tin crawl vắng hai batch (90,57%)**; đây là
-vắng trong mẫu thu thập, không xác nhận đã bán hoặc đã gỡ. Xem
-[điều tra độ phủ](docs/operations/crawl_coverage.md) và
-[JSON đo](docs/validation/crawl_coverage.json).
+| Đầu ra | Số dòng |
+|---|---:|
+| Bronze historical | 30,317 |
+| Bronze snapshot — 51 CSV | 325,191 |
+| Tổng Bronze | 355,508 |
+| Silver `listing_observation` | 343,465 |
+| Silver `listing_dq_quarantine` | 664 |
+| Silver Current / Location / Feature | 151,740 |
+| Silver `listing_history` | 169,991 |
+| Silver `listing_history_state` | 151,740 |
+| Gold `fact_listing` | 136,383 |
+| Gold `fact_listing_lifecycle` | 151,740 |
+| Gold `fact_listing_price_change` | 3,221 |
+| Gold `fact_listing_price_model` | 127,961 |
+| Gold `agg_price_model_coefficient` | 972 |
+
+Silver **30/30 PASS**; Gold **138/138 PASS**. Hai rebuild **38/38 bảng** giống schema, grain và SHA256 nội dung.
+
+Kết quả chỉ áp dụng cho code và input đã kiểm chứng. Sau thay đổi phải chạy lại nghiệm thu; dữ liệu thô không phải số dòng sau DQ/dedup.
 
 ## An toàn vận hành và hiệu năng
 
@@ -313,11 +297,11 @@ docker exec tlcn_airflow python -m src.orchestration.airflow_run status --run-id
 docker exec tlcn_airflow python -m src.orchestration.airflow_run export --run-id RUN_ID --output integration_airflow_run.json
 ```
 
-Chuẩn bị nhận dữ liệu ngày 17/11 bằng audit riêng. Các điều kiện còn thiếu
+Kiểm tra dữ liệu tới batch thực tế mới nhất bằng audit riêng. Các điều kiện còn thiếu
 được ghi trong JSON, không tự tạo gap hoặc đổi ngày CSV:
 
 ```powershell
-.\.venv\Scripts\python.exe -m src.quality.crawl_coverage --as-of 20261117 --strict
+.\.venv\Scripts\python.exe -m src.quality.crawl_coverage --as-of 20261120 --strict
 ```
 
 Nhận file xuất extension hoặc CSV do thành viên gửi bằng
@@ -370,7 +354,7 @@ chạy lại kiểm định và provision trước khi đọc kết quả này.
 
 Probe trước A3 từng phát hiện hai bảng mô hình cũ; [bằng chứng probe](docs/validation/predata_runtime_compatibility.json) được giữ để truy nguyên. Lượt tích hợp dashboard mới đã rebuild và đối chiếu đúng toàn bộ 38 bảng qua Trino; dùng [kết quả hiện tại](docs/validation/pipeline_dashboard_integration.json) để đánh giá trạng thái đồng bộ.
 
-DAG được giữ paused trong cửa sổ đọc để tránh writer tự động trùng lúc Trino hoạt động. Khi có batch mới, chuyển write mode rồi nộp run theo hướng dẫn ở trên. Tag `v1.1-bao-ve` chỉ tạo sau nghiệm thu dữ liệu chốt và CI trên đúng commit; tag cũ được giữ nguyên.
+DAG được giữ paused trong cửa sổ đọc để tránh writer tự động trùng lúc Trino hoạt động. Khi có batch mới, chuyển write mode rồi nộp run theo hướng dẫn ở trên. Một tag version mới chỉ tạo sau nghiệm thu dữ liệu chốt và CI trên đúng commit; mọi tag cũ được giữ nguyên.
 
 ## Kiểm thử và xem kết quả
 
@@ -406,3 +390,7 @@ docker/                Cấu hình và Dockerfile cho các dịch vụ
 tests/unit/            Unit tests
 docs/                  Kiến trúc, hợp đồng dữ liệu và kết quả kiểm chứng
 ```
+
+## Công bố và phục hồi
+
+Xem [hướng dẫn vận hành](docs/operations/publication_and_recovery.md) về khóa writer, hàng rào công bố, chống ngủ, backup/restore và image đã ghim digest.

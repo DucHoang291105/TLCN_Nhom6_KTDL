@@ -18,7 +18,8 @@ def test_auth_retry_is_bounded_and_never_resubmits_mutations(monkeypatch, method
     assert result.status_code == 403  # Real permission errors remain denied.
 
 
-def test_write_window_drains_readers_before_reopening_catalog(monkeypatch):
+def test_write_window_drains_readers_before_reopening_catalog(monkeypatch, tmp_path):
+    monkeypatch.setattr(environment, "ROOT", tmp_path)
     commands = []
     monkeypatch.setattr(environment, 'active_work', lambda: {'spark_apps': [], 'airflow_runs': []})
     monkeypatch.setattr(environment, 'state', lambda _: 'running')
@@ -29,7 +30,8 @@ def test_write_window_drains_readers_before_reopening_catalog(monkeypatch):
     assert '--wait' in commands[3]
 
 
-def test_busy_writer_prevents_catalog_restart(monkeypatch):
+def test_busy_writer_prevents_catalog_restart(monkeypatch, tmp_path):
+    monkeypatch.setattr(environment, 'ROOT', tmp_path)
     monkeypatch.setattr(environment, 'active_work', lambda: {'spark_apps': ['app'], 'airflow_runs': []})
     run = Mock()
     monkeypatch.setattr(environment.subprocess, 'run', run)

@@ -55,10 +55,19 @@ def assert_idle(work):
         raise RuntimeError(f"Pipeline still active; do not switch the catalog window: {work}")
 
 
-def switch(mode):
+def _switch(mode):
     assert_idle(active_work())
     if mode == "check":
         print("No active Spark application or Airflow run")
+        return
+    if mode == 'recover':
+        from src.orchestration.publication import load, save
+        current = load(ROOT)
+        if current.get('mode') == 'read':
+            raise RuntimeError('Close the read window before abandoning an incomplete build')
+        current.update(status='FAILED', error='Incomplete build explicitly abandoned after idle checks')
+        save(current, ROOT)
+        print('Incomplete build abandoned; a full pipeline rerun is required before publication')
         return
     if mode == "write":
         for name in ("tlcn_superset", "tlcn_trino"):
@@ -72,15 +81,32 @@ def switch(mode):
         command = ["docker", "compose", "--profile", "orchestration", "up", "-d", "--wait",
                    "--wait-timeout", "180", "minio", "iceberg-rest", "postgres", "spark-master", "spark-worker", "airflow"]
     else:
+        from src.orchestration.publication import require_published, save
+        published = require_published(ROOT)
+        # Persist the read barrier BEFORE starting Trino. Spark jobs take the
+        # same lock and reject writes until readers have been drained again.
+        published['mode'] = 'read'
+        save(published, ROOT)
         command = ["docker", "compose", "--profile", "query", "--profile", "dashboard", "up", "-d", "--wait",
                    "--wait-timeout", "180", "trino", "superset"]
     subprocess.run(command, check=True, cwd=ROOT)
+    if mode == 'write':
+        from src.orchestration.publication import load, save
+        published = load(ROOT)
+        published['mode'] = 'write'
+        save(published, ROOT)
     print(f"Local catalog window: {mode}")
+
+
+def switch(mode):
+    from src.orchestration.publication import catalog_lock
+    with catalog_lock(ROOT):
+        _switch(mode)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode", choices=("write", "read", "check"))
+    parser.add_argument("mode", choices=("write", "read", "check", "recover"))
     switch(parser.parse_args().mode)
 
 

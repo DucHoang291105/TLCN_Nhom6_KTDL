@@ -9,14 +9,12 @@ from __future__ import annotations
 
 import csv
 import json
-import os
 import re
 import sys
 import time
 from datetime import datetime, timezone
 from html import unescape
 from pathlib import Path
-from zoneinfo import ZoneInfo
 from urllib.parse import unquote, urljoin
 
 import requests
@@ -26,7 +24,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 from src.common.atomic_io import write_json_atomic
-from src.ingestion.crawl_runtime import (CrawlBlocked, batch_id, integer_setting,
+from src.ingestion.crawl_runtime import (CrawlBlocked, batch_id, integer_setting, float_setting,
     output_directory, page_fingerprint, request_response, write_progress)
 
 # ============================================================
@@ -40,7 +38,7 @@ START_PAGE = integer_setting('CRAWL_START_PAGE', 1, maximum=10000)
 PAGES_TO_CRAWL = integer_setting('CRAWL_PAGES', 20, maximum=5000)
 
 # Delay giữa 2 request, đơn vị giây.
-DELAY_SECONDS = float(os.getenv('CRAWL_DELAY_SECONDS', '2'))
+DELAY_SECONDS = float_setting('CRAWL_DELAY_SECONDS', 2)
 
 REQUEST_TIMEOUT = integer_setting('CRAWL_REQUEST_TIMEOUT', 30, maximum=60)
 MAX_RETRIES = integer_setting('CRAWL_MAX_RETRIES', 3, maximum=5)

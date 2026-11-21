@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-11-21T19:20:24.774775+00:00",
+  "table": "lakehouse.smoke_test.publication_74f40b444664",
+  "scope": "Real isolated Iceberg commit + injected subsequent failure; retry stage transitions are a fixture",
+  "checks": {
+    "initial_verified_publication": true,
+    "sandbox_commit_completed": true,
+    "failed_partial_build_blocks_read": true,
+    "full_stage_retry_can_publish": true
+  },
+  "status": "PASS"
+}

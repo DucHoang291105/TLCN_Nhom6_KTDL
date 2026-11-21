@@ -48,3 +48,5 @@ code/config, toàn bộ input và các JSON minh chứng của đúng lần ch�
 Tag `v1.1-bao-ve` chỉ được tạo khi suite PASS, code/input/minh chứng không đổi,
 working tree sạch và CI xanh trên chính commit được tag. Nếu bổ sung dữ liệu
 sau đó, chạy lại suite và tạo bản phát hành tiếp theo; không di chuyển tag cũ.
+
+Dịch vụ thử nghiệm được tách sang `docker-compose.experimental.yml`. Cửa sổ đọc yêu cầu bản công bố đã kiểm định theo đúng code/input hiện tại; xem [công bố và phục hồi](operations/publication_and_recovery.md).

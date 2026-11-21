@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-17T16:03:05.792567+00:00",
-  "as_of": "20261117",
+  "generated_at": "2026-11-21T17:43:23.084433+00:00",
+  "as_of": "20261120",
   "baseline_cutoff": "20261027",
   "scope": "Local raw CSV diagnostic, not Silver/Gold acceptance or confirmed website availability",
   "status": "PASS",
@@ -10,9 +10,9 @@
     "all_calendar_gaps_declared": true,
     "requested_batch_complete": true
   },
-  "latest_complete_local_batch": "20261117",
-  "snapshot_files": 48,
-  "snapshot_rows": 316241,
+  "latest_complete_local_batch": "20261120",
+  "snapshot_files": 51,
+  "snapshot_rows": 325191,
   "snapshots": [
     {
       "rows": 20000,
@@ -287,6 +287,22 @@
       "matches_pipeline_manifest": true
     },
     {
+      "rows": 4000,
+      "unique_ids": 3703,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 297,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "92a4dc0ac76c58bceca13431e16c960057b252ba441ca3f5c9b3600359aa2bd0",
+      "size_bytes": 6064458,
+      "source": "batdongsan",
+      "batch_id": "20261120",
+      "path": "data/incoming/snapshots/batdongsan/20261120/batdongsan_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
       "rows": 45664,
       "unique_ids": 44870,
       "missing_id_rows": 664,
@@ -524,6 +540,22 @@
       "source": "guland",
       "batch_id": "20261117",
       "path": "data/incoming/snapshots/guland/20261117/guland_raw.csv",
+      "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 1350,
+      "unique_ids": 1350,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 0,
+      "missing_page_rows": 0,
+      "observed_pages": 30,
+      "min_page": 1,
+      "max_page": 30,
+      "sha256": "7a0640c3a4eeb22ed4c15b1e127e5f39427d37a011ad6e045d7d532ea747547f",
+      "size_bytes": 9040516,
+      "source": "guland",
+      "batch_id": "20261120",
+      "path": "data/incoming/snapshots/guland/20261120/guland_raw.csv",
       "matches_pipeline_manifest": true
     },
     {
@@ -781,6 +813,22 @@
       "batch_id": "20261117",
       "path": "data/incoming/snapshots/nhadatvui/20261117/nhadatvui_raw.csv",
       "matches_pipeline_manifest": true
+    },
+    {
+      "rows": 3600,
+      "unique_ids": 3592,
+      "missing_id_rows": 0,
+      "duplicate_id_rows": 8,
+      "missing_page_rows": 0,
+      "observed_pages": 200,
+      "min_page": 1,
+      "max_page": 200,
+      "sha256": "346e1b5936a0cf6e4d1b6adb3e8eab913dc9b34d3b87454f367844975fe10ea3",
+      "size_bytes": 2099514,
+      "source": "nhadatvui",
+      "batch_id": "20261120",
+      "path": "data/incoming/snapshots/nhadatvui/20261120/nhadatvui_raw.csv",
+      "matches_pipeline_manifest": true
     }
   ],
   "sources": {
@@ -910,12 +958,12 @@
       },
       "local": {
         "status": "MEASURED",
-        "latest_batch": "20261117",
-        "batch_count": 17,
-        "unique_ids_ever": 46222,
-        "latest_unique_ids": 3898,
-        "absent_two_batches": 40699,
-        "absent_two_batches_share": 0.8805114447665614,
+        "latest_batch": "20261120",
+        "batch_count": 18,
+        "unique_ids_ever": 47205,
+        "latest_unique_ids": 3703,
+        "absent_two_batches": 41908,
+        "absent_two_batches_share": 0.887787310666243,
         "consecutive_pairs": [
           {
             "old_batch": "20260922",
@@ -1060,6 +1108,15 @@
             "retained_ids": 2313,
             "retained_share_of_old": 0.5873539867953276,
             "not_observed_from_old": 1625
+          },
+          {
+            "old_batch": "20261117",
+            "new_batch": "20261120",
+            "old_unique_ids": 3898,
+            "new_unique_ids": 3703,
+            "retained_ids": 2304,
+            "retained_share_of_old": 0.5910723447922012,
+            "not_observed_from_old": 1594
           }
         ],
         "depth_cohorts": {
@@ -1074,8 +1131,8 @@
             },
             "beyond_latest_depth": {
               "ids": 13526,
-              "absent_two_batches": 13313,
-              "absent_share": 0.9842525506432057
+              "absent_two_batches": 13362,
+              "absent_share": 0.9878752033121396
             },
             "unknown_page": {
               "ids": 0,
@@ -1102,7 +1159,8 @@
         "20261106",
         "20261110",
         "20261113",
-        "20261117"
+        "20261117",
+        "20261120"
       ]
     },
     "guland": {
@@ -1222,12 +1280,12 @@
       },
       "local": {
         "status": "MEASURED",
-        "latest_batch": "20261117",
-        "batch_count": 15,
-        "unique_ids_ever": 54130,
-        "latest_unique_ids": 1349,
-        "absent_two_batches": 52077,
-        "absent_two_batches_share": 0.9620727877332348,
+        "latest_batch": "20261120",
+        "batch_count": 16,
+        "unique_ids_ever": 54762,
+        "latest_unique_ids": 1350,
+        "absent_two_batches": 52333,
+        "absent_two_batches_share": 0.9556444249662175,
         "consecutive_pairs": [
           {
             "old_batch": "20260922",
@@ -1354,6 +1412,15 @@
             "retained_ids": 646,
             "retained_share_of_old": 0.4785185185185185,
             "not_observed_from_old": 704
+          },
+          {
+            "old_batch": "20261117",
+            "new_batch": "20261120",
+            "old_unique_ids": 1349,
+            "new_unique_ids": 1350,
+            "retained_ids": 270,
+            "retained_share_of_old": 0.20014825796886582,
+            "not_observed_from_old": 1079
           }
         ],
         "depth_cohorts": {
@@ -1363,13 +1430,13 @@
           "cohorts": {
             "within_latest_depth": {
               "ids": 1338,
-              "absent_two_batches": 1325,
-              "absent_share": 0.9902840059790733
+              "absent_two_batches": 1324,
+              "absent_share": 0.9895366218236173
             },
             "beyond_latest_depth": {
               "ids": 43532,
-              "absent_two_batches": 42550,
-              "absent_share": 0.9774418818340531
+              "absent_two_batches": 42347,
+              "absent_share": 0.9727786455940458
             },
             "unknown_page": {
               "ids": 0,
@@ -1394,7 +1461,8 @@
         "20261106",
         "20261110",
         "20261113",
-        "20261117"
+        "20261117",
+        "20261120"
       ]
     },
     "nhadatvui": {
@@ -1532,12 +1600,12 @@
       },
       "local": {
         "status": "MEASURED",
-        "latest_batch": "20261117",
-        "batch_count": 16,
-        "unique_ids_ever": 19348,
-        "latest_unique_ids": 3593,
-        "absent_two_batches": 15639,
-        "absent_two_batches_share": 0.8083005995451726,
+        "latest_batch": "20261120",
+        "batch_count": 17,
+        "unique_ids_ever": 19456,
+        "latest_unique_ids": 3592,
+        "absent_two_batches": 15755,
+        "absent_two_batches_share": 0.8097759046052632,
         "consecutive_pairs": [
           {
             "old_batch": "20260922",
@@ -1673,6 +1741,15 @@
             "retained_ids": 3483,
             "retained_share_of_old": 0.9677688246735204,
             "not_observed_from_old": 116
+          },
+          {
+            "old_batch": "20261117",
+            "new_batch": "20261120",
+            "old_unique_ids": 3593,
+            "new_unique_ids": 3592,
+            "retained_ids": 3484,
+            "retained_share_of_old": 0.9696632340662399,
+            "not_observed_from_old": 109
           }
         ],
         "depth_cohorts": {
@@ -1682,8 +1759,8 @@
           "cohorts": {
             "within_latest_depth": {
               "ids": 3474,
-              "absent_two_batches": 2046,
-              "absent_share": 0.5889464594127807
+              "absent_two_batches": 2156,
+              "absent_share": 0.6206102475532528
             },
             "beyond_latest_depth": {
               "ids": 13260,
@@ -1714,7 +1791,8 @@
         "20261103",
         "20261106",
         "20261113",
-        "20261117"
+        "20261117",
+        "20261120"
       ]
     }
   },

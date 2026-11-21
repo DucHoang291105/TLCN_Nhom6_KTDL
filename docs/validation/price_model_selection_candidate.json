@@ -1,0 +1,1066 @@
+{
+  "started_at": "2026-11-21T19:20:56.468205+00:00",
+  "finished_at": "2026-11-21T19:22:15.427877+00:00",
+  "split": "published train/test split of fact_listing_price_model, rows outside the train trim range removed",
+  "settings": {
+    "ridge_lambda": 1.0,
+    "min_extra_term_train_rows": 30,
+    "distance_band_edges_km": [
+      3.0,
+      7.0,
+      15.0
+    ],
+    "folds": 5,
+    "ridge_grid": [
+      1.0,
+      5.0,
+      20.0
+    ],
+    "weight_grid": [
+      1.0,
+      0.9,
+      0.8,
+      0.7,
+      0.6,
+      0.5,
+      0.4,
+      0.3,
+      0.2,
+      0.1,
+      0.0
+    ],
+    "min_gain_to_leave_plain_model": 0.001,
+    "bootstrap_resamples": 2000,
+    "bootstrap_seed": 20261117
+  },
+  "coverage": {
+    "train_rows": 100283,
+    "test_rows": 25119,
+    "distance_known_share": 0.3855,
+    "ward_known_share": 0.6432
+  },
+  "term_comparison": {
+    "base_terms": {
+      "term_groups": [],
+      "model_terms": {
+        "nha_pho": 110,
+        "can_ho": 55,
+        "biet_thu": 63,
+        "dat": 49
+      },
+      "overall": {
+        "model": {
+          "n": 25119,
+          "mae": 45055505.21,
+          "mape": 0.460525,
+          "median_ape": 0.284306,
+          "r2_log": 0.679174
+        },
+        "baseline": {
+          "n": 25119,
+          "mae": 45134962.35,
+          "mape": 0.481331,
+          "median_ape": 0.261802,
+          "r2_log": 0.654478
+        },
+        "model_beats_baseline_mae": true
+      },
+      "by_category": {
+        "nha_pho": {
+          "model": {
+            "n": 15812,
+            "mae": 52008675.45,
+            "mape": 0.451528,
+            "median_ape": 0.272442,
+            "r2_log": 0.644338
+          },
+          "baseline": {
+            "n": 15812,
+            "mae": 52844085.62,
+            "mape": 0.479994,
+            "median_ape": 0.255504,
+            "r2_log": 0.609795
+          },
+          "model_beats_baseline_mae": true
+        },
+        "can_ho": {
+          "model": {
+            "n": 5708,
+            "mae": 22839065.27,
+            "mape": 0.357401,
+            "median_ape": 0.288458,
+            "r2_log": 0.387232
+          },
+          "baseline": {
+            "n": 5708,
+            "mae": 22537174.78,
+            "mape": 0.354972,
+            "median_ape": 0.261629,
+            "r2_log": 0.336058
+          },
+          "model_beats_baseline_mae": false
+        },
+        "biet_thu": {
+          "model": {
+            "n": 2265,
+            "mae": 64458667.14,
+            "mape": 0.595924,
+            "median_ape": 0.326253,
+            "r2_log": 0.549511
+          },
+          "baseline": {
+            "n": 2265,
+            "mae": 62444605.8,
+            "mape": 0.649852,
+            "median_ape": 0.302222,
+            "r2_log": 0.541487
+          },
+          "model_beats_baseline_mae": false
+        },
+        "dat": {
+          "model": {
+            "n": 1334,
+            "mae": 24755467.41,
+            "mape": 0.778527,
+            "median_ape": 0.383445,
+            "r2_log": 0.627787
+          },
+          "baseline": {
+            "n": 1334,
+            "mae": 21060878.34,
+            "mape": 0.751717,
+            "median_ape": 0.286762,
+            "r2_log": 0.615523
+          },
+          "model_beats_baseline_mae": false
+        }
+      },
+      "by_location_level": {
+        "DISTRICT": {
+          "model": {
+            "n": 13673,
+            "mae": 44266012.26,
+            "mape": 0.398441,
+            "median_ape": 0.259408,
+            "r2_log": 0.721754
+          },
+          "baseline": {
+            "n": 13673,
+            "mae": 44777760.48,
+            "mape": 0.429829,
+            "median_ape": 0.237194,
+            "r2_log": 0.68549
+          },
+          "model_beats_baseline_mae": true
+        },
+        "PROVINCE": {
+          "model": {
+            "n": 11446,
+            "mae": 45998606.48,
+            "mape": 0.534689,
+            "median_ape": 0.320092,
+            "r2_log": 0.62479
+          },
+          "baseline": {
+            "n": 11446,
+            "mae": 45561663.49,
+            "mape": 0.542853,
+            "median_ape": 0.295908,
+            "r2_log": 0.610561
+          },
+          "model_beats_baseline_mae": false
+        }
+      }
+    },
+    "distance": {
+      "term_groups": [
+        "dist"
+      ],
+      "model_terms": {
+        "nha_pho": 114,
+        "can_ho": 59,
+        "biet_thu": 67,
+        "dat": 53
+      },
+      "overall": {
+        "model": {
+          "n": 25119,
+          "mae": 44141181.25,
+          "mape": 0.439544,
+          "median_ape": 0.276421,
+          "r2_log": 0.702298
+        },
+        "baseline": {
+          "n": 25119,
+          "mae": 45134962.35,
+          "mape": 0.481331,
+          "median_ape": 0.261802,
+          "r2_log": 0.654478
+        },
+        "model_beats_baseline_mae": true
+      },
+      "by_category": {
+        "nha_pho": {
+          "model": {
+            "n": 15812,
+            "mae": 51344073.51,
+            "mape": 0.440707,
+            "median_ape": 0.271632,
+            "r2_log": 0.657
+          },
+          "baseline": {
+            "n": 15812,
+            "mae": 52844085.62,
+            "mape": 0.479994,
+            "median_ape": 0.255504,
+            "r2_log": 0.609795
+          },
+          "model_beats_baseline_mae": true
+        },
+        "can_ho": {
+          "model": {
+            "n": 5708,
+            "mae": 21664629.01,
+            "mape": 0.326682,
+            "median_ape": 0.26347,
+            "r2_log": 0.466175
+          },
+          "baseline": {
+            "n": 5708,
+            "mae": 22537174.78,
+            "mape": 0.354972,
+            "median_ape": 0.261629,
+            "r2_log": 0.336058
+          },
+          "model_beats_baseline_mae": true
+        },
+        "biet_thu": {
+          "model": {
+            "n": 2265,
+            "mae": 63475618.34,
+            "mape": 0.552991,
+            "median_ape": 0.325343,
+            "r2_log": 0.590725
+          },
+          "baseline": {
+            "n": 2265,
+            "mae": 62444605.8,
+            "mape": 0.649852,
+            "median_ape": 0.302222,
+            "r2_log": 0.541487
+          },
+          "model_beats_baseline_mae": false
+        },
+        "dat": {
+          "model": {
+            "n": 1334,
+            "mae": 22110842.33,
+            "mape": 0.716054,
+            "median_ape": 0.348385,
+            "r2_log": 0.685962
+          },
+          "baseline": {
+            "n": 1334,
+            "mae": 21060878.34,
+            "mape": 0.751717,
+            "median_ape": 0.286762,
+            "r2_log": 0.615523
+          },
+          "model_beats_baseline_mae": false
+        }
+      },
+      "by_location_level": {
+        "DISTRICT": {
+          "model": {
+            "n": 13673,
+            "mae": 43955446.41,
+            "mape": 0.396166,
+            "median_ape": 0.257818,
+            "r2_log": 0.72405
+          },
+          "baseline": {
+            "n": 13673,
+            "mae": 44777760.48,
+            "mape": 0.429829,
+            "median_ape": 0.237194,
+            "r2_log": 0.68549
+          },
+          "model_beats_baseline_mae": true
+        },
+        "PROVINCE": {
+          "model": {
+            "n": 11446,
+            "mae": 44363053.74,
+            "mape": 0.491361,
+            "median_ape": 0.301767,
+            "r2_log": 0.669361
+          },
+          "baseline": {
+            "n": 11446,
+            "mae": 45561663.49,
+            "mape": 0.542853,
+            "median_ape": 0.295908,
+            "r2_log": 0.610561
+          },
+          "model_beats_baseline_mae": true
+        }
+      }
+    },
+    "district_size": {
+      "term_groups": [
+        "loc_size"
+      ],
+      "model_terms": {
+        "nha_pho": 268,
+        "can_ho": 106,
+        "biet_thu": 100,
+        "dat": 91
+      },
+      "overall": {
+        "model": {
+          "n": 25119,
+          "mae": 44178191.95,
+          "mape": 0.451066,
+          "median_ape": 0.279463,
+          "r2_log": 0.688115
+        },
+        "baseline": {
+          "n": 25119,
+          "mae": 45134962.35,
+          "mape": 0.481331,
+          "median_ape": 0.261802,
+          "r2_log": 0.654478
+        },
+        "model_beats_baseline_mae": true
+      },
+      "by_category": {
+        "nha_pho": {
+          "model": {
+            "n": 15812,
+            "mae": 50778875.4,
+            "mape": 0.439672,
+            "median_ape": 0.267137,
+            "r2_log": 0.657181
+          },
+          "baseline": {
+            "n": 15812,
+            "mae": 52844085.62,
+            "mape": 0.479994,
+            "median_ape": 0.255504,
+            "r2_log": 0.609795
+          },
+          "model_beats_baseline_mae": true
+        },
+        "can_ho": {
+          "model": {
+            "n": 5708,
+            "mae": 22683862.72,
+            "mape": 0.354345,
+            "median_ape": 0.284354,
+            "r2_log": 0.394626
+          },
+          "baseline": {
+            "n": 5708,
+            "mae": 22537174.78,
+            "mape": 0.354972,
+            "median_ape": 0.261629,
+            "r2_log": 0.336058
+          },
+          "model_beats_baseline_mae": false
+        },
+        "biet_thu": {
+          "model": {
+            "n": 2265,
+            "mae": 64277691.02,
+            "mape": 0.590461,
+            "median_ape": 0.328621,
+            "r2_log": 0.554837
+          },
+          "baseline": {
+            "n": 2265,
+            "mae": 62444605.8,
+            "mape": 0.649852,
+            "median_ape": 0.302222,
+            "r2_log": 0.541487
+          },
+          "model_beats_baseline_mae": false
+        },
+        "dat": {
+          "model": {
+            "n": 1334,
+            "mae": 23784083.27,
+            "mape": 0.763298,
+            "median_ape": 0.3514,
+            "r2_log": 0.636906
+          },
+          "baseline": {
+            "n": 1334,
+            "mae": 21060878.34,
+            "mape": 0.751717,
+            "median_ape": 0.286762,
+            "r2_log": 0.615523
+          },
+          "model_beats_baseline_mae": false
+        }
+      },
+      "by_location_level": {
+        "DISTRICT": {
+          "model": {
+            "n": 13673,
+            "mae": 43206359.32,
+            "mape": 0.387471,
+            "median_ape": 0.253231,
+            "r2_log": 0.733416
+          },
+          "baseline": {
+            "n": 13673,
+            "mae": 44777760.48,
+            "mape": 0.429829,
+            "median_ape": 0.237194,
+            "r2_log": 0.68549
+          },
+          "model_beats_baseline_mae": true
+        },
+        "PROVINCE": {
+          "model": {
+            "n": 11446,
+            "mae": 45339109.95,
+            "mape": 0.527034,
+            "median_ape": 0.313793,
+            "r2_log": 0.63139
+          },
+          "baseline": {
+            "n": 11446,
+            "mae": 45561663.49,
+            "mape": 0.542853,
+            "median_ape": 0.295908,
+            "r2_log": 0.610561
+          },
+          "model_beats_baseline_mae": true
+        }
+      }
+    },
+    "ward": {
+      "term_groups": [
+        "ward"
+      ],
+      "model_terms": {
+        "nha_pho": 420,
+        "can_ho": 105,
+        "biet_thu": 63,
+        "dat": 64
+      },
+      "overall": {
+        "model": {
+          "n": 25119,
+          "mae": 44154181.26,
+          "mape": 0.449293,
+          "median_ape": 0.273373,
+          "r2_log": 0.690223
+        },
+        "baseline": {
+          "n": 25119,
+          "mae": 45134962.35,
+          "mape": 0.481331,
+          "median_ape": 0.261802,
+          "r2_log": 0.654478
+        },
+        "model_beats_baseline_mae": true
+      },
+      "by_category": {
+        "nha_pho": {
+          "model": {
+            "n": 15812,
+            "mae": 50856063.21,
+            "mape": 0.439401,
+            "median_ape": 0.265705,
+            "r2_log": 0.658328
+          },
+          "baseline": {
+            "n": 15812,
+            "mae": 52844085.62,
+            "mape": 0.479994,
+            "median_ape": 0.255504,
+            "r2_log": 0.609795
+          },
+          "model_beats_baseline_mae": true
+        },
+        "can_ho": {
+          "model": {
+            "n": 5708,
+            "mae": 22066482.43,
+            "mape": 0.342354,
+            "median_ape": 0.2597,
+            "r2_log": 0.42796
+          },
+          "baseline": {
+            "n": 5708,
+            "mae": 22537174.78,
+            "mape": 0.354972,
+            "median_ape": 0.261629,
+            "r2_log": 0.336058
+          },
+          "model_beats_baseline_mae": true
+        },
+        "biet_thu": {
+          "model": {
+            "n": 2265,
+            "mae": 64458667.14,
+            "mape": 0.595924,
+            "median_ape": 0.326253,
+            "r2_log": 0.549511
+          },
+          "baseline": {
+            "n": 2265,
+            "mae": 62444605.8,
+            "mape": 0.649852,
+            "median_ape": 0.302222,
+            "r2_log": 0.541487
+          },
+          "model_beats_baseline_mae": false
+        },
+        "dat": {
+          "model": {
+            "n": 1334,
+            "mae": 24751457.93,
+            "mape": 0.775156,
+            "median_ape": 0.378743,
+            "r2_log": 0.630178
+          },
+          "baseline": {
+            "n": 1334,
+            "mae": 21060878.34,
+            "mape": 0.751717,
+            "median_ape": 0.286762,
+            "r2_log": 0.615523
+          },
+          "model_beats_baseline_mae": false
+        }
+      },
+      "by_location_level": {
+        "DISTRICT": {
+          "model": {
+            "n": 13673,
+            "mae": 42588643.59,
+            "mape": 0.378523,
+            "median_ape": 0.240554,
+            "r2_log": 0.74428
+          },
+          "baseline": {
+            "n": 13673,
+            "mae": 44777760.48,
+            "mape": 0.429829,
+            "median_ape": 0.237194,
+            "r2_log": 0.68549
+          },
+          "model_beats_baseline_mae": true
+        },
+        "PROVINCE": {
+          "model": {
+            "n": 11446,
+            "mae": 46024319.01,
+            "mape": 0.533833,
+            "median_ape": 0.317678,
+            "r2_log": 0.624939
+          },
+          "baseline": {
+            "n": 11446,
+            "mae": 45561663.49,
+            "mape": 0.542853,
+            "median_ape": 0.295908,
+            "r2_log": 0.610561
+          },
+          "model_beats_baseline_mae": false
+        }
+      }
+    },
+    "all_terms": {
+      "term_groups": [
+        "dist",
+        "loc_size",
+        "ward"
+      ],
+      "model_terms": {
+        "nha_pho": 582,
+        "can_ho": 160,
+        "biet_thu": 104,
+        "dat": 110
+      },
+      "overall": {
+        "model": {
+          "n": 25119,
+          "mae": 42560944.58,
+          "mape": 0.422387,
+          "median_ape": 0.261944,
+          "r2_log": 0.71858
+        },
+        "baseline": {
+          "n": 25119,
+          "mae": 45134962.35,
+          "mape": 0.481331,
+          "median_ape": 0.261802,
+          "r2_log": 0.654478
+        },
+        "model_beats_baseline_mae": true
+      },
+      "by_category": {
+        "nha_pho": {
+          "model": {
+            "n": 15812,
+            "mae": 49234276.75,
+            "mape": 0.420852,
+            "median_ape": 0.258396,
+            "r2_log": 0.679177
+          },
+          "baseline": {
+            "n": 15812,
+            "mae": 52844085.62,
+            "mape": 0.479994,
+            "median_ape": 0.255504,
+            "r2_log": 0.609795
+          },
+          "model_beats_baseline_mae": true
+        },
+        "can_ho": {
+          "model": {
+            "n": 5708,
+            "mae": 20834049.95,
+            "mape": 0.311146,
+            "median_ape": 0.239425,
+            "r2_log": 0.507751
+          },
+          "baseline": {
+            "n": 5708,
+            "mae": 22537174.78,
+            "mape": 0.354972,
+            "median_ape": 0.261629,
+            "r2_log": 0.336058
+          },
+          "model_beats_baseline_mae": true
+        },
+        "biet_thu": {
+          "model": {
+            "n": 2265,
+            "mae": 63148767.31,
+            "mape": 0.54869,
+            "median_ape": 0.327262,
+            "r2_log": 0.594455
+          },
+          "baseline": {
+            "n": 2265,
+            "mae": 62444605.8,
+            "mape": 0.649852,
+            "median_ape": 0.302222,
+            "r2_log": 0.541487
+          },
+          "model_beats_baseline_mae": false
+        },
+        "dat": {
+          "model": {
+            "n": 1334,
+            "mae": 21471714.97,
+            "mape": 0.702121,
+            "median_ape": 0.333037,
+            "r2_log": 0.692439
+          },
+          "baseline": {
+            "n": 1334,
+            "mae": 21060878.34,
+            "mape": 0.751717,
+            "median_ape": 0.286762,
+            "r2_log": 0.615523
+          },
+          "model_beats_baseline_mae": false
+        }
+      },
+      "by_location_level": {
+        "DISTRICT": {
+          "model": {
+            "n": 13673,
+            "mae": 41524885.26,
+            "mape": 0.369163,
+            "median_ape": 0.236994,
+            "r2_log": 0.752873
+          },
+          "baseline": {
+            "n": 13673,
+            "mae": 44777760.48,
+            "mape": 0.429829,
+            "median_ape": 0.237194,
+            "r2_log": 0.68549
+          },
+          "model_beats_baseline_mae": true
+        },
+        "PROVINCE": {
+          "model": {
+            "n": 11446,
+            "mae": 43798585.6,
+            "mape": 0.485967,
+            "median_ape": 0.295824,
+            "r2_log": 0.673893
+          },
+          "baseline": {
+            "n": 11446,
+            "mae": 45561663.49,
+            "mape": 0.542853,
+            "median_ape": 0.295908,
+            "r2_log": 0.610561
+          },
+          "model_beats_baseline_mae": true
+        }
+      }
+    }
+  },
+  "blend_selection": {
+    "method": "log-space blend of the model and the peer-group baseline; configuration chosen by 5-fold cross-validation on train only; one evaluation on test",
+    "overall_test": {
+      "model_only": {
+        "n": 25119,
+        "mae": 42560944.58,
+        "mape": 0.422387,
+        "median_ape": 0.261944,
+        "r2_log": 0.71858
+      },
+      "blend": {
+        "n": 25119,
+        "mae": 41805297.74,
+        "mape": 0.421019,
+        "median_ape": 0.250621,
+        "r2_log": 0.720148
+      },
+      "baseline": {
+        "n": 25119,
+        "mae": 45134962.35,
+        "mape": 0.481331,
+        "median_ape": 0.261802,
+        "r2_log": 0.654478
+      },
+      "blend_beats_baseline_mae": true,
+      "significance": {
+        "n": 25119,
+        "mean_diff": 3329664.61,
+        "ci95": [
+          3010876.57,
+          3621767.9
+        ],
+        "share_resamples_blend_better": 1.0,
+        "share_listings_blend_closer": 0.5503,
+        "significant_at_5pct": true
+      },
+      "error_ratio": {
+        "n": 25119,
+        "actual_over_predicted_quantiles": {
+          "0.1": 0.5678,
+          "0.25": 0.7813,
+          "0.5": 1.0099,
+          "0.75": 1.3032,
+          "0.9": 1.7205
+        },
+        "share_within": {
+          "25pct": 0.4959,
+          "50pct": 0.7714
+        }
+      }
+    },
+    "by_category": {
+      "nha_pho": {
+        "train_rows": 63514,
+        "test_rows": 15812,
+        "selection": {
+          "chosen": {
+            "ridge": 1.0,
+            "weight": 0.7,
+            "pooled_to_baseline": false,
+            "oof_mae": 48743591.53
+          },
+          "plain_model": {
+            "ridge": 1.0,
+            "weight": 1.0,
+            "pooled_to_baseline": false,
+            "oof_mae": 49638592.58
+          },
+          "baseline_only_oof_mae": 53111409.26,
+          "n_candidates": 66
+        },
+        "test": {
+          "model_only": {
+            "n": 15812,
+            "mae": 49234276.75,
+            "mape": 0.420852,
+            "median_ape": 0.258396,
+            "r2_log": 0.679177
+          },
+          "blend": {
+            "n": 15812,
+            "mae": 48383188.44,
+            "mape": 0.417118,
+            "median_ape": 0.246126,
+            "r2_log": 0.684386
+          },
+          "baseline": {
+            "n": 15812,
+            "mae": 52844085.62,
+            "mape": 0.479994,
+            "median_ape": 0.255504,
+            "r2_log": 0.609795
+          },
+          "blend_beats_baseline_mae": true,
+          "blend_beats_model_only_mae": true
+        },
+        "significance": {
+          "n": 15812,
+          "mean_diff": 4460897.18,
+          "ci95": [
+            3996436.47,
+            4934273.24
+          ],
+          "share_resamples_blend_better": 1.0,
+          "share_listings_blend_closer": 0.5497,
+          "significant_at_5pct": true
+        },
+        "error_ratio": {
+          "n": 15812,
+          "actual_over_predicted_quantiles": {
+            "0.1": 0.5569,
+            "0.25": 0.7856,
+            "0.5": 1.0178,
+            "0.75": 1.2998,
+            "0.9": 1.6947
+          },
+          "share_within": {
+            "25pct": 0.4977,
+            "50pct": 0.7716
+          }
+        }
+      },
+      "can_ho": {
+        "train_rows": 22516,
+        "test_rows": 5708,
+        "selection": {
+          "chosen": {
+            "ridge": 1.0,
+            "weight": 0.8,
+            "pooled_to_baseline": false,
+            "oof_mae": 20766226.47
+          },
+          "plain_model": {
+            "ridge": 1.0,
+            "weight": 1.0,
+            "pooled_to_baseline": false,
+            "oof_mae": 20871037.61
+          },
+          "baseline_only_oof_mae": 22441184.99,
+          "n_candidates": 66
+        },
+        "test": {
+          "model_only": {
+            "n": 5708,
+            "mae": 20834049.95,
+            "mape": 0.311146,
+            "median_ape": 0.239425,
+            "r2_log": 0.507751
+          },
+          "blend": {
+            "n": 5708,
+            "mae": 20775078.98,
+            "mape": 0.31031,
+            "median_ape": 0.243348,
+            "r2_log": 0.50592
+          },
+          "baseline": {
+            "n": 5708,
+            "mae": 22537174.78,
+            "mape": 0.354972,
+            "median_ape": 0.261629,
+            "r2_log": 0.336058
+          },
+          "blend_beats_baseline_mae": true,
+          "blend_beats_model_only_mae": true
+        },
+        "significance": {
+          "n": 5708,
+          "mean_diff": 1762095.8,
+          "ci95": [
+            1477073.03,
+            2050841.36
+          ],
+          "share_resamples_blend_better": 1.0,
+          "share_listings_blend_closer": 0.5715,
+          "significant_at_5pct": true
+        },
+        "error_ratio": {
+          "n": 5708,
+          "actual_over_predicted_quantiles": {
+            "0.1": 0.6497,
+            "0.25": 0.788,
+            "0.5": 0.9856,
+            "0.75": 1.2811,
+            "0.9": 1.6633
+          },
+          "share_within": {
+            "25pct": 0.5305,
+            "50pct": 0.8224
+          }
+        }
+      },
+      "biet_thu": {
+        "train_rows": 8881,
+        "test_rows": 2265,
+        "selection": {
+          "chosen": {
+            "ridge": 1.0,
+            "weight": 0.4,
+            "pooled_to_baseline": false,
+            "oof_mae": 58839831.08
+          },
+          "plain_model": {
+            "ridge": 1.0,
+            "weight": 1.0,
+            "pooled_to_baseline": false,
+            "oof_mae": 60587383.13
+          },
+          "baseline_only_oof_mae": 60419528.06,
+          "n_candidates": 66
+        },
+        "test": {
+          "model_only": {
+            "n": 2265,
+            "mae": 63148767.31,
+            "mape": 0.54869,
+            "median_ape": 0.327262,
+            "r2_log": 0.594455
+          },
+          "blend": {
+            "n": 2265,
+            "mae": 61649837.06,
+            "mape": 0.580896,
+            "median_ape": 0.30232,
+            "r2_log": 0.59067
+          },
+          "baseline": {
+            "n": 2265,
+            "mae": 62444605.8,
+            "mape": 0.649852,
+            "median_ape": 0.302222,
+            "r2_log": 0.541487
+          },
+          "blend_beats_baseline_mae": true,
+          "blend_beats_model_only_mae": true
+        },
+        "significance": {
+          "n": 2265,
+          "mean_diff": 794768.74,
+          "ci95": [
+            123236.13,
+            1416968.93
+          ],
+          "share_resamples_blend_better": 0.992,
+          "share_listings_blend_closer": 0.5166,
+          "significant_at_5pct": true
+        },
+        "error_ratio": {
+          "n": 2265,
+          "actual_over_predicted_quantiles": {
+            "0.1": 0.4516,
+            "0.25": 0.737,
+            "0.5": 1.0185,
+            "0.75": 1.3805,
+            "0.9": 1.876
+          },
+          "share_within": {
+            "25pct": 0.4185,
+            "50pct": 0.6892
+          }
+        }
+      },
+      "dat": {
+        "train_rows": 5372,
+        "test_rows": 1334,
+        "selection": {
+          "chosen": {
+            "ridge": 1.0,
+            "weight": 0.5,
+            "pooled_to_baseline": false,
+            "oof_mae": 21034025.24
+          },
+          "plain_model": {
+            "ridge": 1.0,
+            "weight": 1.0,
+            "pooled_to_baseline": false,
+            "oof_mae": 22209174.85
+          },
+          "baseline_only_oof_mae": 22257635.5,
+          "n_candidates": 66
+        },
+        "test": {
+          "model_only": {
+            "n": 1334,
+            "mae": 21471714.97,
+            "mape": 0.702121,
+            "median_ape": 0.333037,
+            "r2_log": 0.692439
+          },
+          "blend": {
+            "n": 1334,
+            "mae": 20128385.7,
+            "mape": 0.669514,
+            "median_ape": 0.276064,
+            "r2_log": 0.68558
+          },
+          "baseline": {
+            "n": 1334,
+            "mae": 21060878.34,
+            "mape": 0.751717,
+            "median_ape": 0.286762,
+            "r2_log": 0.615523
+          },
+          "blend_beats_baseline_mae": true,
+          "blend_beats_model_only_mae": true
+        },
+        "significance": {
+          "n": 1334,
+          "mean_diff": 932492.63,
+          "ci95": [
+            338856.07,
+            1530492.85
+          ],
+          "share_resamples_blend_better": 0.9995,
+          "share_listings_blend_closer": 0.524,
+          "significant_at_5pct": true
+        },
+        "error_ratio": {
+          "n": 1334,
+          "actual_over_predicted_quantiles": {
+            "0.1": 0.456,
+            "0.25": 0.7328,
+            "0.5": 1.0263,
+            "0.75": 1.3054,
+            "0.9": 2.195
+          },
+          "share_within": {
+            "25pct": 0.4573,
+            "50pct": 0.6897
+          }
+        }
+      }
+    }
+  },
+  "gold_model_reproduced": true,
+  "r2_log_difference_vs_gold_model": 0.0,
+  "prediction_agreement_vs_gold_model": {
+    "n": 25119,
+    "tolerance_relative": 0.01,
+    "share_within_tolerance": 1.0,
+    "max_abs_log_difference": 0.0,
+    "median_abs_log_difference": 0.0
+  },
+  "limitations": [
+    "Cross-validation folds reuse the location terms and trim range fitted on the whole train split; only the baseline is rebuilt inside each fold. The outer test rows are never used for either."
+  ],
+  "status": "PASS",
+  "generated_at": "2026-11-21T19:22:16.296054+00:00",
+  "publication_identity": "efb14fa05a4e66d327d643df8684c47c479df92394acc9e051e72a3cf67b0436",
+  "production_configuration_changed": false,
+  "config_sha256": "4b13afac5a59bb3721bef755897cf18218aefef2c85e2759521ffa0375613dd5",
+  "purpose": "New-data CV candidate; frozen Gold configuration is unchanged"
+}

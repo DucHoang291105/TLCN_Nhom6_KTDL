@@ -39,14 +39,12 @@ from __future__ import annotations
 import csv
 import json
 import logging
-import os
 import random
 import re
 import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from zoneinfo import ZoneInfo
 from typing import Any
 from urllib.parse import urlencode
 
@@ -56,8 +54,17 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 from src.common.atomic_io import write_json_atomic
-from src.ingestion.crawl_runtime import (CrawlBlocked, batch_id, integer_setting,
-    output_directory, page_fingerprint, request_response, validate_nhadatvui_page, write_progress)
+from src.ingestion.crawl_runtime import (
+    CrawlBlocked,
+    batch_id,
+    integer_setting,
+    float_setting,
+    output_directory,
+    page_fingerprint,
+    request_response,
+    validate_nhadatvui_page,
+    write_progress,
+)
 
 
 # ============================================================
@@ -67,27 +74,29 @@ from src.ingestion.crawl_runtime import (CrawlBlocked, batch_id, integer_setting
 BASE_URL = "https://www.nhadatvui.vn/mua-ban-nha-dat"
 
 # Trang bắt đầu
-START_PAGE = integer_setting('CRAWL_START_PAGE', 1, maximum=10000)
+START_PAGE = integer_setting("CRAWL_START_PAGE", 1, maximum=10000)
 
 # Số trang muốn crawl (site có ~16724 tin, limit=18/trang -> cần ~930 trang).
 # Giữ cố định giữa các lần crawl; đổi qua biến môi trường CRAWL_PAGES.
-PAGES_TO_CRAWL = integer_setting('CRAWL_PAGES', 200, maximum=5000)
+PAGES_TO_CRAWL = integer_setting("CRAWL_PAGES", 200, maximum=5000)
 
 # Delay cơ bản giữa 2 trang
 # Tăng lên so với bản gốc (2.0) vì crawl liên tục ~900+ trang trong 1 lần
 # chạy có rủi ro bị rate-limit/block cao hơn crawl vài chục trang.
-DELAY_SECONDS = float(os.getenv('CRAWL_DELAY_SECONDS', '3.5'))
+DELAY_SECONDS = float_setting("CRAWL_DELAY_SECONDS", 3.5)
 
 # Thêm jitter ngẫu nhiên để request không quá đều
 DELAY_JITTER_SECONDS = 1.2
 
 # Timeout
-REQUEST_TIMEOUT = integer_setting('CRAWL_REQUEST_TIMEOUT', 30, maximum=60)
+REQUEST_TIMEOUT = integer_setting("CRAWL_REQUEST_TIMEOUT", 30, maximum=60)
 
 # Retry nếu lỗi mạng / 5xx / 429
-MAX_RETRIES = integer_setting('CRAWL_MAX_RETRIES', 3, maximum=5)
-MAX_CONSECUTIVE_FAILURES = integer_setting('CRAWL_MAX_CONSECUTIVE_FAILURES', 2, maximum=5)
-RUN_TIMEOUT_SECONDS = integer_setting('CRAWL_RUN_TIMEOUT_SECONDS', 2100)
+MAX_RETRIES = integer_setting("CRAWL_MAX_RETRIES", 3, maximum=5)
+MAX_CONSECUTIVE_FAILURES = integer_setting(
+    "CRAWL_MAX_CONSECUTIVE_FAILURES", 2, maximum=5
+)
+RUN_TIMEOUT_SECONDS = integer_setting("CRAWL_RUN_TIMEOUT_SECONDS", 2100)
 
 # ------------------------------------------------------------
 # RESUME
@@ -121,13 +130,11 @@ RUN_NAME: str | None = None
 
 # Thứ tự: RESUME_RUN_ID (crawl tiếp) -> RUN_NAME -> CRAWL_BATCH_ID -> ngày hôm nay
 # (giờ Việt Nam). Tên batch phải là YYYYMMDD để job ingest Bronze nhận được.
-RUN_ID = (
-    RESUME_RUN_ID
-    or RUN_NAME
-    or batch_id()
-)
+RUN_ID = RESUME_RUN_ID or RUN_NAME or batch_id()
 if not re.fullmatch(r"\d{8}", RUN_ID):
-    raise ValueError("Batch id (RESUME_RUN_ID / RUN_NAME / CRAWL_BATCH_ID) must be YYYYMMDD")
+    raise ValueError(
+        "Batch id (RESUME_RUN_ID / RUN_NAME / CRAWL_BATCH_ID) must be YYYYMMDD"
+    )
 IS_RESUME = RESUME_RUN_ID is not None
 
 # File này được đặt tại:
@@ -137,7 +144,7 @@ IS_RESUME = RESUME_RUN_ID is not None
 # Vì vậy gửi project cho máy khác vẫn chạy được nếu giữ đúng cấu trúc thư mục.
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
-OUTPUT_DIR = output_directory('nhadatvui', RUN_ID)
+OUTPUT_DIR = output_directory("nhadatvui", RUN_ID)
 
 PAGES_DIR = OUTPUT_DIR / "pages"
 
@@ -166,9 +173,7 @@ session.headers.update(
             "application/xml;q=0.9,image/avif,"
             "image/webp,*/*;q=0.8"
         ),
-        "Accept-Language": (
-            "vi-VN,vi;q=0.9,en-US;q=0.7,en;q=0.6"
-        ),
+        "Accept-Language": ("vi-VN,vi;q=0.9,en-US;q=0.7,en;q=0.6"),
         "Cache-Control": "no-cache",
         "Pragma": "no-cache",
         "Connection": "keep-alive",
@@ -217,19 +222,13 @@ def log(msg: str) -> None:
 # UTILS
 # ============================================================
 
+
 def now_iso() -> str:
-    return (
-        datetime.now(timezone.utc)
-        .astimezone()
-        .isoformat(timespec="seconds")
-    )
+    return datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
 
 
 def build_page_url(page: int) -> str:
-    return (
-        f"{BASE_URL}?"
-        + urlencode({"page": page})
-    )
+    return f"{BASE_URL}?" + urlencode({"page": page})
 
 
 def safe_dict(value: Any) -> dict:
@@ -243,6 +242,7 @@ def safe_list(value: Any) -> list:
 # ============================================================
 # NEXT.JS / RSC PARSER
 # ============================================================
+
 
 def extract_result_object_from_text(
     text: str,
@@ -278,9 +278,7 @@ def extract_result_object_from_text(
             return None
 
         try:
-            result, _ = decoder.raw_decode(
-                text[object_start:]
-            )
+            result, _ = decoder.raw_decode(text[object_start:])
 
             if (
                 isinstance(result, dict)
@@ -296,9 +294,7 @@ def extract_result_object_from_text(
         except json.JSONDecodeError:
             pass
 
-        search_from = (
-            marker_index + len(marker)
-        )
+        search_from = marker_index + len(marker)
 
 
 def extract_next_f_stream(
@@ -348,43 +344,35 @@ def parse_nhadatvui_result(
     """
 
     # Cách 1: response bản thân đã là RSC stream
-    result = extract_result_object_from_text(
-        response_text
-    )
+    result = extract_result_object_from_text(response_text)
 
     if result is not None:
         return result
 
     # Cách 2: response là full HTML
-    rsc_stream = extract_next_f_stream(
-        response_text
-    )
+    rsc_stream = extract_next_f_stream(response_text)
 
     if rsc_stream:
-        result = extract_result_object_from_text(
-            rsc_stream
-        )
+        result = extract_result_object_from_text(rsc_stream)
 
         if result is not None:
             return result
 
-    raise ValueError(
-        'Không tìm thấy block "result.data" '
-        "trong response của NhaDatVui."
-    )
+    raise ValueError('Không tìm thấy block "result.data" trong response của NhaDatVui.')
 
 
 # ============================================================
 # REQUEST
 # ============================================================
 
+
 def request_page(page: int) -> tuple[str, str, int]:
     url = build_page_url(page)
-    response = request_response(session, url, timeout=REQUEST_TIMEOUT,
-        retries=MAX_RETRIES, delay=DELAY_SECONDS)
-    response.encoding = 'utf-8'
+    response = request_response(
+        session, url, timeout=REQUEST_TIMEOUT, retries=MAX_RETRIES, delay=DELAY_SECONDS
+    )
+    response.encoding = "utf-8"
     return response.text, url, response.status_code
-
 
 
 def enrich_raw_record(
@@ -411,20 +399,16 @@ def enrich_raw_record(
 # CSV INSPECTION VIEW
 # ============================================================
 
+
 def first_image_url(
     record: dict,
 ) -> str | None:
 
-    for item in safe_list(
-        record.get("attachments")
-    ):
+    for item in safe_list(record.get("attachments")):
         if not isinstance(item, dict):
             continue
 
-        if (
-            item.get("type") == "image"
-            and item.get("url")
-        ):
+        if item.get("type") == "image" and item.get("url"):
             return str(item["url"])
 
     return None
@@ -435,9 +419,7 @@ def get_detail(
     *keys: str,
 ) -> Any:
 
-    details = safe_dict(
-        record.get("details")
-    )
+    details = safe_dict(record.get("details"))
 
     for key in keys:
         if key in details:
@@ -463,180 +445,94 @@ def to_csv_record(
     để file nhẹ và dễ xem.
     """
 
-    product = safe_dict(
-        record.get("productId")
-    )
+    product = safe_dict(record.get("productId"))
 
-    province = safe_dict(
-        record.get("provinceCode")
-    )
+    province = safe_dict(record.get("provinceCode"))
 
-    ward = safe_dict(
-        record.get("wardCode")
-    )
+    ward = safe_dict(record.get("wardCode"))
 
-    attachments = safe_list(
-        record.get("attachments")
-    )
+    attachments = safe_list(record.get("attachments"))
 
     return {
-        "_source":
-            record.get("_source"),
-
-        "_source_page":
-            record.get("_source_page"),
-
-        "_scraped_at":
-            record.get("_scraped_at"),
-
-        "_crawl_url":
-            record.get("_crawl_url"),
-
-        "listing_id":
-            record.get("_id"),
-
-        "title":
-            record.get("title"),
-
-        "product_name":
-            product.get("name"),
-
-        "product_slug":
-            product.get("slug"),
-
-        "unit":
-            record.get("unit"),
-
-        "area":
-            record.get("area"),
-
-        "price":
-            record.get("price"),
-
-        "min_price":
-            record.get("minPrice"),
-
-        "max_price":
-            record.get("maxPrice"),
-
-        "lat":
-            record.get("lat"),
-
-        "lng":
-            record.get("lng"),
-
-        "province_code":
-            province.get("code"),
-
-        "province_name":
-            province.get("name"),
-
-        "ward_code":
-            ward.get("code"),
-
-        "ward_name":
-            ward.get("name"),
-
-        "street_code":
-            record.get("streetCode"),
-
-        "address":
-            record.get("address"),
-
-        "is_verified":
-            record.get("isVerified"),
-
-        "is_sponsored":
-            record.get("isSponsored"),
-
-        "is_negotiable":
-            record.get("isNegotiable"),
-
-        "status":
-            record.get("status"),
-
-        "created_at_ms":
-            record.get("createdAt"),
-
-        "public_date_ms":
-            record.get("publicDate"),
-
-        "expired_date_ms":
-            record.get("expiredDate"),
-
-        "rooms":
-            get_detail(
-                record,
-                "So_phong_ngu",
-            ),
-
-        "toilets":
-            get_detail(
-                record,
-                "So_phong_tam,_vi_sinh",
-            ),
-
-        "floors":
-            get_detail(
-                record,
-                "So_tang",
-            ),
-
-        "frontage_m":
-            get_detail(
-                record,
-                "Mat_tien_(m)",
-            ),
-
-        "length_m":
-            get_detail(
-                record,
-                "Chieu_dai_(m)",
-            ),
-
-        "road_width_m":
-            get_detail(
-                record,
-                "Đuong_vao_(m)",
-                "Duong_vao_(m)",
-                "Äuong_vao_(m)",
-            ),
-
-        "direction":
-            get_detail(
-                record,
-                "Huong",
-            ),
-
-        "legal_document":
-            get_detail(
-                record,
-                "Giay_to_phap_ly",
-            ),
-
-        "property_subtype":
-            get_detail(
-                record,
-                "Loai_dat",
-                "Loai_can_ho",
-            ),
-
-        "image_count":
-            len(attachments),
-
-        "first_image_url":
-            first_image_url(record),
-
+        "_source": record.get("_source"),
+        "_source_page": record.get("_source_page"),
+        "_scraped_at": record.get("_scraped_at"),
+        "_crawl_url": record.get("_crawl_url"),
+        "listing_id": record.get("_id"),
+        "title": record.get("title"),
+        "product_name": product.get("name"),
+        "product_slug": product.get("slug"),
+        "unit": record.get("unit"),
+        "area": record.get("area"),
+        "price": record.get("price"),
+        "min_price": record.get("minPrice"),
+        "max_price": record.get("maxPrice"),
+        "lat": record.get("lat"),
+        "lng": record.get("lng"),
+        "province_code": province.get("code"),
+        "province_name": province.get("name"),
+        "ward_code": ward.get("code"),
+        "ward_name": ward.get("name"),
+        "street_code": record.get("streetCode"),
+        "address": record.get("address"),
+        "is_verified": record.get("isVerified"),
+        "is_sponsored": record.get("isSponsored"),
+        "is_negotiable": record.get("isNegotiable"),
+        "status": record.get("status"),
+        "created_at_ms": record.get("createdAt"),
+        "public_date_ms": record.get("publicDate"),
+        "expired_date_ms": record.get("expiredDate"),
+        "rooms": get_detail(
+            record,
+            "So_phong_ngu",
+        ),
+        "toilets": get_detail(
+            record,
+            "So_phong_tam,_vi_sinh",
+        ),
+        "floors": get_detail(
+            record,
+            "So_tang",
+        ),
+        "frontage_m": get_detail(
+            record,
+            "Mat_tien_(m)",
+        ),
+        "length_m": get_detail(
+            record,
+            "Chieu_dai_(m)",
+        ),
+        "road_width_m": get_detail(
+            record,
+            "Đuong_vao_(m)",
+            "Duong_vao_(m)",
+            "Äuong_vao_(m)",
+        ),
+        "direction": get_detail(
+            record,
+            "Huong",
+        ),
+        "legal_document": get_detail(
+            record,
+            "Giay_to_phap_ly",
+        ),
+        "property_subtype": get_detail(
+            record,
+            "Loai_dat",
+            "Loai_can_ho",
+        ),
+        "image_count": len(attachments),
+        "first_image_url": first_image_url(record),
         # Chỉ số để biết RAW có mô tả,
         # không nhét cả content dài vào CSV.
-        "has_content":
-            bool(record.get("content")),
+        "has_content": bool(record.get("content")),
     }
 
 
 # ============================================================
 # SAVE
 # ============================================================
+
 
 def page_raw_path(page: int) -> Path:
     return PAGES_DIR / f"page_{page:05d}.txt"
@@ -675,7 +571,6 @@ def append_jsonl(
         "a",
         encoding="utf-8",
     ) as file:
-
         for record in records:
             file.write(
                 json.dumps(
@@ -694,27 +589,17 @@ def append_csv(
     if not records:
         return header_written
 
-    csv_records = [
-        to_csv_record(record)
-        for record in records
-    ]
+    csv_records = [to_csv_record(record) for record in records]
 
-    fieldnames = list(
-        csv_records[0].keys()
-    )
+    fieldnames = list(csv_records[0].keys())
 
-    mode = (
-        "a"
-        if header_written
-        else "w"
-    )
+    mode = "a" if header_written else "w"
 
     with CSV_PATH.open(
         mode,
         encoding="utf-8-sig",
         newline="",
     ) as file:
-
         writer = csv.DictWriter(
             file,
             fieldnames=fieldnames,
@@ -723,9 +608,7 @@ def append_csv(
         if not header_written:
             writer.writeheader()
 
-        writer.writerows(
-            csv_records
-        )
+        writer.writerows(csv_records)
 
     return True
 
@@ -746,7 +629,6 @@ def load_existing_listing_ids() -> set[str]:
         "r",
         encoding="utf-8",
     ) as file:
-
         for line in file:
             line = line.strip()
 
@@ -770,25 +652,76 @@ def load_existing_listing_ids() -> set[str]:
 # MAIN
 # ============================================================
 
+
+def fetch_listing_page(page):
+    """Fetch, retain and validate one source page before publishing its rows."""
+    response_text, source_url, status = request_page(page)
+
+    log(f"[HTTP] {status}")
+
+    # Giữ response gốc từng page
+    save_page_raw(
+        page,
+        response_text,
+    )
+
+    result = parse_nhadatvui_result(response_text)
+
+    at_end = validate_nhadatvui_page(result, page)
+    raw_records = safe_list(result.get("data"))
+
+    records = [
+        enrich_raw_record(
+            record=record,
+            page=page,
+            source_url=source_url,
+        )
+        for record in raw_records
+        if isinstance(record, dict)
+    ]
+    return result, records, at_end
+
+
+def publish_raw_page(records, header_written, seen_listing_ids):
+    """Append raw JSONL/CSV and retain duplicate counts without deduping input."""
+    duplicate_count = 0
+
+    for record in records:
+        listing_id = record.get("_id")
+
+        if listing_id is None:
+            continue
+
+        listing_id = str(listing_id)
+
+        if listing_id in seen_listing_ids:
+            duplicate_count += 1
+
+        seen_listing_ids.add(listing_id)
+
+    # RAW không dedup khỏi output.
+    append_jsonl(records)
+
+    header_written = append_csv(
+        records,
+        header_written,
+    )
+    return header_written, duplicate_count
+
+
 def main() -> int:
     # A new run never overwrites a finished batch; a resume continues it.
     if CSV_PATH.exists() and not IS_RESUME:
         raise FileExistsError(f"Existing batch is preserved: {CSV_PATH}")
 
     if START_PAGE <= 0:
-        raise ValueError(
-            "START_PAGE phải >= 1."
-        )
+        raise ValueError("START_PAGE phải >= 1.")
 
     if PAGES_TO_CRAWL <= 0:
-        raise ValueError(
-            "PAGES_TO_CRAWL phải > 0."
-        )
+        raise ValueError("PAGES_TO_CRAWL phải > 0.")
 
     if DELAY_SECONDS < 0:
-        raise ValueError(
-            "DELAY_SECONDS không được âm."
-        )
+        raise ValueError("DELAY_SECONDS không được âm.")
 
     OUTPUT_DIR.mkdir(
         parents=True,
@@ -802,10 +735,7 @@ def main() -> int:
 
     setup_logging()
 
-    csv_had_rows_before = (
-        CSV_PATH.exists()
-        and CSV_PATH.stat().st_size > 0
-    )
+    csv_had_rows_before = CSV_PATH.exists() and CSV_PATH.stat().st_size > 0
     existing_rows = 0
     if csv_had_rows_before:
         with CSV_PATH.open(encoding="utf-8-sig", newline="") as handle:
@@ -814,8 +744,7 @@ def main() -> int:
     log("=" * 76)
     log("NHADATVUI.VN RAW CRAWLER")
     log("=" * 76)
-    log(f"Run ID        : {RUN_ID}"
-        + (" (RESUME)" if IS_RESUME else " (NEW RUN)"))
+    log(f"Run ID        : {RUN_ID}" + (" (RESUME)" if IS_RESUME else " (NEW RUN)"))
     log(f"Base URL      : {BASE_URL}")
     log(f"Start page    : {START_PAGE}")
     log(f"Pages         : {PAGES_TO_CRAWL}")
@@ -833,11 +762,7 @@ def main() -> int:
     site_total: int | None = None
     site_limit: int | None = None
 
-    last_page = (
-        START_PAGE
-        + PAGES_TO_CRAWL
-        - 1
-    )
+    last_page = START_PAGE + PAGES_TO_CRAWL - 1
 
     stop_reason = "requested range completed"
     end_of_listing = False
@@ -846,8 +771,10 @@ def main() -> int:
     started = time.monotonic()
     previous_completed = []
     if IS_RESUME and SUMMARY_PATH.exists():
-        previous_completed = json.loads(SUMMARY_PATH.read_text(encoding='utf-8')).get('completed_pages', [])
-    write_progress(SUMMARY_PATH, 'nhadatvui', RUN_ID, previous_completed, existing_rows)
+        previous_completed = json.loads(SUMMARY_PATH.read_text(encoding="utf-8")).get(
+            "completed_pages", []
+        )
+    write_progress(SUMMARY_PATH, "nhadatvui", RUN_ID, previous_completed, existing_rows)
 
     # Toàn bộ vòng crawl bọc trong try/finally để summary luôn
     # được ghi ra, kể cả khi có lỗi bất ngờ (vd: hết dung lượng
@@ -859,7 +786,7 @@ def main() -> int:
             last_page + 1,
         ):
             if time.monotonic() - started >= RUN_TIMEOUT_SECONDS:
-                stop_reason = 'run time budget exceeded'
+                stop_reason = "run time budget exceeded"
                 break
             log("")
 
@@ -873,91 +800,30 @@ def main() -> int:
             log(f"[PAGE {page}] Đang crawl...")
 
             try:
-                response_text, source_url, status = (
-                    request_page(page)
+                result, records, at_end = fetch_listing_page(page)
+                skip, limit, total, count = (
+                    result.get(k) for k in ("skip", "limit", "total", "count")
                 )
-
-                log(f"[HTTP] {status}")
-
-                # Giữ response gốc từng page
-                save_page_raw(
-                    page,
-                    response_text,
-                )
-
-                result = parse_nhadatvui_result(
-                    response_text
-                )
-
-                at_end = validate_nhadatvui_page(result, page)
-                raw_records = safe_list(
-                    result.get("data")
-                )
-
-                skip = result.get("skip")
-                limit = result.get("limit")
-                total = result.get("total")
-                count = result.get("count")
-
                 if isinstance(total, int):
                     site_total = total
-
                 if isinstance(limit, int):
                     site_limit = limit
-
-                records = [
-                    enrich_raw_record(
-                        record=record,
-                        page=page,
-                        source_url=source_url,
-                    )
-                    for record in raw_records
-                    if isinstance(record, dict)
-                ]
 
                 if records:
                     fingerprint = page_fingerprint(records)
                     if fingerprint in fingerprints:
-                        stop_reason = 'repeated listing page'
-                        failed_pages.append({'page':page, 'error':stop_reason})
+                        stop_reason = "repeated listing page"
+                        failed_pages.append({"page": page, "error": stop_reason})
                         break
                     fingerprints.add(fingerprint)
                 consecutive = 0
-                duplicate_count = 0
-
-                for record in records:
-                    listing_id = record.get("_id")
-
-                    if listing_id is None:
-                        continue
-
-                    listing_id = str(
-                        listing_id
-                    )
-
-                    if (
-                        listing_id
-                        in seen_listing_ids
-                    ):
-                        duplicate_count += 1
-
-                    seen_listing_ids.add(
-                        listing_id
-                    )
-
-                # RAW không dedup khỏi output.
-                append_jsonl(records)
-
-                header_written = append_csv(
-                    records,
-                    header_written,
+                header_written, duplicate_count = publish_raw_page(
+                    records, header_written, seen_listing_ids
                 )
 
                 total_records += len(records)
 
-                completed_pages.append(
-                    page
-                )
+                completed_pages.append(page)
 
                 log(
                     f"[PAGE {page}] "
@@ -970,7 +836,13 @@ def main() -> int:
                 )
 
                 # Hết data
-                write_progress(SUMMARY_PATH, 'nhadatvui', RUN_ID, sorted(set(previous_completed + completed_pages)), existing_rows + total_records)
+                write_progress(
+                    SUMMARY_PATH,
+                    "nhadatvui",
+                    RUN_ID,
+                    sorted(set(previous_completed + completed_pages)),
+                    existing_rows + total_records,
+                )
                 if len(records) == 0:
                     end_of_listing = at_end
                     stop_reason = "empty page (no more listings)"
@@ -992,45 +864,30 @@ def main() -> int:
                     break
 
             except Exception as exc:
-
                 failed_pages.append(
                     {
                         "page": page,
-                        "url": build_page_url(
-                            page
-                        ),
+                        "url": build_page_url(page),
                         "error": str(exc),
                     }
                 )
 
-                log(
-                    f"[ERROR] Page {page}: "
-                    f"{exc}"
-                )
+                log(f"[ERROR] Page {page}: {exc}")
 
                 # 403 thì dừng, không cố bypass.
                 consecutive += 1
                 if isinstance(exc, CrawlBlocked):
                     stop_reason = "blocked or rate limited by site"
-                    log(
-                        "[STOP] Website đang chặn "
-                        "request tự động."
-                    )
+                    log("[STOP] Website đang chặn request tự động.")
                     break
                 if consecutive >= MAX_CONSECUTIVE_FAILURES:
-                    stop_reason = 'consecutive failure limit reached'
+                    stop_reason = "consecutive failure limit reached"
                     break
 
-            if (
-                page < last_page
-                and DELAY_SECONDS > 0
-            ):
-                delay = (
-                    DELAY_SECONDS
-                    + random.uniform(
-                        0,
-                        DELAY_JITTER_SECONDS,
-                    )
+            if page < last_page and DELAY_SECONDS > 0:
+                delay = DELAY_SECONDS + random.uniform(
+                    0,
+                    DELAY_JITTER_SECONDS,
                 )
 
                 log(f"[WAIT] {delay:.2f}s...")
@@ -1051,71 +908,40 @@ def main() -> int:
         # ====================================================
 
         summary = {
-            'crawl_contract_version': 1,
+            "crawl_contract_version": 1,
             "records_written": existing_rows + total_records,
-            "status": "PASS" if existing_rows + total_records > 0 and not failed_pages and stop_reason in {
-                "requested range completed", "empty page (no more listings)",
-                "reached end of listing (skip+count>=total)"} else "FAIL",
-            "source":
-                "nhadatvui",
-
-            "base_url":
-                BASE_URL,
-
-            "run_id":
-                RUN_ID,
-
-            "is_resume":
-                IS_RESUME,
+            "status": "PASS"
+            if existing_rows + total_records > 0
+            and not failed_pages
+            and stop_reason
+            in {
+                "requested range completed",
+                "empty page (no more listings)",
+                "reached end of listing (skip+count>=total)",
+            }
+            else "FAIL",
+            "source": "nhadatvui",
+            "base_url": BASE_URL,
+            "run_id": RUN_ID,
+            "is_resume": IS_RESUME,
             "end_of_listing": end_of_listing,
             "elapsed_seconds": round(time.monotonic() - started, 2),
             "max_consecutive_failures": MAX_CONSECUTIVE_FAILURES,
-
-            "started_page":
-                START_PAGE,
-
-            "requested_pages":
-                PAGES_TO_CRAWL,
-
-            "completed_pages":
-                completed_pages,
-
-            "skipped_pages_resume":
-                skipped_pages,
-
-            "failed_pages":
-                failed_pages,
-
-            "stop_reason":
-                stop_reason,
-
-            "records_written_this_run":
-                total_records,
-
-            "unique_listing_ids":
-                len(seen_listing_ids),
-
-            "site_total":
-                site_total,
-
-            "site_page_limit":
-                site_limit,
-
-            "delay_seconds":
-                DELAY_SECONDS,
-
-            "finished_at":
-                now_iso(),
-
-            "output_jsonl":
-                str(JSONL_PATH),
-
-            "output_csv":
-                str(CSV_PATH),
-
-            "pages_dir":
-                str(PAGES_DIR),
-
+            "started_page": START_PAGE,
+            "requested_pages": PAGES_TO_CRAWL,
+            "completed_pages": completed_pages,
+            "skipped_pages_resume": skipped_pages,
+            "failed_pages": failed_pages,
+            "stop_reason": stop_reason,
+            "records_written_this_run": total_records,
+            "unique_listing_ids": len(seen_listing_ids),
+            "site_total": site_total,
+            "site_page_limit": site_limit,
+            "delay_seconds": DELAY_SECONDS,
+            "finished_at": now_iso(),
+            "output_jsonl": str(JSONL_PATH),
+            "output_csv": str(CSV_PATH),
+            "pages_dir": str(PAGES_DIR),
             "resume_instructions": (
                 f'Nếu cần crawl tiếp: set RESUME_RUN_ID = "{RUN_ID}" '
                 "rồi chạy lại script."
@@ -1150,8 +976,7 @@ def main() -> int:
                 "để crawl bù."
             )
 
-
-    return 0 if summary['status'] == 'PASS' else 1
+    return 0 if summary["status"] == "PASS" else 1
 
 
 if __name__ == "__main__":

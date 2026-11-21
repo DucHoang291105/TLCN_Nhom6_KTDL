@@ -1,0 +1,31 @@
+{
+  "generated_at": "2026-11-21T19:29:11.131986+00:00",
+  "checks": {
+    "current_technical_acceptance": true,
+    "public_files": true
+  },
+  "status": "PASS",
+  "stale_reason": null,
+  "run_id": "official_operations_20261122_r6",
+  "decision": {
+    "ready_to_push_branch": true,
+    "ready_to_merge_main": false,
+    "ci_on_current_candidate": false,
+    "peer_review_approved": false
+  },
+  "note": "Local readiness only. Exact pushed-commit CI and review are separate gates.",
+  "public_file_audit": {
+    "text_files_scanned": 311,
+    "forbidden_files": [],
+    "secret_findings": [],
+    "warnings": [
+      "Weak/short local credential for MINIO_ROOT_PASSWORD; rotate before any non-local deployment. Value redacted.",
+      "Weak/short local credential for POSTGRES_PASSWORD; rotate before any non-local deployment. Value redacted.",
+      "Weak/short local credential for SUPERSET_ADMIN_PASSWORD; rotate before any non-local deployment. Value redacted."
+    ],
+    "snapshot_lfs_pointers_checked": 51,
+    "all_snapshot_pointers_match_manifest": true,
+    "limitations": "Text scan and exact local .env secret matching, not a legal/PII audit. Existing raw CSV is unchanged and is not searched for personal data. No secret values or matching excerpts are emitted.",
+    "status": "PASS"
+  }
+}

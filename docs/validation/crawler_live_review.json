@@ -1,0 +1,31 @@
+{
+  "scope": "Two-page probes outside incoming; no historical batch recreated",
+  "results": {
+    "guland": {
+      "exit_code": 0,
+      "status": "PASS",
+      "requested_pages": 2,
+      "completed_pages": [
+        1,
+        2
+      ],
+      "failed_pages": [],
+      "records_written": 90,
+      "stop_reason": "requested page limit reached",
+      "elapsed_seconds": 7.1
+    },
+    "nhadatvui": {
+      "exit_code": 0,
+      "status": "PASS",
+      "requested_pages": 2,
+      "completed_pages": [
+        1,
+        2
+      ],
+      "failed_pages": [],
+      "records_written": 36,
+      "stop_reason": "requested range completed",
+      "elapsed_seconds": 6.64
+    }
+  }
+}

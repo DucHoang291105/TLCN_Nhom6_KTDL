@@ -1,4 +1,4 @@
-from src.quality.person_a_release_check import release_decision, allowed_change, secret_findings
+from src.quality.release_check import release_decision, allowed_change, secret_findings
 
 
 def test_local_pass_is_not_automatic_permission_to_merge():

@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-11-21T11:43:51.951897+00:00",
-  "finished_at": "2026-11-21T11:44:02.871575+00:00",
+  "started_at": "2026-11-21T19:10:28.010755+00:00",
+  "finished_at": "2026-11-21T19:10:39.961538+00:00",
   "distance": "straight-line (haversine) km from the district centroid to the destination",
   "min_centroid_listings": 10,
   "commute_tolerance_km": 2.0,
@@ -12,9 +12,9 @@
   "districts_with_centroid": 61,
   "district_groups": 643,
   "district_rows": 5145,
-  "efficient_district_rows": 1851,
-  "substitution_pairs": 12005,
-  "origins_with_alternative": 3566,
-  "median_price_gap_pct": 0.265341,
+  "efficient_district_rows": 1850,
+  "substitution_pairs": 11996,
+  "origins_with_alternative": 3564,
+  "median_price_gap_pct": 0.267169,
   "status": "PASS"
 }

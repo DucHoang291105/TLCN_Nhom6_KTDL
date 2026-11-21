@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "checked_at": "2026-11-21T16:09:49.350690+00:00",
+  "restored": [
+    {
+      "source_volume": "tlcn_bds_lakehouse_minio_data",
+      "isolated_volume": "tlcn_restore_check_8b51b5c59f3a4c31a79ca159e913f99a",
+      "archive_sha256": "6ffc0d2c144adde1ab1f86dc0f8a20e9edc2275b9b8e12ee983941f1155ad014"
+    },
+    {
+      "source_volume": "tlcn_bds_lakehouse_iceberg_catalog",
+      "isolated_volume": "tlcn_restore_check_3501f1152c55453ea5e0dca8cb90e9ca",
+      "archive_sha256": "c826dde9c8a5116e2a4db4575411900dbc34e7e638f2e4721887ff46f2ab8359"
+    },
+    {
+      "source_volume": "tlcn_bds_lakehouse_postgres_data",
+      "isolated_volume": "tlcn_restore_check_993026c4e8994fb4a7a8112477f168ce",
+      "archive_sha256": "cc5f4faf80c4b8465a3140fdb1566c3475a7e99a42368068ccc9e8c2cd9e42cf"
+    },
+    {
+      "source_volume": "tlcn_bds_lakehouse_superset_home",
+      "isolated_volume": "tlcn_restore_check_0306bd8be49d4eca8b2f2f1cdb64e1a7",
+      "archive_sha256": "28662724724e1f18eae1f5683f83975a03c8bdf020d21f498a02597002aeb42e"
+    },
+    {
+      "source_volume": "tlcn_bds_lakehouse_airflow_home",
+      "isolated_volume": "tlcn_restore_check_cb91480d4da941f1ab641cf765b8a2d2",
+      "archive_sha256": "81d09e1cd144cd58a26026ff19a6ed8fdb7c39a0eb9c1047d77d2fd1592ad1df"
+    }
+  ],
+  "limit": "Byte/permission recovery in new local volumes; production volumes unchanged",
+  "backup_manifest_sha256": "b85e336d089cd718f00bc7d38de0e332cddabf066f8857bb010a1e62764f76a0"
+}

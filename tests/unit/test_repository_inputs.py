@@ -1,5 +1,4 @@
 """Required Bronze inputs must survive a Git checkout, including LFS-only CI."""
-import ast
 import subprocess
 from pathlib import Path
 
@@ -11,10 +10,7 @@ def git(*args):
 
 
 def test_all_configured_historical_inputs_are_versioned_with_lfs():
-    # Parse constants without importing this Spark application or its secrets.
-    module = ast.parse((ROOT / "src/bronze/ingest_bronze.py").read_text(encoding="utf-8-sig"))
-    sources = next(ast.literal_eval(node.value) for node in module.body if isinstance(node, ast.Assign)
-                   and any(isinstance(target, ast.Name) and target.id == "SOURCES" for target in node.targets))
+    from src.bronze.historical_contract import SOURCES as sources
     assert len(sources) == 6
     for source, spec in sources.items():
         path = f"data/incoming/historical/{source}/{spec['file']}"

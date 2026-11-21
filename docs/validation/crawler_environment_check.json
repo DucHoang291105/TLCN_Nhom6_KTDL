@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "settings_seen_in_airflow": {
+    "GULAND_CRAWL_PAGES": "20",
+    "NHADATVUI_CRAWL_PAGES": "200",
+    "CRAWL_REQUEST_TIMEOUT": "30",
+    "CRAWL_MAX_RETRIES": "3",
+    "CRAWL_MAX_CONSECUTIVE_FAILURES": "2",
+    "CRAWL_RUN_TIMEOUT_SECONDS": "2100",
+    "CRAWL_DELAY_SECONDS": "3.5"
+  }
+}

@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-11-21T11:51:20.722629+00:00",
+  "generated_at": "2026-11-21T19:19:29.591618+00:00",
   "baseline_batch": "20261016",
-  "observation_rows": 334820,
+  "observation_rows": 343465,
   "seed": {
     "mode": "rebuild",
     "operation": "FULL_REBUILD",
@@ -12,9 +12,9 @@
     "history_rows": 148219,
     "history_table": "lakehouse.smoke_test.history_merge_benchmark",
     "state_table": "lakehouse.smoke_test.history_merge_benchmark_state",
-    "snapshot_before": "3778314014298952388",
-    "snapshot_after": "1824287154416691966",
-    "elapsed_seconds": 15.4117,
+    "snapshot_before": "6312887435254386738",
+    "snapshot_after": "2685210078167070845",
+    "elapsed_seconds": 17.5767,
     "partition_by": [
       "snapshot_date"
     ],
@@ -23,16 +23,16 @@
   "incremental": {
     "mode": "incremental",
     "operation": "MERGE_AFFECTED_IDS",
-    "input_source_ids": 150017,
-    "affected_source_ids": 26668,
-    "observation_rows": 334820,
-    "staged_history_rows": 22260,
-    "history_rows": 167794,
+    "input_source_ids": 151740,
+    "affected_source_ids": 28813,
+    "observation_rows": 343465,
+    "staged_history_rows": 24639,
+    "history_rows": 169991,
     "history_table": "lakehouse.smoke_test.history_merge_benchmark",
     "state_table": "lakehouse.smoke_test.history_merge_benchmark_state",
-    "snapshot_before": "1824287154416691966",
-    "snapshot_after": "6312887435254386738",
-    "elapsed_seconds": 17.1439,
+    "snapshot_before": "2685210078167070845",
+    "snapshot_after": "912330449109245686",
+    "elapsed_seconds": 16.9519,
     "partition_by": [
       "snapshot_date"
     ],
@@ -41,16 +41,16 @@
   "full_rebuild": {
     "mode": "rebuild",
     "operation": "FULL_REBUILD",
-    "input_source_ids": 150017,
-    "affected_source_ids": 150017,
-    "observation_rows": 334820,
-    "staged_history_rows": 167794,
-    "history_rows": 167794,
+    "input_source_ids": 151740,
+    "affected_source_ids": 151740,
+    "observation_rows": 343465,
+    "staged_history_rows": 169991,
+    "history_rows": 169991,
     "history_table": "lakehouse.smoke_test.history_rebuild_benchmark",
     "state_table": "lakehouse.smoke_test.history_rebuild_benchmark_state",
-    "snapshot_before": "218719794031408797",
-    "snapshot_after": "6019484610378945531",
-    "elapsed_seconds": 9.596,
+    "snapshot_before": "6019484610378945531",
+    "snapshot_after": "3053236652090656364",
+    "elapsed_seconds": 10.4457,
     "partition_by": [
       "snapshot_date"
     ],
@@ -58,12 +58,12 @@
   },
   "comparison": {
     "merge": {
-      "rows": 167794,
-      "sha256_sorted_row_hashes": "f22612ad8f9851e9fad42a4036658a2bab303718571a23eeda9fd94b26fec2f0"
+      "rows": 169991,
+      "sha256_sorted_row_hashes": "76ef09b670a38f92e2a81e1b661e21e08bf4e9f3ab6b65589baac1a4fac70eef"
     },
     "rebuild": {
-      "rows": 167794,
-      "sha256_sorted_row_hashes": "f22612ad8f9851e9fad42a4036658a2bab303718571a23eeda9fd94b26fec2f0"
+      "rows": 169991,
+      "sha256_sorted_row_hashes": "76ef09b670a38f92e2a81e1b661e21e08bf4e9f3ab6b65589baac1a4fac70eef"
     },
     "merge_only_rows": 0,
     "rebuild_only_rows": 0,
@@ -72,16 +72,16 @@
   "retry": {
     "mode": "incremental",
     "operation": "NO_CHANGE",
-    "input_source_ids": 150017,
+    "input_source_ids": 151740,
     "affected_source_ids": 0,
-    "observation_rows": 334820,
+    "observation_rows": 343465,
     "staged_history_rows": 0,
-    "history_rows": 167794,
+    "history_rows": 169991,
     "history_table": "lakehouse.smoke_test.history_merge_benchmark",
     "state_table": "lakehouse.smoke_test.history_merge_benchmark_state",
-    "snapshot_before": "6312887435254386738",
-    "snapshot_after": "6312887435254386738",
-    "elapsed_seconds": 4.1223,
+    "snapshot_before": "912330449109245686",
+    "snapshot_after": "912330449109245686",
+    "elapsed_seconds": 3.9321,
     "partition_by": [
       "snapshot_date"
     ],
@@ -90,16 +90,16 @@
   "production": {
     "mode": "incremental",
     "operation": "NO_CHANGE",
-    "input_source_ids": 150017,
+    "input_source_ids": 151740,
     "affected_source_ids": 0,
-    "observation_rows": 334820,
+    "observation_rows": 343465,
     "staged_history_rows": 0,
-    "history_rows": 167794,
+    "history_rows": 169991,
     "history_table": "lakehouse.silver.listing_history",
     "state_table": "lakehouse.silver.listing_history_state",
-    "snapshot_before": "2034035289364733116",
-    "snapshot_after": "2034035289364733116",
-    "elapsed_seconds": 4.0628,
+    "snapshot_before": "7828341598070048405",
+    "snapshot_after": "7828341598070048405",
+    "elapsed_seconds": 4.2105,
     "partition_by": [
       "snapshot_date"
     ],

@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "image": "cgr.dev/chainguard/minio@sha256:e9cf6b99c226e9539ed0f14b6f00e37b07da153c7ba1f4f8709c807574b471ec",
+  "container": "tlcn_fresh_586f2a9014b5_minio",
+  "volume": "tlcn_fresh_586f2a9014b5_data",
+  "network": "tlcn_fresh_586f2a9014b5_network",
+  "scope": "New local MinIO volume + registry pull + four-bucket authenticated roundtrip; not second-machine full DAG",
+  "checks": {
+    "registry_pull": true,
+    "fresh_volume": true,
+    "authenticated_four_bucket_roundtrip": true,
+    "restart_persistence": true
+  },
+  "version": "minio version RELEASE.2026-11-16T00-11-40Z (commit-id=ee9fee0715118245ff4d9149c102608653748196)",
+  "generated_at": "2026-11-21T17:06:19.105360+00:00"
+}

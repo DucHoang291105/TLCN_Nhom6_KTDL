@@ -1,4 +1,4 @@
-"""A-owned lifecycle benchmark; definition and all non-build columns must match."""
+"""Pipeline lifecycle benchmark; definition and all non-build columns must match."""
 import hashlib
 import importlib.util
 import json

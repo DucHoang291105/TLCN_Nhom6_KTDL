@@ -1,11 +1,11 @@
 {
-  "started_at": "2026-11-21T11:34:14.817494+00:00",
-  "finished_at": "2026-11-21T11:37:04.447151+00:00",
+  "started_at": "2026-11-21T18:58:14.152036+00:00",
+  "finished_at": "2026-11-21T19:01:01.377416+00:00",
   "catalog_namespace": "lakehouse.silver",
   "source_input_rows": {
-    "batdongsan": 94000,
-    "guland": 140614,
-    "nhadatvui": 81627,
+    "batdongsan": 98000,
+    "guland": 141964,
+    "nhadatvui": 85227,
     "chotot": 8152,
     "mogi": 19075,
     "alonhadat": 1278,
@@ -13,18 +13,18 @@
     "muaban": 363,
     "homedy": 566
   },
-  "normalized_rows": 346558,
-  "accepted_before_dedup": 345894,
+  "normalized_rows": 355508,
+  "accepted_before_dedup": 354844,
   "quarantine_rows": 664,
-  "duplicates_dropped": 11074,
-  "observation_rows": 334820,
-  "crawl_current_rows": 119700,
+  "duplicates_dropped": 11379,
+  "observation_rows": 343465,
+  "crawl_current_rows": 121423,
   "historical_current_rows": 30317,
-  "final_current_rows": 150017,
+  "final_current_rows": 151740,
   "final_source_counts": {
-    "guland": 54130,
-    "batdongsan": 46222,
-    "nhadatvui": 19348,
+    "guland": 54762,
+    "batdongsan": 47205,
+    "nhadatvui": 19456,
     "muaban": 363,
     "chotot": 8152,
     "luachonnhadat": 883,
@@ -33,16 +33,16 @@
     "homedy": 566
   },
   "dq_status_counts": {
-    "PASS": 229861,
-    "WARN": 104959,
+    "PASS": 237598,
+    "WARN": 105867,
     "REJECT": 664
   },
   "iceberg_readback_counts": {
-    "listing_observation": 334820,
+    "listing_observation": 343465,
     "listing_dq_quarantine": 664,
-    "crawl_current_27": 119700,
+    "crawl_current_27": 121423,
     "historical_current_27": 30317,
-    "silver_listings_current_27": 150017
+    "silver_listings_current_27": 151740
   },
   "status": "PASS"
 }

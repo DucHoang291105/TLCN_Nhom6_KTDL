@@ -25,6 +25,8 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
-      - run: python -m pip install 'pytest>=8,<10' 'requests>=2.32,<3' 'tzdata>=2025.2' 'beautifulsoup4>=4.13,<5'
+      - run: python -m pip install 'pytest>=8,<10' 'requests>=2.32,<3' 'tzdata>=2025.2' 'beautifulsoup4>=4.13,<5' 'ruff==0.17.6'
       - run: python -m pytest -q --junitxml=pytest-results.xml
       - run: python -m compileall -q src dags
+      - run: python -m ruff check --select F src/orchestration src/bronze src/ingestion src/quality/defense_suite.py src/quality/defense_evidence.py src/quality/tag_defense.py src/quality/release_check.py src/quality/evaluate_release_models.py src/quality/check_runtime_identity.py src/quality/benchmark_publication.py src/quality/fresh_runtime_check.py src/quality/verify_publication_gate.py src/common/spark_session.py dags
+      - run: python -m ruff check --select F src/quality/verify_history_incremental.py src/silver/build_listing_core_spark.py tests/unit/test_publication.py tests/unit/test_historical_lineage.py tests/unit/test_operation_deadlines.py tests/unit/test_release_check.py tests/unit/test_release_source_tree.py tests/unit/test_operation_recovery.py tests/unit/test_repository_inputs.py

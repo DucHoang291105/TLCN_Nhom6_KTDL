@@ -15,7 +15,7 @@ from zoneinfo import ZoneInfo
 
 from src.common.atomic_io import write_json_atomic
 from src.orchestration.pipeline import validate_snapshots
-from src.quality.defense_evidence import ROOT, capture, read, verify
+from src.quality.defense_evidence import ROOT, capture, verify
 
 
 def execute(work, name, command):
@@ -24,7 +24,7 @@ def execute(work, name, command):
     environment = {**os.environ, "PATH": str(Path(sys.executable).parent) + os.pathsep + os.environ.get("PATH", ""),
                    "PYTHONPATH": str(ROOT), "PYTHONUTF8": "1"}
     with (work / f"{name}.log").open("wb") as log:
-        result = subprocess.run(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, env=environment)
+        result = subprocess.run(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, env=environment, check=False)
     if result.returncode:
         print((work / f"{name}.log").read_text(encoding="utf-8", errors="replace")[-5000:], flush=True)
         raise RuntimeError(f"{name} failed with exit code {result.returncode}; later stages were not run")
@@ -78,9 +78,12 @@ def suite(batch, run_id, attach=False):
     execute(work, "unit-tests", [sys.executable, "-m", "pytest", "-q", f"--junitxml={work / 'unit-tests.xml'}"])
     execute(work, "compile", [sys.executable, "-m", "compileall", "-q", "src", "dags", "tests"])
     execute(work, "compose-config", ["docker", "compose", "config", "--quiet"])
+    execute(work, 'crawl-coverage', [sys.executable, '-m', 'src.quality.crawl_coverage', '--as-of', batch, '--strict'])
     failure = run_id + "_failure_gate"
     if not attach:
         execute(work, "write-window", [sys.executable, "-m", "src.orchestration.environment", "write"])
+        execute(work, 'runtime-identity', [sys.executable, '-m', 'src.quality.check_runtime_identity'])
+        execute(work, 'identity-benchmark', [sys.executable, '-m', 'src.quality.benchmark_publication'])
         # Fault injection runs first so the latest normal DAG finishes green.
         execute(work, "failure-trigger", airflow("trigger", failure, "--batch-id", "20000101"))
         wait_run(work, failure, "airflow_failure_gate", expect_failure=True)
@@ -92,10 +95,12 @@ def suite(batch, run_id, attach=False):
     # Also exercise current manual-ingest preflight after an attached run.
     ps = ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File"]
     execute(work, "bronze-preflight", [*ps, "scripts/run_spark.ps1", "src/bronze/ingest_snapshots_bronze.py", "--skip-existing"])
+    execute(work, 'bronze-reaudit', [*ps, 'scripts/run_spark.ps1', 'src/bronze/audit_bronze_state.py'])
     execute(work, "two-rebuilds", [*ps, "scripts/check_deterministic_rebuild.ps1"])
     for number in (1, 2):
         shutil.copy2(ROOT / f"outputs/determinism/run{number}.json", work / f"run{number}.json")
-    for job in ("verify_history_incremental", "verify_lifecycle_fixtures", "demo_iceberg_features", "bq2_backtest"):
+    for job in ("verify_history_incremental", "verify_lifecycle_fixtures", "demo_iceberg_features", "verify_publication_gate", "bq2_backtest",
+                "evaluate_release_models", "repost_leakage_check"):
         execute(work, job, [*ps, "scripts/run_spark.ps1", f"src/quality/{job}.py"])
     execute(work, "pause-scheduler", ["docker", "exec", "tlcn_airflow", "python", "-c",
         "from src.orchestration.airflow_run import session; r=session().patch('http://localhost:8080/api/v2/dags/lakehouse_pipeline',json={'is_paused':True},timeout=30); r.raise_for_status(); print('Paused for query window')"])
@@ -106,7 +111,7 @@ def suite(batch, run_id, attach=False):
     execute(work, "dashboard", [sys.executable, "-m", "src.dashboard.provision_superset"])
     execute(work, "dashboard-integration", [sys.executable, "-m", "src.quality.verify_pipeline_dashboard"])
     guard = subprocess.run([*ps, "scripts/run_spark.ps1", "src/quality/__guard_probe__.py"],
-                           cwd=ROOT, capture_output=True, text=True, timeout=30)
+                           cwd=ROOT, capture_output=True, text=True, timeout=30, check=False)
     blocked = guard.returncode != 0 and "Trino is active" in guard.stdout + guard.stderr
     write_json_atomic(work / "manual_writer_guard.json", {"status": "PASS" if blocked else "FAIL", "exit_code": guard.returncode})
     payload = verify(ROOT, work)

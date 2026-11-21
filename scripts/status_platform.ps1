@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 $projectRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $projectRoot
 try {
-    docker compose --profile full ps
+    docker compose -f docker-compose.yml -f docker-compose.experimental.yml --profile full ps
     Write-Output ""
     Write-Output "Service URLs"
     Write-Output "MinIO:            http://localhost:9001"

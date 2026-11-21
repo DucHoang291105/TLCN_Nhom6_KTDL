@@ -190,7 +190,15 @@ def run_spark(app, args=()):
     try:
         require_catalog_write_window(client)
         container = client.containers.get("tlcn_spark_master")
-        execution = client.api.exec_create(container.id, spark_command(app, args), environment={"PYTHONPATH": "/opt/project"})
+        owner = 'manual'
+        try:
+            from airflow.sdk import get_current_context
+            owner = get_current_context()['run_id']
+        except (ImportError, RuntimeError):
+            pass
+        execution = client.api.exec_create(container.id,
+            ['python3', '-m', 'src.orchestration.publication', app, *args],
+            environment={"PYTHONPATH": "/opt/project", "LAKEHOUSE_RUN_ID": owner})
         for chunk in client.api.exec_start(execution["Id"], stream=True):
             print(chunk.decode("utf-8", errors="replace"), end="", flush=True)
         code = client.api.exec_inspect(execution["Id"])["ExitCode"]
@@ -204,6 +212,11 @@ def run_spark(app, args=()):
 
 def save_run_evidence(run_id):
     from src.common.atomic_io import write_json_atomic
+    from src.orchestration.publication import catalog_lock, require_published
+    with catalog_lock(PROJECT_ROOT):
+        publication = require_published(PROJECT_ROOT)
+        if publication.get('run_id') != run_id:
+            raise RuntimeError('The published tables belong to another pipeline run')
     results = {}
     for name in ("snapshot_manifest", "bronze_state_audit", "silver_final_verification", "gold_verification", "gold_listing_lifecycle_summary"):
         payload = json.loads((PROJECT_ROOT / f"docs/validation/{name}.json").read_text(encoding="utf-8"))

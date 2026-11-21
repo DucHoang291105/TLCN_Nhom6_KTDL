@@ -23,12 +23,7 @@ try {
     # Windows PowerShell must not mistake Spark's INFO/WARN stderr for failure
     # when callers redirect logs. The Docker exit code decides job success.
     docker exec -e PYTHONPATH=/opt/project tlcn_spark_master `
-        /opt/spark/bin/spark-submit `
-        --master spark://spark-master:7077 `
-        --conf spark.jars.ivy=/home/spark/.ivy2 `
-        --conf spark.executorEnv.PYTHONPATH=/opt/project `
-        --packages org.apache.hadoop:hadoop-aws:3.3.4,org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.11.0,org.apache.iceberg:iceberg-aws-bundle:1.11.0 `
-        $containerPath @AppArgs 2>&1 | ForEach-Object { "$_" }
+        python3 -m src.orchestration.publication ($App -replace "\\", "/") @AppArgs 2>&1 | ForEach-Object { "$_" }
     $jobExitCode = $LASTEXITCODE
 } finally {
     $ErrorActionPreference = $previousPreference

@@ -1,6 +1,6 @@
 """Deterministic Bronze -> Iceberg Silver Data Foundation for all 9 sources."""
 from __future__ import annotations
-import json, os, sys
+import json, sys
 from collections.abc import Iterator
 from datetime import datetime, timezone
 from pathlib import Path

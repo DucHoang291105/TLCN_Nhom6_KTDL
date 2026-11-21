@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-20T22:43:42.597736+00:00",
+  "generated_at": "2026-11-21T19:26:58.407009+00:00",
   "scope": "README headline table and selected disclosures vs saved JSON; not a live pipeline acceptance",
   "checks": {
     "headline_counts_match_json": true,
@@ -16,19 +16,19 @@
       "actual": 30317,
       "match": true
     },
-    "Bronze snapshot — 48 CSV": {
-      "expected": 316241,
-      "actual": 316241,
+    "Bronze snapshot — 51 CSV": {
+      "expected": 325191,
+      "actual": 325191,
       "match": true
     },
     "Tổng Bronze": {
-      "expected": 346558,
-      "actual": 346558,
+      "expected": 355508,
+      "actual": 355508,
       "match": true
     },
     "Silver `listing_observation`": {
-      "expected": 334820,
-      "actual": 334820,
+      "expected": 343465,
+      "actual": 343465,
       "match": true
     },
     "Silver `listing_dq_quarantine`": {
@@ -37,43 +37,43 @@
       "match": true
     },
     "Silver Current / Location / Feature": {
-      "expected": 150017,
-      "actual": 150017,
+      "expected": 151740,
+      "actual": 151740,
       "match": true
     },
     "Silver `listing_history`": {
-      "expected": 167794,
-      "actual": 167794,
+      "expected": 169991,
+      "actual": 169991,
       "match": true
     },
     "Silver `listing_history_state`": {
-      "expected": 150017,
-      "actual": 150017,
+      "expected": 151740,
+      "actual": 151740,
       "match": true
     },
     "Gold `fact_listing`": {
-      "expected": 134660,
-      "actual": 134660,
+      "expected": 136383,
+      "actual": 136383,
       "match": true
     },
     "Gold `fact_listing_lifecycle`": {
-      "expected": 150017,
-      "actual": 150017,
+      "expected": 151740,
+      "actual": 151740,
       "match": true
     },
     "Gold `fact_listing_price_change`": {
-      "expected": 3021,
-      "actual": 3021,
+      "expected": 3221,
+      "actual": 3221,
       "match": true
     },
     "Gold `fact_listing_price_model`": {
-      "expected": 126394,
-      "actual": 126394,
+      "expected": 127961,
+      "actual": 127961,
       "match": true
     },
     "Gold `agg_price_model_coefficient`": {
-      "expected": 967,
-      "actual": 967,
+      "expected": 972,
+      "actual": 972,
       "match": true
     }
   },

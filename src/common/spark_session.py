@@ -97,15 +97,16 @@ def _current_location(spark: SparkSession, table: str) -> str | None:
 def write_iceberg_table(frame: DataFrame, table: str, partition_by: tuple[str, ...] = ()) -> None:
     """Create or replace an Iceberg v2 table in its layer bucket.
 
-    A replace keeps the old table location, so a table still stored elsewhere
-    (for example the former ``s3://warehouse/`` root) is purged and recreated.
+    A location mismatch requires an explicit, backed-up migration. Never
+    purge an existing table as a side effect of an ordinary pipeline rebuild.
     """
 
     spark = frame.sparkSession
     location = table_location(table)
     current = _current_location(spark, table)
     if current is not None and current != location:
-        spark.sql(f"DROP TABLE {table} PURGE")
+        raise RuntimeError(f"Unsafe Iceberg location change for {table}: {current} -> {location}. "
+                           "Back up the catalog/data and plan an explicit migration; no table was dropped.")
     writer = (
         frame.writeTo(table).using("iceberg")
         .tableProperty("format-version", "2")

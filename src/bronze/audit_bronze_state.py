@@ -44,11 +44,13 @@ def main() -> None:
                 except Exception as exc:
                     rows.append({"branch":branch,"source":source,"batch_id":batch_id,"source_state":state,"status":"UNREADABLE","row_count":0,"column_count":0,"columns":[],"error":str(exc)[:1000]})
         branch_totals[branch] = branch_total
+    from src.bronze.historical_lineage import audit_historical
+    historical_lineage = audit_historical(spark)
     source_totals = {}
     for row in rows:
         key=f"{row['branch']}/{row['source']}"; source_totals[key]=source_totals.get(key,0)+row["row_count"]
     status = "PASS" if all(r["status"]=="READABLE" and r["source_state"]=="EXPECTED_AND_FOUND" for r in rows) else "WARN"
-    summary={"generated_at":datetime.now(timezone.utc).isoformat(),"bronze_root":BRONZE_ROOT,"expected_sources":expected,"branch_totals":branch_totals,"source_totals":source_totals,"global_total":sum(branch_totals.values()),"batches":rows,"status":status,"count_notes":{"87660":"Reported selected snapshot set; audit lists every stored batch.","138824":"Previous ingestion state; compare source/batch composition with this audit."}}
+    summary={"generated_at":datetime.now(timezone.utc).isoformat(),"bronze_root":BRONZE_ROOT,"expected_sources":expected,"branch_totals":branch_totals,"source_totals":source_totals,"global_total":sum(branch_totals.values()),"historical_lineage_status":historical_lineage["status"],"batches":rows,"status":status,"count_notes":{"87660":"Reported selected snapshot set; audit lists every stored batch.","138824":"Previous ingestion state; compare source/batch composition with this audit."}}
     for output_dir in (PROJECT_ROOT/"outputs/validation",PROJECT_ROOT/"docs/validation"):
         output_dir.mkdir(parents=True,exist_ok=True); (output_dir/"bronze_state_audit.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
         with (output_dir/"bronze_state_audit.csv").open("w",encoding="utf-8-sig",newline="") as handle:

@@ -75,7 +75,7 @@ nằm tại `outputs/determinism/run1.json` và `run2.json`; kết quả đối 
 ## Chạy trọn bộ kiểm chứng
 
 ```powershell
-./scripts/validate_defense.ps1 -BatchId 20261027
+./scripts/validate_defense.ps1 -BatchId 20261120
 ```
 
 Lệnh này dùng đúng batch thật đã có đủ ba nguồn. Suite kiểm tra manifest, chạy
@@ -96,7 +96,7 @@ báo. Guland 20/10/2026 thiếu do lỗi website; không tạo batch giả để
 Sau khi commit/push bản đã kiểm chứng và CI xanh trên đúng commit:
 
 ```powershell
-python -m src.quality.tag_defense --tag v1.1-bao-ve --push
+python -m src.quality.tag_defense --tag v1.1.2-bao-ve --push
 ```
 
 Lệnh tag từ chối nếu code, input hoặc file minh chứng thay đổi sau test, hoặc
@@ -110,15 +110,19 @@ mở cửa sổ Trino/Superset.
 
 ## Điều kiện chốt
 
+Kiểm tra bổ sung: host/Spark/Airflow có cùng identity, hash một/bốn worker giống nhau trên toàn bộ byte, historical CSV khớp raw-row multiset trong Bronze, publication chặn đọc khi build lỗi. Báo cáo mô hình mới là candidate khi chưa được chủ cấu hình áp dụng; nghiệm thu kỹ thuật giữ phạm vi riêng với nhãn/BQ.
+
 - Manifest và Bronze audit PASS; dữ liệu đầu vào không đổi qua hai rebuild.
 - Airflow 26/26 SUCCESS; Silver 30/30 và toàn bộ kiểm định Gold hiện hành PASS.
 - Hai rebuild đủ 38 bảng giống schema, grain, số dòng và nội dung.
 - Kiểm chứng SCD2, lifecycle, demo Iceberg và dashboard PASS.
 - Unit test và CI trên đúng commit chuẩn bị phát hành đều xanh.
 - Có batch mới nhất thực tế của nhóm, review PR và kiểm chứng cuối trước mốc
-  đóng băng; khi đó mới tạo tag `v1.1-bao-ve`. Không tạo tag sớm chỉ vì test
+  đóng băng; khi đó mới tạo tag version mới. Không tạo tag sớm chỉ vì test
   trên batch cũ đã qua.
 
 Mô hình giá hoặc độ chính xác nhãn có thể chưa đạt tiêu chí nghiệp vụ dù
 kiểm định kỹ thuật PASS. Ghi riêng các giới hạn nghiệp vụ, không sửa kết quả
 hoặc tự gán nhãn để hoàn tất điều kiện vận hành A.
+
+Áp dụng [quy trình công bố và phục hồi](publication_and_recovery.md). Tag ví dụ chỉ là ứng viên; phải có CI xanh của đúng commit trước khi phát hành.

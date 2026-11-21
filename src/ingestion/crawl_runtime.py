@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import math
 import os
 import time
 from datetime import datetime
@@ -23,6 +24,13 @@ def integer_setting(name, default, minimum=1, maximum=2400):
     value = int(os.getenv(name, str(default)))
     if not minimum <= value <= maximum:
         raise ValueError(f'{name} must be between {minimum} and {maximum}')
+    return value
+
+
+def float_setting(name, default, minimum=0, maximum=60):
+    value = float(os.getenv(name, str(default)))
+    if not math.isfinite(value) or not minimum <= value <= maximum:
+        raise ValueError(f'{name} must be finite and between {minimum} and {maximum}')
     return value
 
 

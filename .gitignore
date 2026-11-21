@@ -61,3 +61,8 @@ outputs/**
 # Spark / Airflow temp
 spark-warehouse/
 airflow/logs/
+
+# Private review attachments; the functional operational docs remain versioned.
+/Ra_soat_TLCN_Nhom6_21-11.docx
+/R*so*t*b*n*v1.1.md
+/Viec_vai_B_da_lam_TLCN_Nhom6_21-11.docx

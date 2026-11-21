@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "checks": {
+    "same_complete_tree_in_all_runtimes": true,
+    "sha256_format": true
+  },
+  "generated_at": "2026-11-21T17:43:43.040185+00:00",
+  "fingerprints": {
+    "host": "efb14fa05a4e66d327d643df8684c47c479df92394acc9e051e72a3cf67b0436",
+    "spark": "efb14fa05a4e66d327d643df8684c47c479df92394acc9e051e72a3cf67b0436",
+    "airflow": "efb14fa05a4e66d327d643df8684c47c479df92394acc9e051e72a3cf67b0436"
+  }
+}

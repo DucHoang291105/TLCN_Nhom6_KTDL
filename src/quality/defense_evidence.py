@@ -1,7 +1,6 @@
 """Bind defense verification to the exact code, source bytes and current run."""
 from __future__ import annotations
 
-import ast
 import hashlib
 import json
 import re
@@ -9,6 +8,7 @@ import subprocess
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from xml.etree import ElementTree
+from zoneinfo import ZoneInfo
 
 from src.common.atomic_io import write_json_atomic
 from src.dashboard.provision_superset import CHARTS
@@ -23,6 +23,10 @@ ARTIFACTS = (
     "history_incremental_verification", "lifecycle_fixture_tests", "iceberg_features",
     "superset_dashboard_check", "pipeline_dashboard_integration",
     "price_model_summary", "gold_bq_evidence_summary", "bq2_backtest",
+    "historical_input_manifest", "crawl_coverage", "price_model_selection_candidate", "repost_leakage_check",
+    "publication_gate_verification",
+    "runtime_identity_check",
+    "identity_benchmark",
 )
 
 
@@ -48,6 +52,8 @@ def code_state(root):
     raw = subprocess.check_output(["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"], cwd=root)
     paths = {p.decode("utf-8") for p in raw.split(b"\0") if p}
     selected = {p for p in paths if p.startswith(("src/", "scripts/", "tests/", "dags/", "config/", "docker/", ".github/"))
+                or p.startswith('requirements') and p.endswith('.txt')
+                or p.startswith('docker-compose') and p.endswith('.yml') and 'override' not in p
                 or p in {"docker-compose.yml", ".gitignore", ".gitattributes", ".env.example",
                          "requirements.txt", "requirements-dev.txt", "guland_raw_crawler.py", "nhadatvui_raw_crawler.py"}
                 or p in {"docs/operations/release_validation.md", "docs/architecture.md"}}
@@ -56,17 +62,16 @@ def code_state(root):
         path = Path(root) / name
         if path.is_file() and path.suffix not in {".pyc", ".pyo"}:
             files[name] = hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
-        elif not path.exists():
-            files[name] = "DELETED"
+        # Missing files are absent from the executable tree. Omitting them
+        # keeps the fingerprint stable when a deletion/rename is git-added or
+        # committed; deleting a file after capture still changes the file map.
     digest = hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest()
     return {"sha256": digest, "files": files}
 
 
 def inputs(root):
     root = Path(root)
-    module = ast.parse((root / "src/bronze/ingest_bronze.py").read_text(encoding="utf-8-sig"))
-    historical = next(ast.literal_eval(node.value) for node in module.body if isinstance(node, ast.Assign)
-                      and any(isinstance(t, ast.Name) and t.id == "SOURCES" for t in node.targets))
+    from src.bronze.historical_contract import SOURCES as historical
     paths = [root / "data/incoming/historical" / source / spec["file"] for source, spec in historical.items()]
     by_source = {}
     for source in SOURCES:
@@ -94,11 +99,21 @@ def capture(root, batch, run_id):
             "batch_id": batch, "code": code_state(root), "inputs": data}
 
 
-def crawl_inventory(root, data):
+def latest_scheduled_batch(at=None):
+    """Only require a Tue/Fri batch after its 22:00 Vietnam collection time."""
+    at = (at or datetime.now(timezone.utc)).astimezone(ZoneInfo('Asia/Ho_Chi_Minh'))
+    if at.hour < 22:
+        at -= timedelta(days=1)
+    while at.weekday() not in (1, 4):
+        at -= timedelta(days=1)
+    return at.strftime('%Y%m%d')
+
+
+def crawl_inventory(root, data, as_of=None):
     known = read(Path(root) / "config/source_gaps.json")["known_gaps"]
     lookup = {(row["source"], row["batch_id"]): row for row in known}
     missing = []
-    end = datetime.strptime(data["latest_observed_batch"], "%Y%m%d")
+    end = datetime.strptime(max(data["latest_observed_batch"], as_of or data["latest_observed_batch"]), "%Y%m%d")
     for source, batches in data["batches_by_source"].items():
         day = datetime.strptime(min(batches), "%Y%m%d")
         while day <= end:
@@ -150,7 +165,8 @@ def verify(root, work):
     baseline = read(work / "baseline.json")
     docs = {name: read(root / "docs/validation" / f"{name}.json") for name in ARTIFACTS}
     current_inputs = inputs(root)
-    inventory = crawl_inventory(root, current_inputs)
+    due_batch = latest_scheduled_batch()
+    inventory = crawl_inventory(root, current_inputs, due_batch)
     run = docs["integration_airflow_run"]
     silver, gold = docs["silver_final_verification"], docs["gold_verification"]
     failure, history = docs["airflow_failure_gate"], docs["history_incremental_verification"]
@@ -161,6 +177,7 @@ def verify(root, work):
         "all_input_bytes_unchanged": current_inputs == baseline["inputs"],
         "latest_complete_batch_used": run["batch_id"] == baseline["batch_id"] == current_inputs["latest_complete_batch"],
         "latest_observed_batch_complete": current_inputs["latest_complete_batch"] == current_inputs["latest_observed_batch"],
+        "calendar_current_to_last_due_collection": current_inputs["latest_complete_batch"] >= due_batch,
         "all_calendar_gaps_declared": inventory["all_gaps_declared"],
         "correct_airflow_run": run["run_id"] == baseline["run_id"],
         "airflow_all_tasks_success": run["state"] == "success" and len(run["tasks"]) == DAG_TASK_COUNT and all(t["state"] == "success" for t in run["tasks"]),
@@ -181,6 +198,19 @@ def verify(root, work):
             and dashboard["run_id"] == baseline["run_id"],
         "unit_tests": junit_pass(work / "unit-tests.xml"),
         "manual_write_guard": read(work / "manual_writer_guard.json")["status"] == "PASS",
+        "historical_content_and_bytes": docs['historical_input_manifest']['status'] == 'PASS'
+            and len(docs['historical_input_manifest']['sources']) == 6
+            and all(r['content_matches_bronze'] is True for r in docs['historical_input_manifest']['sources'].values()),
+        "crawl_depth_and_calendar": docs['crawl_coverage']['status'] == 'PASS' and all_pass(docs['crawl_coverage']['checks']),
+        "model_evaluation_current": docs['price_model_selection_candidate']['status'] == 'PASS'
+            and docs['price_model_selection_candidate'].get('production_configuration_changed') is False,
+        "repost_evaluation_current": docs['repost_leakage_check']['status'] == 'PASS',
+        "partial_build_failure_blocks_read": docs['publication_gate_verification']['status'] == 'PASS'
+            and all_pass(docs['publication_gate_verification']['checks']),
+        "cross_runtime_source_input_identity": docs['runtime_identity_check']['status'] == 'PASS'
+            and all_pass(docs['runtime_identity_check']['checks']),
+        "parallel_hash_matches_serial_full_bytes": docs['identity_benchmark']['status'] == 'PASS'
+            and all_pass(docs['identity_benchmark']['checks']),
     }
     checks.update(fingerprint_checks(first, second))
     started = datetime.fromisoformat(baseline["started_at"])
@@ -192,13 +222,28 @@ def verify(root, work):
         evidence[name] = {"sha256": evidence_checksum(path), "hash_normalization": "LF", "timestamp": timestamp}
     for label, data in (("first", first), ("second", second)):
         checks[f"fresh_fingerprint:{label}"] = datetime.fromisoformat(data["generated_at"]) >= started
-    payload = {"generated_at": datetime.now(timezone.utc).isoformat(), "scope": "Person A: pipeline and operation across the three-week plan",
+    from src.orchestration.publication import require_published
+    publication = require_published(root)
+    checks['verified_publication_for_current_inputs'] = publication['status'] == 'PUBLISHED'
+    checks['model_evaluation_bound_to_publication'] = docs['price_model_selection_candidate'].get('publication_identity') == publication['identity']
+    context_paths = ['docs/business/bq_acceptance_criteria.md', 'config/price_model_blend.json',
+                     'docs/validation/price_model_selection.json', 'docs/validation/label_accuracy.json',
+                     'docs/validation/labeling/sample_manifest.json', 'docs/validation/labeling/labeling_sheet.csv',
+                     'docs/validation/labeling/labeling_predictions.csv']
+    business_context = {name: {'sha256': file_checksum(root / name)[0] if name.endswith('.csv') else evidence_checksum(root / name),
+                               'hash_normalization': 'raw_bytes' if name.endswith('.csv') else 'LF',
+                               'freshly_reviewed_by_humans': False}
+                        for name in context_paths if (root / name).exists()}
+    payload = {"generated_at": datetime.now(timezone.utc).isoformat(), "scope": "Pipeline and operation technical acceptance; separate from full business/manual-label acceptance",
                "run_id": baseline["run_id"], "batch_id": baseline["batch_id"], "code": baseline["code"],
                "inputs": current_inputs, "checks": checks, "evidence": evidence,
                "status": "PASS" if all_pass(checks) else "FAIL",
                "data_note": "Use the actual per-source calendars; absent batches are not fabricated. latest_complete_batch is the DAG preflight date, latest_observed_batch includes partial newer dates.",
                "operation_mode": "Sequential Spark writing then Trino/Superset reading on the local SQLite catalog",
                "business_limits": dashboard["manual_labeling"],
+               "business_context": business_context,
+               "acceptance_version": 2,
+               "last_due_collection_batch": due_batch, "publication_identity": publication['identity'],
                "silver_counts": silver["table_counts"], "gold_counts": gold["table_counts"]}
     write_json_atomic(root / "docs/validation/defense_verification.json", payload)
     write_json_atomic(root / "docs/validation/crawl_inventory.json", inventory)

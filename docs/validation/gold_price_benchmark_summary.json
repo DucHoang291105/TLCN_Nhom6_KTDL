@@ -1,67 +1,67 @@
 {
-  "started_at": "2026-11-21T14:44:32.592120+00:00",
-  "finished_at": "2026-11-21T14:44:52.281225+00:00",
+  "started_at": "2026-11-21T19:07:19.790961+00:00",
+  "finished_at": "2026-11-21T19:07:35.886927+00:00",
   "min_peer_group_size": 5,
-  "representative_listings": 133480,
+  "representative_listings": 135155,
   "benchmark_groups_by_level": {
     "LOC_CAT_AREA": 1050,
-    "LOC_CAT": 389,
-    "LOC_CAT_AREA_ROOM": 1437
+    "LOC_CAT": 390,
+    "LOC_CAT_AREA_ROOM": 1446
   },
-  "assessment_rows": 133480,
+  "assessment_rows": 135155,
   "assessment_by_level": {
-    "LOC_CAT_AREA": 48472,
-    "LOC_CAT": 1279,
-    "LOC_CAT_AREA_ROOM": 79364,
-    "None": 4365
+    "LOC_CAT_AREA": 48946,
+    "LOC_CAT": 1296,
+    "LOC_CAT_AREA_ROOM": 80457,
+    "None": 4456
   },
   "price_position_counts": {
-    "p25_p75": 63658,
-    "khong_du_du_lieu": 4365,
-    "duoi_p25": 32556,
-    "tren_p75": 32901
+    "p25_p75": 64478,
+    "khong_du_du_lieu": 4456,
+    "duoi_p25": 32920,
+    "tren_p75": 33301
   },
-  "low_price_missing_legal": 24993,
+  "low_price_missing_legal": 25245,
   "legal_not_stated_by_position": {
     "by_position": {
       "duoi_p25": {
-        "listings": 32556,
-        "title_states_no_legal": 24993,
-        "share": 0.767693
+        "listings": 32920,
+        "title_states_no_legal": 25245,
+        "share": 0.766859
       },
       "khong_du_du_lieu": {
-        "listings": 4365,
-        "title_states_no_legal": 3854,
-        "share": 0.882932
+        "listings": 4456,
+        "title_states_no_legal": 3925,
+        "share": 0.880835
       },
       "p25_p75": {
-        "listings": 63658,
-        "title_states_no_legal": 53532,
-        "share": 0.840931
+        "listings": 64478,
+        "title_states_no_legal": 54247,
+        "share": 0.841326
       },
       "tren_p75": {
-        "listings": 32901,
-        "title_states_no_legal": 29195,
-        "share": 0.887359
+        "listings": 33301,
+        "title_states_no_legal": 29563,
+        "share": 0.887751
       }
     },
-    "below_p25_share": 0.767693,
-    "other_priced_share": 0.856751,
-    "difference_share": -0.089058
+    "below_p25_share": 0.766859,
+    "other_priced_share": 0.857137,
+    "difference_share": -0.090278
   },
   "legal_not_stated_by_category": {
     "by_category": {
       "Biệt thự / liền kề / shophouse": {
-        "below_p25_listings": 2830,
-        "below_p25_share": 0.873145,
-        "other_priced_share": 0.888152,
-        "difference_share": -0.015007
+        "below_p25_listings": 2866,
+        "below_p25_share": 0.874738,
+        "other_priced_share": 0.889087,
+        "difference_share": -0.014349
       },
       "Căn hộ chung cư": {
-        "below_p25_listings": 7140,
-        "below_p25_share": 0.656303,
-        "other_priced_share": 0.805282,
-        "difference_share": -0.148979
+        "below_p25_listings": 7249,
+        "below_p25_share": 0.657332,
+        "other_priced_share": 0.806673,
+        "difference_share": -0.149341
       },
       "Không rõ": {
         "below_p25_listings": 0,
@@ -70,25 +70,25 @@
         "difference_share": null
       },
       "Nhà phố / nhà riêng": {
-        "below_p25_listings": 20113,
-        "below_p25_share": 0.78755,
-        "other_priced_share": 0.872481,
-        "difference_share": -0.084931
+        "below_p25_listings": 20335,
+        "below_p25_share": 0.786132,
+        "other_priced_share": 0.872521,
+        "difference_share": -0.086389
       },
       "Phòng trọ / thương mại / khác": {
-        "below_p25_listings": 847,
-        "below_p25_share": 0.92562,
-        "other_priced_share": 0.95026,
-        "difference_share": -0.02464
+        "below_p25_listings": 853,
+        "below_p25_share": 0.924971,
+        "other_priced_share": 0.950257,
+        "difference_share": -0.025286
       },
       "Đất": {
-        "below_p25_listings": 1626,
-        "below_p25_share": 0.745387,
-        "other_priced_share": 0.792598,
-        "difference_share": -0.047211
+        "below_p25_listings": 1617,
+        "below_p25_share": 0.740878,
+        "other_priced_share": 0.792508,
+        "difference_share": -0.05163
       }
     },
-    "standardized_difference_share": -0.089447
+    "standardized_difference_share": -0.090689
   },
   "status": "PASS"
 }

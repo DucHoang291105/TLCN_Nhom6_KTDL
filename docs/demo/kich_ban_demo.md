@@ -1,15 +1,13 @@
 # Demo kỹ thuật pipeline và vận hành — 6 phút 40 giây
 
-Bản kịch bản A6 cập nhật ngày 17/11/2026, dữ liệu tới batch 17/11 và run
-`acceptance_A_20261117_r2`. A3 đã nghiệm thu 66/66 check PASS. Video dùng kết
-quả đã chạy trước, không nộp pipeline mới trong lúc quay. Các lượt thao tác
-tự động và video được ghi ở phần cuối; phần nói vẫn cần Hoàng tự diễn tập.
+Dùng run/batch hiện hành trong `docs/validation/defense_verification.json`;
+chạy `python -m src.orchestration.status` để xác nhận code/input khớp. Không
+nộp pipeline mới trong lúc quay. Lấy task count và số liệu trực tiếp từ JSON/UI.
 
 ## Chuẩn bị trước khi bắt đầu
 
 Ở thư mục repo, PowerShell với `.venv` đã cài dependencies. Nếu A3 đã chạy
-nghiệm thu, dùng run mới trong JSON. Hiện dùng run 17/11 đã nghiệm thu và mở
-read mode:
+nghiệm thu, dùng run mới trong JSON. Chỉ mở read mode sau khi pipeline đã công bố dữ liệu hợp lệ:
 
 ```powershell
 .\.venv\Scripts\python.exe -m src.orchestration.environment read
@@ -80,33 +78,21 @@ khẩu, không kích hoạt DAG hoặc ghi bảng Silver/Gold. Cài dependency r
 .\.venv\Scripts\python.exe scripts/record_demo.py --output outputs/demo_luot_moi --hold-seconds 6
 ```
 
-Mỗi lần gọi tạo hai lượt thao tác; output phải là thư mục mới để giữ video
-cũ. Công cụ lấy run/batch/snapshot từ JSON và đọc số hàng lifecycle, KPI mặc
-định/TP.HCM từ Trino. Lượt hiện tại có 15 hàng lifecycle, 5 hàng time travel,
-KPI 133.495 → 84.639. Kết quả này chỉ chứng minh luồng thao tác tự động;
-không thay cho hai lần Hoàng trình bày có bấm giờ.
-
-Kết quả thực thi sau A3 ngày 17/11: hai lượt tự động PASS trong **71,54 giây**
-và **70,56 giây**. Các video browser đã finalize, kích thước 1600×900, được kiểm
-tra khung hình graph lỗi, SQL lifecycle/time travel và dashboard. Bằng chứng
-ở [demo_rehearsals.json](../validation/demo_rehearsals.json); video dự phòng:
-`outputs/demo_pipeline_A_20261117_nghiemthu_luot1.webm` và
-`outputs/demo_pipeline_A_20261117_nghiemthu_luot2.webm`.
-Video nằm local trong outputs, không theo dõi trên Git. Chuyển video cho C
-khi tích hợp tài liệu; lời mở đầu nói rõ dùng run lịch sử.
+Mỗi lần gọi tạo output mới. Công cụ lấy run/batch/snapshot từ JSON và đọc
+số hàng lifecycle, KPI từ Trino. Video cũ là tư liệu lịch sử, không dùng số
+liệu đó để mô tả lượt mới. Thao tác tự động không thay thế lời trình bày có
+bấm giờ của người báo cáo.
 
 ## Lời mở đầu và kết thúc
 
 “Dạ em chào thầy. Em là Võ Đức Hoàng, phụ trách pipeline và vận hành. Em trình
 bày cách hệ thống lưu dữ liệu nguồn, chuẩn hóa, theo dõi lịch sử và đưa dữ liệu
-lên dashboard. Phần minh họa dùng dữ liệu tới 17/11 và run
-acceptance_A_20261117_r2 đã kiểm chứng. Bộ nghiệm thu kỹ thuật gồm 66 check
-đều PASS.”
+lên dashboard. Phần minh họa dùng batch và run hiện trên JSON nghiệm thu; em đọc số điều
+kiện PASS trực tiếp từ kết quả hiện hành.”
 
 Khi chỉ graph thành công: “Các nhóm xử lý hoàn tất theo thứ tự, các bước verify
-kiểm tra trước khi đi tiếp. Đây là run lịch sử có 24 task thành công. Run thử
-lỗi bên cạnh dùng batch không có dữ liệu: task chuẩn bị đầu tiên thất bại và
-23 task phía sau bị chặn, nên pipeline không tiếp tục xử lý input chưa đạt.”
+kiểm tra trước khi đi tiếp. Đây là run đã lưu trên hệ thống; em chỉ các task thành công và đọc số thực
+tế từ UI. Run thử lỗi bên cạnh dùng batch không có dữ liệu, downstream bị chặn, nên pipeline không tiếp tục xử lý input chưa đạt.”
 
 Khi chỉ time travel: “Sau MERGE, id 1 có giá 120 và xuất hiện thêm id 3. Em
 truy vấn lại snapshot ban đầu vẫn thấy hai dòng, id 1 có giá 100. Bảng này
