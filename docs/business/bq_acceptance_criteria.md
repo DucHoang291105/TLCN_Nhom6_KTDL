@@ -28,10 +28,17 @@ Người dùng lấy từ `problem_definition.md` (người mua) và `target_use
 | G1 | Gold kiểm định đầy đủ | `verify_gold` status PASS, không check nào FAIL | `gold_verification.json` | Đạt (108/108, dữ liệu tới batch 20261027) |
 | G2 | Chỉ dùng tin đại diện, tin nghi trùng chỉ đếm một lần | Các check `dup_*`, `non_suspect_is_representative` PASS | `gold_verification.json` | Đạt |
 | G3 | Kết quả tái lập được | Rebuild hai lần cho cùng nội dung bảng | `deterministic_rebuild.json` | Đạt |
-| G4 | Độ chính xác của 5 cờ đặc điểm và phân loại BĐS được đo | Có precision/recall cho từng cờ trên mẫu gán nhãn ≥ 150 tin; precision mỗi cờ ≥ 0,80 | `label_accuracy.json` | Chưa đo (`labelled_rows = 0`, việc của vai C) |
+| G4 | Độ chính xác của 5 cờ đặc điểm và phân loại BĐS được đo | Có precision/recall cho từng cờ trên mẫu gán nhãn ≥ 150 tin; precision mỗi cờ ≥ 0,80 | `label_accuracy.json`, `label_accuracy_rules_compare.json` | Đạt sơ bộ (`status = PARTIAL`): mẫu 198 tin (22 tin × 9 nguồn). Trên dự đoán trước bộ quy tắc v5, precision cả 5 cờ từ 0,95 đến 1,00; recall từ 0,67 (pháp lý) đến 1,00; phân loại BĐS đúng 84,9%. Sau khi sửa quy tắc (v5) trên phần dev (122 tin), phần test giữ riêng 76 tin: precision 1,00 cả 5 cờ, recall pháp lý 1,00, mặt tiền 1,00, ô tô 1,00, nội thất 0,86, phân loại đúng 89,5%. Chưa chốt: nhãn gán sơ bộ bằng AI, hai người rà soát chỉ sửa 6/1.188 ô (0,5%), còn 4 tin tranh cãi |
 | G5 | Số liệu trên dashboard khớp Gold | Mọi biểu đồ đối chiếu khớp truy vấn Trino | `superset_dashboard_check.json` | Đạt |
 
-G4 ảnh hưởng tới cả ba BQ, vì BQ1 (Pareto), BQ2 (mô hình, `feature_count_vs_peer`) và BQ3 (độ tương đồng) đều dựa trên cờ đọc từ tiêu đề. Khi G4 chưa đo, mọi kết luận dựa trên cờ phải ghi là "theo nội dung tiêu đề".
+G4 ảnh hưởng tới cả ba BQ, vì BQ1 (Pareto), BQ2 (mô hình, `feature_count_vs_peer`) và BQ3 (độ tương đồng) đều dựa trên cờ đọc từ tiêu đề. Cách đọc kết quả đo:
+
+- **Khi cờ bật thì gần như luôn đúng** (precision 0,95 đến 1,00 ở cả 5 cờ). Cờ bỏ sót nhiều hơn: trước v5, pháp lý bỏ sót 12/36 tin thật (recall 0,67), mặt tiền 6/47, ô tô 4/26. Điều này khớp với cách diễn giải "FALSE = tiêu đề không nêu", không phải "không có".
+- **Số đo sau v5 chỉ tin được ở phần test giữ riêng (76 tin).** Quy tắc v5 được sửa sau khi xem lỗi trên phần dev, nên số trên cả 198 tin sau v5 (ví dụ recall pháp lý, mặt tiền, ô tô đều 1,00) là lạc quan và không dùng làm kết luận. 76 tin cũng là mẫu nhỏ: một lỗi đổi recall khoảng 1 đến 3 điểm phần trăm.
+- **Thang máy chỉ có 3 tin thật** nên 1,00 chưa đủ để kết luận. Loại hình `khong_ro` (5 tin thật) chưa nhận ra được tin nào, `biet_thu` (9 tin thật) recall 0,78.
+- **Quy trình nhãn là giới hạn:** nhãn gán sơ bộ bằng AI không xem dự đoán hệ thống, hai thành viên rà soát và sửa 6/1.188 ô (0,5%, đều ở cột loại hình). Tỷ lệ sửa thấp có thể do người rà soát bị bản sơ bộ dẫn dắt, nên chưa thể coi là chuẩn tuyệt đối. Cần chốt 4 tin tranh cãi (L101, L108, L130, L172) và một lượt rà soát độc lập thật sự để `status` thành `COMPLETE`.
+
+Khi G4 chưa `COMPLETE`, mọi kết luận dựa trên cờ ghi là "theo nội dung tiêu đề, độ chính xác đo sơ bộ trên 198 tin".
 
 ## 2. BQ1 – Đánh đổi trong cùng ngân sách
 
@@ -56,7 +63,7 @@ Câu hỏi: giá/m² của tin nằm ở đâu trong nhóm bất động sản t
 | B2.1 | Nhóm tương đồng đủ lớn | Mọi nhóm công bố có ≥ 5 tin (check `benchmark_min_group_size`) | `gold_verification.json` | Đạt. Đã chạy độ nhạy với ngưỡng 10 (mục 3.1.1): kết luận không đổi |
 | B2.2 | Độ phủ | Tỷ lệ tin `khong_du_du_lieu` ≤ 5% số tin đại diện | `gold_price_benchmark_summary.json`: 3.807/123.066 = 3,1% | Đạt |
 | B2.3 | Vị trí giá tính đúng | Checks `assessment_position_recomputed`, `assessment_peer_values_match_benchmark` | `gold_verification.json` | Đạt |
-| B2.4 | Cờ cảnh báo phải phân biệt được | `is_low_price_missing_legal` bật cho ≤ 50% tin dưới P25 | `gold_price_benchmark_summary.json`: 24.767/30.094 = 82% | Chưa đạt: cờ pháp lý chỉ đọc từ tiêu đề nên quá thưa. Không trình bày như tín hiệu rủi ro; ghi là "tiêu đề không nêu pháp lý" |
+| B2.4 | Cờ cảnh báo phải phân biệt được | `is_low_price_missing_legal` bật cho ≤ 50% tin dưới P25 | `gold_price_benchmark_summary.json`: 24.993/32.556 = 76,8% (dữ liệu tới 17/11) | Chưa đạt, và không đạt được bằng cách sửa quy tắc: mẫu gán nhãn cho thấy chỉ khoảng 18% tin (36/198) có tiêu đề nêu pháp lý, nên phần lớn tin nào cũng "thiếu pháp lý" trong tiêu đề, bất kể giá. Quy tắc v5 đã tăng recall pháp lý (0,67 → 1,00 trên phần test giữ riêng) nhưng tỷ lệ vẫn 76,8%. Không trình bày như tín hiệu rủi ro; ghi là "tiêu đề không nêu pháp lý". Đề xuất đổi tiêu chí khi nhóm họp (ví dụ so tỷ lệ này giữa nhóm dưới P25 và nhóm còn lại thay vì đặt ngưỡng tuyệt đối) |
 
 #### 3.1.1. Độ nhạy theo ngưỡng cỡ nhóm (B4)
 
