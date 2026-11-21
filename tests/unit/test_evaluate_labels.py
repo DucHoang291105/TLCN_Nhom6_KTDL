@@ -49,6 +49,18 @@ def test_prelabelled_rows_need_two_reviewers():
     assert review_complete({**FULL, "review_1": "23133040", "review_2": "23133029"}, needs_review=True)
 
 
+def test_same_person_cannot_fill_both_review_rounds():
+    assert not review_complete({**FULL, "review_1": "23133040", "review_2": "23133040"}, needs_review=True)
+    assert not review_complete({**FULL, "review_1": "Kiet", "review_2": " kiet "}, needs_review=True)
+
+
+def test_review_rounds_counts_rows_and_people():
+    from src.quality.evaluate_labels import review_rounds
+    sheet = [{"review_1": "a", "review_2": ""}, {"review_1": "b", "review_2": ""}, {"review_1": "a", "review_2": "a"}]
+    assert review_rounds(sheet) == {"review_1_rows": 3, "review_1_reviewers": 2, "review_2_rows": 1,
+                                    "review_2_reviewers": 1, "same_person_both_rounds": 1}
+
+
 def test_review_changes_counts_edited_cells():
     before = [FULL, {**FULL, "sample_id": "L002"}]
     after = [{**FULL, "true_category": "dat", "true_legal": "1"}, {**FULL, "sample_id": "L002"}]

@@ -76,6 +76,23 @@ def test_genuine_cut_excludes_typo_sized_drops():
     assert "0.70 * c.previous_price AND 0.99 * c.previous_price" in GENUINE_CUT
 
 
+def test_reprice_cohort_matches_the_backtest():
+    sql = evidence_sql("g", "s")["ev_reprice"]
+    # first price = history version 1 (as bq2_backtest), crawl sources only, observed twice
+    assert "MIN_BY(price, version_number) AS first_price FROM s.listing_history" in sql
+    assert "lc.source IN ('batdongsan', 'guland', 'nhadatvui')" in sql
+    assert "lc.observation_count >= 2" in sql
+    assert "COALESCE(ch.first_price, a.price)" not in sql
+
+
+def test_reprice_example_date_is_a_genuine_cut():
+    sql = evidence_sql("g", "s")["ev_reprice_examples"]
+    # the date shown as "ngày hạ giá" comes from the genuine-cut events only, never MAX over every change
+    assert f"MAX(CASE WHEN {GENUINE_CUT} THEN c.changed_at END) AS ngay_ha" in sql
+    assert "MAX(c.changed_at)" not in sql
+    assert "ch.ngay_ha IS NOT NULL" in sql
+
+
 def test_evidence_tables_cover_every_flag():
     assert set(FLAG_LABELS) == set(FLAG_COLUMNS)
     sql = evidence_sql("g", "s")

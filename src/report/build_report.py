@@ -11,11 +11,10 @@ Usage: python -m src.report.build_report
 from __future__ import annotations
 
 import json
-import re
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
-from collections import Counter, defaultdict
+from collections import Counter
 from datetime import date
 from pathlib import Path
 
@@ -24,8 +23,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.gold.gold_rules import (  # noqa: E402
-    DUP_AREA_TOLERANCE, DUP_MIN_TITLE_JACCARD, DUP_PRICE_TOLERANCE, MIN_PEER_GROUP_SIZE,
-    MIN_SUBSTITUTION_SIMILARITY, MODEL_CATEGORY_LABELS, load_bands,
+    MODEL_CATEGORY_LABELS, load_bands,
 )
 from src.report import report_charts as charts  # noqa: E402
 from src.report.report_body import write_body  # noqa: E402
@@ -123,12 +121,12 @@ def changed_files() -> list[tuple[str, str]]:
 
 FILE_PURPOSE = {
     "config/gold_bands.csv": "Ngưỡng band giá, diện tích, giá/m², số phòng",
-    "src/silver/feature_rules.py": "Quy tắc feature thuần Python",
+    "src/silver/feature_rules.py": "Quy tắc feature: loại hình theo tín hiệu mạnh/yếu, mâu thuẫn, cờ đặc điểm",
     "src/silver/build_listing_feature.py": "Job Spark xây listing_feature",
     "src/silver/verify_silver.py": "Thêm check listing_feature và vị trí bucket",
     "src/silver/build_listing_core_spark.py": "Ghi bảng qua write_iceberg_table (bucket Silver)",
     "src/silver/build_listing_history.py": "Ghi bảng qua write_iceberg_table (bucket Silver)",
-    "src/silver/build_location.py": "Ghi bảng qua write_iceberg_table (bucket Silver)",
+    "src/silver/build_location.py": "Chọn tỉnh theo thứ tự bằng chứng, xử lý LQ05",
     "src/silver/iceberg_smoke_check.py": "Smoke test ghi vào bucket Silver và PURGE sau khi chạy",
     "docs/architecture/lakehouse_architecture.md": "Mô tả lưu trữ theo bucket từng tầng",
     "docs/data/canonical_listing_schema.md": "Mô tả schema listing_feature",
@@ -157,8 +155,6 @@ FILE_PURPOSE = {
     "scripts/check_deterministic_rebuild.ps1": "Rebuild 2 lần và so row count",
     "tests/unit/test_feature_rules.py": "Unit test quy tắc feature",
     "tests/unit/test_gold_rules.py": "Unit test quy tắc Gold",
-    "src/silver/feature_rules.py": "Quy tắc feature: loại hình theo tín hiệu mạnh/yếu, mâu thuẫn, cờ đặc điểm",
-    "src/silver/build_location.py": "Chọn tỉnh theo thứ tự bằng chứng, xử lý LQ05",
     "src/silver/build_listing_core.py": "Loại hình từ taxonomy của site, category_evidence, địa chỉ nhadatvui",
     "src/common/table_fingerprints.py": "Fingerprint nội dung từng bảng để so hai lần rebuild",
     "src/report/report_body.py": "Nội dung Chương 1–8 của báo cáo",
@@ -255,7 +251,6 @@ def describe(column: str) -> str:
 def main() -> None:
     feature = load("silver_feature_summary.json")
     silver_verify = load("silver_final_verification.json")
-    foundation = load("silver_foundation_summary.json")
     dims_summary = load("gold_dimensions_summary.json")
     fact = load("gold_fact_listing_summary.json")
     gold_verify = load("gold_verification.json")

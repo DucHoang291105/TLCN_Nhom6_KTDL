@@ -362,7 +362,7 @@ def apply_value_plausibility(record: Mapping[str, Any]) -> tuple[dict[str, Any],
 
 
 _PRICE_ONLY = re.compile(r"^\s*\d[\d.,]*\s*(?:tỷ|tỉ|triệu|trieu|tr|nghìn|ngàn|k)?(?:\s*\d[\d.,]*\s*(?:triệu|trieu|tr|nghìn|ngàn)?)?\s*$")
-_PER_UNIT = re.compile(r"/\s*(?:m2|m²|m|tháng|thang|năm|nam)|/m")
+_PER_UNIT = re.compile(r"/\s*(?:m2|m²|m\b|tháng|thang|năm|nam)|/m")
 
 
 def reconcile_shipped_price(price: Any, price_str: Any, area: Any) -> float | None:

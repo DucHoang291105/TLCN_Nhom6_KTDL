@@ -23,6 +23,15 @@ def test_province_priority(address,district,title,expected,method):
     assert row["province_name"]==expected
     if method: assert used==method
 
+def test_bracketed_new_province_note_is_not_trusted():
+    from src.silver.build_location import _province_of_segment
+    # the old province outside the brackets decides (mapped to its 2025 province)
+    assert _province_of_segment("Bình Dương (Hồ Chí Minh mới)")["province_name"] == "Hồ Chí Minh"
+    # real addresses whose note contradicts the 2025 merger
+    assert _province_of_segment("Bắc Ninh (Quảng Ninh mới)")["province_name"] == "Bắc Ninh"
+    assert _province_of_segment("Lào Cai (Quảng Ninh mới)")["province_name"] == "Lào Cai"
+
+
 def test_accents_distinguish_vinh_and_vinh_loc():
     assert resolve_province(None,None,None,"Bán nhà Vĩnh Lộc")[1] is None
     assert resolve_province(None,None,None,"Bán nhà TP Vinh")[1]["province_name"]=="Nghệ An"

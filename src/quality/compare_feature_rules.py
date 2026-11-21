@@ -41,8 +41,12 @@ def recompute(label_row: dict, prediction: dict) -> dict:
 
 
 def headline(result: dict) -> dict:
-    return {"category_accuracy": result["category_accuracy"],
-            **{f"{flag}_{k}": result["flags"][flag][k] for flag in FLAGS for k in ("precision", "recall")}}
+    """Accuracy, per-flag precision/recall, and the counts behind them (true positives in the labels, rows labelled)."""
+
+    return {"category_accuracy": result["category_accuracy"], "category_labelled": result["labelled_rows"],
+            **{f"{flag}_{k}": result["flags"][flag][k] for flag in FLAGS for k in ("precision", "recall")},
+            **{f"{flag}_{name}": result["flags"][flag][k] for flag in FLAGS
+               for name, k in (("support", "support_true"), ("labelled", "labelled"))}}
 
 
 def main() -> None:

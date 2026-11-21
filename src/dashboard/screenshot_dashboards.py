@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import json
 import sys
-from pathlib import Path
 
 from src.dashboard.provision_superset import BASE, PROJECT_ROOT, env
 
@@ -45,7 +44,7 @@ def main(folder: str) -> None:
                 break
             except Exception:
                 if attempt == 2:
-                    raise SystemExit("Superset login failed; no screenshot written")
+                    raise SystemExit("Superset login failed; no screenshot written") from None
         for index, dash in enumerate(check["dashboards"], start=1):
             page.goto(dash["url"] + "?standalone=2")
             try:

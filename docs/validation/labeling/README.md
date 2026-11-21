@@ -53,11 +53,18 @@ python -m src.quality.evaluate_labels
 
 Kết quả nằm ở `docs/validation/label_accuracy.json`: độ chính xác loại hình (tổng và theo nguồn), precision, recall, F1 cho từng loại hình và từng cờ, ma trận nhầm lẫn. `status` chỉ là `COMPLETE` khi mọi dòng có loại hình hợp lệ, tên người gán và đủ 5 cờ (chấp nhận `?` cho cờ chưa xác định, không đưa cờ đó vào metric). Trùng/mất sample ID bị chặn; script sinh mẫu không ghi đè khi bất kỳ ô gán nhãn, tên, ngày hoặc ghi chú đã được điền.
 
-## Quy trình đang dùng: gán sơ bộ + 2 lượt review (từ 16/11/2026)
+## Quy trình: gán sơ bộ + rà soát (từ 16/11/2026)
 
 Quy tắc chi tiết kèm ví dụ cho người review: [`QUY_TAC_GAN_NHAN.md`](QUY_TAC_GAN_NHAN.md).
 
-Để kịp tiến độ, nhãn được **gán sơ bộ bởi trợ lý AI (Claude)** chỉ từ `title`, `price`, `area`, `address`, **không mở `labeling_predictions.csv`**. Sau đó hai thành viên review độc lập lần lượt.
+Để kịp tiến độ, nhãn được **gán sơ bộ bởi trợ lý AI (Claude)** chỉ từ `title`, `price`, `area`, `address`, **không mở `labeling_predictions.csv`**. Kế hoạch ban đầu là hai lượt review độc lập, sau đó một người gán lại 50 tin cách ít nhất hai ngày để đo độ nhất quán (kappa).
+
+**Trạng thái thực tế (21/11/2026): G4 dừng ở mức sơ bộ, `status = PARTIAL`.**
+
+- Lượt 1: đủ 198/198 tin. Hai thành viên chia nhau, **mỗi tin chỉ một người xem**. Người rà soát sửa 6/1.188 ô (0,5%), cả 6 đều ở cột loại hình.
+- Lượt 2 và phép gán lại để tính kappa: **không thực hiện** do hết thời gian. Cột `review_2` để trống; không điền bù.
+- Hệ quả khi trình bày: nhãn là "nhãn sơ bộ + 1 lượt người rà soát", không phải ground truth đã chốt. Tỷ lệ sửa thấp có thể do người rà soát bị bản sơ bộ dẫn dắt. Trên tập test 76 tin, số ca dương tính của từng cờ ít (thang máy 2, nội thất 7, ô tô 11, pháp lý 15, mặt tiền 21), nên precision/recall 100% chỉ có nghĩa trên các ca này.
+- Số liệu và số ca lấy từ `label_accuracy.json` (`review_rounds`, `review_changes`) và `label_accuracy_rules_compare.json` (`*_support`, `*_labelled`).
 
 | File / cột | Vai trò |
 |---|---|
@@ -72,4 +79,4 @@ Cách review:
 2. Sửa nhãn nếu không đồng ý. Không mở `labeling_predictions.csv` cho tới khi cả hai lượt review xong.
 3. Quy ước bản sơ bộ đã dùng (nhóm có thể đổi, nhưng phải đổi đồng loạt): "thổ cư", "hoàn công" tính là nêu pháp lý; "gần ô tô" → ô tô = 0; "hẻm xe tải" → ô tô = 1; "mặt tiền hẻm", "sát mặt tiền", "mặt tiền bờ sông" → mặt tiền = 0; title chỉ có "mặt tiền/lô góc" mà không rõ nhà hay đất → `khong_ro`.
 
-`evaluate_labels` chỉ báo `status = COMPLETE` khi mọi dòng có đủ `review_1` và `review_2`, và ghi `review_changes` (số dòng, số ô đã sửa so với bản sơ bộ) vào `label_accuracy.json`. Khi báo cáo G4 phải ghi rõ quy trình này và tỷ lệ sửa: nếu người review gần như không sửa gì, cần nói rõ đó là giới hạn (người review có thể bị bản sơ bộ dẫn dắt).
+`evaluate_labels` chỉ báo `status = COMPLETE` khi mọi dòng có đủ `review_1` và `review_2` của **hai người khác nhau** (cùng một tên ở cả hai ô không được tính), và ghi `review_changes` (số dòng, số ô đã sửa so với bản sơ bộ) vào `label_accuracy.json`. Khi báo cáo G4 phải ghi rõ quy trình này và tỷ lệ sửa: nếu người review gần như không sửa gì, cần nói rõ đó là giới hạn (người review có thể bị bản sơ bộ dẫn dắt).

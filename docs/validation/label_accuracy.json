@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-17T17:13:23.077643+00:00",
+  "generated_at": "2026-11-21T13:30:55.868688+00:00",
   "sample_rows": 198,
   "labelers": [
     "Claude (gán sơ bộ)"
@@ -8,11 +8,18 @@
     "true_category": "property type judged from title, price, area and the listing page",
     "true_<flag>": "1 if the title states the feature, 0 if not (\"?\" = cannot tell)"
   },
-  "label_process": "pre-labelled by an AI assistant without seeing the system predictions, then reviewed and corrected by two team members (review_1, review_2)",
+  "label_process": "pre-labelled by an AI assistant without seeing the system predictions, then reviewed by team members: review_1 on 198/198 rows (2 member(s), one person per row), review_2 on 0/198 rows",
   "reviewers": [
     "Hoàng",
     "Huy"
   ],
+  "review_rounds": {
+    "review_1_rows": 198,
+    "review_1_reviewers": 2,
+    "review_2_rows": 0,
+    "review_2_reviewers": 0,
+    "same_person_both_rounds": 0
+  },
   "labelled_rows": 198,
   "invalid_category_labels": [],
   "category_accuracy": 0.8485,
