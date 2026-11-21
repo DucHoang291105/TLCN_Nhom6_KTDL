@@ -69,6 +69,10 @@ RING = """CASE WHEN f.distance_to_center_km < 5 THEN '1. Dưới 5 km' WHEN f.di
           WHEN f.distance_to_center_km < 15 THEN '3. 10–15 km' WHEN f.distance_to_center_km < 25 THEN '4. 15–25 km' ELSE '5. Trên 25 km' END"""
 PRICE_CLASS = """CASE WHEN f.price_per_m2 < 60e6 THEN '1. Dưới 60 tr/m²' WHEN f.price_per_m2 < 100e6 THEN '2. 60–100 tr/m²'
                  WHEN f.price_per_m2 < 200e6 THEN '3. 100–200 tr/m²' ELSE '4. Trên 200 tr/m²' END"""
+# Absolute percentage error with the actual price as denominator, as in
+# price_model_summary.json (median_ape): |actual - predicted| / actual.
+# residual_pct = actual / predicted - 1, so this is |residual| / (1 + residual).
+APE_PCT = "abs(m.residual_pct) / (1 + m.residual_pct) * 100"
 GAP_CLASS = """CASE WHEN m.residual_pct IS NULL THEN NULL WHEN m.residual_pct <= -0.3 THEN '1. Rao thấp hơn ước tính ≥ 30%'
                WHEN m.residual_pct < 0.3 THEN '2. Trong ±30% ước tính' ELSE '3. Rao cao hơn ước tính ≥ 30%' END"""
 DATASETS: dict[str, str] = {
@@ -107,6 +111,7 @@ DATASETS: dict[str, str] = {
                a.price / 1e9 AS gia_ty, a.area, a.price_per_m2 / 1e6 AS gia_m2_tr,
                a.peer_p25_price_per_m2 / 1e6 AS p25_nhom_tr, a.peer_p75_price_per_m2 / 1e6 AS p75_nhom_tr,
                m.predicted_price_per_m2 / 1e6 AS uoc_tinh_tr, m.residual_pct * 100 AS chenh_uoc_tinh_pct,
+               {APE_PCT} AS sai_so_pct,
                m.split AS tap_mo_hinh, COALESCE(m.is_outlier_trimmed, false) AS is_outlier_trimmed,
                {GAP_CLASS} AS muc_chenh, ll.lat, ll.lon, f.distance_to_center_km AS kc_trung_tam, f.title, f.ad_url
         FROM {G}.fact_listing_price_assessment a
@@ -117,8 +122,8 @@ DATASETS: dict[str, str] = {
         LEFT JOIN {S}.listing_location ll ON ll.source_id = a.source_id""",
     "price_factor": f"""
         SELECT c.category_label, k.premium_pct * 100 AS chenh_gia_pct, k.train_rows,
-               CASE WHEN k.ci95_low_pct > 0 OR k.ci95_high_pct < 0 THEN '1. Chắc chắn (KTC 95% không chứa 0)'
-                    ELSE '2. Chưa đủ chắc chắn' END AS do_tin_cay,
+               CASE WHEN k.ci95_low_pct > 0 OR k.ci95_high_pct < 0 THEN '1. Có ý nghĩa thống kê (KTC 95% không chứa 0)'
+                    ELSE '2. Chưa có ý nghĩa thống kê (KTC 95% chứa 0)' END AS do_tin_cay,
                replace(k.level_label, ' được nêu', '') || ' (KTC ' || format('%.0f', k.ci95_low_pct * 100) || '…'
                    || format('%.0f', k.ci95_high_pct * 100) || '%, ' || CAST(k.train_rows AS varchar) || ' tin)' AS dac_diem_nhan
         FROM {G}.agg_price_model_coefficient k
@@ -311,7 +316,7 @@ CARD_DATASETS: dict[str, str] = {
             FROM r WHERE n1 > 0 AND n0 > 0),
         m AS (
             SELECT l.province_name, c.category_label,
-                   approx_percentile(CASE WHEN m.split = 'test' AND NOT m.is_outlier_trimmed THEN abs(m.residual_pct) END, 0.5) AS err,
+                   approx_percentile(CASE WHEN m.split = 'test' AND NOT m.is_outlier_trimmed THEN {APE_PCT} / 100 END, 0.5) AS err,
                    AVG(CASE WHEN m.residual_pct >= 0.3 THEN 1e0 ELSE 0e0 END) AS cao, AVG(CASE WHEN m.residual_pct <= -0.3 THEN 1e0 ELSE 0e0 END) AS thap
             FROM {G}.fact_listing_price_model m JOIN {G}.fact_listing_price_assessment a ON a.source_id = m.source_id
             JOIN {G}.dim_location l ON l.location_key = a.location_key JOIN {G}.dim_property_category c ON c.property_category_key = a.property_category_key
@@ -367,14 +372,14 @@ CARD_TEMPLATES = {
 <li><b>{{bi_troi}}</b> tin có một tin cùng quận rẻ hơn mà không kém – danh sách nên xem và ví dụ cặp tin ở cuối trang.</li></ul></div>{{/each}}""",
     "bq2_card": """{{#each data}}<div><b>{{province_name}} · {{category_label}}</b> – {{so_tin}} tin quan sát ≥ 2 lần. Thẻ tổng hợp theo tỉnh và loại hình; bộ lọc quận không áp dụng cho thẻ này.<ul>
 <li>Giá đầu tiên đã quan sát so với <b>P75 nhóm hiện tại</b>: nhóm trên P75 có <b>{{ha_gia_tren_p75}}</b> hạ giá, còn lại <b>{{ha_gia_con_lai}}</b> → <b>{{ket_luan}}</b> ({{kiem_dinh}}). Đây là mô tả hồi cứu, chưa kiểm soát nguồn và thời gian quan sát.</li>
-{{#if co_mo_hinh}}<li>Giá ước tính lệch giá thật <b>{{sai_so}}</b> (trung vị, tin mô hình chưa thấy): chỉ nên kết luận khi lệch ≥ 30%. <b>{{rao_cao}}</b> tin rao cao hơn ước tính ≥ 30%, <b>{{rao_thap}}</b> thấp hơn ≥ 30%.</li>{{/if}}
+{{#if co_mo_hinh}}<li>Giá ước tính lệch trung vị <b>{{sai_so}}</b> so với giá thật (MdAPE, tin mô hình chưa thấy). Vì vậy chỉ coi là rao cao/thấp bất thường khi lệch ≥ 30% so với ước tính. <b>{{rao_cao}}</b> tin rao cao hơn ước tính ≥ 30%, <b>{{rao_thap}}</b> thấp hơn ≥ 30%.</li>{{/if}}
 {{#if co_mat_tien}}<li>Mặt tiền: dữ liệu thô <b>+{{mt_tho}}%</b> giá/m², mô hình (toàn quốc) <b>+{{mt_mo_hinh}}%</b>; đắt hơn ở {{mt_nhom}} trong {{mt_so_nhom}} nhóm cùng quận–diện tích.</li>{{/if}}
 </ul></div>{{/each}}""",
     "bq3_card": """{{#each data}}<div><b>Làm/học ở {{noi_den}}</b>, đang nhắm {{category_label}} {{area_band}} ở <b>{{quan_goc}}</b> ({{goc_km}} km)<ul>
 {{#if so_quan}}<li><b>{{so_quan}} quận</b> rẻ hơn mà đường đi không xa hơn quá 2 km.</li>
 <li>Gần nơi làm nhất: <b>{{gan_nhat}}</b> – {{gan_km}} km, rẻ hơn <b>{{gan_gap}}</b>.</li>
 <li>Rẻ nhất: <b>{{re_nhat}}</b> – rẻ hơn <b>{{re_gap}}</b>, {{re_km}} km; tiết kiệm tối đa khoảng {{tiet_kiem}} tỷ cho cùng diện tích.</li>
-{{else}}<li>Không quận nào vừa rẻ hơn vừa không xa hơn quá 2 km: {{quan_goc}} đã là lựa chọn cân bằng cho nơi làm/học này.</li>{{/if}}
+{{else}}<li>Chưa tìm thấy quận nào trong dữ liệu hiện có vừa rẻ hơn {{quan_goc}} vừa không xa hơn quá 2 km tới nơi làm/học này (chỉ xét quận đủ tin cùng loại, cùng diện tích).</li>{{/if}}
 </ul></div>{{/each}}""",
 }
 DATASETS.update(CARD_DATASETS)
@@ -399,10 +404,14 @@ def evidence_rows() -> tuple[list[tuple], list[tuple]]:
     accuracy = []
     if compare.exists():
         test = json.loads(compare.read_text(encoding="utf-8"))["parts"]["test"]
-        accuracy.append(("Loại hình – độ chính xác", test["before"]["category_accuracy"], test["after"]["category_accuracy"]))
+        after = test["after"]
+        accuracy.append((f"Loại hình – độ chính xác ({after.get('category_labelled', test['rows'])} tin)",
+                         test["before"]["category_accuracy"], after["category_accuracy"]))
         for flag, label in (("legal", "Pháp lý"), ("frontage", "Mặt tiền"), ("car_access", "Ô tô tiếp cận"),
                             ("furnished", "Nội thất"), ("elevator", "Thang máy")):
-            accuracy.append((f"{label} – recall", test["before"][f"{flag}_recall"], test["after"][f"{flag}_recall"]))
+            support = after.get(f"{flag}_support")
+            name = f"{label} – recall" + (f" ({support} ca)" if support is not None else "")
+            accuracy.append((name, test["before"][f"{flag}_recall"], after[f"{flag}_recall"]))
     with (PROJECT_ROOT / "config/commute_destinations.csv").open(encoding="utf-8", newline="") as handle:
         truth = [(r["destination_name"], r["district_name"]) for r in csv.DictReader(handle) if r.get("district_name")]
     return accuracy, truth
@@ -535,9 +544,10 @@ CHARTS: list[dict[str, Any]] = [
      "sub": "giá đầu quan sát so với nhóm hiện tại – mô tả hồi cứu"},
     {"key": "bq2_front", "name": "Mặt tiền đắt hơn ở", "dataset": "flag_check", "viz": "kpi", "format": ".0%", "scenario": "tlcn-bq2",
      "metric": m("AVG(co_dat_hon)", "Nhóm"), "where": "dac_diem = 'Mặt tiền'", "sub": "số nhóm cùng quận, cùng diện tích"},
-    {"key": "bq2_error", "name": "Sai số điển hình của giá ước tính (%)", "dataset": "price_check", "viz": "kpi", "format": ",.0f",
-     "scenario": "tlcn-bq2", "metric": m("APPROX_PERCENTILE(ABS(chenh_uoc_tinh_pct), 0.5)", "%"),
-     "where": "tap_mo_hinh = 'test' AND NOT is_outlier_trimmed", "sub": "% trên tin mô hình chưa thấy – chỉ tin mức lệch ≥ 30%"},
+    {"key": "bq2_error", "name": "Sai số trung vị của giá ước tính (MdAPE, %)", "dataset": "price_check", "viz": "kpi", "format": ",.0f",
+     "scenario": "tlcn-bq2", "metric": m("APPROX_PERCENTILE(sai_so_pct, 0.5)", "%"),
+     "where": "tap_mo_hinh = 'test' AND NOT is_outlier_trimmed",
+     "sub": "|giá thật − ước tính| / giá thật, tin test trong khoảng trim"},
     {"key": "bq2_over", "name": "Rao cao hơn ước tính ≥ 30%", "dataset": "price_check", "viz": "kpi", "format": ".1%", "scenario": "tlcn-bq2",
      "metric": m(f"AVG(CASE WHEN {OVER} THEN 1e0 ELSE 0e0 END)", "Tỷ lệ"), "where": "chenh_uoc_tinh_pct IS NOT NULL",
      "sub": "nên thương lượng", "check_sql": f"SELECT AVG(CASE WHEN m.residual_pct >= 0.3 THEN 1e0 ELSE 0e0 END) {BQ2_MODEL} AND m.residual_pct IS NOT NULL"},

@@ -9,9 +9,7 @@ and returns rows.
 
 from __future__ import annotations
 
-import csv
 import json
-import math
 from pathlib import Path
 from typing import Any, Callable
 
@@ -50,13 +48,10 @@ def header(question: str, scope: str) -> str:
     return newline.join([f"### {question}", f"<small style='color:#6b6b6b'>{scope} {note}</small>", ""])
 
 
-from src.gold.build_bq_evidence import two_proportion_z
-
-
 def evidence_titles(run: Callable[[str], list[tuple]]) -> dict[str, dict[str, str]]:
     """Titles of the evidence charts, queried from the dashboards' own datasets."""
 
-    from src.dashboard.provision_superset import BQ1_DEFAULT, BQ2_DEFAULT, BQ3_DEFAULT, DATASETS, _ACCURACY
+    from src.dashboard.provision_superset import BQ3_DEFAULT, DATASETS
 
     def ds(name: str) -> str:
         return f"({DATASETS[name]}) t"
@@ -85,11 +80,38 @@ def evidence_titles(run: Callable[[str], list[tuple]]) -> dict[str, dict[str, st
                                                 f"mà đường đi không xa hơn – lớn nhất: {best[0][0]}")
 
     # data quality: label accuracy before/after the rule fix
-    acc = {row[0]: row[1:] for row in _ACCURACY}
-    cat = acc.get("Loại hình – độ chính xác")
-    titles["tlcn-chat-luong"] = {"dq_g4": (f"Sửa luật với nhãn sơ bộ đã rà soát một lượt: loại hình đúng {pct(cat[0], 1)} → {pct(cat[1], 1)}; "
-                                           "recall pháp lý, mặt tiền, ô tô lên 100%, precision giữ 100% (76 tin test)") if cat else ""}
+    titles["tlcn-chat-luong"] = {"dq_g4": g4_title()}
     return titles
+
+
+G4_FLAG_LABELS = (("legal", "pháp lý"), ("frontage", "mặt tiền"), ("car_access", "ô tô"), ("furnished", "nội thất"), ("elevator", "thang máy"))
+
+
+def g4_title(validation: Path = ROOT / "docs/validation") -> str:
+    """G4 chart title from the saved label metrics: test size, review status and how many positives each flag had."""
+
+    def read(name: str) -> dict:
+        path = validation / f"{name}.json"
+        return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+    test = (read("label_accuracy_rules_compare").get("parts") or {}).get("test") or {}
+    before, after = test.get("before") or {}, test.get("after") or {}
+    if not after.get("category_accuracy"):
+        return ""
+    labels = read("label_accuracy")
+    rounds = labels.get("review_rounds") or {}
+    if labels.get("status") == "COMPLETE":
+        review = "nhãn đã qua 2 lượt rà soát"
+    elif rounds:
+        review = f"nhãn sơ bộ, mỗi tin 1 lượt rà soát (lượt 2: {rounds.get('review_2_rows', 0)}/{labels.get('sample_rows')} tin)"
+    else:
+        review = "nhãn sơ bộ"
+    support = ", ".join(f"{label} {after[f'{flag}_support']}" for flag, label in sorted(
+        G4_FLAG_LABELS, key=lambda item: after.get(f"{item[0]}_support") or 0) if after.get(f"{flag}_support") is not None)
+    recalls = [after[f"{flag}_recall"] for flag, _ in G4_FLAG_LABELS if after.get(f"{flag}_recall") is not None]
+    recall = pct(min(recalls)) if min(recalls) == max(recalls) else f"{pct(min(recalls))}–{pct(max(recalls))}"
+    return (f"Tập test {test.get('rows')} tin, {review}: loại hình đúng {pct(before.get('category_accuracy'), 1)} → "
+            f"{pct(after['category_accuracy'], 1)}; recall cờ {recall} nhưng ít ca dương tính ({support})")
 
 
 def compute_insights(run: Callable[[str], list[tuple]]) -> dict[str, dict[str, Any]]:
@@ -229,12 +251,12 @@ def compute_insights(run: Callable[[str], list[tuple]]) -> dict[str, dict[str, A
     precisions = [after[f"{f}_precision"] for f in flags if after.get(f"{f}_precision") is not None]
     recalls = [after[f"{f}_recall"] for f in flags if after.get(f"{f}_recall") is not None]
     span = lambda values: pct(min(values)) if min(values) == max(values) else f"{pct(min(values))}–{pct(max(values))}"  # noqa: E731
-    sheet_path = ROOT / "docs/validation/labeling/labeling_sheet.csv"
-    sheet = list(csv.DictReader(sheet_path.open(encoding="utf-8-sig"))) if sheet_path.exists() else []
-    twice = sum(1 for r in sheet if (r.get("review_1") or "").strip() and (r.get("review_2") or "").strip())
+    rounds = labels.get("review_rounds") or {}
     checks = lambda d: f"{sum(d.get('checks', {}).values())}/{len(d.get('checks', {}))}"  # noqa: E731
-    g4 = (f"G4 (đọc đặc điểm từ tiêu đề, {test.get('rows')} tin test): loại hình đúng {pct(after.get('category_accuracy'), 1)}, "
-          f"precision {span(precisions)}, recall {span(recalls)}; nhãn AI gán sơ bộ, {len(sheet)} tin có 1 lượt review, {twice} tin có 2 lượt."
+    g4 = (f"G4 (đọc đặc điểm từ tiêu đề, {test.get('rows')} tin test, trạng thái {labels.get('status', 'chưa đo')}): "
+          f"loại hình đúng {pct(after.get('category_accuracy'), 1)}, precision {span(precisions)}, recall {span(recalls)}; "
+          f"nhãn AI gán sơ bộ, {rounds.get('review_1_rows', 0)}/{labels.get('sample_rows', 0)} tin có 1 lượt người rà soát, "
+          f"{rounds.get('review_2_rows', 0)} tin có lượt 2."
           if after and precisions else "G4 chưa đo.")
     out["tlcn-chat-luong"] = {
         "facts": {"warn_top": warn_top, "pass_rest_min": pass_rest, "coordinate_coverage": coordinate, "legal_coverage": legal_cov,
