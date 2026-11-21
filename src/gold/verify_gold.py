@@ -9,6 +9,7 @@ PROJECT_ROOT=Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path: sys.path.insert(0,str(PROJECT_ROOT))
 from src.common.spark_session import build_spark_session,ensure_gold_namespace,ensure_silver_namespace,table_location
 from src.common.table_fingerprints import GRAINS
+from src.gold.build_bq_evidence import GENUINE_CUT
 from src.gold.gold_rules import COMMUTE_TOLERANCE_KM,MAX_DISTANCE_DIFF_KM,MAX_FLAG_SHARE_GAP,MIN_PEER_GROUP_SIZE,MIN_SUBSTITUTION_SIMILARITY,UNKNOWN_KEY,load_bands
 
 DIMENSIONS={"dim_source":"source_key","dim_date":"date_key","dim_location":"location_key","dim_property_category":"property_category_key","dim_price_band":"band_key","dim_area_band":"band_key","dim_unit_price_band":"band_key","dim_room_band":"band_key","dim_dq_status":"dq_status_key"}
@@ -143,6 +144,11 @@ def main() -> None:
     checks["evidence_reprice_one_row_per_listing"]=ev["ev_reprice"].count()==ev["ev_reprice"].select("source_id").distinct().count()>0
     checks["evidence_calibration_test_deciles"]=ev["ev_calibration"].filter("nhom_gia_uoc_tinh NOT RLIKE '^D(0[1-9]|10)$'").count()==0
     checks["evidence_flag_groups_min_size"]=ev["ev_flag_check"].filter("n_co < 5 OR n_khong < 5").count()==0
+    # Every example's "ngày hạ giá" is the date of a genuine cut of that listing (not of a later price rise).
+    cut_dates=bq["fact_listing_price_change"].alias("c").filter(F.expr(GENUINE_CUT)).select("source_id",F.date_format("changed_at","yyyy-MM-dd").alias("ngay_ha_gia"))
+    examples=spark.table(f"{gold}.ev_reprice_examples")
+    metrics["evidence_examples_without_cut_date"]=examples.select("source_id","ngay_ha_gia").exceptAll(cut_dates.distinct()).count()
+    checks["evidence_examples_cut_date"]=examples.count()>0 and metrics["evidence_examples_without_cut_date"]==0
     kpi=bq["agg_dq_kpi"].agg(*[F.sum(c).alias(c) for c in ("bronze_rows","reject_rows","observation_rows","current_rows","fact_rows","representative_rows")]).first()
     quarantine=spark.table(f"{silver}.listing_dq_quarantine").count(); observation=spark.table(f"{silver}.listing_observation").count()
     checks["dq_kpi_matches_silver_and_gold"]=(kpi["reject_rows"]==quarantine and kpi["observation_rows"]==observation and kpi["current_rows"]==current.count() and kpi["fact_rows"]==counts["fact_listing"] and kpi["representative_rows"]==metrics["representative_rows"] and kpi["bronze_rows"]-kpi["reject_rows"]>=kpi["observation_rows"])

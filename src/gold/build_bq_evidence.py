@@ -16,6 +16,9 @@ not serve ten such charts at once).
                         later made a genuine cut (1-30%; larger drops are
                         mostly typo fixes such as 114 tỷ -> 11,4 tỷ).
 - ``ev_reprice_examples`` BQ2 – listings above P75 when first seen that cut.
+  Net change first → current price is a 1–30% drop, no single drop above
+  30%, at least one genuine cut; ``ngay_ha_gia`` is the date (Asia/Ho_Chi_Minh)
+  of the LAST genuine cut, not of the last price change (which may be a rise).
 - ``ev_flag_check``     BQ2 – raw check of the model: median price/m2 with vs
                         without each title flag inside the same district and
                         area band (>= 5 listings each side), next to the model.
@@ -112,7 +115,8 @@ def evidence_sql(gold: str, silver: str) -> dict[str, str]:
             FROM base {labels.format(t="base")}""",
         "ev_reprice_examples": f"""
             WITH ch AS (SELECT c.source_id, MIN_BY(c.previous_price, c.version_number) AS p0, MAX_BY(c.new_price, c.version_number) AS p1,
-                               MAX(c.changed_at) AS ngay_ha, BOOL_AND(c.new_price >= 0.70 * c.previous_price) AS hop_le
+                               MAX(CASE WHEN {GENUINE_CUT} THEN c.changed_at END) AS ngay_ha,
+                               BOOL_AND(c.new_price >= 0.70 * c.previous_price) AS hop_le
                         FROM {gold}.fact_listing_price_change c GROUP BY 1)
             SELECT a.source_id, l.province_name, NULLIF(l.district_name, 'Unknown') AS district_name, k.category_label, f.title,
                    ch.p0 / 1e9 AS gia_luc_dang_ty, ch.p1 / 1e9 AS gia_hien_tai_ty, (ch.p1 / ch.p0 - 1) * 100 AS thay_doi_pct,
@@ -120,7 +124,8 @@ def evidence_sql(gold: str, silver: str) -> dict[str, str]:
                    CAST(CAST(ch.ngay_ha AS DATE) AS STRING) AS ngay_ha_gia, f.ad_url
             FROM ch JOIN {gold}.fact_listing_price_assessment a ON a.source_id = ch.source_id JOIN {gold}.fact_listing f ON f.source_id = a.source_id
             {labels.format(t="a")}
-            WHERE ch.hop_le AND ch.p1 BETWEEN 0.70 * ch.p0 AND 0.99 * ch.p0 AND ch.p0 / a.area > a.peer_p75_price_per_m2 AND a.peer_n >= 10""",
+            WHERE ch.hop_le AND ch.ngay_ha IS NOT NULL AND ch.p1 BETWEEN 0.70 * ch.p0 AND 0.99 * ch.p0
+              AND ch.p0 / a.area > a.peer_p75_price_per_m2 AND a.peer_n >= 10""",
         "ev_flag_check": flag_parts,
         "ev_calibration": f"""
             SELECT source_id, province_name, category_label, CONCAT('D', lpad(CAST(dec AS STRING), 2, '0')) AS nhom_gia_uoc_tinh, gia_that_tr, uoc_tinh_tr
