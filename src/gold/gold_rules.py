@@ -257,6 +257,47 @@ def price_position(value: Any, p25: Any, p75: Any) -> str:
     return "p25_p75"
 
 
+def legal_not_stated_by_position(rows: Iterable[tuple[Any, Any, int]]) -> dict[str, Any]:
+    """Share of listings whose title states no legal status, per price position.
+
+    ``rows`` are ``(price_position, legal_known, listing_count)``. The flag
+    ``is_low_price_missing_legal`` is only ever set for ``duoi_p25``, so it
+    cannot be compared with the other positions; this compares the underlying
+    ``legal_known`` instead. If the share is about the same below P25 and in the
+    priced listings elsewhere, "title states no legal status" says nothing about
+    price and must not be read as a risk signal.
+    """
+
+    totals: dict[str, int] = {}
+    unstated: dict[str, int] = {}
+    for position, legal_known, count in rows:
+        key = str(position)
+        totals[key] = totals.get(key, 0) + int(count)
+        if not legal_known:
+            unstated[key] = unstated.get(key, 0) + int(count)
+
+    def share(positions: Iterable[str]) -> float | None:
+        total = sum(totals.get(p, 0) for p in positions)
+        return round(sum(unstated.get(p, 0) for p in positions) / total, 6) if total else None
+
+    by_position = {
+        position: {
+            "listings": totals[position],
+            "title_states_no_legal": unstated.get(position, 0),
+            "share": share([position]),
+        }
+        for position in sorted(totals)
+    }
+    below = share(["duoi_p25"])
+    others = share(["p25_p75", "tren_p75"])
+    return {
+        "by_position": by_position,
+        "below_p25_share": below,
+        "other_priced_share": others,
+        "difference_points": None if below is None or others is None else round(below - others, 6),
+    }
+
+
 def _rooms_at_least(better: Any, worse: Any) -> bool:
     """Unknown rooms are not comparable with known rooms (never 0)."""
 

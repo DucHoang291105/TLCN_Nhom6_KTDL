@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-11-21T11:41:42.544221+00:00",
-  "finished_at": "2026-11-21T11:41:57.070140+00:00",
+  "started_at": "2026-11-21T14:25:06.627761+00:00",
+  "finished_at": "2026-11-21T14:25:26.785843+00:00",
   "min_peer_group_size": 5,
   "representative_listings": 133480,
   "benchmark_groups_by_level": {
@@ -22,5 +22,32 @@
     "tren_p75": 32901
   },
   "low_price_missing_legal": 24993,
+  "legal_not_stated_by_position": {
+    "by_position": {
+      "duoi_p25": {
+        "listings": 32556,
+        "title_states_no_legal": 24993,
+        "share": 0.767693
+      },
+      "khong_du_du_lieu": {
+        "listings": 4365,
+        "title_states_no_legal": 3854,
+        "share": 0.882932
+      },
+      "p25_p75": {
+        "listings": 63658,
+        "title_states_no_legal": 53532,
+        "share": 0.840931
+      },
+      "tren_p75": {
+        "listings": 32901,
+        "title_states_no_legal": 29195,
+        "share": 0.887359
+      }
+    },
+    "below_p25_share": 0.767693,
+    "other_priced_share": 0.856751,
+    "difference_points": -0.089058
+  },
   "status": "PASS"
 }

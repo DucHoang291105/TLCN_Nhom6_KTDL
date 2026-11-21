@@ -4,7 +4,7 @@ import pytest
 
 from src.gold.gold_rules import (
     UNKNOWN_KEY, Band, band_key, cluster_pairs, is_cross_source_duplicate, jaccard,
-    load_bands, pick_representative, title_tokens, validate_bands,
+    legal_not_stated_by_position, load_bands, pick_representative, title_tokens, validate_bands,
 )
 
 BANDS = load_bands()
@@ -125,3 +125,24 @@ def test_distance_allowed_cap_and_unknown():
     assert distance_allowed(MAX_DISTANCE_DIFF_KM) and distance_allowed(-25.0)
     assert not distance_allowed(MAX_DISTANCE_DIFF_KM + 0.01)
     assert not distance_allowed(None) and not distance_allowed(float("nan")) and not distance_allowed("x")
+
+
+def test_legal_not_stated_share_compares_below_p25_with_other_priced_positions():
+    rows = [
+        ("duoi_p25", False, 80), ("duoi_p25", True, 20),
+        ("p25_p75", False, 60), ("p25_p75", True, 40),
+        ("tren_p75", False, 70), ("tren_p75", True, 30),
+        ("khong_du_du_lieu", False, 10),
+    ]
+    result = legal_not_stated_by_position(rows)
+    assert result["by_position"]["duoi_p25"] == {"listings": 100, "title_states_no_legal": 80, "share": 0.8}
+    assert result["below_p25_share"] == 0.8
+    assert result["other_priced_share"] == 0.65  # (60 + 70) / 200, unpriced listings excluded
+    assert result["difference_points"] == 0.15
+
+
+def test_legal_not_stated_share_handles_missing_groups():
+    result = legal_not_stated_by_position([("duoi_p25", None, 4)])
+    assert result["below_p25_share"] == 1.0
+    assert result["other_priced_share"] is None and result["difference_points"] is None
+    assert legal_not_stated_by_position([])["below_p25_share"] is None
