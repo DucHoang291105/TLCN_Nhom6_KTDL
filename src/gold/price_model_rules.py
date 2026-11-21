@@ -316,6 +316,15 @@ def median(values: Sequence[float]) -> float | None:
     return ordered[middle] if len(ordered) % 2 else (ordered[middle - 1] + ordered[middle]) / 2
 
 
+def log_residual_sse(pairs: Iterable[tuple[float, float]]) -> float:
+    """Sum of squared log residuals of ``(actual, pure model prediction)`` pairs.
+
+    The coefficient standard errors describe the hedonic model, so the residuals
+    must come from the model prediction, not from the blend with the baseline.
+    """
+    return sum((math.log(actual) - math.log(predicted)) ** 2 for actual, predicted in pairs)
+
+
 def regression_metrics(pairs: Iterable[tuple[float, float]]) -> dict[str, float | int | None]:
     """MAE and MAPE on price per m²; R² on the log scale the model is fitted on.
 

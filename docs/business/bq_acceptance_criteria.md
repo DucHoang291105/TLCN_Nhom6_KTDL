@@ -49,8 +49,8 @@ Câu hỏi: cùng ngân sách, người mua đánh đổi vị trí, diện tíc
 | B1.1 | Tổng số tin của bảng đánh đổi khớp số tin đại diện có khung giá | Check `budget_tradeoff_sum_matches` | `gold_verification.json` | Đạt |
 | B1.2 | Nhãn Pareto đúng theo định nghĩa | Check `pareto_labels_recomputed` (tính lại độc lập) | `gold_verification.json` | Đạt |
 | B1.3 | Mỗi nhóm so sánh có ít nhất một tin trên frontier | Check `pareto_every_group_has_frontier` | `gold_verification.json` | Đạt |
-| B1.4 | Nhóm hiển thị đủ lớn để so sánh | Dashboard chỉ hiển thị nhóm có `n_listings ≥ 5`, hoặc hiển thị `n_listings` cạnh mỗi nhóm | `gold_budget_tradeoff_summary.json`: 1.133/2.469 nhóm có ≥ 5 tin | Đạt có điều kiện: 54% nhóm có dưới 5 tin, dashboard cần lọc hoặc ghi n |
-| B1.5 | Tỷ lệ frontier được trình bày tách theo việc biết số phòng | Báo cáo tỷ lệ frontier riêng cho tin biết / không biết số phòng | Truy vấn trên `fact_budget_pareto` + `fact_listing` | Đạt (đo ngày 17/11): trên toàn bộ nhóm, tin biết số phòng có 12.399/76.577 = 16,2% nằm trên frontier, tin không rõ số phòng có 8.241/43.538 = 18,9%. Chỉ tính nhóm có ≥ 5 tin: 15,4% (11.627/75.704) so với 16,7% (7.036/42.122). Tin không rõ số phòng nằm trên frontier nhiều hơn như dự đoán (do không thể bị trội về số phòng) nhưng chênh lệch nhỏ (+2,7 điểm phần trăm, +1,3 điểm khi chỉ tính nhóm ≥ 5 tin), nên frontier chưa bị thổi phồng đáng kể. Khi trình bày tỷ lệ frontier cần ghi kèm cả hai con số |
+| B1.4 | Nhóm hiển thị đủ lớn để so sánh | Dashboard chỉ hiển thị nhóm có `n_listings ≥ 5`, hoặc hiển thị `n_listings` cạnh mỗi nhóm | `gold_budget_tradeoff_summary.json`: 1.212/2.652 nhóm có ≥ 5 tin | Đạt có điều kiện: 54,3% nhóm có dưới 5 tin, dashboard cần lọc hoặc ghi n |
+| B1.5 | Tỷ lệ frontier được trình bày tách theo việc biết số phòng | Báo cáo tỷ lệ frontier riêng cho tin biết / không biết số phòng | Truy vấn trên `fact_budget_pareto` + `fact_listing`; `gold_budget_tradeoff_summary.json` (`frontier_share_by_rooms_known`) | Đạt (dữ liệu tới 17/11): trên toàn bộ nhóm, tin biết số phòng có 13.752/83.749 = 16,4% nằm trên frontier, tin không rõ số phòng có 9.401/46.250 = 20,3%. Chỉ tính nhóm có ≥ 5 tin: 15,6% (12.926/82.817) so với 18,0% (8.021/44.658). Tin không rõ số phòng nằm trên frontier nhiều hơn như dự đoán (do không thể bị trội về số phòng) nhưng chênh lệch nhỏ (+3,9 điểm phần trăm, +2,4 điểm khi chỉ tính nhóm ≥ 5 tin), nên frontier chưa bị thổi phồng đáng kể. Khi trình bày tỷ lệ frontier cần ghi kèm cả hai con số |
 
 ## 3. BQ2 – Vị trí giá/m² trong nhóm tương đồng
 
@@ -61,30 +61,30 @@ Câu hỏi: giá/m² của tin nằm ở đâu trong nhóm bất động sản t
 | Mã | Tiêu chí | Ngưỡng | Minh chứng | Trạng thái |
 |---|---|---|---|---|
 | B2.1 | Nhóm tương đồng đủ lớn | Mọi nhóm công bố có ≥ 5 tin (check `benchmark_min_group_size`) | `gold_verification.json` | Đạt. Đã chạy độ nhạy với ngưỡng 10 (mục 3.1.1): kết luận không đổi |
-| B2.2 | Độ phủ | Tỷ lệ tin `khong_du_du_lieu` ≤ 5% số tin đại diện | `gold_price_benchmark_summary.json`: 3.807/123.066 = 3,1% | Đạt |
+| B2.2 | Độ phủ | Tỷ lệ tin `khong_du_du_lieu` ≤ 5% số tin đại diện | `gold_price_benchmark_summary.json`: 4.365/133.480 = 3,3% | Đạt |
 | B2.3 | Vị trí giá tính đúng | Checks `assessment_position_recomputed`, `assessment_peer_values_match_benchmark` | `gold_verification.json` | Đạt |
 | B2.4 | Cờ cảnh báo phải phân biệt được | `is_low_price_missing_legal` bật cho ≤ 50% tin dưới P25 | `gold_price_benchmark_summary.json`: 24.993/32.556 = 76,8% (dữ liệu tới 17/11) | Chưa đạt, và không đạt được bằng cách sửa quy tắc: mẫu gán nhãn cho thấy chỉ khoảng 18% tin (36/198) có tiêu đề nêu pháp lý, nên phần lớn tin nào cũng "thiếu pháp lý" trong tiêu đề, bất kể giá. Quy tắc v5 đã tăng recall pháp lý (0,67 → 1,00 trên phần test giữ riêng) nhưng tỷ lệ vẫn 76,8%. Không trình bày như tín hiệu rủi ro; ghi là "tiêu đề không nêu pháp lý". Đề xuất đổi tiêu chí khi nhóm họp (ví dụ so tỷ lệ này giữa nhóm dưới P25 và nhóm còn lại thay vì đặt ngưỡng tuyệt đối) |
 
 #### 3.1.1. Độ nhạy theo ngưỡng cỡ nhóm (B4)
 
-Tính lại benchmark trong bộ nhớ với ngưỡng nhóm tối thiểu 5 (đang dùng) và 10, không ghi bảng Gold (`src/quality/benchmark_sensitivity.py`, kết quả `docs/validation/benchmark_sensitivity.json`, 123.066 tin đại diện). Kết quả với ngưỡng 5 khớp từng tin với `fact_listing_price_assessment` (0 tin lệch).
+Tính lại benchmark trong bộ nhớ với ngưỡng nhóm tối thiểu 5 (đang dùng) và 10, không ghi bảng Gold (`src/quality/benchmark_sensitivity.py`, kết quả `docs/validation/benchmark_sensitivity.json`, 133.480 tin đại diện, dữ liệu tới 17/11). Kết quả với ngưỡng 5 khớp từng tin với `fact_listing_price_assessment` (0 tin lệch).
 
 | | Ngưỡng 5 | Ngưỡng 10 |
 |---|---:|---:|
-| Nhóm `LOC_CAT_AREA_ROOM` | 1.348 | 896 |
-| Nhóm `LOC_CAT_AREA` | 973 | 721 |
-| Nhóm `LOC_CAT` | 364 | 286 |
-| Tin không đủ dữ liệu (`khong_du_du_lieu`) | 3.807 (3,09%) | 4.345 (3,53%) |
-| Dưới P25 | 30.094 (24,5%) | 29.964 (24,3%) |
-| P25–P75 | 58.773 (47,8%) | 58.429 (47,5%) |
-| Trên P75 | 30.392 (24,7%) | 30.328 (24,6%) |
-| Tin xếp ở mức nhóm mịn nhất (`LOC_CAT_AREA_ROOM`) | 72.361 | 69.425 |
-| Cỡ nhóm trung vị mà tin được so sánh | 223 | 228 |
+| Nhóm `LOC_CAT_AREA_ROOM` | 1.437 | 979 |
+| Nhóm `LOC_CAT_AREA` | 1.050 | 788 |
+| Nhóm `LOC_CAT` | 389 | 308 |
+| Tin không đủ dữ liệu (`khong_du_du_lieu`) | 4.365 (3,27%) | 4.915 (3,68%) |
+| Dưới P25 | 32.556 (24,4%) | 32.445 (24,3%) |
+| P25–P75 | 63.658 (47,7%) | 63.253 (47,4%) |
+| Trên P75 | 32.901 (24,6%) | 32.867 (24,6%) |
+| Tin xếp ở mức nhóm mịn nhất (`LOC_CAT_AREA_ROOM`) | 79.364 | 76.365 |
+| Cỡ nhóm trung vị mà tin được so sánh | 225 | 233 |
 
 Chuyển từ 5 lên 10:
-- 1.981 tin (1,6%) đổi vị trí giá. Trong đó 538 tin mất nhóm tương đồng (thành `khong_du_du_lieu`) và 1.443 tin đổi vị trí trong số 118.721 tin có nhóm ở cả hai ngưỡng (1,2%).
-- 4.724 tin (3,8%) bị đẩy sang mức nhóm thô hơn do nhóm mịn không đủ 10 tin.
-- Độ phủ giảm nhẹ (tin thiếu dữ liệu tăng từ 3,1% lên 3,5%), vẫn đạt B2.2 (≤ 5%). Tỷ lệ tin ở từng vị trí giá gần như không đổi (chênh dưới 0,3 điểm phần trăm).
+- 2.082 tin (1,6%) đổi vị trí giá. Trong đó 550 tin mất nhóm tương đồng (thành `khong_du_du_lieu`) và 1.532 tin đổi vị trí trong số 128.565 tin có nhóm ở cả hai ngưỡng (1,2%).
+- 4.943 tin (3,7%) bị đẩy sang mức nhóm thô hơn do nhóm mịn không đủ 10 tin.
+- Độ phủ giảm nhẹ (tin thiếu dữ liệu tăng từ 3,3% lên 3,7%), vẫn đạt B2.2 (≤ 5%). Tỷ lệ tin ở từng vị trí giá gần như không đổi (chênh không quá 0,3 điểm phần trăm).
 
 Kết luận: benchmark ổn định theo ngưỡng cỡ nhóm; giữ ngưỡng 5 vì độ phủ cao hơn và kết quả gần như không khác. Phép đo này chỉ cho thấy kết quả không nhạy với ngưỡng, không chứng minh vị trí giá phản ánh giá hợp lý (xem mục 5).
 
@@ -97,9 +97,9 @@ Phương pháp (nhóm thống nhất ngày 29/10): kế hoạch ban đầu dùng
 | Mã | Tiêu chí | Ngưỡng | Minh chứng | Trạng thái |
 |---|---|---|---|---|
 | B2.5 | Đánh giá trên dữ liệu chưa dùng để huấn luyện | Chia train/test 80/20 cố định theo hash của `source_id`; check `price_model_split_recomputed` | `price_model_summary.json` (`settings.split`), `gold_verification.json` | Đạt: 99.044 tin huấn luyện, 24.819 tin test; tỷ lệ test 20,0% |
-| B2.6 | Mô hình tốt hơn baseline trung vị nhóm | Trên tập test: MAE của mô hình < MAE baseline, cho toàn bộ và cho ít nhất 3/4 loại BĐS | `price_model_summary.json` (`overall_test`, `by_category.*.model_beats_baseline_mae`), `price_model_selection.json` (`blend_selection`) | Đạt: toàn bộ thắng (MAE 41,8 so với 45,1 triệu/m², −7,4%, khoảng tin cậy 95% của chênh lệch 3,06 đến 3,69 triệu, không chứa 0); theo loại MAE thấp hơn ở 4/4 và cả 4 loại khác biệt có ý nghĩa thống kê. Nhà phố và căn hộ cải thiện rõ (−8,5% và −7,9%); biệt thự chỉ nhỉnh hơn (−1,3%, khoảng tin cậy 0,11 đến 1,46 triệu, sát 0) và đất −4,8% (0,48 đến 1,52 triệu). Tin cấp tỉnh và cấp quận đều thắng baseline (43,4 so với 45,5 và 40,4 so với 44,8) |
+| B2.6 | Mô hình tốt hơn baseline trung vị nhóm | Trên tập test: MAE của mô hình < MAE baseline, cho toàn bộ và cho ít nhất 3/4 loại BĐS | `price_model_summary.json` (`overall_test`, `by_category.*.model_beats_baseline_mae`), `price_model_selection.json` (`blend_selection`) | Đạt: toàn bộ thắng (MAE 41,8 so với 45,1 triệu/m², −7,4%, tính trên 24.819 tin test nằm trong khoảng cắt ngoại lai; 512 tin test ngoài khoảng này được báo riêng và không có trong MAE, khoảng tin cậy 95% của chênh lệch 3,06 đến 3,69 triệu, không chứa 0); theo loại MAE thấp hơn ở 4/4 và cả 4 loại khác biệt có ý nghĩa thống kê. Nhà phố và căn hộ cải thiện rõ (−8,5% và −7,9%); biệt thự chỉ nhỉnh hơn (−1,3%, khoảng tin cậy 0,11 đến 1,46 triệu, sát 0) và đất −4,8% (0,48 đến 1,52 triệu). Tin cấp tỉnh và cấp quận đều thắng baseline (43,4 so với 45,5 và 40,4 so với 44,8) |
 | B2.7 | Mô hình giải thích được phần lớn biến thiên giá | R² trên thang log, tập test, ≥ 0,50 cho nhà phố và căn hộ | `price_model_summary.json` (`by_category.*.test_model.r2_log`) | Đạt: nhà phố 0,68; căn hộ 0,51 (sát ngưỡng). Toàn bộ 0,72 so với baseline 0,66 |
-| B2.8 | Hệ số từng cờ được báo cáo kèm độ bất định | Mỗi cờ có `premium_pct` và khoảng tin cậy 95%; chỉ kết luận với cờ có `significant_at_5pct = true` | `price_model_summary.json` (`by_category.*.flags`), `agg_price_model_coefficient` | Đạt: 16/20 hệ số cờ có ý nghĩa ở mức 5%. 4 hệ số không có ý nghĩa: nhà phố – nội thất (khoảng tin cậy −1,8% đến +1,9%); biệt thự – ô tô tiếp cận (364 tin); đất – thang máy (3 tin) và đất – nội thất (4 tin). Ba hệ số sau có rất ít tin mang cờ hoặc khoảng tin cậy chứa 0 |
+| B2.8 | Hệ số từng cờ được báo cáo kèm độ bất định | Mỗi cờ có `premium_pct` và khoảng tin cậy 95%; chỉ kết luận với cờ có `significant_at_5pct = true` | `price_model_summary.json` (`by_category.*.flags`), `agg_price_model_coefficient` | Đạt: 16/20 hệ số cờ có ý nghĩa ở mức 5%. Sai số chuẩn tính từ phần dư của mô hình thuần (không phải dự đoán đã trộn với baseline) bằng công thức OLS có dùng ma trận ridge; đây là xấp xỉ, chưa kiểm chứng riêng cho ridge. 4 hệ số không có ý nghĩa: nhà phố – nội thất (khoảng tin cậy −1,8% đến +1,9%); biệt thự – ô tô tiếp cận (364 tin); đất – thang máy (3 tin) và đất – nội thất (4 tin). Ba hệ số sau có rất ít tin mang cờ hoặc khoảng tin cậy chứa 0 |
 | B2.9 | Không có tin nào thiếu dự đoán | Check `price_model_values_valid`, `price_model_covers_scope` | `gold_verification.json` | Đạt |
 | B2.11 | Mô hình phủ phần lớn tin đại diện | `listings_in_scope` ≥ 80% số tin đại diện | `price_model_summary.json` (`scope`) | Đạt: 126.394/133.480 = 94,7%. 57.361 tin chỉ có tỉnh được đưa vào với mức vị trí cấp tỉnh `prov:`, tách khỏi hệ số quận `d:`; 180 tin bị loại vì không rõ vị trí. Đánh đổi: tin cấp tỉnh kém chính xác hơn (R² log 0,67 so với 0,76 ở cấp quận) |
 
@@ -148,8 +148,8 @@ Nguồn: `docs/validation/bq2_backtest.json`, script `src/quality/bq2_backtest.p
 | P25–P75 | 31.010 | 3,32% |
 | Trên P75 | 14.828 | 4,09% |
 
-- **H1 (trên P75 giảm giá nhiều hơn): đạt ở mức yếu.** Nhóm trên P75 giảm giá 4,09% so với 2,92% của các tin còn lại (gấp 1,40 lần, chênh 1,17 điểm phần trăm, khoảng tin cậy 95% từ 0,81 đến 1,52). Khi so sánh thô p < 0,001, nhưng sau khi kiểm soát nguồn bằng CMH, tỷ số odds chỉ còn 1,11 với p = 0,047, tức sát ngưỡng 0,05 và không vượt ngưỡng Bonferroni 0,017 cho 3 kiểm định chính. Kiểm soát đồng thời tỉnh và nguồn cho tỷ số odds 1,12, p = 0,030. Vì vậy kết luận được diễn đạt là "có xu hướng", không phải khẳng định chắc.
-- **H1 theo tỉnh:** hiệu ứng tập trung ở TP.HCM (3,73% so với 2,23%, gấp 1,67 lần; CMH theo nguồn p = 0,013). Hà Nội gần như không có khác biệt (6,09% so với 5,93%, p = 0,63), Đà Nẵng và nhóm tỉnh khác chưa có ý nghĩa sau khi kiểm soát nguồn (p = 0,75 và 0,10). Mặt bằng giảm giá ở Hà Nội cao hơn hẳn các nơi khác nên nhận định "tin đắt giảm giá nhiều hơn" không nên áp dụng chung cho mọi tỉnh.
+- **H1 (trên P75 giảm giá nhiều hơn): đạt ở mức yếu.** Nhóm trên P75 giảm giá 4,09% so với 2,92% của các tin còn lại (gấp 1,40 lần, chênh 1,17 điểm phần trăm, khoảng tin cậy 95% từ 0,81 đến 1,52). Khi so sánh thô p < 0,001, nhưng sau khi kiểm soát nguồn bằng CMH, tỷ số odds chỉ còn 1,11 với p = 0,047, tức sát ngưỡng 0,05 và không vượt ngưỡng Bonferroni 0,05/3 (khoảng 0,0167) cho 3 kiểm định chính. Kiểm soát đồng thời tỉnh và nguồn cho tỷ số odds 1,12, p = 0,030. Vì vậy kết luận được diễn đạt là "có xu hướng", không phải khẳng định chắc.
+- **H1 theo tỉnh:** hiệu ứng tập trung ở TP.HCM (3,73% so với 2,23%, gấp 1,67 lần; CMH theo nguồn p = 0,013). Hà Nội gần như không có khác biệt (6,09% so với 5,93%, p = 0,63), Đà Nẵng và nhóm tỉnh khác chưa có ý nghĩa sau khi kiểm soát nguồn (p = 0,75 và 0,10). Mặt bằng giảm giá ở Hà Nội cao hơn hẳn các nơi khác nên nhận định "tin đắt giảm giá nhiều hơn" không nên áp dụng chung cho mọi tỉnh. Các so sánh theo tỉnh và theo định nghĩa giảm giá là phân tích thăm dò, không hiệu chỉnh riêng nên không dùng để khẳng định.
 - **Độ nhạy theo định nghĩa giảm giá:** nếu tính mọi lần giảm kể cả trên 30%, tỷ lệ là 4,48% so với 3,07% và CMH cho p = 0,0025. Chênh lệch giữa hai định nghĩa cho thấy các lần giảm rất lớn đóng góp đáng kể vào kết quả mạnh hơn, nên báo cáo dùng định nghĩa chặt (1–30%) làm kết quả chính.
 - **H2 (phần dư mô hình cao giảm giá nhiều hơn): chưa khẳng định.** Trên toàn bộ tin, tỷ lệ tăng từ 2,45% (Q1) lên 4,03% (Q5) và so sánh thô có ý nghĩa, nhưng kiểm soát nguồn bằng CMH cho p = 0,25. Phần dư của tin huấn luyện nằm trong mẫu của mô hình, nên kiểm định đúng hơn là riêng tập test (12.354 tin): 4,25% so với 3,02%, sau khi kiểm soát nguồn p = 0,59. Phần lớn chênh lệch thô đến từ khác biệt giữa các nguồn.
 - **H3 (tin đắt được quan sát lâu hơn): không.** Trung vị mọi nhóm là 3 ngày; khác biệt có ý nghĩa thống kê nhưng gần bằng 0 (xác suất trội 0,49) và ngược chiều.
@@ -170,7 +170,7 @@ Câu hỏi: khu vực nào cùng tỉnh có nhóm bất động sản tương t�
 | B3.3 | Hồ sơ đặc điểm tương tự | Độ tương đồng ≥ 0,8 và mỗi cờ lệch ≤ 0,3 (check `substitution_similarity_and_flag_cap`) | `gold_verification.json` | Đạt có điều kiện: tương đồng về *tần suất tiêu đề nêu đặc điểm*, phụ thuộc G4 |
 | B3.4 | Hai phía đủ dữ liệu | Cả nhóm gốc và nhóm thay thế có ≥ 5 tin | Dựng từ nhóm công bố của `agg_peer_group_benchmark` | Đạt. Đề xuất hiển thị n hai phía trên dashboard |
 | B3.5 | Gợi ý thay thế phải gần | Gợi ý xếp hạng 1 có `distance_diff_km` ≤ 10 km, hoặc xếp hạng có tính khoảng cách | `agg_area_substitution`, check `substitution_distance_cap` | Đạt: từ 26/10 phương án thay thế phải không xa trung tâm tỉnh hơn quá 10 km; gợi ý hạng 1 xa hơn tối đa 9,995 km. Đổi lại còn 2.588/3.384 cặp (loại 532 cặp quá xa, 264 cặp không biết khoảng cách); 443 nhóm gốc có phương án |
-| B3.6 | Chênh lệch tổng giá được giải thích | Ghi rõ số cặp mà tổng giá trung vị phía thay thế không thấp hơn | `gold_area_substitution_summary.json`: 130/2.588 cặp | Đạt có điều kiện: so sánh dựa trên chi phí ở cùng diện tích, không dựa trên tổng giá trung vị |
+| B3.6 | Chênh lệch tổng giá được giải thích | Ghi rõ số cặp mà tổng giá trung vị phía thay thế không thấp hơn | `gold_area_substitution_summary.json`: 175/2.740 cặp (6,4%) | Đạt có điều kiện: so sánh dựa trên chi phí ở cùng diện tích, không dựa trên tổng giá trung vị |
 
 ## 5. Giới hạn diễn giải áp dụng cho mọi BQ
 

@@ -46,7 +46,7 @@ from src.gold.gold_common import FLAG_COLUMNS, representatives, write_summary
 from src.gold.gold_rules import MIN_PEER_GROUP_SIZE, MODEL_CATEGORY_LABELS, UNKNOWN_KEY, UNKNOWN_LABEL, load_bands
 from src.gold.price_model_rules import (
     BLEND_CONFIG_PATH, DISTANCE_EDGES_KM, INTERCEPT, MIN_LEVEL_TRAIN_ROWS, MODEL_CATEGORY_KEYS, MODEL_VERSION, OTHER_LOCATION, RIDGE_LAMBDA,
-    SPLIT_SEED, TRAIN_PERCENT, TRIM_QUANTILES, build_vocabulary, design_indices, fit_ridge, inverse_diagonal,
+    SPLIT_SEED, TRAIN_PERCENT, TRIM_QUANTILES, build_vocabulary, design_indices, fit_ridge, inverse_diagonal, log_residual_sse,
     listing_terms, load_blend_config, location_level, normal_equation_entries, predict_log, premium_pct, regression_metrics,
     term_factor, term_level,
 )
@@ -292,7 +292,8 @@ def main() -> None:
         beta, lower = models[category]
         fit_rows = [row for row in clean if row[0] == category and row[1] == "train"]
         test_rows = [row for row in clean if row[0] == category and row[1] == "test"]
-        sse = sum((math.log(row[3]) - math.log(row[4])) ** 2 for row in fit_rows)
+        # row[3] actual price, row[7] pure model price (row[4] is the blend).
+        sse = log_residual_sse((row[3], row[7]) for row in fit_rows)
         dof = max(len(fit_rows) - vocab.size, 1)
         sigma2 = sse / dof
         inference_columns = [index for index, term in enumerate(vocab.terms) if term == INTERCEPT or term_factor(term) == "flag"]

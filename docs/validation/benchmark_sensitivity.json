@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-11-17T03:25:36.679731+00:00",
-  "finished_at": "2026-11-17T03:26:05.424268+00:00",
+  "started_at": "2026-11-21T12:55:48.393443+00:00",
+  "finished_at": "2026-11-21T12:56:09.560799+00:00",
   "thresholds": [
     5,
     10
@@ -8,56 +8,56 @@
   "per_threshold": {
     "5": {
       "groups_by_level": {
-        "LOC_CAT_AREA_ROOM": 1348,
-        "LOC_CAT_AREA": 973,
-        "LOC_CAT": 364
+        "LOC_CAT_AREA_ROOM": 1437,
+        "LOC_CAT_AREA": 1050,
+        "LOC_CAT": 389
       },
       "listings_by_level": {
-        "LOC_CAT_AREA": 45657,
-        "LOC_CAT": 1241,
-        "LOC_CAT_AREA_ROOM": 72361,
-        "None": 3807
+        "LOC_CAT_AREA": 48472,
+        "LOC_CAT": 1279,
+        "LOC_CAT_AREA_ROOM": 79364,
+        "None": 4365
       },
       "price_position_counts": {
-        "p25_p75": 58773,
-        "khong_du_du_lieu": 3807,
-        "duoi_p25": 30094,
-        "tren_p75": 30392
+        "p25_p75": 63658,
+        "khong_du_du_lieu": 4365,
+        "duoi_p25": 32556,
+        "tren_p75": 32901
       },
-      "no_data_listings": 3807,
-      "no_data_share": 0.030935,
-      "median_peer_n": 223.0
+      "no_data_listings": 4365,
+      "no_data_share": 0.032702,
+      "median_peer_n": 225.0
     },
     "10": {
       "groups_by_level": {
-        "LOC_CAT_AREA_ROOM": 896,
-        "LOC_CAT_AREA": 721,
-        "LOC_CAT": 286
+        "LOC_CAT_AREA_ROOM": 979,
+        "LOC_CAT_AREA": 788,
+        "LOC_CAT": 308
       },
       "listings_by_level": {
-        "LOC_CAT_AREA": 46937,
-        "LOC_CAT": 2359,
-        "LOC_CAT_AREA_ROOM": 69425,
-        "None": 4345
+        "LOC_CAT_AREA": 49746,
+        "LOC_CAT": 2454,
+        "LOC_CAT_AREA_ROOM": 76365,
+        "None": 4915
       },
       "price_position_counts": {
-        "p25_p75": 58429,
-        "khong_du_du_lieu": 4345,
-        "duoi_p25": 29964,
-        "tren_p75": 30328
+        "p25_p75": 63253,
+        "khong_du_du_lieu": 4915,
+        "duoi_p25": 32445,
+        "tren_p75": 32867
       },
-      "no_data_listings": 4345,
-      "no_data_share": 0.035306,
-      "median_peer_n": 228.0
+      "no_data_listings": 4915,
+      "no_data_share": 0.036822,
+      "median_peer_n": 233.0
     }
   },
   "comparison_5_vs_10": {
-    "listings": 123066,
-    "position_changed": 1981,
-    "peer_level_changed": 4724,
-    "lost_peer_group": 538,
-    "position_changed_among_listings_with_peer_in_both": 1443,
-    "listings_with_peer_in_both": 118721
+    "listings": 133480,
+    "position_changed": 2082,
+    "peer_level_changed": 4943,
+    "lost_peer_group": 550,
+    "position_changed_among_listings_with_peer_in_both": 1532,
+    "listings_with_peer_in_both": 128565
   },
   "reproduces_gold_assessment_at_published_threshold": true,
   "gold_assessment_mismatches": 0,
