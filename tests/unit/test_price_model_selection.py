@@ -117,3 +117,12 @@ def test_paired_bootstrap_detects_real_and_null_differences():
 
 def test_abs_error_differences_sign():
     assert selection.abs_error_differences([100.0], [150.0], [110.0]) == [40.0]  # blend closer -> positive
+
+
+def test_prediction_agreement_detects_rows_that_differ_even_with_equal_totals():
+    same = selection.prediction_agreement([(100.0, 100.0), (200.0, 200.5)])
+    assert same["n"] == 2 and same["share_within_tolerance"] == 1.0
+    # Swapping two predictions keeps the totals (and R2-like summaries) but not the rows.
+    swapped = selection.prediction_agreement([(100.0, 200.0), (200.0, 100.0), (50.0, 50.0)])
+    assert swapped["share_within_tolerance"] < 0.5 and swapped["max_abs_log_difference"] > 0.6
+    assert selection.prediction_agreement([(None, 100.0)])["n"] == 0

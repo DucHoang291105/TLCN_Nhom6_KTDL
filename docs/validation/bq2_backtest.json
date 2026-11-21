@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-11-21T11:52:04.887596+00:00",
-  "finished_at": "2026-11-21T11:52:17.094333+00:00",
+  "started_at": "2026-11-21T13:12:55.799185+00:00",
+  "finished_at": "2026-11-21T13:13:12.285456+00:00",
   "preliminary": true,
   "observation_window": {
     "first_seen": "2026-09-22",
@@ -496,7 +496,20 @@
       }
     }
   },
+  "initial_price_definition": "price of the first version in silver.listing_history (min_by(price, version_number)); gold.ev_reprice takes the price before the first change and falls back to the current price, so the two cohorts can differ for a small number of listings",
+  "multiple_testing": {
+    "main_hypotheses": 3,
+    "nominal_alpha": 0.05,
+    "bonferroni_alpha": 0.016666666666666666,
+    "note": "H1 by province, H1 with all drops and any other table are exploratory and not corrected."
+  },
   "conclusion": {
+    "H1_supported_at_5pct": true,
+    "H1_supported_after_multiple_testing": false,
+    "H2_supported_at_5pct": false,
+    "H2_supported_after_multiple_testing": false,
+    "H2_supported_on_test_split_at_5pct": false,
+    "H2_supported_on_test_split_after_multiple_testing": false,
     "H1_supported": true,
     "H2_supported": false,
     "H2_supported_on_test_split": false

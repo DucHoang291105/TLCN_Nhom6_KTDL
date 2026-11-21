@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-11-21T03:13:22.709441+00:00",
-  "finished_at": "2026-11-21T03:14:35.743829+00:00",
+  "started_at": "2026-11-21T13:09:03.511036+00:00",
+  "finished_at": "2026-11-21T13:10:24.684528+00:00",
   "split": "published train/test split of fact_listing_price_model, rows outside the train trim range removed",
   "settings": {
     "ridge_lambda": 1.0,
@@ -977,5 +977,15 @@
   },
   "gold_model_reproduced": true,
   "r2_log_difference_vs_gold_model": 0.0,
+  "prediction_agreement_vs_gold_model": {
+    "n": 24819,
+    "tolerance_relative": 0.01,
+    "share_within_tolerance": 1.0,
+    "max_abs_log_difference": 0.0,
+    "median_abs_log_difference": 0.0
+  },
+  "limitations": [
+    "Cross-validation folds reuse the location terms and trim range fitted on the whole train split; only the baseline is rebuilt inside each fold. The outer test rows are never used for either."
+  ],
   "status": "PASS"
 }

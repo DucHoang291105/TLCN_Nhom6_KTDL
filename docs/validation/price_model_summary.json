@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-11-21T12:50:01.220522+00:00",
-  "finished_at": "2026-11-21T12:51:01.508771+00:00",
+  "started_at": "2026-11-21T13:07:41.748994+00:00",
+  "finished_at": "2026-11-21T13:08:28.254444+00:00",
   "output_tables": [
     "lakehouse.gold.fact_listing_price_model",
     "lakehouse.gold.agg_price_model_coefficient"
@@ -78,6 +78,30 @@
     "LOC_CAT": 294,
     "LOC_CAT_AREA_ROOM": 15072,
     "CAT": 114
+  },
+  "overall_test_including_outside_trim": {
+    "n": 25331,
+    "model": {
+      "n": 25331,
+      "mae": 47222508.03,
+      "mape": 0.635998,
+      "median_ape": 0.256336,
+      "r2_log": 0.696948
+    },
+    "model_only": {
+      "n": 25331,
+      "mae": 47888527.29,
+      "mape": 0.630924,
+      "median_ape": 0.267581,
+      "r2_log": 0.698752
+    },
+    "baseline": {
+      "n": 25331,
+      "mae": 50659851.69,
+      "mape": 0.749694,
+      "median_ape": 0.268928,
+      "r2_log": 0.631929
+    }
   },
   "overall_test": {
     "model": {
