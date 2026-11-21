@@ -50,7 +50,7 @@ def test_tag_rejects_changed_or_incomplete_verification(tmp_path, monkeypatch, c
         release.verified_candidate(tmp_path, proof)
 
 
-@pytest.mark.parametrize("tag", ["v1.0-bao-ve", "v1.1-bao-ve"])
+@pytest.mark.parametrize("tag", ["v1.0-bao-ve", "v1.1-bao-ve", "v1.1.1-bao-ve"])
 def test_both_planned_tags_still_require_clean_reviewed_worktree(monkeypatch, tag):
     monkeypatch.setattr(release, "git", lambda *args: " M source.py")
     with pytest.raises(ValueError, match="Commit the reviewed"):

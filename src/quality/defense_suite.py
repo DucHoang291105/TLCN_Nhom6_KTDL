@@ -95,7 +95,7 @@ def suite(batch, run_id, attach=False):
     execute(work, "two-rebuilds", [*ps, "scripts/check_deterministic_rebuild.ps1"])
     for number in (1, 2):
         shutil.copy2(ROOT / f"outputs/determinism/run{number}.json", work / f"run{number}.json")
-    for job in ("verify_history_incremental", "verify_lifecycle_fixtures", "demo_iceberg_features"):
+    for job in ("verify_history_incremental", "verify_lifecycle_fixtures", "demo_iceberg_features", "bq2_backtest"):
         execute(work, job, [*ps, "scripts/run_spark.ps1", f"src/quality/{job}.py"])
     execute(work, "pause-scheduler", ["docker", "exec", "tlcn_airflow", "python", "-c",
         "from src.orchestration.airflow_run import session; r=session().patch('http://localhost:8080/api/v2/dags/lakehouse_pipeline',json={'is_paused':True},timeout=30); r.raise_for_status(); print('Paused for query window')"])

@@ -117,8 +117,8 @@ Dữ liệu historical đặt trong `data/incoming/historical/<nguồn>/`, theo 
 ## Kết quả đã kiểm chứng
 
 Dữ liệu tới batch **20261117**, ba nguồn crawl và sáu nguồn historical. Bộ
-nghiệm thu chính thức **`official_v11_20261121`** ngày **21/11/2026** đã PASS
-**76/76 điều kiện**, bao gồm cấu hình mô hình giá mới và bộ dashboard hiện hành.
+nghiệm thu chính thức **`official_v111_20261121`** ngày **21/11/2026** đã PASS
+**77/77 điều kiện**, gồm mô hình giá, bộ dashboard hiện hành và backtest sau PR #18.
 Không tạo batch thay thế cho những ngày thiếu.
 
 | Đầu ra | Số dòng | JSON nguồn trong `docs/validation/` |
@@ -141,9 +141,9 @@ Không tạo batch thay thế cho những ngày thiếu.
 
 - Airflow: **26/26 task SUCCESS**; job `bq_evidence` chạy sau repricing và lifecycle để đọc đúng dữ liệu của lượt hiện tại.
 - Silver **30/30 PASS**; Gold **138/138 PASS**.
-- Unit tests: **541/541 PASS**, không failure/error/skip.
+- Unit tests: **543/543 PASS**, không failure/error/skip.
 - Đối chiếu số dòng Spark–Trino, kiểm tra grain và lưu schema/hash nội dung đủ **38 bảng**.
-- Superset: **49 biểu đồ**, **5 dashboard**; kiểm tra KPI, bản đồ và thẻ kết luận theo bộ lọc trên trình duyệt thật.
+- Superset: **49 biểu đồ**, **5 dashboard**; đối chiếu data API, KPI và bộ lọc tỉnh. Các walkthrough trình duyệt được lưu riêng.
 - Toàn bộ **54 CSV** đầu vào giữ nguyên checksum.
 
 Hai lần rebuild Silver/Gold từ cùng Bronze cho kết quả giống nhau trên đủ
@@ -165,7 +165,7 @@ batch, chạy lại kiểm chứng trước khi công bố kết quả hoặc g�
 Đối chứng history hiện tại: MERGE và rebuild cùng **167.794 dòng**, SHA256
 bằng nhau và không có khác biệt hai chiều. Trong benchmark từ baseline
 16/10, MERGE xử lý **26.668 ID**, staging **22.260 dòng**,
-mất **16,02 giây**; rebuild **9,92 giây**. Retry không đổi
+mất **17,14 giây**; rebuild **9,60 giây**. Retry không đổi
 input giữ nguyên snapshot. Đây là kiểm chứng tính đúng; không khẳng định
 MERGE luôn nhanh hơn rebuild. Xem [history](docs/validation/history_incremental_verification.json).
 
@@ -215,7 +215,9 @@ Chi tiết lệnh và giới hạn vận hành: [Iceberg history](docs/operation
 
 Silver Current là bản ghi **mới nhất đã quan sát**, không xác nhận listing vẫn còn hiển thị. Cờ vắng hai batch không đồng nghĩa đã bán; `listed_days` là khoảng thời gian quan sát, không phải thời gian tới khi bán. Nguồn historical có trạng thái lifecycle `NOT_APPLICABLE`.
 
-Các nhóm nghi trùng cross-source được gắn cờ theo luật; chưa bảo đảm mỗi nhóm tương ứng đúng một bất động sản thực. BQ2 gồm benchmark mô tả (P25–P75) và mô hình hedonic kết hợp baseline (`hedonic_ols_blend`, tham số tại `config/price_model_blend.json`). Trên tập test dữ liệu tới 17/11, mô hình phủ 94,69% tin đại diện; R² log 0,720 so với 0,656 của baseline, MAE giá/m² thấp hơn 7,41% (41,8 so với 45,1 triệu đồng), cải thiện có ý nghĩa thống kê ở cả 4 loại, nhưng ở biệt thự chỉ khoảng 1,3%. Đây là kết quả đánh giá mô hình hiện tại trong [price_model_summary.json](docs/validation/price_model_summary.json); ý nghĩa và tiêu chí nghiệp vụ cần đọc theo [BQ acceptance](docs/business/bq_acceptance_criteria.md). Hệ số thể hiện tương quan trên giá chào bán, không phải tác động nhân quả. Backtest (`src/quality/bq2_backtest.py`, [kết quả](docs/validation/bq2_backtest.json), dữ liệu 22/09–17/11): tin trên P75 lúc mới đăng có tỷ lệ giảm giá 4,48% so với 3,07% của các tin còn lại, vẫn có ý nghĩa sau khi kiểm soát theo nguồn (p = 0,0025); phần dư mô hình hedonic chỉ có ý nghĩa khi tính trên toàn bộ tin, chưa có ý nghĩa trên riêng tập test. Với dữ liệu tới 23/10 kết quả H1 từng chưa đạt (p = 0,08), nên kết quả còn nhạy với lượng dữ liệu. Silver Core và Gold vẫn rebuild từ Bronze; riêng `listing_history` cập nhật incremental qua MERGE và bảng state phục hồi được. Bronze tái sử dụng các batch đã hoàn tất.
+Các nhóm nghi trùng cross-source được gắn cờ theo luật; chưa bảo đảm mỗi nhóm tương ứng đúng một bất động sản thực. BQ2 gồm benchmark mô tả (P25–P75) và mô hình hedonic kết hợp baseline (`hedonic_ols_blend`, tham số tại `config/price_model_blend.json`). Mô hình phủ 94,69% tin đại diện. Trên phần test trong khoảng trim, dữ liệu tới 17/11, R² log 0,720 so với 0,656 của baseline, MAE giá/m² thấp hơn 7,41% (41,8 so với 45,1 triệu đồng). So sánh sai số ghép cặp hiện cho cải thiện ở cả 4 loại, nhưng ở biệt thự chỉ khoảng 1,3%. Kết quả ở [price_model_summary.json](docs/validation/price_model_summary.json), giới hạn ở [BQ acceptance](docs/business/bq_acceptance_criteria.md). Độ bất định của hệ số hedonic còn cần tính lại từ sai số mô hình thuần trước khi dùng khoảng tin cậy để kết luận; hệ số thể hiện tương quan trên giá chào bán, không phải tác động nhân quả.
+
+Backtest ([kết quả](docs/validation/bq2_backtest.json), dữ liệu 22/09–17/11) dùng định nghĩa giảm giá 1–30%: nhóm trên P75 lúc đầu có tỷ lệ giảm giá khoảng 4,09% so với 2,92% ở nhóm còn lại. Sau kiểm soát nguồn, p ≈ 0,047, chưa đạt ngưỡng Bonferroni 0,05/3; kết quả còn khác nhau theo tỉnh. H2 về phần dư mô hình chưa được khẳng định sau kiểm soát nguồn hoặc trên test riêng. Đây là phân tích hồi cứu dùng peer benchmark hiện tại; không trình bày như dự báo hoặc quan hệ nhân quả. Silver Core và Gold vẫn rebuild từ Bronze; riêng `listing_history` cập nhật incremental qua MERGE và bảng state phục hồi được. Bronze tái sử dụng các batch đã hoàn tất.
 
 ## Iceberg history và kiểm thử tự động
 

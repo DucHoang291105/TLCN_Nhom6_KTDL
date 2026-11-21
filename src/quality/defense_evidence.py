@@ -22,7 +22,7 @@ ARTIFACTS = (
     "silver_final_verification", "gold_verification", "deterministic_rebuild",
     "history_incremental_verification", "lifecycle_fixture_tests", "iceberg_features",
     "superset_dashboard_check", "pipeline_dashboard_integration",
-    "price_model_summary", "gold_bq_evidence_summary",
+    "price_model_summary", "gold_bq_evidence_summary", "bq2_backtest",
 )
 
 

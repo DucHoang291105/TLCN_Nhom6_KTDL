@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-11-21T05:39:18.581629+00:00",
+  "generated_at": "2026-11-21T11:55:18.323720+00:00",
   "scope": "Person A: pipeline and operation across the three-week plan",
-  "run_id": "official_v11_20261121",
+  "run_id": "official_v111_20261121",
   "batch_id": "20261117",
   "code": {
-    "sha256": "ec977e385f232613cdba17435370da7ed4e21bccc027b466ecd27efe8b1de69d",
+    "sha256": "0bd42096d543e6be0065cf8659b02b3ee400b6808ef8ec059cf50c19ac2514d5",
     "files": {
       ".env.example": "3256859ce78e15d4211afd8be0f441f75662ef66f6785901f0b9bdf6a7553a16",
       ".gitattributes": "84a2efb76db51f840e422023f88cc5cc0d64a644f5f5103909587c2272fdbd6d",
@@ -77,7 +77,7 @@
       "src/gold/build_listing_lifecycle.py": "2a81bc1ac4a0ae0653cbe0a2fe501631abc1ac951469d49374211a6aacfa6c81",
       "src/gold/build_market_overview.py": "e126bddb6e57174074154bec021f26956ddac5c4eebd1058fdf51e7cbde34921",
       "src/gold/build_price_benchmark.py": "17852728c70483c4f470bbbd44a53ad75e2c2e853a8f9ffdf8b31cbf468bef36",
-      "src/gold/build_price_model.py": "4e7d92d5b82e62256813b47c1dd4d039c77fcdf09fff509cbc9debc692a96bf2",
+      "src/gold/build_price_model.py": "184a7d153a472127e287d777f277e0e997e32516005f7654917480ce75953935",
       "src/gold/build_repricing.py": "245e18484bb8ba73719b94fe664b0c382db2e6f843b3750fbe38758ef620f5a0",
       "src/gold/gold_common.py": "eb5459e2bb82fddcc3d3e0f2d392382eea32c803c8782dca6969168f9bdaac8b",
       "src/gold/gold_rules.py": "04b6e5220fca993b30b597c650d95ea68c015535bcc3efd8226d9be4868bd675",
@@ -100,20 +100,20 @@
       "src/quality/benchmark_lifecycle_optimization.py": "b2b0b42307bafa8f7596f75400e03ad1bf7f99342866ce7a0d5514f55cfded2e",
       "src/quality/benchmark_manifest.py": "cf4b601dea24f481b0c50cff92915410f34df2994b93891b1d61c5799aa78994",
       "src/quality/benchmark_sensitivity.py": "b243378329cf143bac62b41ff4eb65828783545fac3e19f62f2ffd1fc43b1f3d",
-      "src/quality/bq2_backtest.py": "e05307d04d4085e23f6ee19672b0b5da0a38321b27283272cfc02fb00201a6fb",
+      "src/quality/bq2_backtest.py": "f4bd5e6bc9426874528c2e3ea8304767aa78a6c5ffbf4595b7b65d6f24e1c8b5",
       "src/quality/build_labeling_sample.py": "51102166f2f4fd65e4ce4466a6d61f8d3354fa1360da58b2c00c8f2352b1e770",
       "src/quality/check_environment.py": "5db95944dce5c2a4916b85a855c28a14b03ab0502a387f08376fa1b7e90df87c",
       "src/quality/compare_feature_rules.py": "2adc245921f7b388c2834aea5fa206184518b6f604f602a457f2ed760b55c7eb",
       "src/quality/crawl_coverage.py": "e3164fff86113e9c7cc999bc38a300fab6826d120a37ccc0c4aadc50ea9dc5a2",
-      "src/quality/defense_evidence.py": "9e697e17c77c744f4b514ca89f412eadb3592c578f6f0ad1f26a3661df7446a3",
-      "src/quality/defense_suite.py": "6be104e56640f5e36f51904c9442ee691c295a6762864b273cf0a49848aca7c1",
+      "src/quality/defense_evidence.py": "01bb7b55361410f5f36c32e0248a38e7de2bee037f08311f591487954bb3ac81",
+      "src/quality/defense_suite.py": "4e7815921bdd5c4984f50b61b879e1e09ac5c0e38625eafb59e496ee71ec6fad",
       "src/quality/demo_iceberg_features.py": "8bb5d285cf5b6802d72afd781c678f1f551a76462775d0542e420abbf13ac260",
       "src/quality/driver_memory_probe.py": "6005a8258df6d9df1f7bf040f58d6d66c9f8b6cd3c0f5308296bc8be8c1c8332",
       "src/quality/evaluate_labels.py": "55318389c6db0b586299d9043055cdc1ee20642ecdad43ee1ab39509a4c264b8",
       "src/quality/person_a_release_check.py": "d23f121464678517531805442d52d37a921c45d530273f1695c554c0e68939c8",
       "src/quality/price_model_selection.py": "6e68a069d39d2f38af01a9c7c7884be0d71a7670661083eaf796f0047643aa6b",
       "src/quality/query_benchmark.py": "3518ee1433f07d8d8169ec4184dba0c5c0c2287767956aaf9ea0f71cc6736a56",
-      "src/quality/tag_defense.py": "6c1011ea334d6d61262c740f5b93b6041cbbb8daf54660ce542646164d6d75cc",
+      "src/quality/tag_defense.py": "9f096807d2d12acbfbbad04c80bd02f30a5df6ab3b338fa7db9676d7c6256145",
       "src/quality/verify_history_incremental.py": "84e1a9ea4b18b7c1f0c82d8c20df3d9faf1a748a992e61bb4eb3f66bb7b66b29",
       "src/quality/verify_lifecycle_fixtures.py": "003fb31e19d87fc931c46b1d0ad0e0d1d5a925a8a8b4bdf3cba6ab3aa9fdb49a",
       "src/quality/verify_pipeline_dashboard.py": "03e3899c0b61ad11446fd991873018064c0416e8ef2940a796dd1b9c19fb182e",
@@ -138,7 +138,7 @@
       "tests/reference/history_a6909ae.py": "798273d98a09adcfd46d1c5a6e1466af3845cc605f556aac61b4654d5a5bb447",
       "tests/reference/lifecycle_a6909ae.py": "0aac42c51d407a189b24256b15b46c1e060b03832f5cdff1d8796404fac9c9f7",
       "tests/reference/pipeline_a6909ae.py": "79df2e29a12288ff50beee98cd755b8a6c1d5afc58878ae4ff0a2561b6b0e03a",
-      "tests/unit/test_backtest_stats.py": "f298211cc7423578a0cd75fb0b5d623bba3b3bc0da96bd037705eff09e309a01",
+      "tests/unit/test_backtest_stats.py": "82fa769aa848fa0210a24f26e1475f2766bbdce7bf45910c5fbe1158f8df4a50",
       "tests/unit/test_commute_rules.py": "9e0ff95d84ac623486f9113b07ace72ccfed31215a5aa39c29c70343de3dfea4",
       "tests/unit/test_crawl_coverage.py": "fb3ce4c6226d15310b55bd5f08ed74b477a2bd4c7ec8a6dd340533b7fab4629d",
       "tests/unit/test_crawler_airflow_contract.py": "be75f158af3bb49e1db2d7a158e7f3ab76e6545b2ca21f5ae9051b0ce00e55d8",
@@ -147,7 +147,7 @@
       "tests/unit/test_dashboard_quality_gate.py": "f9c5e009c460220af345311716352bbd1f804d57f3d30181b6c945aae0152eaa",
       "tests/unit/test_defense_acceptance.py": "994cd3e43ecfee1ec7bc4cd7c93dcc1b925ca2a958b6140c453031a88ee469cc",
       "tests/unit/test_defense_recovery_order.py": "43cb81b4aa793154ae21fc179cf674c8909948562938fd03fc6a6e0d371f8fd7",
-      "tests/unit/test_defense_tag.py": "eae78adc08593d978c4737b3ba9ed69bf947f7cabc600c7ba4c02cffd963d8cb",
+      "tests/unit/test_defense_tag.py": "9c46452928b813669fa6948963ad2efeb580429544b316f595c5be5ac86573a9",
       "tests/unit/test_environment_preflight.py": "984c1663938139178b120165c95e96270febee917ac372156bff7b8f4f839160",
       "tests/unit/test_evaluate_labels.py": "38c23e2d6ddfe61697c6d8d4b0ba5ae7d259f9911650f7d52c156d0ce768b030",
       "tests/unit/test_feature_rules.py": "6529010270e06bc91ff3f54b8023ec30dc4ab1358fdfbfeb766278f71f606ba0",
@@ -368,79 +368,85 @@
     "fresh:pipeline_dashboard_integration": true,
     "fresh:price_model_summary": true,
     "fresh:gold_bq_evidence_summary": true,
+    "fresh:bq2_backtest": true,
     "fresh_fingerprint:first": true,
     "fresh_fingerprint:second": true
   },
   "evidence": {
     "snapshot_manifest": {
-      "sha256": "7e996510d5b090819af30016c135a3a93a2cf9052b443b390eb1b10d322a63e5",
+      "sha256": "0487d797785f2d4458e8d1a969711721efbf03eb4b1d7ccc8475119154c69029",
       "hash_normalization": "LF",
-      "timestamp": "2026-11-21T04:48:41.302890+00:00"
+      "timestamp": "2026-11-21T11:02:26.070009+00:00"
     },
     "bronze_state_audit": {
-      "sha256": "9e328a07515e570a3cf7bb148f79330e2a4c81b4be4b512c1e0129385781b126",
+      "sha256": "fd8bf79bf3039205c59f2e62994a6f989dd408581d51e235d122d38fa4c86216",
       "hash_normalization": "LF",
-      "timestamp": "2026-11-21T05:19:05.941637+00:00"
+      "timestamp": "2026-11-21T11:33:48.231307+00:00"
     },
     "integration_airflow_run": {
-      "sha256": "98ab0325967771eda113281f0f0ec4b1acc69e363f201dff7c6922aac44f3dd2",
+      "sha256": "224d8c40fffb8d88c8b0deebe6d18434523ac53b8813f65db140245953e27481",
       "hash_normalization": "LF",
-      "timestamp": "2026-11-21T05:03:06.981493+00:00"
+      "timestamp": "2026-11-21T11:17:32.293880+00:00"
     },
     "airflow_failure_gate": {
-      "sha256": "caf3cfa0025be0f7115302b4a648f0020f7695ed5353db1b3c3738dc95e3b85e",
+      "sha256": "a2598f8e6d0b4d8210077ece40057910e749816d26102632017d32fedd64ede4",
       "hash_normalization": "LF",
-      "timestamp": "2026-11-21T04:48:29.326437+00:00"
+      "timestamp": "2026-11-21T11:02:12.590279+00:00"
     },
     "silver_final_verification": {
-      "sha256": "f9328473f72e4d76bb652ffcfcf3adc7e0e6ed76342f16a40916a423bfe18e4d",
+      "sha256": "fc5d7d070a5e4fe682c2d8dbae6d3997d890cafc69862a79349d3b20971671f5",
       "hash_normalization": "LF",
-      "timestamp": "2026-11-21T05:24:43.598333+00:00"
+      "timestamp": "2026-11-21T11:39:46.789648+00:00"
     },
     "gold_verification": {
-      "sha256": "45e8efdfe369b9ffc2f537ee978790f4eb09198c709a5e802d7f180b1c7e55a2",
+      "sha256": "9bcd1b48e5ab9146744f6afa27b7f328970d39da5f601ff52ec7880725291b3c",
       "hash_normalization": "LF",
-      "timestamp": "2026-11-21T05:32:01.867289+00:00"
+      "timestamp": "2026-11-21T11:47:26.426638+00:00"
     },
     "deterministic_rebuild": {
-      "sha256": "af20e1826ae16f8b03d2d21cf6f8ba35cd71d0f8044ef716b23ee62381d3674d",
+      "sha256": "c047ae9e02962f10a6c54d050355563b0088b3960c6a3b4c70ef981208172df9",
       "hash_normalization": "LF",
-      "timestamp": "2026-11-21T05:33:12.957623+00:00"
+      "timestamp": "2026-11-21T11:48:38.366578+00:00"
     },
     "history_incremental_verification": {
-      "sha256": "d252f9f48e6c3aa0e5748c8f753d4222d9fde240c8ef09c18e4f796e958626dc",
+      "sha256": "f2400038135b65b3defadfb6f084c9137ff2a6f84cc650e6fa4e17b37c2d42c8",
       "hash_normalization": "LF",
-      "timestamp": "2026-11-21T05:35:52.180514+00:00"
+      "timestamp": "2026-11-21T11:51:20.722629+00:00"
     },
     "lifecycle_fixture_tests": {
       "sha256": "cd64d1890f68e0cd57bc3ae2124c9eea75e13d3553528c4ccba546afd2d28b39",
       "hash_normalization": "LF",
-      "timestamp": "2026-11-21T05:36:03.895886+00:00"
+      "timestamp": "2026-11-21T11:51:32.568637+00:00"
     },
     "iceberg_features": {
-      "sha256": "3f9217f4a2c2e598ccda964478851163d3837538fd03bd88d4d795c5270c8744",
+      "sha256": "877731a855dc2e9d371e79529c880f8ac194cc941ed462c48a65429d4db219df",
       "hash_normalization": "LF",
-      "timestamp": "2026-11-21T05:36:27.547403+00:00"
+      "timestamp": "2026-11-21T11:51:57.111651+00:00"
     },
     "superset_dashboard_check": {
-      "sha256": "b820e698d1d5bc79a66ec42abf65154e14cf340ef2cebc92770d6bfe1fb315c0",
+      "sha256": "4f37b96f16cd288f9933c4c9ef45978419bb5e556fb792d666ec65babbcc2880",
       "hash_normalization": "LF",
-      "timestamp": "2026-11-21T05:39:10.720422+00:00"
+      "timestamp": "2026-11-21T11:55:09.749387+00:00"
     },
     "pipeline_dashboard_integration": {
-      "sha256": "f6e5503971af1a3402ed6b036863c3541285ef8f0f0e7792d4eae67b66e10ce0",
+      "sha256": "e2dffd8d087b703016071466a258ea664f47b105bf7e02cc2343811a8dd1b7b3",
       "hash_normalization": "LF",
-      "timestamp": "2026-11-21T05:39:15.651107+00:00"
+      "timestamp": "2026-11-21T11:55:14.853705+00:00"
     },
     "price_model_summary": {
-      "sha256": "191a2a6f92ed8e4c7a5e73b042734441323f19fe8f13dcaeec1aad85752e946a",
+      "sha256": "a4c50b65b1f4e389de4f09c0d39c931ba0741869362e57a482cf1f9a8cdb62aa",
       "hash_normalization": "LF",
-      "timestamp": "2026-11-21T05:27:35.607309+00:00"
+      "timestamp": "2026-11-21T11:42:50.306546+00:00"
     },
     "gold_bq_evidence_summary": {
-      "sha256": "d22c31a4b37ad90f04766b56515e6770d9b26eb8e222bbd06e7b7a6c56b89c13",
+      "sha256": "d88efa84908c236f938024578eaabc998f0699d4e965d8aa9b6a0c487af6df93",
       "hash_normalization": "LF",
-      "timestamp": "2026-11-21T05:30:46.296071+00:00"
+      "timestamp": "2026-11-21T11:46:10.196481+00:00"
+    },
+    "bq2_backtest": {
+      "sha256": "4866e04ce779f725a4e671cf71fc71982dc6598ef6cb1d1930a82a14a9487438",
+      "hash_normalization": "LF",
+      "timestamp": "2026-11-21T11:52:17.094333+00:00"
     }
   },
   "status": "PASS",

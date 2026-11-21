@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T05:33:12.957623+00:00",
+  "generated_at": "2026-11-21T11:48:38.366578+00:00",
   "method": "Compare two materialized Silver/Gold states: row count, distinct grain keys and full multiset SHA256; build-time columns excluded. Both files must use the same fingerprint version.",
   "fingerprint_version": "sha256_multiset_v2",
   "tables_compared": 38,

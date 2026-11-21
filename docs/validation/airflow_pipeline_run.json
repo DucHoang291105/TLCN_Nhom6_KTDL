@@ -1,31 +1,31 @@
 {
-  "generated_at": "2026-11-21T05:02:57.508293+00:00",
+  "generated_at": "2026-11-21T11:17:17.976319+00:00",
   "dag_id": "lakehouse_pipeline",
-  "run_id": "official_v11_20261121",
+  "run_id": "official_v111_20261121",
   "checks": {
     "snapshot_manifest": {
       "status": "PASS",
-      "generated_at": "2026-11-21T04:48:41.302890+00:00",
+      "generated_at": "2026-11-21T11:02:26.070009+00:00",
       "checks": 0
     },
     "bronze_state_audit": {
       "status": "PASS",
-      "generated_at": "2026-11-21T04:49:37.506865+00:00",
+      "generated_at": "2026-11-21T11:03:28.806360+00:00",
       "checks": 0
     },
     "silver_final_verification": {
       "status": "PASS",
-      "generated_at": "2026-11-21T04:55:28.992063+00:00",
+      "generated_at": "2026-11-21T11:09:28.128401+00:00",
       "checks": 30
     },
     "gold_verification": {
       "status": "PASS",
-      "generated_at": "2026-11-21T05:02:52.536093+00:00",
+      "generated_at": "2026-11-21T11:17:17.333745+00:00",
       "checks": 138
     },
     "gold_listing_lifecycle_summary": {
       "status": "PASS",
-      "generated_at": "2026-11-21T05:01:01.242715+00:00",
+      "generated_at": "2026-11-21T11:15:19.130344+00:00",
       "checks": 0
     }
   },

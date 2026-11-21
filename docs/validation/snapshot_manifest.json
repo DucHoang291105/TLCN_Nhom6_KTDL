@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T04:48:41.302890+00:00",
+  "generated_at": "2026-11-21T11:02:26.070009+00:00",
   "expected_batch_id": "20261117",
   "snapshots": [
     {
@@ -491,6 +491,6 @@
     "csv_profiles_parsed": 0,
     "force_rescan": false,
     "workers": 4,
-    "elapsed_seconds": 3.127
+    "elapsed_seconds": 3.6021
   }
 }

@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-11-21T05:36:27.547403+00:00",
-  "demo_table": "lakehouse.smoke_test.features_20261121_053611",
-  "original_snapshot_id": "9086418740938017282",
+  "generated_at": "2026-11-21T11:51:57.111651+00:00",
+  "demo_table": "lakehouse.smoke_test.features_20261121_115141",
+  "original_snapshot_id": "4326061094222890277",
   "checks": {
     "time_travel_old_price_and_row_count": true,
     "merge_update_and_insert": true,
@@ -56,17 +56,17 @@
     ],
     "snapshots": [
       {
-        "snapshot_id": 9086418740938017282,
+        "snapshot_id": 4326061094222890277,
         "operation": "append",
         "summary": {
           "engine-version": "3.5.9",
           "added-data-files": "2",
           "total-equality-deletes": "0",
-          "app-id": "app-20261121053611-0101",
+          "app-id": "app-20261121115141-0066",
           "added-records": "2",
           "total-records": "2",
           "app-name": "DemoIcebergFeatures",
-          "spark.app.id": "app-20261121053611-0101",
+          "spark.app.id": "app-20261121115141-0066",
           "changed-partition-count": "2",
           "engine-name": "spark",
           "manifests-created": "1",
@@ -81,19 +81,19 @@
         }
       },
       {
-        "snapshot_id": 8593938731503247618,
+        "snapshot_id": 3231692726753347777,
         "operation": "overwrite",
         "summary": {
           "engine-version": "3.5.9",
           "added-data-files": "2",
           "total-equality-deletes": "0",
-          "app-id": "app-20261121053611-0101",
+          "app-id": "app-20261121115141-0066",
           "added-records": "2",
           "deleted-data-files": "1",
           "deleted-records": "1",
           "total-records": "3",
           "app-name": "DemoIcebergFeatures",
-          "spark.app.id": "app-20261121053611-0101",
+          "spark.app.id": "app-20261121115141-0066",
           "removed-files-size": "930",
           "changed-partition-count": "2",
           "engine-name": "spark",

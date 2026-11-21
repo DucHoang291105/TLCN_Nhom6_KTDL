@@ -8,15 +8,15 @@
   "history_rows": 167794,
   "history_table": "lakehouse.silver.listing_history",
   "state_table": "lakehouse.silver.listing_history_state",
-  "snapshot_before": "895012613428745884",
-  "snapshot_after": "6158794637145525465",
-  "elapsed_seconds": 21.7582,
+  "snapshot_before": "4842593078319067468",
+  "snapshot_after": "2034035289364733116",
+  "elapsed_seconds": 22.9705,
   "partition_by": [
     "snapshot_date"
   ],
   "status": "PASS",
-  "input_metadata": "s3://lakehouse-silver/real_estate/listing_observation/metadata/00023-b3393a32-ca3d-4ed0-aa4b-d3d231e28bfa.metadata.json",
+  "input_metadata": "s3://lakehouse-silver/real_estate/listing_observation/metadata/00026-bef4d59a-fe86-49f7-9d1e-451582bf0c19.metadata.json",
   "input_validation": "FULL_INPUT_SCAN",
-  "generated_at": "2026-11-21T05:22:40.520979+00:00",
+  "generated_at": "2026-11-21T11:37:41.064434+00:00",
   "input_table": "lakehouse.silver.listing_observation"
 }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T05:39:10.720422+00:00",
+  "generated_at": "2026-11-21T11:55:09.749387+00:00",
   "superset": "http://localhost:8088",
   "database": "Lakehouse Gold (Trino)",
   "datasets": {
@@ -40,9 +40,9 @@
         "hcm_share": 0.6339751273599041,
         "latest_crawl_date": "2026-11-17",
         "hcm_ring": {
-          "center": 163.55279920495832,
-          "outer": 26.459136421103484,
-          "null": 104.55312782252449
+          "center": 163.84823632106,
+          "outer": 26.399937640122236,
+          "null": 104.46298014558697
         },
         "hcm_red_districts": [
           "Q.1",
@@ -183,7 +183,7 @@
   "chart_checks": [
     {
       "chart": "Tin rao bán đang phân tích",
-      "chart_id": 280,
+      "chart_id": 329,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -199,7 +199,7 @@
     },
     {
       "chart": "Median giá chào/m² (triệu)",
-      "chart_id": 281,
+      "chart_id": 330,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -213,7 +213,7 @@
     },
     {
       "chart": "Trung tâm / ngoại thành",
-      "chart_id": 282,
+      "chart_id": 331,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -221,13 +221,13 @@
       "match": true,
       "sample": [
         {
-          "lần": 6.197841258927546
+          "lần": 6.21207629680286
         }
       ]
     },
     {
       "chart": "Kết luận cho lựa chọn hiện tại",
-      "chart_id": 283,
+      "chart_id": 332,
       "viz": "handlebars",
       "status": "success",
       "rows": 1,
@@ -240,18 +240,18 @@
           "co_vanh_dai": true,
           "gap_lan": "6,2",
           "median_m2": "115",
-          "ngoai_thanh": "26",
+          "ngoai_thanh": "27",
           "province_name": "Hồ Chí Minh",
           "so_tin": "55.349",
           "tren_200": "19%",
-          "trung_tam": "164",
+          "trung_tam": "163",
           "ty_le_toa_do": "43%"
         }
       ]
     },
     {
       "chart": "Giá/m² theo vị trí – mỗi chấm một tin có tọa độ (trong 30 km quanh trung tâm tỉnh)",
-      "chart_id": 284,
+      "chart_id": 333,
       "viz": "deck_scatter",
       "status": "success",
       "rows": 15391,
@@ -259,25 +259,25 @@
       "match": true,
       "sample": [
         {
-          "lat": 10.793,
-          "lon": 106.5811,
+          "lat": 10.7173,
+          "lon": 106.7368,
           "muc_gia": "2. 60–100 tr/m²"
         },
         {
-          "lat": 10.793402,
-          "lon": 106.6332,
-          "muc_gia": "4. Trên 200 tr/m²"
+          "lat": 10.824377,
+          "lon": 106.70332,
+          "muc_gia": "3. 100–200 tr/m²"
         },
         {
-          "lat": 10.774061,
-          "lon": 106.62773,
-          "muc_gia": "3. 100–200 tr/m²"
+          "lat": 10.815694,
+          "lon": 106.63521,
+          "muc_gia": "2. 60–100 tr/m²"
         }
       ]
     },
     {
       "chart": "Median giá/m² theo khoảng cách tới trung tâm tỉnh (mỗi cột ≥ 30 tin)",
-      "chart_id": 285,
+      "chart_id": 334,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 5,
@@ -287,23 +287,23 @@
         {
           "vanh_dai": "1. Dưới 5 km",
           "muc_vanh_dai": "1. Dưới 5 km",
-          "Median triệu/m²": 162.76134354729354
+          "Median triệu/m²": 164.56554226361908
         },
         {
           "vanh_dai": "2. 5–10 km",
           "muc_vanh_dai": "2. 5–10 km",
-          "Median triệu/m²": 119.0515210675707
+          "Median triệu/m²": 119.29859455257883
         },
         {
           "vanh_dai": "3. 10–15 km",
           "muc_vanh_dai": "3. 10–15 km",
-          "Median triệu/m²": 86.20957290363401
+          "Median triệu/m²": 86.07331769772959
         }
       ]
     },
     {
-      "chart": "(Cố định) Cùng cách trung tâm 5–10 km: nhà phố Hà Nội 256 tr/m², TP.HCM 119 tr/m² – gấp 2,2 lần; Hà Nội đắt hơn ở mọi vành đai đủ dữ liệu",
-      "chart_id": 286,
+      "chart": "(Cố định) Cùng cách trung tâm 5–10 km: nhà phố Hà Nội 256 tr/m², TP.HCM 120 tr/m² – gấp 2,1 lần; Hà Nội đắt hơn ở mọi vành đai đủ dữ liệu",
+      "chart_id": 335,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 10,
@@ -312,24 +312,24 @@
       "sample": [
         {
           "vanh_dai": "1. Dưới 5 km",
-          "thanh_pho": "Hà Nội",
-          "Median triệu/m²": 298.7933982885484
+          "thanh_pho": "Hồ Chí Minh",
+          "Median triệu/m²": 163.43962835696047
         },
         {
           "vanh_dai": "1. Dưới 5 km",
-          "thanh_pho": "Hồ Chí Minh",
-          "Median triệu/m²": 163.7618777212447
+          "thanh_pho": "Hà Nội",
+          "Median triệu/m²": 298.5695914177785
         },
         {
           "vanh_dai": "1. Dưới 5 km",
           "thanh_pho": "Đà Nẵng",
-          "Median triệu/m²": 99.03969720646462
+          "Median triệu/m²": 99.4929815316118
         }
       ]
     },
     {
       "chart": "(Cố định) Nhà phố Hà Nội 273 tr/m², gấp 2,4 lần TP.HCM (115 tr/m²) – median theo tỉnh, nhóm ≥ 30 tin",
-      "chart_id": 287,
+      "chart_id": 336,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 12,
@@ -355,7 +355,7 @@
     },
     {
       "chart": "Tin trong phân khúc",
-      "chart_id": 288,
+      "chart_id": 337,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -371,7 +371,7 @@
     },
     {
       "chart": "Quận trung tâm (< 5 km) được",
-      "chart_id": 289,
+      "chart_id": 338,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -385,7 +385,7 @@
     },
     {
       "chart": "Quận rộng nhất / hẹp nhất",
-      "chart_id": 290,
+      "chart_id": 339,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -399,7 +399,7 @@
     },
     {
       "chart": "Tin có lựa chọn tốt hơn cùng quận",
-      "chart_id": 291,
+      "chart_id": 340,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -413,7 +413,7 @@
     },
     {
       "chart": "Kết luận cho lựa chọn hiện tại",
-      "chart_id": 292,
+      "chart_id": 341,
       "viz": "handlebars",
       "status": "success",
       "rows": 1,
@@ -441,7 +441,7 @@
     },
     {
       "chart": "Diện tích nhận được theo quận (vòng càng to càng rộng; đỏ < 50 m², xanh > 150 m²)",
-      "chart_id": 293,
+      "chart_id": 342,
       "viz": "deck_scatter",
       "status": "success",
       "rows": 23,
@@ -449,28 +449,28 @@
       "match": true,
       "sample": [
         {
-          "lat": 10.7346625,
-          "lon": 106.6555098,
+          "lat": 10.76471905,
+          "lon": 106.647995,
           "dien_tich_nhan": "1. Dưới 50 m²",
-          "√ median diện tích": 6.4031242374328485
+          "√ median diện tích": 6.324555320336759
         },
         {
-          "lat": 10.795692445,
-          "lon": 106.649671,
+          "lat": 10.7557571730769,
+          "lon": 106.67166,
           "dien_tich_nhan": "1. Dưới 50 m²",
-          "√ median diện tích": 6.48074069840786
+          "√ median diện tích": 6.708203932499369
         },
         {
-          "lat": 10.968843,
-          "lon": 106.50734,
+          "lat": 10.554973,
+          "lon": 106.856619316895,
           "dien_tich_nhan": "4. Trên 150 m²",
-          "√ median diện tích": 12.96148139681572
+          "√ median diện tích": 13.92838827718412
         }
       ]
     },
     {
       "chart": "Median diện tích theo quận, xếp theo khoảng cách tới trung tâm (nhãn: km · quận · số tin)",
-      "chart_id": 294,
+      "chart_id": 343,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 26,
@@ -493,13 +493,18 @@
     },
     {
       "chart": "Tăng ngân sách thì được thêm bao nhiêu m²? Median diện tích theo vùng khoảng cách (mỗi điểm ≥ 50 tin)",
-      "chart_id": 295,
+      "chart_id": 344,
       "viz": "echarts_timeseries_line",
       "status": "success",
       "rows": 18,
       "error": null,
       "match": true,
       "sample": [
+        {
+          "muc_ngan_sach": "2. 1 - 2 tỷ",
+          "vung": "3. Quận xa hơn 10 km",
+          "m²": 73.07038216291353
+        },
         {
           "muc_ngan_sach": "2. 1 - 2 tỷ",
           "vung": "2. Quận cách 5–10 km",
@@ -509,17 +514,12 @@
           "muc_ngan_sach": "2. 1 - 2 tỷ",
           "vung": "1. Quận trung tâm (< 5 km)",
           "m²": 39.74444444444445
-        },
-        {
-          "muc_ngan_sach": "2. 1 - 2 tỷ",
-          "vung": "3. Quận xa hơn 10 km",
-          "m²": 73.07038216291353
         }
       ]
     },
     {
       "chart": "Ví dụ thật mỗi quận: tin B rẻ hơn ≥ 10%, rộng hơn ≥ 20%, không kém về phòng/mặt tiền/ô tô (giá/m² trong P25–P75 cùng nhóm quận, loại hình, ngân sách)",
-      "chart_id": 296,
+      "chart_id": 345,
       "viz": "table",
       "status": "success",
       "rows": 18,
@@ -569,7 +569,7 @@
     },
     {
       "chart": "Danh sách nên xem trước: tin không bị tin nào cùng quận vừa rẻ hơn vừa không kém (bỏ tin giá/m² lệch > 3 lần median quận)",
-      "chart_id": 297,
+      "chart_id": 346,
       "viz": "table",
       "status": "success",
       "rows": 500,
@@ -607,7 +607,7 @@
     },
     {
       "chart": "Tỷ lệ hạ giá: trên P75 / còn lại",
-      "chart_id": 298,
+      "chart_id": 347,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -621,7 +621,7 @@
     },
     {
       "chart": "Mặt tiền đắt hơn ở",
-      "chart_id": 299,
+      "chart_id": 348,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -635,7 +635,7 @@
     },
     {
       "chart": "Sai số điển hình của giá ước tính (%)",
-      "chart_id": 300,
+      "chart_id": 349,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -643,13 +643,13 @@
       "match": true,
       "sample": [
         {
-          "%": 25.045385623587727
+          "%": 25.424626367261695
         }
       ]
     },
     {
       "chart": "Rao cao hơn ước tính ≥ 30%",
-      "chart_id": 301,
+      "chart_id": 350,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -665,7 +665,7 @@
     },
     {
       "chart": "Kết luận cho lựa chọn hiện tại",
-      "chart_id": 302,
+      "chart_id": 351,
       "viz": "handlebars",
       "status": "success",
       "rows": 1,
@@ -694,7 +694,7 @@
     },
     {
       "chart": "Tỷ lệ hạ giá (1–30%): giá đầu quan sát so với P25–P75 nhóm hiện tại",
-      "chart_id": 303,
+      "chart_id": 352,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 3,
@@ -720,7 +720,7 @@
     },
     {
       "chart": "Kiểm chứng mô hình trên tập test: giá ước tính so với giá chào thật theo 10 nhóm giá",
-      "chart_id": 304,
+      "chart_id": 353,
       "viz": "echarts_timeseries_line",
       "status": "success",
       "rows": 10,
@@ -746,7 +746,7 @@
     },
     {
       "chart": "Dữ liệu thô có xác nhận mô hình không? Chênh giá/m² khi tiêu đề nêu đặc điểm (%)",
-      "chart_id": 305,
+      "chart_id": 354,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 5,
@@ -772,7 +772,7 @@
     },
     {
       "chart": "Tin rao cao (đỏ) và thấp (xanh) so với giá ước tính – lệch ≥ 30%",
-      "chart_id": 306,
+      "chart_id": 355,
       "viz": "deck_scatter",
       "status": "success",
       "rows": 15164,
@@ -780,25 +780,25 @@
       "match": true,
       "sample": [
         {
-          "lat": 10.793,
-          "lon": 106.5811,
-          "muc_chenh": "3. Rao cao hơn ước tính ≥ 30%"
+          "lat": 10.7173,
+          "lon": 106.7368,
+          "muc_chenh": "1. Rao thấp hơn ước tính ≥ 30%"
         },
         {
-          "lat": 10.793402,
-          "lon": 106.6332,
-          "muc_chenh": "3. Rao cao hơn ước tính ≥ 30%"
+          "lat": 10.824377,
+          "lon": 106.70332,
+          "muc_chenh": "2. Trong ±30% ước tính"
         },
         {
-          "lat": 10.774061,
-          "lon": 106.62773,
-          "muc_chenh": "3. Rao cao hơn ước tính ≥ 30%"
+          "lat": 10.815694,
+          "lon": 106.63521,
+          "muc_chenh": "1. Rao thấp hơn ước tính ≥ 30%"
         }
       ]
     },
     {
       "chart": "Tỷ lệ tin rao cao hơn ước tính ≥ 30% theo quận (quận ≥ 100 tin)",
-      "chart_id": 307,
+      "chart_id": 356,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 15,
@@ -821,7 +821,7 @@
     },
     {
       "chart": "Ví dụ thật: giá đầu quan sát trên P75 nhóm hiện tại, sau đó hạ giá 1–30%",
-      "chart_id": 308,
+      "chart_id": 357,
       "viz": "table",
       "status": "success",
       "rows": 147,
@@ -862,7 +862,7 @@
     },
     {
       "chart": "Tra cứu tin: giá chào so với giá ước tính và P25–P75 nhóm tương đồng (bỏ tin lệch > 200%: thường là xếp nhầm loại hình)",
-      "chart_id": 309,
+      "chart_id": 358,
       "viz": "table",
       "status": "success",
       "rows": 1000,
@@ -909,7 +909,7 @@
     },
     {
       "chart": "Quãng đường từ quận đang nhắm (km)",
-      "chart_id": 310,
+      "chart_id": 359,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -923,7 +923,7 @@
     },
     {
       "chart": "Quận rẻ hơn, đường đi tương đương",
-      "chart_id": 311,
+      "chart_id": 360,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -939,7 +939,7 @@
     },
     {
       "chart": "Rẻ hơn nhiều nhất (%)",
-      "chart_id": 312,
+      "chart_id": 361,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -955,7 +955,7 @@
     },
     {
       "chart": "Tiết kiệm tối đa (tỷ đồng)",
-      "chart_id": 313,
+      "chart_id": 362,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -969,7 +969,7 @@
     },
     {
       "chart": "Kết luận cho lựa chọn hiện tại",
-      "chart_id": 314,
+      "chart_id": 363,
       "viz": "handlebars",
       "status": "success",
       "rows": 1,
@@ -995,13 +995,19 @@
     },
     {
       "chart": "Các quận quanh nơi làm/học – đen: nơi làm/học, xanh: đáng cân nhắc, xám: có quận vừa gần hơn vừa rẻ hơn; vòng càng to càng đắt",
-      "chart_id": 315,
+      "chart_id": 364,
       "viz": "deck_scatter",
       "status": "success",
       "rows": 23,
       "error": null,
       "match": true,
       "sample": [
+        {
+          "lat": 10.94737,
+          "lon": 106.69939914725,
+          "lua_chon": "1. Đáng cân nhắc",
+          "√ chi phí (tỷ)": 1.9567398000657343
+        },
         {
           "lat": 10.73187,
           "lon": 106.72285,
@@ -1013,18 +1019,12 @@
           "lon": 106.5883255,
           "lua_chon": "2. Có quận vừa gần hơn vừa rẻ hơn",
           "√ chi phí (tỷ)": 1.8082734696877214
-        },
-        {
-          "lat": 10.8081255,
-          "lon": 106.70321,
-          "lua_chon": "2. Có quận vừa gần hơn vừa rẻ hơn",
-          "√ chi phí (tỷ)": 3.50105370555499
         }
       ]
     },
     {
       "chart": "Quận thay thế: rẻ hơn bao nhiêu % (nhãn: quãng đường, chênh km, số tin)",
-      "chart_id": 316,
+      "chart_id": 365,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 6,
@@ -1047,7 +1047,7 @@
     },
     {
       "chart": "(Tất cả nơi làm/học) Ở cả 16 nơi, luôn có quận rẻ hơn 6%–69% mà đường đi không xa hơn – lớn nhất: Khu chế xuất Tân Thuận: Quận 1 5,8 km → Quận 4 4,1 km",
-      "chart_id": 317,
+      "chart_id": 366,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 16,
@@ -1070,7 +1070,7 @@
     },
     {
       "chart": "(Cố định) Kiểm chứng tọa độ: 12/16 điểm đến nằm gần tâm đúng quận chứa nó nhất; số còn lại rơi vào quận giáp ranh",
-      "chart_id": 318,
+      "chart_id": 367,
       "viz": "table",
       "status": "success",
       "rows": 16,
@@ -1102,7 +1102,7 @@
     },
     {
       "chart": "Mọi quận: quãng đường tới nơi làm/học và chi phí (tỷ đồng) cho cùng diện tích",
-      "chart_id": 319,
+      "chart_id": 368,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 24,
@@ -1128,7 +1128,7 @@
     },
     {
       "chart": "Tin rao giá điển hình ở các quận thay thế (giá/m² 0,8–1,25× median quận đó)",
-      "chart_id": 320,
+      "chart_id": 369,
       "viz": "table",
       "status": "success",
       "rows": 300,
@@ -1166,7 +1166,7 @@
     },
     {
       "chart": "Bản ghi đạt PASS",
-      "chart_id": 321,
+      "chart_id": 370,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -1182,7 +1182,7 @@
     },
     {
       "chart": "Bản ghi bị loại",
-      "chart_id": 322,
+      "chart_id": 371,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -1196,7 +1196,7 @@
     },
     {
       "chart": "Tin nghi trùng giữa nguồn",
-      "chart_id": 323,
+      "chart_id": 372,
       "viz": "big_number_total",
       "status": "success",
       "rows": 1,
@@ -1210,7 +1210,7 @@
     },
     {
       "chart": "Sửa luật với nhãn sơ bộ đã rà soát một lượt: loại hình đúng 84,2% → 89,5%; recall pháp lý, mặt tiền, ô tô lên 100%, precision giữ 100% (76 tin test)",
-      "chart_id": 324,
+      "chart_id": 373,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 6,
@@ -1228,15 +1228,15 @@
           "Luật mới (v5)": 1.0
         },
         {
-          "chi_so": "Mặt tiền – recall",
+          "chi_so": "Nội thất – recall",
           "Luật cũ (v4)": 0.8571,
-          "Luật mới (v5)": 1.0
+          "Luật mới (v5)": 0.8571
         }
       ]
     },
     {
       "chart": "guland có 69% bản ghi WARN (thiếu/sửa một trường); các nguồn khác ≥ 92% PASS",
-      "chart_id": 325,
+      "chart_id": 374,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 9,
@@ -1265,7 +1265,7 @@
     },
     {
       "chart": "Tọa độ chỉ có ở 36% tin, pháp lý 16% – bản đồ và khoảng cách dựa trên phần tin có tọa độ",
-      "chart_id": 326,
+      "chart_id": 375,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 9,
@@ -1273,20 +1273,20 @@
       "match": true,
       "sample": [
         {
-          "source": "muaban",
-          "Giá": 1.0,
-          "Diện tích": 0.991736,
-          "Số phòng": 0.38843,
-          "Tọa độ": 0.0,
-          "Pháp lý": 0.046832
-        },
-        {
           "source": "luachonnhadat",
           "Giá": 1.0,
           "Diện tích": 0.998867,
           "Số phòng": 0.0,
           "Tọa độ": 0.0,
           "Pháp lý": 0.001133
+        },
+        {
+          "source": "muaban",
+          "Giá": 1.0,
+          "Diện tích": 0.991736,
+          "Số phòng": 0.38843,
+          "Tọa độ": 0.0,
+          "Pháp lý": 0.046832
         },
         {
           "source": "mogi",
@@ -1300,7 +1300,7 @@
     },
     {
       "chart": "Từ dữ liệu crawl tới tin dùng để phân tích (số dòng mỗi tầng)",
-      "chart_id": 327,
+      "chart_id": 376,
       "viz": "echarts_timeseries_bar",
       "status": "success",
       "rows": 5,
@@ -1325,7 +1325,7 @@
     },
     {
       "chart": "Nguồn dữ liệu và ngày quan sát mới nhất",
-      "chart_id": 328,
+      "chart_id": 377,
       "viz": "table",
       "status": "success",
       "rows": 9,

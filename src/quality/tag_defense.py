@@ -9,7 +9,7 @@ from pathlib import Path
 from src.orchestration.snapshot_manifest import file_checksum
 from src.quality.defense_evidence import ROOT, all_pass, code_state, inputs, read, evidence_checksum
 
-PLANNED_TAGS = ("v1.0-bao-ve", "v1.1-bao-ve")
+PLANNED_TAGS = ("v1.0-bao-ve", "v1.1-bao-ve", "v1.1.1-bao-ve")
 
 def verified_candidate(root, evidence):
     if evidence.get("status") != "PASS" or not all_pass(evidence.get("checks", {})):
