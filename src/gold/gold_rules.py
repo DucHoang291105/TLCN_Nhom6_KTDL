@@ -294,7 +294,41 @@ def legal_not_stated_by_position(rows: Iterable[tuple[Any, Any, int]]) -> dict[s
         "by_position": by_position,
         "below_p25_share": below,
         "other_priced_share": others,
-        "difference_points": None if below is None or others is None else round(below - others, 6),
+        "difference_share": None if below is None or others is None else round(below - others, 6),
+    }
+
+
+def legal_not_stated_by_category(rows: Iterable[tuple[Any, Any, Any, int]]) -> dict[str, Any]:
+    """Same comparison as :func:`legal_not_stated_by_position`, inside each property category.
+
+    ``rows`` are ``(category, price_position, legal_known, listing_count)``.
+    ``standardized_difference_share`` averages the within-category differences
+    weighted by each category's below-P25 listing count, so it shows what the
+    difference would be if both groups had the same category mix. If it stays
+    close to the overall difference, the category mix does not explain it.
+    """
+
+    grouped: dict[str, list[tuple[Any, Any, int]]] = {}
+    for category, position, legal_known, count in rows:
+        grouped.setdefault(str(category), []).append((position, legal_known, count))
+    by_category: dict[str, dict[str, Any]] = {}
+    weighted = 0.0
+    weight = 0
+    for category in sorted(grouped):
+        result = legal_not_stated_by_position(grouped[category])
+        below_listings = result["by_position"].get("duoi_p25", {}).get("listings", 0)
+        by_category[category] = {
+            "below_p25_listings": below_listings,
+            "below_p25_share": result["below_p25_share"],
+            "other_priced_share": result["other_priced_share"],
+            "difference_share": result["difference_share"],
+        }
+        if result["difference_share"] is not None and below_listings:
+            weighted += below_listings * result["difference_share"]
+            weight += below_listings
+    return {
+        "by_category": by_category,
+        "standardized_difference_share": round(weighted / weight, 6) if weight else None,
     }
 
 

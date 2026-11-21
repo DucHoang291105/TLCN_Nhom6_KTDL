@@ -338,6 +338,12 @@ def main() -> None:
             "H2_supported": bool(residual_all.get("top_quintile_vs_rest", {}).get("price_drop_higher_and_significant")),
             "H2_supported_on_test_split": bool(residual_test_split.get("top_quintile_vs_rest", {}).get("price_drop_higher_and_significant")),
         },
+        "conclusion_notes": {
+            "H1_supported": "Legacy key: significant at 5% without multiple-testing correction. "
+                            "Report H1_supported_after_multiple_testing instead.",
+            "H2_supported": "Legacy key: significant at 5% without multiple-testing correction.",
+            "preliminary": "Associations from a short observation window; not a forecast and not causal.",
+        },
         "limitations": [
             "Short window of twice-weekly crawls: few listings can show a price change.",
             "listed_days is the span between first and last observation, not time to sale.",

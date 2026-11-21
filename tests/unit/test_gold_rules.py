@@ -4,7 +4,7 @@ import pytest
 
 from src.gold.gold_rules import (
     UNKNOWN_KEY, Band, band_key, cluster_pairs, is_cross_source_duplicate, jaccard,
-    legal_not_stated_by_position, load_bands, pick_representative, title_tokens, validate_bands,
+    legal_not_stated_by_category, legal_not_stated_by_position, load_bands, pick_representative, title_tokens, validate_bands,
 )
 
 BANDS = load_bands()
@@ -138,11 +138,28 @@ def test_legal_not_stated_share_compares_below_p25_with_other_priced_positions()
     assert result["by_position"]["duoi_p25"] == {"listings": 100, "title_states_no_legal": 80, "share": 0.8}
     assert result["below_p25_share"] == 0.8
     assert result["other_priced_share"] == 0.65  # (60 + 70) / 200, unpriced listings excluded
-    assert result["difference_points"] == 0.15
+    assert result["difference_share"] == 0.15
 
 
 def test_legal_not_stated_share_handles_missing_groups():
     result = legal_not_stated_by_position([("duoi_p25", None, 4)])
     assert result["below_p25_share"] == 1.0
-    assert result["other_priced_share"] is None and result["difference_points"] is None
+    assert result["other_priced_share"] is None and result["difference_share"] is None
     assert legal_not_stated_by_position([])["below_p25_share"] is None
+
+
+def test_legal_not_stated_by_category_standardizes_the_category_mix():
+    rows = [
+        # Land: below P25 states legal more often (30% unstated vs 50% elsewhere).
+        ("dat", "duoi_p25", False, 30), ("dat", "duoi_p25", True, 70),
+        ("dat", "p25_p75", False, 50), ("dat", "p25_p75", True, 50),
+        # Houses: no difference (90% unstated in both groups).
+        ("nha", "duoi_p25", False, 90), ("nha", "duoi_p25", True, 10),
+        ("nha", "tren_p75", False, 180), ("nha", "tren_p75", True, 20),
+    ]
+    result = legal_not_stated_by_category(rows)
+    assert result["by_category"]["dat"]["difference_share"] == -0.2
+    assert result["by_category"]["nha"]["difference_share"] == 0.0
+    # Weighted by below-P25 listings: (100 * -0.2 + 100 * 0.0) / 200
+    assert result["standardized_difference_share"] == -0.1
+    assert legal_not_stated_by_category([])["standardized_difference_share"] is None
