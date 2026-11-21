@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-11-21T11:42:08.050799+00:00",
-  "finished_at": "2026-11-21T11:42:50.306546+00:00",
+  "started_at": "2026-11-21T12:50:01.220522+00:00",
+  "finished_at": "2026-11-21T12:51:01.508771+00:00",
   "output_tables": [
     "lakehouse.gold.fact_listing_price_model",
     "lakehouse.gold.agg_price_model_coefficient"
@@ -146,55 +146,55 @@
         "title_has_car_access": {
           "train_rows_with_flag": 14791,
           "coefficient": 0.0776,
-          "std_error": 0.004921,
+          "std_error": 0.004977,
           "premium_pct": 0.0807,
           "ci95_premium_pct": [
-            0.0703,
-            0.0912
+            0.0702,
+            0.0913
           ],
           "significant_at_5pct": true
         },
         "title_has_elevator": {
           "train_rows_with_flag": 3334,
           "coefficient": 0.27143,
-          "std_error": 0.009553,
+          "std_error": 0.009663,
           "premium_pct": 0.3118,
           "ci95_premium_pct": [
-            0.2875,
-            0.3366
+            0.2872,
+            0.3369
           ],
           "significant_at_5pct": true
         },
         "title_has_frontage": {
           "train_rows_with_flag": 13733,
           "coefficient": 0.429704,
-          "std_error": 0.005223,
+          "std_error": 0.005283,
           "premium_pct": 0.5368,
           "ci95_premium_pct": [
-            0.5212,
-            0.5526
+            0.521,
+            0.5528
           ],
           "significant_at_5pct": true
         },
         "title_has_furnished": {
           "train_rows_with_flag": 2901,
           "coefficient": 0.000158,
-          "std_error": 0.009378,
+          "std_error": 0.009486,
           "premium_pct": 0.0002,
           "ci95_premium_pct": [
-            -0.0181,
-            0.0187
+            -0.0183,
+            0.0189
           ],
           "significant_at_5pct": false
         },
         "title_has_legal": {
           "train_rows_with_flag": 9206,
           "coefficient": -0.165971,
-          "std_error": 0.005835,
+          "std_error": 0.005902,
           "premium_pct": -0.1529,
           "ci95_premium_pct": [
-            -0.1626,
-            -0.1432
+            -0.1627,
+            -0.1431
           ],
           "significant_at_5pct": true
         }
@@ -242,51 +242,51 @@
         "title_has_car_access": {
           "train_rows_with_flag": 236,
           "coefficient": 0.118057,
-          "std_error": 0.02582,
+          "std_error": 0.025868,
           "premium_pct": 0.1253,
           "ci95_premium_pct": [
-            0.0698,
-            0.1837
+            0.0697,
+            0.1838
           ],
           "significant_at_5pct": true
         },
         "title_has_elevator": {
           "train_rows_with_flag": 116,
           "coefficient": 0.271698,
-          "std_error": 0.036832,
+          "std_error": 0.0369,
           "premium_pct": 0.3122,
           "ci95_premium_pct": [
-            0.2208,
-            0.4104
+            0.2206,
+            0.4106
           ],
           "significant_at_5pct": true
         },
         "title_has_frontage": {
           "train_rows_with_flag": 419,
           "coefficient": 0.056243,
-          "std_error": 0.019878,
+          "std_error": 0.019915,
           "premium_pct": 0.0579,
           "ci95_premium_pct": [
             0.0174,
-            0.0999
+            0.1
           ],
           "significant_at_5pct": true
         },
         "title_has_furnished": {
           "train_rows_with_flag": 4757,
           "coefficient": -0.098695,
-          "std_error": 0.00667,
+          "std_error": 0.006682,
           "premium_pct": -0.094,
           "ci95_premium_pct": [
-            -0.1057,
-            -0.0821
+            -0.1058,
+            -0.082
           ],
           "significant_at_5pct": true
         },
         "title_has_legal": {
           "train_rows_with_flag": 5071,
           "coefficient": -0.140935,
-          "std_error": 0.006757,
+          "std_error": 0.006769,
           "premium_pct": -0.1315,
           "ci95_premium_pct": [
             -0.1429,
@@ -338,55 +338,55 @@
         "title_has_car_access": {
           "train_rows_with_flag": 364,
           "coefficient": 0.037856,
-          "std_error": 0.033633,
+          "std_error": 0.0339,
           "premium_pct": 0.0386,
           "ci95_premium_pct": [
-            -0.0277,
-            0.1094
+            -0.0282,
+            0.1099
           ],
           "significant_at_5pct": false
         },
         "title_has_elevator": {
           "train_rows_with_flag": 382,
           "coefficient": 0.270468,
-          "std_error": 0.032162,
+          "std_error": 0.032418,
           "premium_pct": 0.3106,
           "ci95_premium_pct": [
-            0.2305,
-            0.3959
+            0.2299,
+            0.3966
           ],
           "significant_at_5pct": true
         },
         "title_has_frontage": {
           "train_rows_with_flag": 1076,
           "coefficient": 0.133501,
-          "std_error": 0.019619,
+          "std_error": 0.019775,
           "premium_pct": 0.1428,
           "ci95_premium_pct": [
-            0.0997,
-            0.1876
+            0.0994,
+            0.188
           ],
           "significant_at_5pct": true
         },
         "title_has_furnished": {
           "train_rows_with_flag": 402,
           "coefficient": 0.110932,
-          "std_error": 0.030626,
+          "std_error": 0.03087,
           "premium_pct": 0.1173,
           "ci95_premium_pct": [
-            0.0522,
-            0.1864
+            0.0517,
+            0.187
           ],
           "significant_at_5pct": true
         },
         "title_has_legal": {
           "train_rows_with_flag": 1015,
           "coefficient": -0.077087,
-          "std_error": 0.020197,
+          "std_error": 0.020358,
           "premium_pct": -0.0742,
           "ci95_premium_pct": [
-            -0.1101,
-            -0.0368
+            -0.1104,
+            -0.0365
           ],
           "significant_at_5pct": true
         }
@@ -434,55 +434,55 @@
         "title_has_car_access": {
           "train_rows_with_flag": 582,
           "coefficient": 0.135585,
-          "std_error": 0.035891,
+          "std_error": 0.035972,
           "premium_pct": 0.1452,
           "ci95_premium_pct": [
-            0.0674,
-            0.2287
+            0.0672,
+            0.2289
           ],
           "significant_at_5pct": true
         },
         "title_has_elevator": {
           "train_rows_with_flag": 3,
           "coefficient": 0.409993,
-          "std_error": 0.383886,
+          "std_error": 0.384759,
           "premium_pct": 0.5068,
           "ci95_premium_pct": [
-            -0.29,
-            2.1976
+            -0.2912,
+            2.2031
           ],
           "significant_at_5pct": false
         },
         "title_has_frontage": {
           "train_rows_with_flag": 1208,
           "coefficient": 0.306753,
-          "std_error": 0.025429,
+          "std_error": 0.025486,
           "premium_pct": 0.359,
           "ci95_premium_pct": [
-            0.2929,
-            0.4285
+            0.2928,
+            0.4286
           ],
           "significant_at_5pct": true
         },
         "title_has_furnished": {
           "train_rows_with_flag": 4,
           "coefficient": -0.543439,
-          "std_error": 0.331366,
+          "std_error": 0.33212,
           "premium_pct": -0.4193,
           "ci95_premium_pct": [
-            -0.6967,
-            0.1119
+            -0.6971,
+            0.1135
           ],
           "significant_at_5pct": false
         },
         "title_has_legal": {
           "train_rows_with_flag": 1170,
           "coefficient": -0.090504,
-          "std_error": 0.026391,
+          "std_error": 0.026451,
           "premium_pct": -0.0865,
           "ci95_premium_pct": [
-            -0.1326,
-            -0.038
+            -0.1327,
+            -0.0379
           ],
           "significant_at_5pct": true
         }

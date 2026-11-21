@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from src.gold.price_model_rules import (
     INTERCEPT, MIN_LEVEL_TRAIN_ROWS, OTHER_LOCATION, build_vocabulary, cholesky, cholesky_solve,
-    design_indices, fit_ridge, inverse_diagonal, listing_terms, location_level, normal_equation_entries,
+    design_indices, fit_ridge, inverse_diagonal, listing_terms, log_residual_sse, location_level, normal_equation_entries,
     predict_log, premium_pct, regression_metrics,
 )
 
@@ -231,3 +231,16 @@ def test_blend_prediction_and_pooled_terms():
     assert blend_prediction(120.0, 80.0, BlendRule(0.5, True), "p:Hue") == 80.0
     assert blend_prediction(120.0, 80.0, BlendRule(0.5, True), "other") == 80.0
     assert math.isclose(blend_prediction(100.0, 400.0, BlendRule(0.5, True), "d:1"), 200.0)
+
+
+def test_coefficient_sse_uses_pure_model_prediction_not_blend():
+    actual = [100.0, 200.0, 300.0]
+    model = [110.0, 180.0, 330.0]
+    expected = sum(math.log(a / m) ** 2 for a, m in zip(actual, model))
+    assert close(log_residual_sse(zip(actual, model)), expected)
+    # Changing the blend weight changes the blended price but not the pure model.
+    for weight in (0.0, 0.4, 1.0):
+        baseline = [120.0, 190.0, 280.0]
+        blended = [math.exp(weight * math.log(m) + (1 - weight) * math.log(b)) for m, b in zip(model, baseline)]
+        assert blended != model or weight == 1.0
+        assert close(log_residual_sse(zip(actual, model)), expected)
