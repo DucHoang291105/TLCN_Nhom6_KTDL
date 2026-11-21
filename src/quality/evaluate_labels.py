@@ -103,12 +103,26 @@ def index_predictions(rows):
 
 
 def review_complete(row, needs_review: bool = False):
-    """Labelled with a valid category and five flags; pre-labelled sheets also need two named reviewers."""
+    """Labelled with a valid category and five flags; pre-labelled sheets also need two different named reviewers."""
 
-    reviewed = all((row.get(column) or "").strip() for column in ("review_1", "review_2")) if needs_review else True
+    first, second = ((row.get(column) or "").strip() for column in ("review_1", "review_2"))
+    reviewed = bool(first and second and first.casefold() != second.casefold()) if needs_review else True
     return (row.get("true_category") in CATEGORIES and bool((row.get("labeler") or "").strip()) and reviewed and
             all(parse_flag(row.get(f"true_{flag}")) is not None or
                 (row.get(f"true_{flag}") or "").strip() == "?" for flag in FLAGS))
+
+
+def review_rounds(sheet: list[Mapping[str, str]]) -> dict:
+    """How many rows each review round covered, and by how many people (names are not repeated here)."""
+
+    names = {column: [(row.get(column) or "").strip() for row in sheet] for column in ("review_1", "review_2")}
+    return {
+        "review_1_rows": sum(1 for name in names["review_1"] if name),
+        "review_1_reviewers": len(set(names["review_1"]) - {""}),
+        "review_2_rows": sum(1 for name in names["review_2"] if name),
+        "review_2_reviewers": len(set(names["review_2"]) - {""}),
+        "same_person_both_rounds": sum(1 for a, b in zip(names["review_1"], names["review_2"]) if a and a.casefold() == b.casefold()),
+    }
 
 
 def review_changes(prelabels: list[Mapping[str, str]], sheet: list[Mapping[str, str]]) -> dict:
@@ -144,6 +158,7 @@ def main() -> None:
         with prelabel_path.open(encoding="utf-8-sig", newline="") as handle:
             prelabels = list(csv.DictReader(handle))
     needs_review = prelabels is not None
+    rounds = review_rounds(sheet)
     summary = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "sample_rows": len(sheet),
@@ -152,10 +167,12 @@ def main() -> None:
             "true_category": "property type judged from title, price, area and the listing page",
             "true_<flag>": "1 if the title states the feature, 0 if not (\"?\" = cannot tell)",
         },
-        "label_process": ("pre-labelled by an AI assistant without seeing the system predictions, "
-                          "then reviewed and corrected by two team members (review_1, review_2)") if needs_review
+        "label_process": ("pre-labelled by an AI assistant without seeing the system predictions, then reviewed by team members: "
+                          f"review_1 on {rounds['review_1_rows']}/{len(sheet)} rows ({rounds['review_1_reviewers']} member(s), "
+                          f"one person per row), review_2 on {rounds['review_2_rows']}/{len(sheet)} rows") if needs_review
                          else "labelled by a person",
         "reviewers": sorted({(row.get(c) or "").strip() for row in sheet for c in ("review_1", "review_2")} - {""}),
+        "review_rounds": rounds if needs_review else None,
         **result,
         "review_changes": review_changes(prelabels, sheet) if needs_review else None,
         "reviewed_rows": sum(review_complete(row, needs_review) for row in sheet),

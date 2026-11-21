@@ -1,5 +1,7 @@
 # Quy tắc gán nhãn – dành cho người review
 
+> **Cập nhật 21/11/2026:** nhóm chỉ thực hiện **lượt review 1** (198/198 tin, hai thành viên chia nhau, mỗi tin một người). Lượt 2 và phép gán lại 50 tin để tính kappa không thực hiện do hết thời gian, nên G4 giữ trạng thái `PARTIAL`. Quy tắc dưới đây vẫn là quy tắc đã dùng cho lượt 1; mục 7 mô tả kế hoạch hai lượt ban đầu. Xem [`README.md`](README.md#quy-trình-gán-sơ-bộ--rà-soát-từ-16112026).
+
 Tài liệu này dùng cho hai lượt review file `labeling_sheet.csv` (198 tin, 22 tin × 9 nguồn). Nhãn đã được gán sơ bộ; việc của bạn là **kiểm tra từng dòng và sửa khi thấy sai**. Kết quả của bạn là "đáp án" để chấm độ chính xác của hệ thống (tiêu chí G4), nên cần làm cẩn thận và theo **cùng một quy tắc** như dưới đây.
 
 Thời gian ước tính: 60–90 phút cho 198 dòng.

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-17T17:13:23.167674+00:00",
+  "generated_at": "2026-11-21T13:30:55.808851+00:00",
   "split_salt": "labeling-split-v1",
   "rules_after": "listing_feature_rules_v5",
   "parts": {
@@ -7,6 +7,7 @@
       "rows": 122,
       "before": {
         "category_accuracy": 0.8525,
+        "category_labelled": 122,
         "legal_precision": 1.0,
         "legal_recall": 0.5238,
         "furnished_precision": 1.0,
@@ -16,10 +17,21 @@
         "elevator_precision": 1.0,
         "elevator_recall": 1.0,
         "car_access_precision": 1.0,
-        "car_access_recall": 0.8667
+        "car_access_recall": 0.8667,
+        "legal_support": 21,
+        "legal_labelled": 122,
+        "furnished_support": 6,
+        "furnished_labelled": 122,
+        "frontage_support": 26,
+        "frontage_labelled": 120,
+        "elevator_support": 1,
+        "elevator_labelled": 122,
+        "car_access_support": 15,
+        "car_access_labelled": 121
       },
       "after": {
         "category_accuracy": 0.9016,
+        "category_labelled": 122,
         "legal_precision": 1.0,
         "legal_recall": 1.0,
         "furnished_precision": 1.0,
@@ -29,7 +41,17 @@
         "elevator_precision": 1.0,
         "elevator_recall": 1.0,
         "car_access_precision": 1.0,
-        "car_access_recall": 1.0
+        "car_access_recall": 1.0,
+        "legal_support": 21,
+        "legal_labelled": 122,
+        "furnished_support": 6,
+        "furnished_labelled": 122,
+        "frontage_support": 26,
+        "frontage_labelled": 120,
+        "elevator_support": 1,
+        "elevator_labelled": 122,
+        "car_access_support": 15,
+        "car_access_labelled": 121
       },
       "after_full": null
     },
@@ -37,6 +59,7 @@
       "rows": 76,
       "before": {
         "category_accuracy": 0.8421,
+        "category_labelled": 76,
         "legal_precision": 1.0,
         "legal_recall": 0.8667,
         "furnished_precision": 1.0,
@@ -46,10 +69,21 @@
         "elevator_precision": 1.0,
         "elevator_recall": 1.0,
         "car_access_precision": 1.0,
-        "car_access_recall": 0.8182
+        "car_access_recall": 0.8182,
+        "legal_support": 15,
+        "legal_labelled": 76,
+        "furnished_support": 7,
+        "furnished_labelled": 76,
+        "frontage_support": 21,
+        "frontage_labelled": 76,
+        "elevator_support": 2,
+        "elevator_labelled": 76,
+        "car_access_support": 11,
+        "car_access_labelled": 75
       },
       "after": {
         "category_accuracy": 0.8947,
+        "category_labelled": 76,
         "legal_precision": 1.0,
         "legal_recall": 1.0,
         "furnished_precision": 1.0,
@@ -59,7 +93,17 @@
         "elevator_precision": 1.0,
         "elevator_recall": 1.0,
         "car_access_precision": 1.0,
-        "car_access_recall": 1.0
+        "car_access_recall": 1.0,
+        "legal_support": 15,
+        "legal_labelled": 76,
+        "furnished_support": 7,
+        "furnished_labelled": 76,
+        "frontage_support": 21,
+        "frontage_labelled": 76,
+        "elevator_support": 2,
+        "elevator_labelled": 76,
+        "car_access_support": 11,
+        "car_access_labelled": 75
       },
       "after_full": null
     },
@@ -67,6 +111,7 @@
       "rows": 198,
       "before": {
         "category_accuracy": 0.8485,
+        "category_labelled": 198,
         "legal_precision": 1.0,
         "legal_recall": 0.6667,
         "furnished_precision": 1.0,
@@ -76,10 +121,21 @@
         "elevator_precision": 1.0,
         "elevator_recall": 1.0,
         "car_access_precision": 1.0,
-        "car_access_recall": 0.8462
+        "car_access_recall": 0.8462,
+        "legal_support": 36,
+        "legal_labelled": 198,
+        "furnished_support": 13,
+        "furnished_labelled": 198,
+        "frontage_support": 47,
+        "frontage_labelled": 196,
+        "elevator_support": 3,
+        "elevator_labelled": 198,
+        "car_access_support": 26,
+        "car_access_labelled": 196
       },
       "after": {
         "category_accuracy": 0.899,
+        "category_labelled": 198,
         "legal_precision": 1.0,
         "legal_recall": 1.0,
         "furnished_precision": 1.0,
@@ -89,7 +145,17 @@
         "elevator_precision": 1.0,
         "elevator_recall": 1.0,
         "car_access_precision": 1.0,
-        "car_access_recall": 1.0
+        "car_access_recall": 1.0,
+        "legal_support": 36,
+        "legal_labelled": 198,
+        "furnished_support": 13,
+        "furnished_labelled": 198,
+        "frontage_support": 47,
+        "frontage_labelled": 196,
+        "elevator_support": 3,
+        "elevator_labelled": 198,
+        "car_access_support": 26,
+        "car_access_labelled": 196
       },
       "after_full": {
         "labelled_rows": 198,
