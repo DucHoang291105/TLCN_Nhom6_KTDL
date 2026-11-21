@@ -7,7 +7,7 @@ flowchart TD
     B --> S[Silver Iceberg: observation, current, SCD2, location, feature]
     S --> G[Gold Iceberg: dimensions, listing, lifecycle, BQ1-BQ3, mô hình giá]
     G --> T[Trino]
-    T --> U[Superset: tổng quan và BQ1-BQ3]
+    T --> U[Superset: tổng quan, BQ1-BQ3 và chất lượng dữ liệu]
     A[Airflow: thứ ba và thứ sáu, 22 giờ Việt Nam] -. điều phối và chặn lỗi .-> B
     A -. điều phối và chặn lỗi .-> S
     A -. điều phối và chặn lỗi .-> G
@@ -41,10 +41,10 @@ ghi trong `config/source_gaps.json` và `docs/validation/crawl_inventory.json`.
 ## Tái lập và bản chốt
 
 `scripts/validate_defense.ps1` chạy toàn bộ suite, lưu log riêng trong
-`outputs/defense/<run_id>/`, kiểm tra đủ 30 bảng qua hai rebuild và xuất
+`outputs/defense/<run_id>/`, kiểm tra đủ 38 bảng qua hai rebuild và xuất
 `docs/validation/defense_verification.json`. File này gắn kết quả với checksum
 code/config, toàn bộ input và các JSON minh chứng của đúng lần chạy.
 
-Tag `v1.0-bao-ve` chỉ được tạo khi suite PASS, code/input/minh chứng không đổi,
+Tag `v1.1-bao-ve` chỉ được tạo khi suite PASS, code/input/minh chứng không đổi,
 working tree sạch và CI xanh trên chính commit được tag. Nếu bổ sung dữ liệu
 sau đó, chạy lại suite và tạo bản phát hành tiếp theo; không di chuyển tag cũ.

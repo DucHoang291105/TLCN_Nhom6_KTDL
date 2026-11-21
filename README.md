@@ -75,6 +75,43 @@ data/incoming/snapshots/
 
 Airflow dùng lại CSV nếu batch đã tồn tại. Guland/Nhadatvui chỉ được crawl khi thiếu batch của đúng ngày hiện tại theo giờ Việt Nam. Batdongsan được tiếp nhận qua sensor chờ CSV; sau khi có file, các bước xử lý tiếp theo chạy tự động.
 
+Hai crawler web là các bước thu thập độc lập: một nguồn lỗi không ngăn nguồn kia
+thu thập. Sensor CSV Batdongsan và các lớp xử lý chỉ tiếp tục khi cả hai nguồn
+web hợp lệ. Cấu hình mặc định là **Guland 20 trang, Nhadatvui 200 trang**; có thể
+đổi bằng `GULAND_CRAWL_PAGES` / `NHADATVUI_CRAWL_PAGES`. Mốc 20 trang Guland đã
+chạy thực tế trong container; thử trang 200 hiện bị website trả HTTP 403.
+Đây là phạm vi lấy mẫu, không phải toàn bộ tin trên website. So sánh vòng đời
+giữa các batch cần xét cả thay đổi phạm vi lấy mẫu.
+
+Crawler dừng khi website xác nhận hết dữ liệu, đạt số trang cấu hình, gặp chặn
+HTTP 401/403, hết lượt chờ HTTP 429, lặp trang, hoặc lỗi liên tiếp đạt ngưỡng
+(mặc định 2 trang lỗi). Request timeout mặc định 30 giây, tối đa 3 lần thử;
+ngân sách mỗi lượt mặc định 2.100 giây. Các biến điều chỉnh là
+`CRAWL_REQUEST_TIMEOUT`, `CRAWL_MAX_RETRIES`, `CRAWL_MAX_CONSECUTIVE_FAILURES`,
+`CRAWL_RUN_TIMEOUT_SECONDS` và `CRAWL_DELAY_SECONDS`.
+
+Pipeline cào vào thư mục tạm có tên bắt đầu bằng dấu chấm, kiểm tra summary,
+phạm vi trang, schema và số dòng CSV, rồi mới công bố batch `YYYYMMDD` và lưu
+SHA256. Lượt lỗi giữ lại dữ liệu tạm để kiểm tra, không được nạp như batch PASS.
+CSV đã có được giữ nguyên; batch cào thành công chỉ được tái sử dụng khi checksum
+và hợp đồng dữ liệu còn đúng. CSV lịch sử do người dùng cung cấp vẫn được tiếp
+nhận theo quy trình manifest hiện có.
+
+Có thể thử hai file chạy từ thư mục gốc mà không tạo batch sản xuất:
+
+```powershell
+$env:CRAWL_PAGES = "3"
+$env:CRAWL_OUTPUT_DIR = "$PWD\outputs\crawl_try_guland"
+.\.venv\Scripts\python.exe guland_raw_crawler.py
+$env:CRAWL_OUTPUT_DIR = "$PWD\outputs\crawl_try_nhadatvui"
+.\.venv\Scripts\python.exe nhadatvui_raw_crawler.py
+Remove-Item Env:CRAWL_PAGES, Env:CRAWL_OUTPUT_DIR
+```
+
+Chọn thư mục output mới cho mỗi lần thử; crawler không ghi đè CSV đã tồn tại.
+Summary `PASS` chỉ chứng nhận phạm vi trang đã yêu cầu hoặc điểm kết thúc được
+website xác nhận. `FAIL` / `RUNNING` không đủ điều kiện cho bước nạp Bronze.
+
 Dữ liệu historical đặt trong `data/incoming/historical/<nguồn>/`, theo tên file cấu hình tại `src/bronze/ingest_bronze.py`.
 
 ## Kết quả đã kiểm chứng

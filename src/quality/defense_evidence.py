@@ -13,7 +13,7 @@ from xml.etree import ElementTree
 from src.common.atomic_io import write_json_atomic
 from src.dashboard.provision_superset import CHARTS
 from src.common.table_fingerprints import GRAINS, MULTISET_TABLES
-from src.orchestration.pipeline import DAG_TASK_COUNT, SOURCES, validate_batch
+from src.orchestration.pipeline import DAG_TASK_COUNT, SOURCES, validate_batch, failure_gate_tasks_valid
 from src.orchestration.snapshot_manifest import file_checksum
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -22,6 +22,7 @@ ARTIFACTS = (
     "silver_final_verification", "gold_verification", "deterministic_rebuild",
     "history_incremental_verification", "lifecycle_fixture_tests", "iceberg_features",
     "superset_dashboard_check", "pipeline_dashboard_integration",
+    "price_model_summary", "gold_bq_evidence_summary",
 )
 
 
@@ -33,12 +34,22 @@ def all_pass(checks):
     return bool(checks) and all(value is True for value in checks.values())
 
 
+def evidence_checksum(path):
+    """Bind JSON content while tolerating Git's LF/CRLF checkout conversion.
+
+    Input CSV checksums remain byte-for-byte; only versioned JSON evidence
+    uses this explicitly recorded newline normalization.
+    """
+    return hashlib.sha256(Path(path).read_bytes().replace(b'\r\n', b'\n')).hexdigest()
+
+
 def code_state(root):
     """Hash tracked and not-ignored code/config; omit secrets and runtime outputs."""
     raw = subprocess.check_output(["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"], cwd=root)
     paths = {p.decode("utf-8") for p in raw.split(b"\0") if p}
     selected = {p for p in paths if p.startswith(("src/", "scripts/", "tests/", "dags/", "config/", "docker/", ".github/"))
-                or p in {"docker-compose.yml", ".gitignore", ".gitattributes", "requirements.txt", "requirements-dev.txt"}
+                or p in {"docker-compose.yml", ".gitignore", ".gitattributes", ".env.example",
+                         "requirements.txt", "requirements-dev.txt", "guland_raw_crawler.py", "nhadatvui_raw_crawler.py"}
                 or p in {"docs/operations/release_validation.md", "docs/architecture.md"}}
     files = {}
     for name in sorted(selected):
@@ -154,7 +165,7 @@ def verify(root, work):
         "correct_airflow_run": run["run_id"] == baseline["run_id"],
         "airflow_all_tasks_success": run["state"] == "success" and len(run["tasks"]) == DAG_TASK_COUNT and all(t["state"] == "success" for t in run["tasks"]),
         "failure_blocks_downstream": failure.get("verification_status") == "PASS" and all_pass(failure.get("checks", {}))
-            and len(failure["tasks"]) == DAG_TASK_COUNT and sum(t["state"] == "upstream_failed" for t in failure["tasks"]) == DAG_TASK_COUNT - 1,
+            and failure_gate_tasks_valid(failure["tasks"]),
         "silver_quality": silver["status"] == "PASS" and len(silver["checks"]) >= 30 and all_pass(silver["checks"]),
         "gold_quality": gold["status"] == "PASS" and len(gold["checks"]) >= 108 and all_pass(gold["checks"]),
         "bronze_audit": docs["bronze_state_audit"]["status"] == "PASS",
@@ -176,9 +187,9 @@ def verify(root, work):
     evidence = {}
     for name, data in docs.items():
         path = root / "docs/validation" / f"{name}.json"
-        timestamp = data.get("generated_at") or datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat()
+        timestamp = data.get("generated_at") or data.get("finished_at") or datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat()
         checks[f"fresh:{name}"] = datetime.fromisoformat(timestamp.replace("Z", "+00:00")) >= started
-        evidence[name] = {"sha256": file_checksum(path)[0], "timestamp": timestamp}
+        evidence[name] = {"sha256": evidence_checksum(path), "hash_normalization": "LF", "timestamp": timestamp}
     for label, data in (("first", first), ("second", second)):
         checks[f"fresh_fingerprint:{label}"] = datetime.fromisoformat(data["generated_at"]) >= started
     payload = {"generated_at": datetime.now(timezone.utc).isoformat(), "scope": "Person A: pipeline and operation across the three-week plan",

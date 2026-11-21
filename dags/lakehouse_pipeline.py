@@ -53,7 +53,9 @@ with DAG(
         bds = PythonSensor(task_id="wait_batdongsan_csv", python_callable=manual_export_ready,
                            mode="reschedule", poke_interval=60, timeout=7200)
         ready = PythonOperator(task_id="validate_snapshot_manifest", python_callable=manifest)
-        guland >> nhadatvui >> bds >> ready
+        # Collect each web source independently. Publication/processing still
+        # requires both successful collections and the manual CSV export.
+        [guland, nhadatvui] >> bds >> ready
     previous = acquisition
     for group, jobs in STAGES.items():
         with TaskGroup(group) as tasks:

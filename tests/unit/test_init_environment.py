@@ -23,7 +23,7 @@ def test_credentials_are_independent_and_fernet_key_is_valid(tmp_path):
     assert len(set(secrets)) == len(secrets)
     assert all(len(value) >= 40 for value in secrets)
     assert len(base64.urlsafe_b64decode(values['AIRFLOW_FERNET_KEY'])) == 32
-    assert values['GULAND_CRAWL_PAGES'] == '200'
+    assert values['GULAND_CRAWL_PAGES'] == '20'
     assert values['POSTGRES_USER'] == 'postgres'
 
 
