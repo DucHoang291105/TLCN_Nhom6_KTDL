@@ -13,10 +13,14 @@ price towards the cheap side and bias the comparison.
 - Position at first sight against the listing's BQ2 peer group P25/P75.
 - Hedonic residual at first sight: log(first price/m²) - log(model prediction).
 
-Outcomes: at least one observed price drop (``fact_listing_price_change``),
-days between first and last observation, and absence from the source's two
-latest batches. Tests: two-proportion z-test, Cochran–Mantel–Haenszel by
-source, Mann–Whitney U (``backtest_stats.py``).
+Outcomes: at least one genuine price cut (``fact_listing_price_change``, the
+same definition as the dashboard evidence tables: a cut of 1% to 30%, because
+larger drops are mostly corrected typing errors), days between first and last
+observation, and absence from the source's two latest batches. Tests:
+two-proportion z-test, Cochran–Mantel–Haenszel by source, Mann–Whitney U
+(``backtest_stats.py``). Sensitivity: the same test counting every drop, the
+test stratified by province and source, and the result within the largest
+provinces.
 
 Limits: a few weeks of twice-weekly crawls; listed_days is an observation
 window, not time to sale; absence is not a sale; peer groups use current
@@ -37,6 +41,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from src.gold.build_bq_evidence import GENUINE_CUT
 from src.gold.build_listing_lifecycle import CRAWL_SOURCES
 from src.gold.gold_common import write_summary
 from src.quality.backtest_stats import (
@@ -46,9 +51,11 @@ from src.quality.backtest_stats import (
 ALPHA = 0.05
 RESIDUAL_GROUPS = 5
 POSITIONS = ("duoi_p25", "p25_p75", "tren_p75", "khong_du_du_lieu")
+PROVINCE_GROUPS = ("Hồ Chí Minh", "Hà Nội", "Đà Nẵng")
+OTHER_PROVINCES = "Tỉnh khác"
 
-# Columns of the collected rows.
-SOURCE, INITIAL_POSITION, CURRENT_POSITION, HAS_DROP, LISTED_DAYS, DISAPPEARED, RESIDUAL, SPLIT = range(8)
+# Columns of the collected rows. HAS_DROP is a genuine cut; ANY_DROP counts every drop.
+SOURCE, INITIAL_POSITION, CURRENT_POSITION, HAS_DROP, LISTED_DAYS, DISAPPEARED, RESIDUAL, SPLIT, PROVINCE, ANY_DROP = range(10)
 
 
 def describe(rows: list[tuple]) -> dict[str, Any]:
@@ -94,6 +101,47 @@ def compare(group_a: list[tuple], group_b: list[tuple]) -> dict[str, Any]:
     }
 
 
+def province_group(province: str | None) -> str:
+    return province if province in PROVINCE_GROUPS else OTHER_PROVINCES
+
+
+def with_outcome(rows: list[tuple], column: int) -> list[tuple]:
+    """Rows whose price-drop outcome is taken from another column (sensitivity analysis)."""
+
+    return [row[:HAS_DROP] + (row[column],) + row[HAS_DROP + 1:] for row in rows]
+
+
+def province_source_cmh(group_a: list[tuple], group_b: list[tuple]) -> dict[str, Any]:
+    """Price-drop odds ratio controlling for province group x source."""
+
+    strata = []
+    for province in (*PROVINCE_GROUPS, OTHER_PROVINCES):
+        for source in CRAWL_SOURCES:
+            a = [r for r in group_a if province_group(r[PROVINCE]) == province and r[SOURCE] == source]
+            b = [r for r in group_b if province_group(r[PROVINCE]) == province and r[SOURCE] == source]
+            a_drop, b_drop = sum(1 for r in a if r[HAS_DROP]), sum(1 for r in b if r[HAS_DROP])
+            if a and b:
+                strata.append((a_drop, len(a) - a_drop, b_drop, len(b) - b_drop))
+    return cmh_test(strata)
+
+
+def by_province(group_a: list[tuple], group_b: list[tuple]) -> dict[str, Any]:
+    """The price-drop comparison inside each province group (controlling for source)."""
+
+    result = {}
+    for province in (*PROVINCE_GROUPS, OTHER_PROVINCES):
+        a = [r for r in group_a if province_group(r[PROVINCE]) == province]
+        b = [r for r in group_b if province_group(r[PROVINCE]) == province]
+        outcome = compare(a, b)
+        result[province] = {
+            "listings_a": len(a),
+            "listings_b": len(b),
+            "price_drop": outcome["price_drop"],
+            "price_drop_by_source_cmh": outcome["price_drop_by_source_cmh"],
+        }
+    return result
+
+
 def residual_analysis(rows: list[tuple]) -> dict[str, Any]:
     scored = [row for row in rows if row[RESIDUAL] is not None]
     if len(scored) < RESIDUAL_GROUPS * 10:
@@ -125,7 +173,11 @@ def main() -> None:
     lifecycle = spark.table(f"{gold}.fact_listing_lifecycle").filter(
         F.col("source").isin(*CRAWL_SOURCES) & (F.col("observation_count") >= 2)
     ).select("source_id", "source", "listed_days", "is_disappeared", "first_seen_date", "last_seen_date")
-    listings = spark.table(f"{gold}.fact_listing").filter("is_dup_representative").select("source_id", "area")
+    dim_location = spark.table(f"{gold}.dim_location").select("location_key", F.col("province_name").alias("province"))
+    listings = (
+        spark.table(f"{gold}.fact_listing").filter("is_dup_representative").select("source_id", "area", "location_key")
+        .join(dim_location, "location_key", "left").drop("location_key")
+    )
     first_price = spark.table(f"{silver}.listing_history").groupBy("source_id").agg(
         F.expr("min_by(price, version_number)").alias("initial_price")
     )
@@ -133,8 +185,12 @@ def main() -> None:
         "source_id", "peer_p25_price_per_m2", "peer_p75_price_per_m2", F.col("price_position").alias("current_position")
     )
     model = spark.table(f"{gold}.fact_listing_price_model").select("source_id", "predicted_price_per_m2", "split")
-    changes = spark.table(f"{gold}.fact_listing_price_change").groupBy("source_id").agg(
-        F.max((F.col("direction") == "giam").cast("int")).alias("_drop")
+    price_changes = spark.table(f"{gold}.fact_listing_price_change").alias("c")
+    changes = price_changes.groupBy("source_id").agg(
+        F.max((F.col("direction") == "giam").cast("int")).alias("_any_drop")
+    ).join(
+        price_changes.filter(F.expr(GENUINE_CUT)).select("source_id").distinct().withColumn("_drop", F.lit(1)),
+        "source_id", "left",
     )
 
     base = (
@@ -156,7 +212,8 @@ def main() -> None:
     rows = base.select(
         "source", initial_position.alias("initial_position"), "current_position",
         F.coalesce(F.col("_drop") == 1, F.lit(False)).alias("has_drop"),
-        "listed_days", "is_disappeared", residual.alias("residual"), "split",
+        "listed_days", "is_disappeared", residual.alias("residual"), "split", "province",
+        F.coalesce(F.col("_any_drop") == 1, F.lit(False)).alias("any_drop"),
     ).rdd.map(tuple).collect()
     window = base.agg(F.min("first_seen_date").alias("first"), F.max("last_seen_date").alias("last")).first()
 
@@ -165,6 +222,9 @@ def main() -> None:
     expensive = by_initial["tren_p75"]
     not_expensive = by_initial["duoi_p25"] + by_initial["p25_p75"]
     position_test = compare(expensive, not_expensive)
+    position_test["price_drop_by_province_source_cmh"] = province_source_cmh(expensive, not_expensive)
+    position_by_province = by_province(expensive, not_expensive)
+    position_all_drops = compare(with_outcome(expensive, ANY_DROP), with_outcome(not_expensive, ANY_DROP))
     residual_all = residual_analysis(rows)
     residual_test_split = residual_analysis([row for row in rows if row[SPLIT] == "test"])
 
@@ -187,7 +247,13 @@ def main() -> None:
             "significance_level": ALPHA,
         },
         "by_initial_position": {position: describe(members) for position, members in by_initial.items()},
+        "price_drop_definition": GENUINE_CUT,
         "H1_tren_p75_vs_rest": position_test,
+        "H1_by_province": position_by_province,
+        "H1_sensitivity_all_drops": {
+            "note": "Same comparison counting every price decrease, including cuts larger than 30%.",
+            **position_all_drops,
+        },
         "H2_residual_all_listings": residual_all,
         "H2_residual_test_split_only": residual_test_split,
         "reference_current_position_biased": {
