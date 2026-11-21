@@ -240,10 +240,11 @@ def _segments(*values: Any) -> list[str]:
 def _province_of_segment(segment: str) -> dict[str, Any] | None:
     """Province named by a whole address component, e.g. "Thành phố Hà Nội"."""
 
-    # "Bình Dương (Hồ Chí Minh mới)": the explicitly new province wins.
-    marked = re.search(r"\(([^)]*)m[ơo]i\s*\)", segment, flags=re.IGNORECASE)
-    candidates = [match_text(marked.group(1))] if marked else []
-    candidates.append(match_text(re.sub(r"\s*\(.*\)\s*$", "", segment)))
+    # "Bình Dương (Hồ Chí Minh mới)": the old province outside the brackets maps
+    # to its 2025 province through the alias table, which gives the same answer.
+    # The "(... mới)" note itself is not trusted: real addresses such as
+    # "Bắc Ninh (Quảng Ninh mới)" contradict the 2025 merger.
+    candidates = [match_text(re.sub(r"\s*\(.*\)\s*$", "", segment))]
     for candidate in candidates:
         candidate = re.sub(rf"^{ADMIN_PREFIX} ", "", candidate.strip())
         if candidate in PROVINCE_ALIAS_FOLDED:
