@@ -1,21 +1,21 @@
 {
-  "started_at": "2026-10-29T07:20:02.741838+00:00",
-  "finished_at": "2026-10-29T07:20:16.957837+00:00",
+  "started_at": "2026-11-21T03:12:48.683886+00:00",
+  "finished_at": "2026-11-21T03:13:01.937895+00:00",
   "preliminary": true,
   "observation_window": {
     "first_seen": "2026-09-22",
-    "last_seen": "2026-10-27"
+    "last_seen": "2026-11-17"
   },
   "population": {
     "definition": "representative sale listings from crawl sources observed in >= 2 batches",
-    "listings": 57939,
+    "listings": 64381,
     "by_source": {
-      "batdongsan": 12549,
-      "guland": 33648,
-      "nhadatvui": 11742
+      "batdongsan": 17379,
+      "guland": 34378,
+      "nhadatvui": 12624
     },
-    "with_initial_position": 56470,
-    "with_model_residual": 34235
+    "with_initial_position": 62472,
+    "with_model_residual": 61521
   },
   "hypotheses": {
     "H1": "Listings above the peer-group P75 when first seen cut their price more often than the others.",
@@ -25,275 +25,275 @@
   },
   "by_initial_position": {
     "duoi_p25": {
-      "listings": 15089,
-      "with_price_drop": 229,
-      "price_drop_rate": 0.015177,
+      "listings": 16634,
+      "with_price_drop": 370,
+      "price_drop_rate": 0.022244,
       "median_listed_days": 3.0,
-      "disappeared_rate": 0.839552
+      "disappeared_rate": 0.837862
     },
     "p25_p75": {
-      "listings": 28146,
-      "with_price_drop": 702,
-      "price_drop_rate": 0.024941,
-      "median_listed_days": 3.0,
-      "disappeared_rate": 0.840937
+      "listings": 31010,
+      "with_price_drop": 1091,
+      "price_drop_rate": 0.035182,
+      "median_listed_days": 4.0,
+      "disappeared_rate": 0.870268
     },
     "tren_p75": {
-      "listings": 13235,
-      "with_price_drop": 432,
-      "price_drop_rate": 0.032641,
+      "listings": 14828,
+      "with_price_drop": 665,
+      "price_drop_rate": 0.044848,
       "median_listed_days": 3.0,
-      "disappeared_rate": 0.844201
+      "disappeared_rate": 0.870852
     },
     "khong_du_du_lieu": {
-      "listings": 1469,
-      "with_price_drop": 13,
-      "price_drop_rate": 0.00885,
-      "median_listed_days": 4.0,
-      "disappeared_rate": 0.733833
+      "listings": 1909,
+      "with_price_drop": 25,
+      "price_drop_rate": 0.013096,
+      "median_listed_days": 7.0,
+      "disappeared_rate": 0.785228
     }
   },
   "H1_tren_p75_vs_rest": {
     "price_drop": {
-      "n_a": 13235,
-      "events_a": 432,
-      "n_b": 43235,
-      "events_b": 931,
-      "rate_a": 0.032641,
-      "rate_b": 0.021533,
-      "difference": 0.011107,
+      "n_a": 14828,
+      "events_a": 665,
+      "n_b": 47644,
+      "events_b": 1461,
+      "rate_a": 0.044848,
+      "rate_b": 0.030665,
+      "difference": 0.014183,
       "ci95_difference": [
-        0.007785,
-        0.014429
+        0.010509,
+        0.017856
       ],
-      "relative_risk": 1.5158,
-      "z": 7.2852,
-      "p_value": 3.211063642385082e-13
+      "relative_risk": 1.4625,
+      "z": 8.3184,
+      "p_value": 8.915957952543253e-17
     },
     "price_drop_by_source_cmh": {
       "strata": 3,
-      "odds_ratio_mh": 1.181,
-      "chi2": 7.5976,
-      "p_value": 0.005844697662735941
+      "odds_ratio_mh": 1.1598,
+      "chi2": 9.1286,
+      "p_value": 0.0025163989310590454
     },
     "listed_days_mann_whitney": {
-      "n_a": 13235,
-      "n_b": 43235,
+      "n_a": 14828,
+      "n_b": 47644,
       "median_a": 3.0,
       "median_b": 3.0,
-      "u_a": 281201018.5,
-      "z": -3.2815,
-      "p_value": 0.0010325128772225862,
-      "prob_a_greater": 0.491425
+      "u_a": 346853543.0,
+      "z": -3.5643,
+      "p_value": 0.00036484698217871,
+      "prob_a_greater": 0.49097
     },
     "disappeared": {
-      "n_a": 13235,
-      "events_a": 11173,
-      "n_b": 43235,
-      "events_b": 36337,
-      "rate_a": 0.844201,
-      "rate_b": 0.840453,
-      "difference": 0.003748,
+      "n_a": 14828,
+      "events_a": 12913,
+      "n_b": 47644,
+      "events_b": 40924,
+      "rate_a": 0.870852,
+      "rate_b": 0.858954,
+      "difference": 0.011899,
       "ci95_difference": [
-        -0.00333,
-        0.010825
+        0.005661,
+        0.018136
       ],
-      "relative_risk": 1.0045,
-      "z": 1.0325,
-      "p_value": 0.30182619399034283
+      "relative_risk": 1.0139,
+      "z": 3.6661,
+      "p_value": 0.00024623196162273383
     },
     "price_drop_higher_and_significant": true
   },
   "H2_residual_all_listings": {
-    "listings": 34235,
+    "listings": 61521,
     "residual_quintile_edges_log": [
-      -0.320106,
-      -0.100216,
-      0.082689,
-      0.298037
+      -0.323745,
+      -0.099148,
+      0.081612,
+      0.312137
     ],
     "by_quintile": {
       "Q1": {
-        "listings": 6847,
-        "with_price_drop": 60,
-        "price_drop_rate": 0.008763,
-        "median_listed_days": 3.0,
-        "disappeared_rate": 0.897327
+        "listings": 12304,
+        "with_price_drop": 323,
+        "price_drop_rate": 0.026252,
+        "median_listed_days": 4.0,
+        "disappeared_rate": 0.806973
       },
       "Q2": {
-        "listings": 6847,
-        "with_price_drop": 73,
-        "price_drop_rate": 0.010662,
+        "listings": 12304,
+        "with_price_drop": 431,
+        "price_drop_rate": 0.035029,
         "median_listed_days": 3.0,
-        "disappeared_rate": 0.924054
+        "disappeared_rate": 0.881827
       },
       "Q3": {
-        "listings": 6847,
-        "with_price_drop": 94,
-        "price_drop_rate": 0.013729,
+        "listings": 12304,
+        "with_price_drop": 356,
+        "price_drop_rate": 0.028934,
         "median_listed_days": 3.0,
-        "disappeared_rate": 0.922886
+        "disappeared_rate": 0.890686
       },
       "Q4": {
-        "listings": 6847,
-        "with_price_drop": 90,
-        "price_drop_rate": 0.013144,
+        "listings": 12304,
+        "with_price_drop": 435,
+        "price_drop_rate": 0.035354,
         "median_listed_days": 3.0,
-        "disappeared_rate": 0.903169
+        "disappeared_rate": 0.87118
       },
       "Q5": {
-        "listings": 6847,
-        "with_price_drop": 115,
-        "price_drop_rate": 0.016796,
+        "listings": 12305,
+        "with_price_drop": 549,
+        "price_drop_rate": 0.044616,
         "median_listed_days": 3.0,
-        "disappeared_rate": 0.919089
+        "disappeared_rate": 0.8551
       }
     },
     "top_quintile_vs_rest": {
       "price_drop": {
-        "n_a": 6847,
-        "events_a": 115,
-        "n_b": 27388,
-        "events_b": 317,
-        "rate_a": 0.016796,
-        "rate_b": 0.011574,
-        "difference": 0.005221,
+        "n_a": 12305,
+        "events_a": 549,
+        "n_b": 49216,
+        "events_b": 1545,
+        "rate_a": 0.044616,
+        "rate_b": 0.031392,
+        "difference": 0.013224,
         "ci95_difference": [
-          0.001924,
-          0.008518
+          0.009264,
+          0.017184
         ],
-        "relative_risk": 1.4511,
-        "z": 3.462,
-        "p_value": 0.0005362621519301308
+        "relative_risk": 1.4212,
+        "z": 7.2357,
+        "p_value": 4.631075511686605e-13
       },
       "price_drop_by_source_cmh": {
         "strata": 3,
-        "odds_ratio_mh": 1.1038,
-        "chi2": 0.7692,
-        "p_value": 0.3804692751791699
+        "odds_ratio_mh": 1.1325,
+        "chi2": 5.6897,
+        "p_value": 0.017064724443259762
       },
       "listed_days_mann_whitney": {
-        "n_a": 6847,
-        "n_b": 27388,
+        "n_a": 12305,
+        "n_b": 49216,
         "median_a": 3.0,
         "median_b": 3.0,
-        "u_a": 90020541.5,
-        "z": -5.7721,
-        "p_value": 7.827401505327594e-09,
-        "prob_a_greater": 0.480044
+        "u_a": 298223372.5,
+        "z": -2.7835,
+        "p_value": 0.005377977730301007,
+        "prob_a_greater": 0.49244
       },
       "disappeared": {
-        "n_a": 6847,
-        "events_a": 6293,
-        "n_b": 27388,
-        "events_b": 24974,
-        "rate_a": 0.919089,
-        "rate_b": 0.911859,
-        "difference": 0.007229,
+        "n_a": 12305,
+        "events_a": 10522,
+        "n_b": 49216,
+        "events_b": 42457,
+        "rate_a": 0.8551,
+        "rate_b": 0.862667,
+        "difference": -0.007567,
         "ci95_difference": [
-          -5e-05,
-          0.014509
+          -0.01449,
+          -0.000644
         ],
-        "relative_risk": 1.0079,
-        "z": 1.9015,
-        "p_value": 0.05723713929774091
+        "relative_risk": 0.9912,
+        "z": -2.1712,
+        "p_value": 0.029915561313295758
       },
-      "price_drop_higher_and_significant": false
+      "price_drop_higher_and_significant": true
     }
   },
   "H2_residual_test_split_only": {
-    "listings": 6950,
+    "listings": 12354,
     "residual_quintile_edges_log": [
-      -0.321435,
-      -0.109867,
-      0.072866,
-      0.302963
+      -0.331221,
+      -0.10345,
+      0.080941,
+      0.320067
     ],
     "by_quintile": {
       "Q1": {
-        "listings": 1390,
-        "with_price_drop": 6,
-        "price_drop_rate": 0.004317,
-        "median_listed_days": 3.0,
-        "disappeared_rate": 0.894964
+        "listings": 2470,
+        "with_price_drop": 70,
+        "price_drop_rate": 0.02834,
+        "median_listed_days": 4.0,
+        "disappeared_rate": 0.804858
       },
       "Q2": {
-        "listings": 1390,
-        "with_price_drop": 18,
-        "price_drop_rate": 0.01295,
+        "listings": 2471,
+        "with_price_drop": 89,
+        "price_drop_rate": 0.036018,
         "median_listed_days": 3.0,
-        "disappeared_rate": 0.934532
+        "disappeared_rate": 0.876568
       },
       "Q3": {
-        "listings": 1390,
-        "with_price_drop": 21,
-        "price_drop_rate": 0.015108,
+        "listings": 2471,
+        "with_price_drop": 69,
+        "price_drop_rate": 0.027924,
         "median_listed_days": 3.0,
-        "disappeared_rate": 0.930935
+        "disappeared_rate": 0.885876
       },
       "Q4": {
-        "listings": 1390,
-        "with_price_drop": 17,
-        "price_drop_rate": 0.01223,
-        "median_listed_days": 3.0,
-        "disappeared_rate": 0.910791
+        "listings": 2471,
+        "with_price_drop": 82,
+        "price_drop_rate": 0.033185,
+        "median_listed_days": 4.0,
+        "disappeared_rate": 0.869688
       },
       "Q5": {
-        "listings": 1390,
-        "with_price_drop": 20,
-        "price_drop_rate": 0.014388,
+        "listings": 2471,
+        "with_price_drop": 112,
+        "price_drop_rate": 0.045326,
         "median_listed_days": 3.0,
-        "disappeared_rate": 0.917986
+        "disappeared_rate": 0.858762
       }
     },
     "top_quintile_vs_rest": {
       "price_drop": {
-        "n_a": 1390,
-        "events_a": 20,
-        "n_b": 5560,
-        "events_b": 62,
-        "rate_a": 0.014388,
-        "rate_b": 0.011151,
-        "difference": 0.003237,
+        "n_a": 2471,
+        "events_a": 112,
+        "n_b": 9883,
+        "events_b": 310,
+        "rate_a": 0.045326,
+        "rate_b": 0.031367,
+        "difference": 0.013959,
         "ci95_difference": [
-          -0.003605,
-          0.010079
+          0.005066,
+          0.022852
         ],
-        "relative_risk": 1.2903,
-        "z": 0.9998,
-        "p_value": 0.3174076291153164
+        "relative_risk": 1.445,
+        "z": 3.4168,
+        "p_value": 0.0006336219900822128
       },
       "price_drop_by_source_cmh": {
         "strata": 3,
-        "odds_ratio_mh": 0.7913,
-        "chi2": 0.7676,
-        "p_value": 0.3809699387785891
+        "odds_ratio_mh": 1.1028,
+        "chi2": 0.709,
+        "p_value": 0.3997610413274374
       },
       "listed_days_mann_whitney": {
-        "n_a": 1390,
-        "n_b": 5560,
+        "n_a": 2471,
+        "n_b": 9883,
         "median_a": 3.0,
         "median_b": 3.0,
-        "u_a": 3735871.5,
-        "z": -2.1621,
-        "p_value": 0.03061097023972665,
-        "prob_a_greater": 0.483395
+        "u_a": 12066398.0,
+        "z": -0.9731,
+        "p_value": 0.3304973487413016,
+        "prob_a_greater": 0.494101
       },
       "disappeared": {
-        "n_a": 1390,
-        "events_a": 1276,
-        "n_b": 5560,
-        "events_b": 5103,
-        "rate_a": 0.917986,
-        "rate_b": 0.917806,
-        "difference": 0.00018,
+        "n_a": 2471,
+        "events_a": 2122,
+        "n_b": 9883,
+        "events_b": 8492,
+        "rate_a": 0.858762,
+        "rate_b": 0.859253,
+        "difference": -0.000492,
         "ci95_difference": [
-          -0.015951,
-          0.016311
+          -0.01584,
+          0.014857
         ],
-        "relative_risk": 1.0002,
-        "z": 0.0218,
-        "p_value": 0.9825749679249834
+        "relative_risk": 0.9994,
+        "z": -0.0628,
+        "p_value": 0.9498972518421283
       },
       "price_drop_higher_and_significant": false
     }
@@ -302,38 +302,38 @@
     "note": "Position on the current price (after any cut). Shown only to illustrate the bias; not used for conclusions.",
     "by_current_position": {
       "duoi_p25": {
-        "listings": 15165,
-        "with_price_drop": 320,
-        "price_drop_rate": 0.021101,
+        "listings": 16730,
+        "with_price_drop": 506,
+        "price_drop_rate": 0.030245,
         "median_listed_days": 3.0,
-        "disappeared_rate": 0.838773
+        "disappeared_rate": 0.836641
       },
       "p25_p75": {
-        "listings": 28207,
-        "with_price_drop": 733,
-        "price_drop_rate": 0.025986,
-        "median_listed_days": 3.0,
-        "disappeared_rate": 0.840146
+        "listings": 31120,
+        "with_price_drop": 1126,
+        "price_drop_rate": 0.036183,
+        "median_listed_days": 4.0,
+        "disappeared_rate": 0.869055
       },
       "tren_p75": {
-        "listings": 13169,
-        "with_price_drop": 318,
-        "price_drop_rate": 0.024148,
+        "listings": 14745,
+        "with_price_drop": 508,
+        "price_drop_rate": 0.034452,
         "median_listed_days": 3.0,
-        "disappeared_rate": 0.845243
+        "disappeared_rate": 0.87277
       },
       "khong_du_du_lieu": {
-        "listings": 1398,
-        "with_price_drop": 5,
-        "price_drop_rate": 0.003577,
-        "median_listed_days": 4.0,
-        "disappeared_rate": 0.743205
+        "listings": 1786,
+        "with_price_drop": 11,
+        "price_drop_rate": 0.006159,
+        "median_listed_days": 7.0,
+        "disappeared_rate": 0.797872
       }
     }
   },
   "conclusion": {
     "H1_supported": true,
-    "H2_supported": false,
+    "H2_supported": true,
     "H2_supported_on_test_split": false
   },
   "limitations": [

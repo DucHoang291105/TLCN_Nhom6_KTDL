@@ -5,8 +5,8 @@
   "selected_on": "2026-11-17",
   "categories": {
     "1": {"label": "nha_pho", "ridge": 1.0, "weight": 0.7, "pooled_to_baseline": false},
-    "2": {"label": "can_ho", "ridge": 1.0, "weight": 0.9, "pooled_to_baseline": true},
-    "3": {"label": "biet_thu", "ridge": 1.0, "weight": 0.5, "pooled_to_baseline": false},
-    "4": {"label": "dat", "ridge": 1.0, "weight": 0.6, "pooled_to_baseline": false}
+    "2": {"label": "can_ho", "ridge": 1.0, "weight": 0.8, "pooled_to_baseline": false},
+    "3": {"label": "biet_thu", "ridge": 1.0, "weight": 0.4, "pooled_to_baseline": false},
+    "4": {"label": "dat", "ridge": 1.0, "weight": 0.4, "pooled_to_baseline": false}
   }
 }
