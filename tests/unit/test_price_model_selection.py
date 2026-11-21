@@ -126,3 +126,19 @@ def test_prediction_agreement_detects_rows_that_differ_even_with_equal_totals():
     swapped = selection.prediction_agreement([(100.0, 200.0), (200.0, 100.0), (50.0, 50.0)])
     assert swapped["share_within_tolerance"] < 0.5 and swapped["max_abs_log_difference"] > 0.6
     assert selection.prediction_agreement([(None, 100.0)])["n"] == 0
+
+
+def test_error_ratio_summary_reports_quantiles_and_share_within_band():
+    pairs = [(100.0, 100.0), (120.0, 100.0), (80.0, 100.0), (150.0, 100.0), (50.0, 100.0), (10.0, None), (0.0, 100.0)]
+    result = selection.error_ratio_summary(pairs)
+    # Ratios sorted: 0.5, 0.8, 1.0, 1.2, 1.5; rows without a usable prediction or price are ignored.
+    assert result["n"] == 5
+    assert result["actual_over_predicted_quantiles"]["0.5"] == 1.0
+    assert result["actual_over_predicted_quantiles"]["0.1"] == 0.62
+    assert result["actual_over_predicted_quantiles"]["0.9"] == 1.38
+    assert result["share_within"] == {"25pct": 0.6, "50pct": 1.0}
+
+
+def test_error_ratio_summary_handles_no_usable_rows():
+    assert selection.error_ratio_summary([]) == {"n": 0}
+    assert selection.error_ratio_summary([(100.0, None)]) == {"n": 0}

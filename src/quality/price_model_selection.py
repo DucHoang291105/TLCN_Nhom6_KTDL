@@ -152,6 +152,38 @@ def compare_against_baseline(test: list[dict[str, Any]], predictions: list[float
     }
 
 
+def error_ratio_summary(
+    pairs: Iterable[tuple[float, float | None]],
+    quantiles: tuple[float, ...] = (0.1, 0.25, 0.5, 0.75, 0.9),
+    bands: tuple[float, ...] = (0.25, 0.5),
+) -> dict[str, Any]:
+    """Empirical spread of actual / predicted price per m² on the test split.
+
+    A point prediction is only useful with its error: the 10th and 90th
+    quantiles of ``actual / predicted`` give a range that held for 80% of the
+    test listings, and ``share_within`` is the share whose actual price was
+    within ±band of the prediction. These are empirical, in-sample-to-test
+    figures, not a guarantee for new listings.
+    """
+
+    ratios = sorted(actual / predicted for actual, predicted in pairs if predicted and predicted > 0 and actual and actual > 0)
+    n = len(ratios)
+    if not n:
+        return {"n": 0}
+
+    def quantile(p: float) -> float:
+        position = (n - 1) * p
+        low = int(position)
+        high = min(low + 1, n - 1)
+        return ratios[low] + (ratios[high] - ratios[low]) * (position - low)
+
+    return {
+        "n": n,
+        "actual_over_predicted_quantiles": {str(p): round(quantile(p), 4) for p in quantiles},
+        "share_within": {f"{round(b * 100)}pct": round(sum(abs(r - 1) <= b for r in ratios) / n, 4) for b in bands},
+    }
+
+
 def term_comparison(train: list[dict[str, Any]], test: list[dict[str, Any]]) -> dict[str, Any]:
     results = {}
     for name, groups in TERM_GROUPS.items():
@@ -343,7 +375,8 @@ def main() -> None:
         for name, values in (("model_only", plain), ("blend", blends), ("baseline", baselines)):
             pairs[name] += list(zip(actuals, values))
         by_category[label] = {"train_rows": len(cat_train), "test_rows": len(actuals), "selection": selection,
-                              "test": metrics, "significance": paired_bootstrap(diffs)}
+                              "test": metrics, "significance": paired_bootstrap(diffs),
+                              "error_ratio": error_ratio_summary(zip(actuals, blends))}
 
     overall = {name: regression_metrics(values) for name, values in pairs.items()}
     overall["blend_beats_baseline_mae"] = overall["blend"]["mae"] < overall["baseline"]["mae"]
@@ -366,7 +399,8 @@ def main() -> None:
         "blend_selection": {
             "method": "log-space blend of the model and the peer-group baseline; configuration chosen by "
                       f"{FOLDS}-fold cross-validation on train only; one evaluation on test",
-            "overall_test": {**overall, "significance": paired_bootstrap(overall_diffs, resamples=OVERALL_RESAMPLES)},
+            "overall_test": {**overall, "significance": paired_bootstrap(overall_diffs, resamples=OVERALL_RESAMPLES),
+                             "error_ratio": error_ratio_summary(pairs["blend"])},
             "by_category": by_category,
         },
         "gold_model_reproduced": reproduces,
