@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-21T19:25:58.555674+00:00",
-  "run_id": "official_operations_20261122_r6",
+  "generated_at": "2026-11-22T00:44:08.445404+00:00",
+  "run_id": "official_integrated_clean_20261122",
   "checks": {
     "airflow_all_tasks": true,
     "silver_30": true,
@@ -154,8 +154,8 @@
       "actual": 172
     },
     "gold.ev_reprice": {
-      "expected": 63404,
-      "actual": 63404
+      "expected": 63274,
+      "actual": 63274
     },
     "gold.ev_reprice_examples": {
       "expected": 602,

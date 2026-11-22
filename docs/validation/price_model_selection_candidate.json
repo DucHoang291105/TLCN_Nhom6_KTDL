@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-11-21T19:20:56.468205+00:00",
-  "finished_at": "2026-11-21T19:22:15.427877+00:00",
+  "started_at": "2026-11-22T00:39:21.823165+00:00",
+  "finished_at": "2026-11-22T00:40:38.660647+00:00",
   "split": "published train/test split of fact_listing_price_model, rows outside the train trim range removed",
   "settings": {
     "ridge_lambda": 1.0,
@@ -1058,8 +1058,8 @@
     "Cross-validation folds reuse the location terms and trim range fitted on the whole train split; only the baseline is rebuilt inside each fold. The outer test rows are never used for either."
   ],
   "status": "PASS",
-  "generated_at": "2026-11-21T19:22:16.296054+00:00",
-  "publication_identity": "efb14fa05a4e66d327d643df8684c47c479df92394acc9e051e72a3cf67b0436",
+  "generated_at": "2026-11-22T00:40:39.486841+00:00",
+  "publication_identity": "e380ea65a9bb015bee656867bf3fd233f332890e4e092368357709e5a3351cf4",
   "production_configuration_changed": false,
   "config_sha256": "4b13afac5a59bb3721bef755897cf18218aefef2c85e2759521ffa0375613dd5",
   "purpose": "New-data CV candidate; frozen Gold configuration is unchanged"

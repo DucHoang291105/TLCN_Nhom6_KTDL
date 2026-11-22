@@ -116,6 +116,8 @@ Dữ liệu historical đặt trong `data/incoming/historical/<nguồn>/`, theo 
 
 ## Kết quả kiểm định hiện hành
 
+Bản tích hợp đã nghiệm thu với run `official_integrated_clean_20261122`, batch `20261120`: **94/94 điều kiện PASS**, **597/597 unit test PASS**, DAG **26/26 SUCCESS**. Kiểm chứng được chạy lại sau khi ghép cập nhật và dọn mã nguồn.
+
 Nguồn số liệu chính thức là [defense_verification.json](docs/validation/defense_verification.json):
 run, batch, số điều kiện PASS, hash code/input và số dòng Silver/Gold. Kiểm tra
 báo cáo còn đúng với code và dữ liệu trên máy bằng:
@@ -143,7 +145,7 @@ thu thập. Tin vắng hai batch chỉ là vắng trong mẫu crawl, chưa xác 
 
 ### Số liệu đầu ra
 
-Bảng này được xuất từ JSON của dữ liệu 20/11 sau hai rebuild; trạng thái nghiệm thu đầy đủ xem `defense_verification.json`.
+Bảng này được xuất từ JSON của batch 20/11 sau hai rebuild trên bản tích hợp. Trạng thái nghiệm thu đầy đủ nằm trong `defense_verification.json`.
 
 | Đầu ra | Số dòng |
 |---|---:|
@@ -161,7 +163,7 @@ Bảng này được xuất từ JSON của dữ liệu 20/11 sau hai rebuild; t
 | Gold `fact_listing_price_model` | 127,961 |
 | Gold `agg_price_model_coefficient` | 972 |
 
-Silver **30/30 PASS**; Gold **138/138 PASS**. Hai rebuild **38/38 bảng** giống schema, grain và SHA256 nội dung.
+Silver **30/30 PASS**; Gold **139/139 PASS**. Hai rebuild **38/38 bảng** giống schema, grain và SHA256 nội dung.
 
 Kết quả chỉ áp dụng cho code và input đã kiểm chứng. Sau thay đổi phải chạy lại nghiệm thu; dữ liệu thô không phải số dòng sau DQ/dedup.
 

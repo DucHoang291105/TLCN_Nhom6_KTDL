@@ -1,10 +1,10 @@
 {
-  "started_at": "2026-11-21T19:13:17.198127+00:00",
-  "finished_at": "2026-11-21T19:13:44.563298+00:00",
+  "started_at": "2026-11-22T00:32:12.950762+00:00",
+  "finished_at": "2026-11-22T00:32:39.242386+00:00",
   "table_rows": {
     "ev_budget_curve": 129044,
     "ev_budget_pairs": 172,
-    "ev_reprice": 63404,
+    "ev_reprice": 63274,
     "ev_reprice_examples": 602,
     "ev_flag_check": 1084,
     "ev_calibration": 25119
@@ -13,25 +13,25 @@
   "comparison_scope": "First observed price divided by current area, compared with current peer quartiles. Retrospective descriptive comparison; not a point-in-time benchmark or a causal/predictive test. Source and exposure duration are not adjusted.",
   "h1_price_cut_by_first_position": {
     "1. Dưới P25 nhóm": {
-      "listings": 16837,
-      "with_cut": 389,
-      "rate": 0.023104
+      "listings": 16797,
+      "with_cut": 384,
+      "rate": 0.022861
     },
     "2. Trong P25–P75": {
-      "listings": 31484,
-      "with_cut": 1085,
-      "rate": 0.034462
+      "listings": 31431,
+      "with_cut": 1083,
+      "rate": 0.034456
     },
     "3. Trên P75 nhóm": {
-      "listings": 15083,
-      "with_cut": 645,
-      "rate": 0.042763
+      "listings": 15046,
+      "with_cut": 640,
+      "rate": 0.042536
     }
   },
   "h1_above_p75_vs_rest": {
-    "rate_ratio": 1.4019,
-    "z": 7.313,
-    "p_two_sided": 2.6162056689874306e-13
+    "rate_ratio": 1.3984,
+    "z": 7.233,
+    "p_two_sided": 4.723308579642027e-13
   },
   "status": "PASS"
 }

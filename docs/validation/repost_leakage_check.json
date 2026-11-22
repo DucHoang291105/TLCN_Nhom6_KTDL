@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-11-21T19:22:34.199877+00:00",
-  "finished_at": "2026-11-21T19:22:55.820505+00:00",
+  "started_at": "2026-11-22T00:40:52.383940+00:00",
+  "finished_at": "2026-11-22T00:41:16.176802+00:00",
   "scope": "published train/test split of fact_listing_price_model, rows outside the train trim range removed",
   "train_listings": 100283,
   "test_listings": 25119,

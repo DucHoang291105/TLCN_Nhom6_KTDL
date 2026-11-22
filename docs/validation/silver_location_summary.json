@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-11-21T19:02:09.939574+00:00",
-  "finished_at": "2026-11-21T19:02:37.030865+00:00",
+  "started_at": "2026-11-22T00:22:01.631469+00:00",
+  "finished_at": "2026-11-22T00:22:27.068474+00:00",
   "input": "lakehouse.silver.silver_listings_current_27",
   "output": "lakehouse.silver.listing_location",
   "input_rows": 151740,

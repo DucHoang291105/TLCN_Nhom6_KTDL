@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-11-21T19:29:11.131986+00:00",
+  "generated_at": "2026-11-22T00:45:08.877578+00:00",
   "checks": {
     "current_technical_acceptance": true,
     "public_files": true
   },
   "status": "PASS",
   "stale_reason": null,
-  "run_id": "official_operations_20261122_r6",
+  "run_id": "official_integrated_clean_20261122",
   "decision": {
     "ready_to_push_branch": true,
     "ready_to_merge_main": false,
@@ -15,7 +15,7 @@
   },
   "note": "Local readiness only. Exact pushed-commit CI and review are separate gates.",
   "public_file_audit": {
-    "text_files_scanned": 311,
+    "text_files_scanned": 283,
     "forbidden_files": [],
     "secret_findings": [],
     "warnings": [

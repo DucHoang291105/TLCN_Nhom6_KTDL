@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T19:26:58.407009+00:00",
+  "generated_at": "2026-11-22T00:44:56.339235+00:00",
   "scope": "README headline table and selected disclosures vs saved JSON; not a live pipeline acceptance",
   "checks": {
     "headline_counts_match_json": true,
@@ -8,7 +8,7 @@
     "silver_check_count_documented": true,
     "gold_check_count_documented": true,
     "acceptance_scope_disclosed": true,
-    "runtime_mismatch_disclosed": true
+    "current_runtime_evidence_linked": true
   },
   "metrics": {
     "Bronze historical": {

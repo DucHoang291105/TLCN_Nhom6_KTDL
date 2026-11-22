@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T19:16:43.273315+00:00",
+  "generated_at": "2026-11-22T00:35:19.673431+00:00",
   "method": "Compare two materialized Silver/Gold states: row count, distinct grain keys and full multiset SHA256; build-time columns excluded. Both files must use the same fingerprint version.",
   "fingerprint_version": "sha256_multiset_v2",
   "tables_compared": 38,
@@ -258,8 +258,8 @@
     },
     {
       "table": "gold.ev_reprice",
-      "rows_run1": 63404,
-      "rows_run2": 63404,
+      "rows_run1": 63274,
+      "rows_run2": 63274,
       "rows_equal": true,
       "keys_equal": true,
       "grain_unique": true,

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T19:15:14.698206+00:00",
+  "generated_at": "2026-11-22T00:34:01.495404+00:00",
   "namespace": "lakehouse.gold",
   "table_counts": {
     "dim_source": 10,
@@ -27,7 +27,7 @@
     "agg_commute_substitution": 11996,
     "ev_budget_curve": 129044,
     "ev_budget_pairs": 172,
-    "ev_reprice": 63404,
+    "ev_reprice": 63274,
     "ev_reprice_examples": 602,
     "ev_flag_check": 1084,
     "ev_calibration": 25119
@@ -142,6 +142,7 @@
     "evidence_reprice_one_row_per_listing": true,
     "evidence_calibration_test_deciles": true,
     "evidence_flag_groups_min_size": true,
+    "evidence_examples_cut_date": true,
     "dq_kpi_matches_silver_and_gold": true,
     "price_change_nonzero": true,
     "market_overview_sum_matches": true,
@@ -207,6 +208,7 @@
     "assessment_position_mismatch": 0,
     "pareto_label_mismatch": 0,
     "commute_efficient_label_mismatch": 0,
+    "evidence_examples_without_cut_date": 0,
     "lifecycle_status_mismatches": 0,
     "lifecycle_price_count_mismatches": 0,
     "lifecycle_calendar_mismatches": 0,
