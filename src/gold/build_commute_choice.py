@@ -18,6 +18,16 @@ Outputs:
   at an origin district, the cheaper districts whose commute is at most
   COMMUTE_TOLERANCE_KM longer. Cost, similarity and group-size rules are the
   ones of ``agg_area_substitution`` (same target area = origin median area).
+- ``fact_listing_commute`` (road network): one row per representative sale
+  listing with coordinates × named place of work/study in its province, with
+  the OpenStreetMap road distance and free-flow minutes of its 0.01° grid cell
+  (``config/commute_road_distance.csv``, see ``commute_road.py``), the
+  straight-line distance and the road ring (<5, 5–10, 10–15, 15–20, 20–30,
+  ≥30 km). Cells without a precomputed route are left out and counted.
+- ``agg_commute_district`` also carries ``road_km`` / ``road_min`` (median over
+  the district's listings for that place, needs MIN_CENTROID_LISTINGS) and
+  ``is_road_frontier``: no other district is both no farther by road and no
+  more expensive at the same target area.
 
 The computation runs on the driver: a few thousand groups.
 """
@@ -39,7 +49,46 @@ from src.gold.gold_rules import (
     MIN_SUBSTITUTION_SIMILARITY, commute_allowed, commute_efficient_keys, cost_at_target_area, feature_similarity,
     load_destinations, max_flag_share_gap,
 )
+from src.gold.commute_road import GRID, OSRM_SOURCE, RINGS, load_road_distances, ring_sql
 from src.silver.build_location import haversine_km
+
+
+def road_commute(spark, gold: str, coords, named: list[dict]):
+    """Listings × named destinations in the same province, with the precomputed road distance of their grid cell."""
+
+    from pyspark.sql import functions as F
+    from pyspark.sql import types as T
+
+    road = spark.createDataFrame(
+        [(r["destination_id"], r["lat_idx"], r["lon_idx"], r["road_km"], r["road_min"]) for r in load_road_distances()],
+        T.StructType([T.StructField("destination_id", T.StringType(), False), T.StructField("lat_idx", T.IntegerType(), False),
+                      T.StructField("lon_idx", T.IntegerType(), False), T.StructField("road_km", T.DoubleType(), False),
+                      T.StructField("road_min", T.DoubleType(), False)]))
+    places = spark.createDataFrame(
+        [(d["destination_id"], d["destination_name"], d["province_name"], float(d["lat"]), float(d["lon"])) for d in named],
+        "destination_id string, destination_name string, province_name string, destination_lat double, destination_lon double")
+    locations = spark.table(f"{gold}.dim_location").select("location_key", "province_name", "district_name")
+    listings = (
+        spark.table(f"{gold}.fact_listing").filter("is_dup_representative AND price > 0 AND area > 0")
+        .select("source_id", "location_key", "property_category_key", "area_band_key", "price_band_key", "price", "area", "price_per_m2")
+        .join(coords, "source_id").join(locations, "location_key")
+        .withColumn("lat_idx", F.floor(F.col("lat") * GRID + 0.5).cast("int"))
+        .withColumn("lon_idx", F.floor(F.col("lon") * GRID + 0.5).cast("int"))
+    )
+    rad = F.lit(3.141592653589793 / 180)
+    dlat, dlon = (F.col("destination_lat") - F.col("lat")) * rad, (F.col("destination_lon") - F.col("lon")) * rad
+    straight = 2 * 6371.0088 * F.asin(F.sqrt(F.sin(dlat / 2) ** 2
+                                            + F.cos(F.col("lat") * rad) * F.cos(F.col("destination_lat") * rad) * F.sin(dlon / 2) ** 2))
+    candidates = listings.join(F.broadcast(places), "province_name")
+    commute = (
+        candidates.join(F.broadcast(road), ["destination_id", "lat_idx", "lon_idx"], "inner")
+        .withColumn("straight_km", F.round(straight, 3))
+        .withColumn("ring", F.expr(ring_sql("road_km")))
+        .select("destination_id", "destination_name", "province_name", "source_id", "location_key", "district_name",
+                "property_category_key", "area_band_key", "price_band_key", "price", "area", "price_per_m2",
+                "lat", "lon", "lat_idx", "lon_idx", "straight_km", "road_km", "road_min", "ring")
+    )
+    return candidates, commute
 
 
 def main() -> None:
@@ -75,6 +124,17 @@ def main() -> None:
         if r["location_key"] in centroids
     ]
     destinations = load_destinations()
+    named = [d for d in destinations if not d["destination_id"].startswith("center_")]
+
+    # Road network (BQ3 by place of work/study): listing-level table, then the district median per place.
+    candidates, commute = road_commute(spark, gold, coords, named)
+    write_iceberg_table(commute, f"{gold}.fact_listing_commute")
+    commute = spark.table(f"{gold}.fact_listing_commute")
+    road_by_district = {
+        (r["destination_id"], r["location_key"]): r for r in commute.groupBy("destination_id", "location_key")
+        .agg(F.count("*").alias("n"), F.expr("percentile(road_km, 0.5)").alias("road_km"), F.expr("percentile(road_min, 0.5)").alias("road_min"))
+        .filter(F.col("n") >= MIN_CENTROID_LISTINGS).collect()
+    }
 
     district_rows, substitution_rows = [], []
     for dest in destinations:
@@ -89,13 +149,20 @@ def main() -> None:
             for m in members:
                 m["cost"] = cost_at_target_area(m["median_price_per_m2"], target)
             efficient = commute_efficient_keys([{"key": m["location_key"], "commute_km": m["commute_km"], "cost": m["cost"]} for m in members])
+            for m in members:
+                m["road"] = road_by_district.get((dest["destination_id"], m["location_key"]))
+            road_frontier = commute_efficient_keys([{"key": m["location_key"], "commute_km": float(m["road"]["road_km"]), "cost": m["cost"]}
+                                                    for m in members if m["road"] is not None])
             for rank, m in enumerate(sorted(members, key=lambda x: (x["commute_km"], x["location_key"])), start=1):
+                road = m["road"]
                 district_rows.append((
                     dest["destination_id"], dest["destination_name"], dest["destination_kind"], dest["province_name"],
                     dest["lat"], dest["lon"],
                     m["location_key"], category, band, m["n_listings"], m["centroid"]["n"],
                     float(m["centroid"]["lat"]), float(m["centroid"]["lon"]), m["commute_km"], rank,
                     float(m["median_price_per_m2"]), float(m["median_area"]), target, float(m["cost"]), m["location_key"] in efficient,
+                    None if road is None else round(float(road["road_km"]), 3), None if road is None else round(float(road["road_min"]), 1),
+                    None if road is None else int(road["n"]), None if road is None else m["location_key"] in road_frontier,
                 ))
             shares = {m["location_key"]: {f: m[f"share_{f}"] for f in FEATURE_FLAGS} for m in members}
             for o in members:
@@ -131,6 +198,8 @@ def main() -> None:
         T.StructField("commute_rank", T.IntegerType(), False), T.StructField("median_price_per_m2", T.DoubleType(), False),
         T.StructField("median_area", T.DoubleType(), False), T.StructField("target_area", T.DoubleType(), False),
         T.StructField("estimated_cost_at_target_area", T.DoubleType(), False), T.StructField("is_commute_efficient", T.BooleanType(), False),
+        T.StructField("road_km", T.DoubleType(), True), T.StructField("road_min", T.DoubleType(), True),
+        T.StructField("road_n_listings", T.LongType(), True), T.StructField("is_road_frontier", T.BooleanType(), True),
     ])
     substitution_schema = T.StructType([
         T.StructField("destination_id", T.StringType(), False), T.StructField("origin_location_key", T.IntegerType(), False),
@@ -150,7 +219,6 @@ def main() -> None:
     write_iceberg_table(spark.createDataFrame(substitution_rows, substitution_schema), f"{gold}.agg_commute_substitution")
     written = spark.table(f"{gold}.agg_commute_substitution")
 
-    named = [d for d in destinations if not d["destination_id"].startswith("center_")]
     summary = {
         "started_at": started_at.isoformat(),
         "finished_at": datetime.now(timezone.utc).isoformat(),
@@ -165,7 +233,17 @@ def main() -> None:
         "districts_with_centroid": len(centroids),
         "district_groups": len(groups),
         "district_rows": len(district_rows),
-        "efficient_district_rows": sum(1 for r in district_rows if r[-1]),
+        "efficient_district_rows": sum(1 for r in district_rows if r[19]),
+        "road_distance": {
+            "source": OSRM_SOURCE,
+            "grid_degrees": 1 / GRID,
+            "listing_place_pairs_in_province": candidates.count(),
+            "listing_place_pairs_with_road": commute.count(),
+            "rings": {r["ring"]: r["count"] for r in commute.groupBy("ring").count().collect()},
+            "ring_labels": [label for _, label in RINGS],
+            "district_rows_with_road": sum(1 for r in district_rows if r[20] is not None),
+            "road_frontier_rows": sum(1 for r in district_rows if r[23]),
+        },
         "substitution_pairs": len(substitution_rows),
         "origins_with_alternative": written.select("destination_id", "origin_location_key", "property_category_key", "area_band_key").distinct().count(),
         "median_price_gap_pct": written.agg(F.expr("percentile(price_gap_pct, 0.5)")).first()[0],

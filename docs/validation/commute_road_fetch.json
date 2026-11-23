@@ -1,0 +1,34 @@
+{
+  "generated_at": "2026-11-22T05:18:42.290832+00:00",
+  "source": "OSRM public server router.project-osrm.org, profile driving; map data © OpenStreetMap contributors (ODbL)",
+  "grid_degrees": 0.01,
+  "destinations": 16,
+  "cells_by_province": {
+    "Hà Nội": 328,
+    "Hồ Chí Minh": 1156,
+    "Đà Nẵng": 167
+  },
+  "requests": 19,
+  "pairs": 12378,
+  "unroutable_pairs": 0,
+  "median_road_over_straight": {
+    "dn_cau_rong": 1.267,
+    "dn_san_bay": 1.438,
+    "hcm_bach_khoa": 1.274,
+    "hcm_ben_thanh": 1.241,
+    "hcm_dhqg": 1.377,
+    "hcm_etown_cong_hoa": 1.277,
+    "hcm_landmark81": 1.259,
+    "hcm_phu_my_hung": 1.257,
+    "hcm_shtp": 1.261,
+    "hcm_tan_son_nhat": 1.332,
+    "hcm_tan_thuan": 1.296,
+    "hn_bach_khoa": 1.333,
+    "hn_cau_giay": 1.301,
+    "hn_hoan_kiem": 1.355,
+    "hn_my_dinh": 1.284,
+    "hn_noi_bai": 1.249
+  },
+  "output": "config/commute_road_distance.csv",
+  "status": "PASS"
+}

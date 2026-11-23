@@ -189,8 +189,9 @@ Chi tiết lệnh và giới hạn vận hành: [Iceberg history](docs/operation
 | `agg_peer_group_benchmark`, `fact_listing_price_assessment` | BQ2: so sánh giá/m² với nhóm listing tương đồng |
 | `fact_listing_price_model`, `agg_price_model_coefficient` | BQ2: mô hình hedonic giải thích giá/m² theo quận, diện tích, số phòng, 5 cờ đặc điểm, khoảng cách tới trung tâm và phường, kết hợp với baseline trung vị nhóm |
 | `agg_area_substitution` | BQ3: khu vực thay thế trong cùng tỉnh với chi phí thấp hơn cho cùng diện tích, không xa trung tâm tỉnh hơn quá 10 km |
-| `agg_commute_district` | BQ3 theo nơi làm/học: mỗi quận × nơi đến (`config/commute_destinations.csv` và trung tâm 34 tỉnh), quãng đường đường chim bay từ tâm quận, chi phí cho cùng diện tích, cờ không bị quận khác vừa gần hơn vừa rẻ hơn |
-| `agg_commute_substitution` | BQ3 theo nơi làm/học: quận rẻ hơn với quãng đường tới nơi đến không xa hơn quá 2 km so với quận đang nhắm |
+| `fact_listing_commute` | BQ3 theo nơi làm/học (dashboard dùng bảng này): mỗi tin bán đại diện × nơi đến có tên trong cùng tỉnh, quãng đường và thời gian đi đường bộ (OSRM, ô lưới 0,01°, `config/commute_road_distance.csv`, lấy lại bằng `python -m src.gold.commute_road fetch`), khoảng cách chim bay để so sánh, vành đai đường bộ (<5, 5–10, 10–15, 15–20, 20–30, ≥30 km) |
+| `agg_commute_district` | BQ3 theo nơi làm/học: mỗi quận × nơi đến (`config/commute_destinations.csv` và trung tâm 34 tỉnh), quãng đường chim bay từ tâm quận và trung vị quãng đường đường bộ của tin trong quận, chi phí cho cùng diện tích, cờ không bị quận khác vừa gần hơn vừa rẻ hơn (theo chim bay và theo đường bộ) |
+| `agg_commute_substitution` | BQ3 theo nơi làm/học (bảng phụ, dashboard không dùng): quận rẻ hơn với quãng đường chim bay tới nơi đến không xa hơn quá 2 km so với quận đang nhắm |
 | `ev_budget_curve`, `ev_budget_pairs` | Bằng chứng BQ1: diện tích theo ngân sách và vùng khoảng cách; mỗi quận một cặp tin thật (tin B rẻ hơn ≥ 10%, rộng hơn ≥ 20%) |
 | `ev_reprice`, `ev_reprice_examples` | Bằng chứng BQ2: vị trí giá lúc mới đăng và việc hạ giá 1–30% sau đó (H1), kèm tin thật |
 | `ev_flag_check`, `ev_calibration` | Kiểm chứng mô hình BQ2: chênh giá thô theo cờ trong cùng quận–diện tích so với hệ số; giá ước tính so với giá thật trên tập test |

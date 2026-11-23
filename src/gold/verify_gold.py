@@ -10,6 +10,7 @@ if str(PROJECT_ROOT) not in sys.path: sys.path.insert(0,str(PROJECT_ROOT))
 from src.common.spark_session import build_spark_session,ensure_gold_namespace,ensure_silver_namespace,table_location
 from src.common.table_fingerprints import GRAINS
 from src.gold.build_bq_evidence import GENUINE_CUT
+from src.gold.commute_road import ROAD_CELL_TOLERANCE_KM, ring_sql
 from src.gold.gold_rules import COMMUTE_TOLERANCE_KM,MAX_DISTANCE_DIFF_KM,MAX_FLAG_SHARE_GAP,MIN_PEER_GROUP_SIZE,MIN_SUBSTITUTION_SIMILARITY,UNKNOWN_KEY,load_bands
 
 DIMENSIONS={"dim_source":"source_key","dim_date":"date_key","dim_location":"location_key","dim_property_category":"property_category_key","dim_price_band":"band_key","dim_area_band":"band_key","dim_unit_price_band":"band_key","dim_room_band":"band_key","dim_dq_status":"dq_status_key"}
@@ -21,6 +22,7 @@ BQ_GRAINS["fact_listing_lifecycle"]=["source_id"]
 BQ_GRAINS["fact_listing_price_model"]=["source_id"]
 BQ_GRAINS["agg_price_model_coefficient"]=["property_category_key","factor","level"]
 BQ_GRAINS["agg_commute_district"]=["destination_id","location_key","property_category_key","area_band_key"]
+BQ_GRAINS["fact_listing_commute"]=["source_id","destination_id"]
 BQ_GRAINS["agg_commute_substitution"]=["destination_id","origin_location_key","alternative_location_key","property_category_key","area_band_key"]
 BQ_GRAINS.update({name.removeprefix("gold."): grain for name, grain in GRAINS.items() if name.startswith("gold.ev_")})
 BQ_FKS={"date_key":"dim_date","location_key":"dim_location","origin_location_key":"dim_location","alternative_location_key":"dim_location","property_category_key":"dim_property_category","area_band_key":"dim_area_band","room_band_key":"dim_room_band","price_band_key":"dim_price_band","source_key":"dim_source"}
@@ -137,6 +139,17 @@ def main() -> None:
     metrics["commute_efficient_label_mismatch"]=cdist.filter("is_commute_efficient").select(*seg,"location_key").intersect(beaten).count()+cdist.filter("NOT is_commute_efficient").select(*seg,"location_key").exceptAll(beaten).count()
     checks["commute_efficient_labels_recomputed"]=metrics["commute_efficient_label_mismatch"]==0
     checks["commute_every_segment_has_efficient_district"]=cdist.groupBy(*seg).agg(F.max(F.col("is_commute_efficient").cast("int")).alias("m")).filter("m<>1").count()==0
+    # Road network (BQ3): road distance is at least the straight line (minus the grid-cell offset), rings follow road_km,
+    # and the road frontier is recomputed from road_km and the cost at the same target area.
+    croad=bq["fact_listing_commute"]
+    metrics["commute_road_pairs"]=croad.count()
+    metrics["commute_road_shorter_than_straight"]=croad.filter(F.col("road_km")<F.col("straight_km")-ROAD_CELL_TOLERANCE_KM).count()
+    checks["commute_road_not_shorter_than_straight"]=metrics["commute_road_pairs"]>0 and metrics["commute_road_shorter_than_straight"]<=0.01*metrics["commute_road_pairs"]
+    checks["commute_road_rings_match_distance"]=croad.filter(F.expr(f"NOT ({ring_sql('road_km')} <=> ring)")).count()==0
+    rdist=cdist.filter("road_km IS NOT NULL")
+    road_beaten=rdist.alias("a").join(rdist.alias("b"),[F.col(f"a.{c}")==F.col(f"b.{c}") for c in seg]).filter("b.location_key<>a.location_key AND b.road_km<=a.road_km AND b.estimated_cost_at_target_area<=a.estimated_cost_at_target_area AND (b.road_km<a.road_km OR b.estimated_cost_at_target_area<a.estimated_cost_at_target_area)").select(*[F.col(f"a.{c}") for c in seg],F.col("a.location_key")).distinct()
+    metrics["commute_road_frontier_mismatch"]=rdist.filter("is_road_frontier").select(*seg,"location_key").intersect(road_beaten).count()+rdist.filter("NOT is_road_frontier").select(*seg,"location_key").exceptAll(road_beaten).count()
+    checks["commute_road_frontier_recomputed"]=metrics["commute_road_frontier_mismatch"]==0 and cdist.filter("road_km IS NULL AND is_road_frontier IS NOT NULL").count()==0
     # BQ evidence tables (build_bq_evidence): the constraints the dashboards state.
     ev={name:spark.table(f"{gold}.{name}") for name in ("ev_budget_pairs","ev_reprice","ev_calibration","ev_flag_check")}
     pairs=ev["ev_budget_pairs"]

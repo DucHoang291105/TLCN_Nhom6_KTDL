@@ -51,7 +51,7 @@ def header(question: str, scope: str) -> str:
 def evidence_titles(run: Callable[[str], list[tuple]]) -> dict[str, dict[str, str]]:
     """Titles of the evidence charts, queried from the dashboards' own datasets."""
 
-    from src.dashboard.provision_superset import BQ3_DEFAULT, DATASETS
+    from src.dashboard.provision_superset import DATASETS
 
     def ds(name: str) -> str:
         return f"({DATASETS[name]}) t"
@@ -68,16 +68,12 @@ def evidence_titles(run: Callable[[str], list[tuple]]) -> dict[str, dict[str, st
     titles["tlcn-tong-quan"] = {"ov_compare": f"(Cố định) Cùng cách trung tâm 5–10 km: nhà phố Hà Nội {vn(ring[1])} tr/m², TP.HCM {vn(ring[2])} tr/m² "
                                               f"– gấp {vn(ring[1] / ring[2], 1)} lần; {always}"}
 
-    # BQ3: best move per destination; centroid validation
-    best = run(f"""SELECT doi_quan, re_hon_pct FROM {ds('commute_best')}
-        WHERE category_label = '{BQ3_DEFAULT["category_label"]}' AND area_band = '{BQ3_DEFAULT["area_band"]}' ORDER BY re_hon_pct DESC""")
-    centroid = run(f"SELECT COUNT_IF(ket_qua LIKE '1.%'), COUNT(*) FROM {ds('centroid_check')}")[0]
-    titles["tlcn-bq3"] = {
-        "bq3_centroid": f"(Cố định) Kiểm chứng tọa độ: {centroid[0]}/{centroid[1]} điểm đến nằm gần tâm đúng quận chứa nó nhất; số còn lại rơi vào quận giáp ranh",
-    }
-    if best:
-        titles["tlcn-bq3"]["bq3_best_moves"] = (f"(Tất cả nơi làm/học) Ở cả {len(best)} nơi, luôn có quận rẻ hơn {pct(best[-1][1] / 100)}–{pct(best[0][1] / 100)} "
-                                                f"mà đường đi không xa hơn – lớn nhất: {best[0][0]}")
+    # BQ3: road distance vs straight line, per named place (fixed check of the distance used)
+    detour = run(f"""SELECT noi_den, APPROX_PERCENTILE(he_so_duong_vong, 0.5) FROM {ds('commute_listing')}
+        WHERE he_so_duong_vong IS NOT NULL GROUP BY 1 ORDER BY 2""")
+    if detour:
+        titles["tlcn-bq3"] = {"bq3_detour_all": (f"(Cố định) Kiểm chứng: đường bộ dài hơn đường chim bay {vn(detour[0][1], 2)}–{vn(detour[-1][1], 2)} lần "
+                                                 "tùy nơi làm/học, nên BQ3 đo bằng đường bộ")}
 
     # data quality: label accuracy before/after the rule fix
     titles["tlcn-chat-luong"] = {"dq_g4": g4_title()}
@@ -115,7 +111,7 @@ def g4_title(validation: Path = ROOT / "docs/validation") -> str:
 
 
 def compute_insights(run: Callable[[str], list[tuple]]) -> dict[str, dict[str, Any]]:
-    from src.dashboard.provision_superset import BQ1_DEFAULT, BQ2_DEFAULT, BQ3_DEFAULT, MIN_GROUP
+    from src.dashboard.provision_superset import BQ1_DEFAULT, BQ2_DEFAULT, BQ3_DEFAULT, DATASETS, FAR_GAP_SQL, MIN_GROUP, RINGS_ENOUGH
 
     out: dict[str, dict[str, Any]] = {}
     house_join = f"""FROM {G}.fact_listing f JOIN {G}.dim_location d ON d.location_key = f.location_key
@@ -212,26 +208,16 @@ def compute_insights(run: Callable[[str], list[tuple]]) -> dict[str, dict[str, A
     }
 
     # ---------------------------------------------------------------- BQ3
-    dest, origin, band = BQ3_DEFAULT["noi_den"], BQ3_DEFAULT["quan_goc"], BQ3_DEFAULT["area_band"]
-    segment = f"""JOIN {G}.dim_property_category c ON c.property_category_key = {{t}}.property_category_key
-        JOIN {G}.dim_area_band ab ON ab.band_key = {{t}}.area_band_key WHERE c.model_category = 'nha_pho' AND ab.band_label = '{band}'"""
-    names = f"(SELECT DISTINCT destination_id, destination_name FROM {G}.agg_commute_district)"
-    options = run(f"""SELECT a.district_name, s.price_gap_pct, s.origin_commute_km, s.alternative_commute_km
-        FROM {G}.agg_commute_substitution s JOIN {names} n ON n.destination_id = s.destination_id
-        JOIN {G}.dim_location o ON o.location_key = s.origin_location_key JOIN {G}.dim_location a ON a.location_key = s.alternative_location_key
-        {segment.format(t="s")} AND n.destination_name = '{dest}' AND o.district_name = '{origin}' ORDER BY s.price_gap_pct DESC""")
-    best = min(options, key=lambda r: r[3]) if options else None
-    place = dest.split(" (")[0]
-    titles = {"bq3_gap": f"{len(options)} quận rẻ hơn {origin} mà đường tới {place} không xa hơn quá 2 km"}
-    if best:
-        titles["bq3_geo"] = (f"Làm ở {place}: {best[0]} cách {vn(best[3], 1)} km, rẻ hơn {pct(best[1])} so với {origin} "
-                             f"({vn(best[2], 1)} km) – chấm đen là nơi làm, xanh là quận đáng cân nhắc")
+    gaps = run(f"""SELECT noi_den, {FAR_GAP_SQL} FROM ({DATASETS['commute_listing']}) t
+        WHERE category_label = '{BQ3_DEFAULT["category_label"]}' AND area_band = '{BQ3_DEFAULT["area_band"]}'
+        GROUP BY 1 HAVING {RINGS_ENOUGH} ORDER BY 2 DESC""")
     out["tlcn-bq3"] = {
-        "facts": {"scenario": BQ3_DEFAULT, "options": len(options), "best": best},
-        "markdown": header("Đi làm/học ở đây: mua ở quận nào thì đường đi tương đương mà rẻ hơn?",
-                           "Chọn nơi làm/học, quận đang nhắm, loại hình, diện tích ở thanh lọc. Quãng đường là km đường chim bay từ tâm quận; "
-                           "chi phí so trên cùng diện tích, là ước tính."),
-        "titles": titles,
+        "facts": {"scenario": BQ3_DEFAULT, "far_gap_pct_by_place": gaps},
+        "markdown": header("Đi làm/học ở đây: ở cách bao xa thì vừa ngân sách, xa thêm thì rẻ hơn bao nhiêu?",
+                           "Chọn nơi làm/học, loại hình, diện tích, ngân sách ở thanh lọc. Quãng đường là km theo mạng đường bộ OpenStreetMap "
+                           "(OSRM) từ ô lưới khoảng 1 km quanh mỗi tin; phút là thời gian khi đường thông thoáng. Chi phí theo quận so trên cùng "
+                           "diện tích, là ước tính."),
+        "titles": {},
     }
 
     # ---------------------------------------------------------------- data quality
