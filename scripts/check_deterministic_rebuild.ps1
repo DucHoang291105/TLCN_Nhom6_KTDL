@@ -1,9 +1,6 @@
 $ErrorActionPreference = "Stop"
 . "$PSScriptRoot\pipeline_utils.ps1"
 
-# Rebuild Silver and Gold twice from the same Bronze input and compare, per
-# table, row count, distinct grain keys and a content hash of all rows
-# (build-time columns excluded). Evidence: docs/validation/deterministic_rebuild.json
 $projectRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $projectRoot
 try {

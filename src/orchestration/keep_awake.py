@@ -1,4 +1,3 @@
-"""Keep Windows awake for one foreground command; restore the thread policy on exit."""
 from __future__ import annotations
 import argparse
 import contextlib
@@ -26,7 +25,7 @@ def awake():
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description='Keep Windows awake for one foreground command; restore the thread policy on exit.')
     parser.add_argument('command', nargs=argparse.REMAINDER)
     command = parser.parse_args().command
     if command[:1] == ['--']:
@@ -34,7 +33,7 @@ def main():
     if not command:
         parser.error('A foreground command is required after --')
     with awake():
-        # The child exit code is the result; nonzero is deliberately propagated.
+
         raise SystemExit(subprocess.run(command, check=False).returncode)
 
 

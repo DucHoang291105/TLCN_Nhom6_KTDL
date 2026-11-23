@@ -1,4 +1,3 @@
-"""Read-only A+C integration checks; run after the Spark pipeline and provisioning."""
 import copy
 import json
 import subprocess
@@ -38,7 +37,7 @@ def main(output=None):
         for table, expected in tables.items():
             actual = int(trino_rows(f"SELECT COUNT(*) FROM iceberg.{layer}.{table}")[0][0])
             counts[f"{layer}.{table}"] = {"expected": expected, "actual": actual}
-    # Every table Silver/Gold verification counted (30 before the commute tables).
+
     checks["all_trino_counts_match_spark"] = set(counts) == set(GRAINS) and all(c["expected"] == c["actual"] for c in counts.values())
     api = Superset()
     dashboards = []
@@ -78,6 +77,6 @@ def main(output=None):
 
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description='Read-only A+C integration checks; run after the Spark pipeline and provisioning.')
     parser.add_argument("--output", type=Path, help="Separate probe output; keep historical acceptance evidence intact")
     main(parser.parse_args().output)

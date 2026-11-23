@@ -1,14 +1,3 @@
-"""Content fingerprints of every Silver and Gold table, for rebuild comparison.
-
-For each table: row count, number of distinct grain keys and an
-order-independent hash of all row contents (columns that only record when a
-build ran, ``*_built_at``, are excluded). Two rebuilds from the same Bronze
-input must produce identical fingerprints, which checks content and keys, not
-just row counts.
-
-Usage (Spark): .\\scripts\\run_spark.ps1 "src\\common\\table_fingerprints.py" <out.json>
-"""
-
 from __future__ import annotations
 
 import hashlib
@@ -62,8 +51,7 @@ GRAINS = {
     "gold.ev_calibration": ["source_id"],
 }
 
-# Quarantine preserves every rejected observation, including identical raw rows.
-# Its listed columns are comparison keys, not a uniqueness constraint.
+
 MULTISET_TABLES = frozenset({"silver.listing_dq_quarantine"})
 
 
@@ -78,7 +66,7 @@ def main(output: str) -> None:
     from src.common.spark_session import CATALOG_NAME, build_spark_session
 
     spark = build_spark_session("TableFingerprints")
-    # Refuse an incomplete release check when a new production table is added.
+
     actual = {
         f"{layer}.{row.tableName}"
         for layer in ("silver", "gold")

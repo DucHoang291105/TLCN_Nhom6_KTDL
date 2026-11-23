@@ -1,9 +1,3 @@
-"""Run the existing model evaluation without silently retuning production config.
-
-The original selection report remains the provenance of the frozen weights.
-New train-only CV proposals are saved separately for the model owner to review.
-No Gold table, threshold, split, weight or BQ interpretation is changed here.
-"""
 from __future__ import annotations
 import json
 from datetime import datetime, timezone

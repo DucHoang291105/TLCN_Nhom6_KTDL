@@ -1,4 +1,3 @@
-"""Sandbox Spark commit followed by an injected failure: readers must stay closed."""
 from __future__ import annotations
 import json
 import tempfile
@@ -32,7 +31,7 @@ def main():
             checks['initial_verified_publication'] = gate.require_published(root)['status'] == 'PUBLISHED'
             with gate.catalog_lock(root):
                 state = gate.begin_job('src/gold/build_price_model.py', 'fixture', root)
-                # Real Iceberg commit to a unique sandbox, never a production table.
+
                 write_iceberg_table(spark.createDataFrame([(1, 100)], ['id', 'price']), table)
                 checks['sandbox_commit_completed'] = spark.table(table).count() == 1
                 gate.finish_job(state, 'src/gold/build_price_model.py', False, root)

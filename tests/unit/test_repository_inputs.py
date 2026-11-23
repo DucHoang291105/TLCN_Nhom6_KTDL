@@ -1,4 +1,3 @@
-"""Required Bronze inputs must survive a Git checkout, including LFS-only CI."""
 import subprocess
 from pathlib import Path
 

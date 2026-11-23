@@ -1,4 +1,3 @@
-"""Run the complete local pipeline/operation acceptance suite without fake data."""
 from __future__ import annotations
 
 import argparse
@@ -84,7 +83,7 @@ def suite(batch, run_id, attach=False):
         execute(work, "write-window", [sys.executable, "-m", "src.orchestration.environment", "write"])
         execute(work, 'runtime-identity', [sys.executable, '-m', 'src.quality.check_runtime_identity'])
         execute(work, 'identity-benchmark', [sys.executable, '-m', 'src.quality.benchmark_publication'])
-        # Fault injection runs first so the latest normal DAG finishes green.
+
         execute(work, "failure-trigger", airflow("trigger", failure, "--batch-id", "20000101"))
         wait_run(work, failure, "airflow_failure_gate", expect_failure=True)
         execute(work, "trigger", airflow("trigger", run_id, "--batch-id", batch, "--history-mode", "incremental"))
@@ -92,7 +91,7 @@ def suite(batch, run_id, attach=False):
     if attach:
         execute(work, "failure-trigger", airflow("trigger", failure, "--batch-id", "20000101"))
         wait_run(work, failure, "airflow_failure_gate", expect_failure=True)
-    # Also exercise current manual-ingest preflight after an attached run.
+
     ps = ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File"]
     execute(work, "bronze-preflight", [*ps, "scripts/run_spark.ps1", "src/bronze/ingest_snapshots_bronze.py", "--skip-existing"])
     execute(work, 'bronze-reaudit', [*ps, 'scripts/run_spark.ps1', 'src/bronze/audit_bronze_state.py'])
@@ -120,7 +119,7 @@ def suite(batch, run_id, attach=False):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description='Run the complete local pipeline/operation acceptance suite without fake data.')
     parser.add_argument("--batch-id", required=True)
     parser.add_argument("--run-id", default="defense_" + datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%Y%m%d_%H%M%S"))
     parser.add_argument("--attach-run", action="store_true", help="Continue testing a known DAG run; export its actual start time")

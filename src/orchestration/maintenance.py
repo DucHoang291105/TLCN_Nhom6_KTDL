@@ -1,12 +1,6 @@
-"""Offline, checksummed backups and isolated restore checks for local Docker volumes.
-
-Archives contain private service metadata; keep them outside Git. No command in
-this module restores over a production volume or removes a volume.
-"""
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import re
 import subprocess
@@ -14,7 +8,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-from src.common.atomic_io import write_json_atomic
+from src.common.atomic_io import file_sha256, write_json_atomic
 
 ROOT = Path(__file__).resolve().parents[2]
 HELPER = 'apache/spark:3.5.9-scala2.12-java17-python3-r-ubuntu'
@@ -26,15 +20,10 @@ def docker(*args):
 
 
 def sha256(path):
-    digest = hashlib.sha256()
-    with Path(path).open('rb') as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b''):
-            digest.update(chunk)
-    return digest.hexdigest()
+    return file_sha256(path)
 
 
 def assert_offline(volumes):
-    """Check every running container, including ones outside the Compose project."""
     for volume in volumes:
         active = docker('ps', '--filter', f'volume={volume}', '--format', '{{.Names}}')
         if active:
@@ -68,12 +57,6 @@ def backup(destination):
 
 
 def restore_check(destination):
-    """Extract each archive into a NEW volume; compare file bytes/modes/owners.
-
-    Check is performed offline against the source volumes. Test volumes are
-    retained for inspection and are never attached to production containers.
-    This proves byte recovery, not a second physical-machine application test.
-    """
     destination = Path(destination).resolve()
     manifest = json.loads((destination / 'manifest.json').read_text(encoding='utf-8'))
     assert_offline([r['volume'] for r in manifest['volumes']])
@@ -90,7 +73,7 @@ def restore_check(destination):
         docker('run', '--rm', '--user', '0:0', '--entrypoint', '/bin/sh',
                '-v', f'{target}:/restore', '-v', f'{destination}:/backup:ro', HELPER,
                '-c', f'tar -xzpf /backup/{record["archive"]} -C /restore')
-        # tar --compare checks file contents as well as permissions and ownership.
+
         docker('run', '--rm', '--user', '0:0', '--entrypoint', '/bin/sh',
                '-v', f'{target}:/restore:ro', '-v', f'{destination}:/backup:ro', HELPER,
                '-c', f'tar -dzpf /backup/{record["archive"]} -C /restore')
@@ -103,7 +86,7 @@ def restore_check(destination):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description='Offline, checksummed backups and isolated restore checks for local Docker volumes.\n\nArchives contain private service metadata; keep them outside Git. No command in\nthis module restores over a production volume or removes a volume.\n')
     parser.add_argument('action', choices=('backup', 'restore-check'))
     parser.add_argument('--directory', type=Path, required=True)
     args = parser.parse_args()

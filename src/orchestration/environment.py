@@ -1,4 +1,3 @@
-"""Switch the local SQLite catalog between a Spark write window and query UI."""
 from __future__ import annotations
 
 import argparse
@@ -73,9 +72,8 @@ def _switch(mode):
         for name in ("tlcn_superset", "tlcn_trino"):
             if state(name) not in {"absent", "created", "exited", "dead"}:
                 subprocess.run(["docker", "stop", name], check=True, cwd=ROOT)
-        # The REST fixture can retain a pooled SQLite read transaction after
-        # a query window. Reopen its connections only after writers are idle
-        # and Trino is stopped; keep the durable catalog volume intact.
+
+
         if state("tlcn_iceberg_rest") == "running":
             subprocess.run(["docker", "restart", "tlcn_iceberg_rest"], check=True, cwd=ROOT)
         command = ["docker", "compose", "--profile", "orchestration", "up", "-d", "--wait",
@@ -83,8 +81,8 @@ def _switch(mode):
     else:
         from src.orchestration.publication import require_published, save
         published = require_published(ROOT)
-        # Persist the read barrier BEFORE starting Trino. Spark jobs take the
-        # same lock and reject writes until readers have been drained again.
+
+
         published['mode'] = 'read'
         save(published, ROOT)
         command = ["docker", "compose", "--profile", "query", "--profile", "dashboard", "up", "-d", "--wait",
@@ -105,7 +103,7 @@ def switch(mode):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description='Switch the local SQLite catalog between a Spark write window and query UI.')
     parser.add_argument("mode", choices=("write", "read", "check", "recover"))
     switch(parser.parse_args().mode)
 

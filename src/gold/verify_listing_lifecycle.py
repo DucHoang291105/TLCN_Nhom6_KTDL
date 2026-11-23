@@ -1,4 +1,3 @@
-"""Independent reconciliation of published lifecycle fields against Silver observations."""
 import json
 from pathlib import Path
 

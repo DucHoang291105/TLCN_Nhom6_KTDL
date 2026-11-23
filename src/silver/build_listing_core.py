@@ -1,15 +1,3 @@
-"""Build canonical Silver Core records from source-specific Bronze rows.
-
-Phase 1 implements and locally validates the Guland row transformer without
-requiring Spark, Docker, or access to MinIO. The same pure transformation is
-used as the behavioral contract when the Spark Bronze -> Silver job is added.
-
-Run a read-only validation against a local Guland CSV:
-
-    python -m src.silver.build_listing_core \
-        --validate-guland-csv data/incoming/snapshots/guland/20261002/guland_raw.csv
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -20,6 +8,7 @@ import re
 import tempfile
 import unicodedata
 from collections import Counter
+from contextlib import contextmanager
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Callable, Collection, Iterable, Mapping
@@ -55,41 +44,32 @@ OBSERVATION_METADATA_COLUMNS = [
     "category_evidence",
 ]
 
-# Where ``category_name`` comes from, strongest first. Stored on
-# listing_observation (not in the 27 canonical columns) so listing_feature can
-# weigh a site taxonomy differently from an endpoint assumption.
-CATEGORY_EVIDENCE_STRUCTURED = "SOURCE_STRUCTURED"  # site taxonomy id / slug
-CATEGORY_EVIDENCE_LABEL = "SOURCE_LABEL"  # site text label or tag
-CATEGORY_EVIDENCE_ENDPOINT = "ENDPOINT_CONTEXT"  # only the crawled endpoint
+
+CATEGORY_EVIDENCE_STRUCTURED = "SOURCE_STRUCTURED"
+CATEGORY_EVIDENCE_LABEL = "SOURCE_LABEL"
+CATEGORY_EVIDENCE_ENDPOINT = "ENDPOINT_CONTEXT"
 CATEGORY_EVIDENCE_NONE = "NONE"
 
 GULAND_SOURCE_GROUP = "mua_ban_nha_mat_pho_mat_tien"
 BATDONGSAN_SOURCE_GROUP = "ban_can_ho_chung_cu"
-BATDONGSAN_POSTED_FIELDS = (
-    "published_info_text",
-    "posted_text",
-    "published_at",
-    "posted_at",
-)
+BATDONGSAN_POSTED_FIELDS = ("published_info_text", "posted_text", "published_at", "posted_at")
 BATDONGSAN_LAT_FIELDS = ("lat", "latitude")
 BATDONGSAN_LON_FIELDS = ("lon", "lng", "longitude")
 
-# Batdongsan taxonomy. The crawler starts from /ban-can-ho-chung-cu, but the
-# result pages also contain other property types (category_id and the listing
-# URL prefix agree), so the endpoint is not evidence of an apartment.
+
 BATDONGSAN_CATEGORY_IDS: dict[str, tuple[str, str]] = {
     "324": ("apartment", "Căn hộ chung cư"),
-    "650": ("apartment", "Căn hộ chung cư"),  # căn hộ chung cư mini
-    "41": ("house", "Nhà ở"),  # nhà riêng
-    "163": ("house", "Nhà ở"),  # nhà mặt phố
-    "325": ("villa", "Biệt thự"),  # nhà biệt thự, liền kề
+    "650": ("apartment", "Căn hộ chung cư"),
+    "41": ("house", "Nhà ở"),
+    "163": ("house", "Nhà ở"),
+    "325": ("villa", "Biệt thự"),
     "575": ("shophouse", "Shophouse"),
     "562": ("condotel", "Condotel"),
-    "45": ("commercial", "Bất động sản thương mại"),  # kho, nhà xưởng
+    "45": ("commercial", "Bất động sản thương mại"),
     "44": ("farm_resort", "Trang trại, khu nghỉ dưỡng"),
     "48": ("other", "Bất động sản khác"),
 }
-# Listing URL prefixes, used only when category_id is missing.
+
 BATDONGSAN_URL_PREFIXES: tuple[tuple[str, str], ...] = (
     ("ban-can-ho-chung-cu", "324"),
     ("ban-nha-rieng", "41"),
@@ -115,30 +95,16 @@ NHADATVUI_PRODUCT_SLUGS: dict[str, tuple[str, str]] = {
     "mua-ban-bat-dong-san-khac": ("other", "Bất động sản khác"),
 }
 
-# Priority matters: a listing can contain both a broad house label and a more
-# specific label such as Shophouse or Biệt thự.
+
 GULAND_CATEGORY_RULES: tuple[tuple[str, str, set[str]], ...] = (
-    (
-        "land",
-        "Đất",
-        {"đất thổ cư", "đất ở", "có thổ cư", "full thổ cư"},
-    ),
+    ("land", "Đất", {"đất thổ cư", "đất ở", "có thổ cư", "full thổ cư"}),
     ("officetel", "Officetel", {"offictel", "officetel"}),
     ("shophouse", "Shophouse", {"shophouse"}),
-    (
-        "villa",
-        "Biệt thự",
-        {"biệt thự", "nhà biệt thự", "nhà vườn"},
-    ),
-    (
-        "house",
-        "Nhà ở",
-        {"nhà phố", "nhà nguyên căn", "nhà liền kề", "nhà cấp 4"},
-    ),
+    ("villa", "Biệt thự", {"biệt thự", "nhà biệt thự", "nhà vườn"}),
+    ("house", "Nhà ở", {"nhà phố", "nhà nguyên căn", "nhà liền kề", "nhà cấp 4"}),
 )
 
-# Matched per source *label* field (never on titles), on folded text with word
-# boundaries, so "Đất" does not match inside a project name such as "Đất Xanh".
+
 GENERAL_CATEGORY_RULES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
     ("officetel", "Officetel", ("officetel", "offictel")),
     ("shophouse", "Shophouse", ("shophouse",)),
@@ -161,7 +127,6 @@ GENERAL_CATEGORY_RULES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
             "commercial",
         ),
     ),
-    # Land after the specific types: "Đất" also appears in names (Đất Xanh).
     ("land", "Đất", ("đất", "dat", "land")),
     (
         "house",
@@ -181,8 +146,6 @@ GENERAL_CATEGORY_RULES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
 
 
 def _parse_list(value: Any) -> list[str]:
-    """Return a cleaned string list from JSON, list, tuple, or scalar input."""
-
     if value is None:
         return []
 
@@ -218,18 +181,15 @@ def _parse_positive_int(value: Any) -> int | None:
     return parsed if parsed > 0 else None
 
 
-def _extract_location_component(
-    locations: Iterable[str],
-    patterns: Iterable[str],
-) -> str | None:
-    # Prefer rows with more comma-separated administrative components. These
-    # are normally the old/full address rows in Guland's location_rows.
+def _extract_location_component(locations: Iterable[str], patterns: Iterable[str]) -> str | None:
     ordered = sorted(locations, key=lambda item: item.count(","), reverse=True)
     for location in ordered:
         for pattern in patterns:
             match = re.search(pattern, location, flags=re.IGNORECASE)
             if match:
-                return clean_text(re.sub(r"\s*\((?:mới|cũ)\)\s*$", "", match.group(1), flags=re.IGNORECASE))
+                return clean_text(
+                    re.sub(r"\s*\((?:mới|cũ)\)\s*$", "", match.group(1), flags=re.IGNORECASE)
+                )
     return None
 
 
@@ -239,18 +199,9 @@ def _parse_guland_location(value: Any) -> tuple[str | None, str | None, str | No
         return None, None, None
 
     address = " | ".join(locations)
-    ward = _extract_location_component(
-        locations,
-        (
-            r"\b((?:Phường|Xã|Thị trấn)\s+[^,|]+)",
-        ),
-    )
+    ward = _extract_location_component(locations, (r"\b((?:Phường|Xã|Thị trấn)\s+[^,|]+)",))
     district = _extract_location_component(
-        locations,
-        (
-            r"\b((?:Quận|Huyện|Thị xã)\s+[^,|]+)",
-            r"\b((?:Thành phố|TP\.?)\s+Thủ Đức)\b",
-        ),
+        locations, (r"\b((?:Quận|Huyện|Thị xã)\s+[^,|]+)", r"\b((?:Thành phố|TP\.?)\s+Thủ Đức)\b")
     )
     return address, ward, district
 
@@ -270,8 +221,6 @@ def _guland_posted_at(posted_text: Any, scraped_at: datetime | None) -> datetime
 
 
 def transform_guland_record(raw_record: Mapping[str, Any]) -> dict[str, Any]:
-    """Map one Guland Bronze/raw row to the exact canonical 27-column schema."""
-
     source = clean_text(raw_record.get("_source")) or "guland"
     source = source.lower()
     ad_id = clean_text(raw_record.get("listing_id"))
@@ -283,14 +232,9 @@ def transform_guland_record(raw_record: Mapping[str, Any]) -> dict[str, Any]:
     if rooms is None:
         rooms = parse_rooms(raw_record.get("description"))
 
-    address, ward, district_name = _parse_guland_location(
-        raw_record.get("location_rows")
-    )
+    address, ward, district_name = _parse_guland_location(raw_record.get("location_rows"))
     category_id, category_name, _ = map_guland_category(raw_record)
-    lat, lon, has_coord = normalize_coordinates(
-        raw_record.get("lat"),
-        raw_record.get("lon"),
-    )
+    lat, lon, has_coord = normalize_coordinates(raw_record.get("lat"), raw_record.get("lon"))
 
     ad_url = normalize_url(raw_record.get("listing_url"))
     source_url = ad_url or normalize_url(raw_record.get("_crawl_url"))
@@ -309,7 +253,7 @@ def transform_guland_record(raw_record: Mapping[str, Any]) -> dict[str, Any]:
         "rooms": rooms,
         "address": address,
         "ward": ward,
-        "district_id": None,  # Requires the canonical geography reference.
+        "district_id": None,
         "district_name": district_name,
         "category_id": category_id,
         "category_name": category_name,
@@ -323,16 +267,12 @@ def transform_guland_record(raw_record: Mapping[str, Any]) -> dict[str, Any]:
         "page_fetched": _parse_positive_int(raw_record.get("_source_page")),
         "price_m": price / 1_000_000 if price is not None else None,
         "price_per_m2": (
-            price / area
-            if price is not None and area is not None and area > 0
-            else None
+            price / area if price is not None and area is not None and area > 0 else None
         ),
         "has_coord": has_coord,
         "is_rent": False,
     }
 
-    # Re-project to guarantee exact order and to prevent raw fields leaking into
-    # Silver Core.
     return {column: record.get(column) for column in CANONICAL_COLUMNS}
 
 
@@ -370,12 +310,6 @@ _GENERAL_CATEGORY_INDEX = tuple(
 
 
 def _map_general_category(*values: Any) -> tuple[str | None, str | None]:
-    """Map source *label* fields, checked one field at a time in the given order.
-
-    Fields are never concatenated, so a keyword in one field cannot override
-    the label of another.
-    """
-
     for value in values:
         for text in _parse_list(value):
             folded = _fold(text)
@@ -386,8 +320,6 @@ def _map_general_category(*values: Any) -> tuple[str | None, str | None]:
 
 
 def map_batdongsan_category(raw_record: Mapping[str, Any]) -> tuple[str | None, str | None, str]:
-    """Category from Batdongsan's taxonomy id, else its listing URL prefix."""
-
     category_key = clean_text(raw_record.get("category_id"))
     if category_key in BATDONGSAN_CATEGORY_IDS:
         return (*BATDONGSAN_CATEGORY_IDS[category_key], CATEGORY_EVIDENCE_STRUCTURED)
@@ -396,7 +328,7 @@ def map_batdongsan_category(raw_record: Mapping[str, Any]) -> tuple[str | None, 
     for prefix, key in BATDONGSAN_URL_PREFIXES:
         if path.startswith(prefix):
             return (*BATDONGSAN_CATEGORY_IDS[key], CATEGORY_EVIDENCE_STRUCTURED)
-    # No default: the title is left to listing_feature, which records the method.
+
     return None, None, CATEGORY_EVIDENCE_NONE
 
 
@@ -419,18 +351,11 @@ def map_guland_category(raw_record: Mapping[str, Any]) -> tuple[str | None, str 
     for category_id, category_name, source_labels in GULAND_CATEGORY_RULES:
         if features.intersection(label.casefold() for label in source_labels):
             return category_id, category_name, CATEGORY_EVIDENCE_LABEL
-    # Only the crawled endpoint (mua-ban-nha-mat-pho-mat-tien) says "house";
-    # listing_feature lets clear title evidence override this weak default.
+
     return "house", "Nhà ở", CATEGORY_EVIDENCE_ENDPOINT
 
 
 def compose_nhadatvui_address(raw_record: Mapping[str, Any]) -> str | None:
-    """Raw address completed with the structured ward and province fields.
-
-    Most NhaDatVui rows have an empty ``address``; without the structured
-    ``province_name`` listing_location had to guess the province from the title.
-    """
-
     raw = clean_text(raw_record.get("address")) or ""
     parts = [part.strip() for part in raw.split(",") if part.strip()]
     seen = {_fold(part) for part in parts}
@@ -447,16 +372,9 @@ def _parse_location_text(value: Any) -> tuple[str | None, str | None]:
     if location is None:
         return None, None
 
-    ward = _extract_location_component(
-        [location],
-        (r"\b((?:Phường|Xã|Thị trấn)\s+[^,|]+)",),
-    )
+    ward = _extract_location_component([location], (r"\b((?:Phường|Xã|Thị trấn)\s+[^,|]+)",))
     district = _extract_location_component(
-        [location],
-        (
-            r"\b((?:Quận|Huyện|Thị xã)\s+[^,|]+)",
-            r"\b((?:Thành phố|TP\.?)\s+Thủ Đức)\b",
-        ),
+        [location], (r"\b((?:Quận|Huyện|Thị xã)\s+[^,|]+)", r"\b((?:Thành phố|TP\.?)\s+Thủ Đức)\b")
     )
     return ward, district
 
@@ -476,18 +394,13 @@ def _safe_posted_at(value: Any, scraped_at: datetime | None) -> datetime | None:
 
 
 def transform_batdongsan_record(raw_record: Mapping[str, Any]) -> dict[str, Any]:
-    """Map one Batdongsan Bronze/raw row to the canonical 27 columns."""
-
     source = (clean_text(raw_record.get("_source")) or "batdongsan").lower()
     ad_id = clean_text(raw_record.get("listing_id"))
     price_str = clean_text(raw_record.get("price_text"))
     price = parse_vietnamese_price(price_str)
     area = parse_area_m2(raw_record.get("area_text"))
     rooms = parse_rooms(
-        _first_clean(
-            raw_record.get("bedrooms_text"),
-            raw_record.get("bedrooms_aria"),
-        )
+        _first_clean(raw_record.get("bedrooms_text"), raw_record.get("bedrooms_aria"))
     )
 
     address = clean_text(raw_record.get("location_text"))
@@ -498,21 +411,19 @@ def transform_batdongsan_record(raw_record: Mapping[str, Any]) -> dict[str, Any]
     source_url = ad_url or normalize_url(raw_record.get("_crawl_url"))
     scraped_at = parse_timestamp(raw_record.get("_scraped_at"))
     posted_at = _safe_posted_at(
-        _first_clean(
-            *(raw_record.get(field) for field in BATDONGSAN_POSTED_FIELDS)
-        ),
-        scraped_at,
+        _first_clean(*(raw_record.get(field) for field in BATDONGSAN_POSTED_FIELDS)), scraped_at
     )
     lat, lon, has_coord = normalize_coordinates(
         _first_clean(*(raw_record.get(field) for field in BATDONGSAN_LAT_FIELDS)),
         _first_clean(*(raw_record.get(field) for field in BATDONGSAN_LON_FIELDS)),
     )
 
-    source_group = _first_clean(
-        raw_record.get("intent"),
-        raw_record.get("page_type"),
-        raw_record.get("product_type"),
-    ) or BATDONGSAN_SOURCE_GROUP
+    source_group = (
+        _first_clean(
+            raw_record.get("intent"), raw_record.get("page_type"), raw_record.get("product_type")
+        )
+        or BATDONGSAN_SOURCE_GROUP
+    )
 
     record = {
         "source": source,
@@ -526,7 +437,7 @@ def transform_batdongsan_record(raw_record: Mapping[str, Any]) -> dict[str, Any]
         "rooms": rooms,
         "address": address,
         "ward": ward,
-        "district_id": None,  # Requires the canonical geography reference.
+        "district_id": None,
         "district_name": district_name,
         "category_id": category_id,
         "category_name": category_name,
@@ -538,16 +449,11 @@ def transform_batdongsan_record(raw_record: Mapping[str, Any]) -> dict[str, Any]
         "posted_at": posted_at,
         "scraped_at": scraped_at,
         "page_fetched": _parse_positive_int(
-            _first_clean(
-                raw_record.get("_source_page"),
-                raw_record.get("page_number_attr"),
-            )
+            _first_clean(raw_record.get("_source_page"), raw_record.get("page_number_attr"))
         ),
         "price_m": price / 1_000_000 if price is not None else None,
         "price_per_m2": (
-            price / area
-            if price is not None and area is not None and area > 0
-            else None
+            price / area if price is not None and area is not None and area > 0 else None
         ),
         "has_coord": has_coord,
         "is_rent": False,
@@ -556,23 +462,15 @@ def transform_batdongsan_record(raw_record: Mapping[str, Any]) -> dict[str, Any]
 
 
 def transform_nhadatvui_record(raw_record: Mapping[str, Any]) -> dict[str, Any]:
-    """Map one NhaDatVui Bronze/raw row to the canonical 27 columns."""
-
     source = (clean_text(raw_record.get("_source")) or "nhadatvui").lower()
     ad_id = clean_text(raw_record.get("listing_id"))
     price_source = raw_record.get("price")
     price = parse_vietnamese_price(price_source)
     area = parse_area_m2(raw_record.get("area"))
     rooms = parse_rooms(raw_record.get("rooms"))
-    lat, lon, has_coord = normalize_coordinates(
-        raw_record.get("lat"),
-        raw_record.get("lng"),
-    )
+    lat, lon, has_coord = normalize_coordinates(raw_record.get("lat"), raw_record.get("lng"))
 
-    source_group = _first_clean(
-        raw_record.get("product_slug"),
-        raw_record.get("product_name"),
-    )
+    source_group = _first_clean(raw_record.get("product_slug"), raw_record.get("product_name"))
     category_id, category_name, _ = map_nhadatvui_category(raw_record)
 
     scraped_at = parse_timestamp(raw_record.get("_scraped_at"))
@@ -593,23 +491,21 @@ def transform_nhadatvui_record(raw_record: Mapping[str, Any]) -> dict[str, Any]:
         "rooms": rooms,
         "address": compose_nhadatvui_address(raw_record),
         "ward": clean_text(raw_record.get("ward_name")),
-        "district_id": None,  # Source CSV has no direct district field.
+        "district_id": None,
         "district_name": None,
         "category_id": category_id,
         "category_name": category_name,
         "lat": lat,
         "lon": lon,
         "image": normalize_url(raw_record.get("first_image_url")),
-        "ad_url": None,  # Crawler CSV currently has no verified detail URL.
+        "ad_url": None,
         "source_url": normalize_url(raw_record.get("_crawl_url")),
         "posted_at": posted_at,
         "scraped_at": scraped_at,
         "page_fetched": _parse_positive_int(raw_record.get("_source_page")),
         "price_m": price / 1_000_000 if price is not None else None,
         "price_per_m2": (
-            price / area
-            if price is not None and area is not None and area > 0
-            else None
+            price / area if price is not None and area is not None and area > 0 else None
         ),
         "has_coord": has_coord,
         "is_rent": False,
@@ -618,8 +514,6 @@ def transform_nhadatvui_record(raw_record: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def evaluate_core_data_quality(record: Mapping[str, Any]) -> tuple[str, list[str]]:
-    """Apply the documented DQ rules that can be evaluated on Core fields."""
-
     reject_reasons: list[str] = []
     warn_reasons: list[str] = []
 
@@ -670,8 +564,6 @@ def _build_observation(
     source_unavailable_rules: Collection[str] = (),
     category_evidence: str = CATEGORY_EVIDENCE_NONE,
 ) -> dict[str, Any]:
-    """Attach technical metadata to a canonical Core record."""
-
     core, value_reasons = apply_value_plausibility(core)
     dq_status, dq_reasons = evaluate_core_data_quality(core)
     if value_reasons:
@@ -694,24 +586,21 @@ def _build_observation(
         "batch_id": batch_id,
         "snapshot_date": snapshot_date,
         "bronze_ingested_at": parse_timestamp(raw_record.get("_ingested_at")),
-        "bronze_source_file": clean_text(
-            raw_record.get("_source_file")
-        ) or default_source_file,
+        "bronze_source_file": clean_text(raw_record.get("_source_file")) or default_source_file,
         "bronze_path": clean_text(bronze_path),
         "record_hash": make_record_hash(core),
         "dq_status": dq_status,
         "dq_reasons": dq_reasons,
         "completeness_score": calculate_completeness_score(core),
-        "category_evidence": category_evidence if core.get("category_name") else CATEGORY_EVIDENCE_NONE,
+        "category_evidence": category_evidence
+        if core.get("category_name")
+        else CATEGORY_EVIDENCE_NONE,
     }
     return observation
 
 
 def build_guland_observation(
-    raw_record: Mapping[str, Any],
-    *,
-    batch_id: str,
-    bronze_path: str | None = None,
+    raw_record: Mapping[str, Any], *, batch_id: str, bronze_path: str | None = None
 ) -> dict[str, Any]:
     return _build_observation(
         transform_guland_record(raw_record),
@@ -724,10 +613,7 @@ def build_guland_observation(
 
 
 def build_batdongsan_observation(
-    raw_record: Mapping[str, Any],
-    *,
-    batch_id: str,
-    bronze_path: str | None = None,
+    raw_record: Mapping[str, Any], *, batch_id: str, bronze_path: str | None = None
 ) -> dict[str, Any]:
     source_unavailable_rules: set[str] = set()
     if not any(field in raw_record for field in BATDONGSAN_POSTED_FIELDS):
@@ -749,10 +635,7 @@ def build_batdongsan_observation(
 
 
 def build_nhadatvui_observation(
-    raw_record: Mapping[str, Any],
-    *,
-    batch_id: str,
-    bronze_path: str | None = None,
+    raw_record: Mapping[str, Any], *, batch_id: str, bronze_path: str | None = None
 ) -> dict[str, Any]:
     return _build_observation(
         transform_nhadatvui_record(raw_record),
@@ -764,13 +647,7 @@ def build_nhadatvui_observation(
     )
 
 
-def validate_guland_csv(
-    csv_path: Path,
-    *,
-    limit: int | None = None,
-) -> dict[str, Any]:
-    """Read-only local validation used before Spark/MinIO integration."""
-
+def validate_guland_csv(csv_path: Path, *, limit: int | None = None) -> dict[str, Any]:
     if not csv_path.is_file():
         raise FileNotFoundError(f"Guland CSV not found: {csv_path}")
 
@@ -798,15 +675,12 @@ def validate_guland_csv(
         missing_columns = required_raw.difference(reader.fieldnames or [])
         if missing_columns:
             raise ValueError(
-                "Guland CSV is missing required columns: "
-                + ", ".join(sorted(missing_columns))
+                "Guland CSV is missing required columns: " + ", ".join(sorted(missing_columns))
             )
 
         for raw in reader:
             observation = build_guland_observation(
-                raw,
-                batch_id=batch_id,
-                bronze_path=str(csv_path),
+                raw, batch_id=batch_id, bronze_path=str(csv_path)
             )
             if list(observation)[: len(CANONICAL_COLUMNS)] != CANONICAL_COLUMNS:
                 raise AssertionError("Canonical column order changed")
@@ -844,8 +718,6 @@ def _is_lfs_pointer(path: Path) -> bool:
 
 
 def _observation_rank(record: Mapping[str, Any]) -> tuple[float, float, float, str]:
-    """Rank same-batch duplicates according to the documented grain rule."""
-
     scraped_at = record.get("scraped_at")
     scraped_rank = scraped_at.timestamp() if isinstance(scraped_at, datetime) else float("-inf")
     page = record.get("page_fetched")
@@ -881,68 +753,45 @@ def _serialize_csv_value(value: Any) -> Any:
     return value
 
 
-def _write_csv_atomic(
-    destination: Path,
-    fieldnames: list[str],
-    rows: Iterable[Mapping[str, Any]],
-) -> None:
+@contextmanager
+def _atomic_text_file(destination: Path, encoding: str, newline: str | None = None):
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary_path: Path | None = None
     try:
         with tempfile.NamedTemporaryFile(
             "w",
-            encoding="utf-8-sig",
-            newline="",
+            encoding=encoding,
+            newline=newline,
             dir=destination.parent,
             prefix=f".{destination.name}.",
             suffix=".tmp",
             delete=False,
         ) as handle:
             temporary_path = Path(handle.name)
-            writer = csv.DictWriter(handle, fieldnames=fieldnames, extrasaction="ignore")
-            writer.writeheader()
-            for row in rows:
-                writer.writerow(
-                    {field: _serialize_csv_value(row.get(field)) for field in fieldnames}
-                )
+            yield handle
         os.replace(temporary_path, destination)
     finally:
         if temporary_path is not None and temporary_path.exists():
             temporary_path.unlink()
+
+
+def _write_csv_atomic(
+    destination: Path, fieldnames: list[str], rows: Iterable[Mapping[str, Any]]
+) -> None:
+    with _atomic_text_file(destination, "utf-8-sig", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames, extrasaction="ignore")
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({field: _serialize_csv_value(row.get(field)) for field in fieldnames})
 
 
 def _write_json_atomic(destination: Path, payload: Mapping[str, Any]) -> None:
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    temporary_path: Path | None = None
-    try:
-        with tempfile.NamedTemporaryFile(
-            "w",
-            encoding="utf-8",
-            dir=destination.parent,
-            prefix=f".{destination.name}.",
-            suffix=".tmp",
-            delete=False,
-        ) as handle:
-            temporary_path = Path(handle.name)
-            json.dump(payload, handle, ensure_ascii=False, indent=2, default=str)
-            handle.write("\n")
-        os.replace(temporary_path, destination)
-    finally:
-        if temporary_path is not None and temporary_path.exists():
-            temporary_path.unlink()
+    with _atomic_text_file(destination, "utf-8") as handle:
+        json.dump(payload, handle, ensure_ascii=False, indent=2, default=str)
+        handle.write("\n")
 
 
-def build_local_silver(
-    input_root: Path,
-    output_root: Path,
-) -> dict[str, Any]:
-    """Build reproducible local Silver CSVs from all available raw snapshots.
-
-    This runner is intended for local validation and coursework handoff. The
-    canonical transforms and ranking rules are shared with the future
-    Spark/Iceberg job; the CSV output itself is not a replacement for Iceberg.
-    """
-
+def build_local_silver(input_root: Path, output_root: Path) -> dict[str, Any]:
     input_root = input_root.resolve()
     output_root = output_root.resolve()
     observations: list[dict[str, Any]] = []
@@ -970,11 +819,7 @@ def build_local_silver(
                 for row_number, raw in enumerate(csv.DictReader(handle), start=2):
                     input_rows += 1
                     try:
-                        observation = builder(
-                            raw,
-                            batch_id=batch_id,
-                            bronze_path=str(csv_path),
-                        )
+                        observation = builder(raw, batch_id=batch_id, bronze_path=str(csv_path))
                     except Exception as exc:
                         raise RuntimeError(
                             f"Cannot transform {csv_path} at CSV row {row_number}: {exc}"
@@ -990,12 +835,11 @@ def build_local_silver(
                         str(observation["batch_id"]),
                     )
                     previous = batch_winners.get(dedup_key)
-                    if previous is None:
+                    if previous is None or _observation_rank(observation) > _observation_rank(
+                        previous
+                    ):
                         batch_winners[dedup_key] = observation
-                    elif _observation_rank(observation) > _observation_rank(previous):
-                        batch_winners[dedup_key] = observation
-                        duplicates_dropped += 1
-                    else:
+                    if previous is not None:
                         duplicates_dropped += 1
 
             observations.extend(batch_winners.values())
@@ -1040,8 +884,9 @@ def build_local_silver(
     status_counts = Counter(row["dq_status"] for row in observations)
     status_counts.update(row["dq_status"] for row in quarantine)
     reason_counts: Counter[str] = Counter()
-    for row in [*observations, *quarantine]:
-        reason_counts.update(row["dq_reasons"])
+    for records in (observations, quarantine):
+        for row in records:
+            reason_counts.update(row["dq_reasons"])
 
     summary: dict[str, Any] = {
         "input_root": str(input_root),
@@ -1071,15 +916,10 @@ def _build_argument_parser() -> argparse.ArgumentParser:
         description="Build/validate canonical Silver listing core records."
     )
     parser.add_argument(
-        "--validate-guland-csv",
-        type=Path,
-        help="Read-only validation of a local Guland raw CSV.",
+        "--validate-guland-csv", type=Path, help="Read-only validation of a local Guland raw CSV."
     )
     parser.add_argument(
-        "--limit",
-        type=int,
-        default=None,
-        help="Optional maximum rows for local validation.",
+        "--limit", type=int, default=None, help="Optional maximum rows for local validation."
     )
     parser.add_argument(
         "--build-local-silver",
@@ -1109,9 +949,7 @@ def main() -> None:
         return
 
     if args.validate_guland_csv is None:
-        raise SystemExit(
-            "Provide --validate-guland-csv or --build-local-silver."
-        )
+        raise SystemExit("Provide --validate-guland-csv or --build-local-silver.")
 
     result = validate_guland_csv(args.validate_guland_csv, limit=args.limit)
     print(json.dumps(result, ensure_ascii=False, indent=2, default=str))

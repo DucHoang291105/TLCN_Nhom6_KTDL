@@ -1,4 +1,3 @@
-"""Execute real Iceberg MERGE vs rebuild, retry and adversarial SCD2 checks."""
 from __future__ import annotations
 import argparse
 import hashlib
@@ -18,8 +17,8 @@ def fingerprint(frame):
     from pyspark.sql import functions as F
     digest = hashlib.sha256()
     rows = 0
-    # Multiset hash: include duplicate row hashes, globally sorted, no volatile
-    # columns excluded. JSON column order and session timezone are fixed.
+
+
     hashes = frame.select(F.sha2(F.to_json(F.struct(*[F.col(c) for c in HISTORY_COLUMNS]),
                          {"ignoreNullFields": "false"}), 256).alias("h")).orderBy("h")
     for row in hashes.toLocalIterator():
@@ -54,8 +53,8 @@ def fixture_checks(spark, ns):
     def exercise(name, rows, expected, mode="incremental"):
         frame = spark.createDataFrame(rows, OBSERVATION_SCHEMA)
         result = sync_history(spark, frame, target, state, mode)
-        # Date conversion must use Spark's configured Vietnam timezone, not the
-        # Python driver's UTC-naive timestamp representation returned by collect.
+
+
         assert spark.table(target).filter(~F.to_date("valid_from").eqNullSafe(F.col("snapshot_date"))).limit(1).count() == 0
         actual = spark.table(target).orderBy("source_id", "version_number").collect()
         timeline = [(r.source_id, r.record_hash, r.snapshot_date.isoformat()) for r in actual]
@@ -120,7 +119,7 @@ def fixture_checks(spark, ns):
 def main():
     from pyspark.sql import functions as F
     from pyspark.storagelevel import StorageLevel
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description='Execute real Iceberg MERGE vs rebuild, retry and adversarial SCD2 checks.')
     parser.add_argument("--baseline-batch", default="20261016")
     args = parser.parse_args()
     datetime.strptime(args.baseline_batch, "%Y%m%d")

@@ -49,7 +49,7 @@ def test_absence_uses_own_source_last_two_batches_and_depth_cohorts():
                ({'batch_id': '20261023', 'max_page': 30}, {'a': 1, 'd': 30}),
                ({'batch_id': '20261027', 'max_page': 30}, {'d': 2})]
     result = coverage(records)
-    assert result['absent_two_batches'] == 2  # b,c; a was present in penultimate batch
+    assert result['absent_two_batches'] == 2
     assert result['absent_two_batches_share'] == .5
     assert result['depth_cohorts']['cohorts']['beyond_latest_depth']['absent_share'] == 1
     assert result['consecutive_pairs'][-1]['retained_share_of_old'] == .5

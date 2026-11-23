@@ -1,4 +1,3 @@
-"""Read-only host preflight for a new clone; does not certify a full DAG run."""
 from __future__ import annotations
 
 import argparse
@@ -44,7 +43,7 @@ def inspect(root=ROOT):
         try:
             result = subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=30, check=False)
             checks[name] = result.returncode == 0
-            # Do not collect compose output, environment variables or daemon config.
+
             if name != 'compose_config' and checks[name]:
                 versions[name] = result.stdout.strip()[:200]
         except (OSError, subprocess.TimeoutExpired):
@@ -67,7 +66,7 @@ def inspect(root=ROOT):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description='Read-only host preflight for a new clone; does not certify a full DAG run.')
     parser.add_argument('--output', type=Path, default=ROOT / 'outputs/reproduction/preflight.json')
     args = parser.parse_args()
     result = inspect()

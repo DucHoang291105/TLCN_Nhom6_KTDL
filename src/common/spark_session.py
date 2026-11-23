@@ -1,5 +1,3 @@
-"""Shared Spark session configuration for MinIO and the Iceberg REST catalog."""
-
 from __future__ import annotations
 
 import os
@@ -12,9 +10,7 @@ SILVER_NAMESPACE = os.getenv("ICEBERG_SILVER_NAMESPACE", "silver")
 GOLD_NAMESPACE = os.getenv("ICEBERG_GOLD_NAMESPACE", "gold")
 SMOKE_NAMESPACE = "smoke_test"
 
-# One MinIO bucket per Medallion layer. The JDBC catalog behind the Iceberg REST
-# fixture ignores namespace-level locations, so every table is created with an
-# explicit location under its layer bucket instead of the catalog warehouse.
+
 LAYER_TABLE_ROOTS = {
     SILVER_NAMESPACE: os.getenv("SILVER_TABLE_ROOT", "s3://lakehouse-silver/real_estate"),
     GOLD_NAMESPACE: os.getenv("GOLD_TABLE_ROOT", "s3://lakehouse-gold/real_estate"),
@@ -40,7 +36,10 @@ def build_spark_session(app_name: str) -> SparkSession:
         .config("spark.executorEnv.AWS_SECRET_ACCESS_KEY", secret_key)
         .config("spark.driver.extraJavaOptions", "-Daws.region=us-east-1")
         .config("spark.executor.extraJavaOptions", "-Daws.region=us-east-1")
-        .config("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")
+        .config(
+            "spark.sql.extensions",
+            "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",
+        )
         .config(f"spark.sql.catalog.{CATALOG_NAME}", "org.apache.iceberg.spark.SparkCatalog")
         .config(f"spark.sql.catalog.{CATALOG_NAME}.type", "rest")
         .config(f"spark.sql.catalog.{CATALOG_NAME}.uri", rest_uri)
@@ -56,9 +55,12 @@ def build_spark_session(app_name: str) -> SparkSession:
     spark.sparkContext.setLogLevel(os.getenv("SPARK_LOG_LEVEL", "WARN"))
     hadoop = spark.sparkContext._jsc.hadoopConfiguration()
     settings = {
-        "fs.s3a.endpoint": endpoint, "fs.s3a.access.key": access_key,
-        "fs.s3a.secret.key": secret_key, "fs.s3a.path.style.access": "true",
-        "fs.s3a.connection.ssl.enabled": "false", "fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
+        "fs.s3a.endpoint": endpoint,
+        "fs.s3a.access.key": access_key,
+        "fs.s3a.secret.key": secret_key,
+        "fs.s3a.path.style.access": "true",
+        "fs.s3a.connection.ssl.enabled": "false",
+        "fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
         "fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider",
     }
     for key, value in settings.items():
@@ -79,8 +81,6 @@ def ensure_gold_namespace(spark: SparkSession) -> str:
 
 
 def table_location(table: str) -> str:
-    """Return the layer-bucket location for ``catalog.namespace.table``."""
-
     parts = table.split(".")
     if len(parts) != 3 or parts[0] != CATALOG_NAME or parts[1] not in LAYER_TABLE_ROOTS:
         raise ValueError(f"No layer bucket configured for table: {table}")
@@ -95,20 +95,17 @@ def _current_location(spark: SparkSession, table: str) -> str | None:
 
 
 def write_iceberg_table(frame: DataFrame, table: str, partition_by: tuple[str, ...] = ()) -> None:
-    """Create or replace an Iceberg v2 table in its layer bucket.
-
-    A location mismatch requires an explicit, backed-up migration. Never
-    purge an existing table as a side effect of an ordinary pipeline rebuild.
-    """
-
     spark = frame.sparkSession
     location = table_location(table)
     current = _current_location(spark, table)
     if current is not None and current != location:
-        raise RuntimeError(f"Unsafe Iceberg location change for {table}: {current} -> {location}. "
-                           "Back up the catalog/data and plan an explicit migration; no table was dropped.")
+        raise RuntimeError(
+            f"Unsafe Iceberg location change for {table}: {current} -> {location}. "
+            "Back up the catalog/data and plan an explicit migration; no table was dropped."
+        )
     writer = (
-        frame.writeTo(table).using("iceberg")
+        frame.writeTo(table)
+        .using("iceberg")
         .tableProperty("format-version", "2")
         .tableProperty("location", location)
     )

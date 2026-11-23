@@ -1,4 +1,3 @@
-"""Check pinned MinIO on a NEW network/volume without touching production data."""
 from __future__ import annotations
 import json
 import secrets
@@ -42,7 +41,7 @@ done'''
         docker('exec', name, '/bin/sh', '-ec', script)
         docker('restart', name)
         time.sleep(3)
-        # Do not recreate buckets or overwrite objects before checking persistence.
+
         read_only = '''for bucket in lakehouse-bronze lakehouse-silver lakehouse-gold warehouse; do
   test "$(mc cat probe/$bucket/_fresh_check)" = verified-roundtrip
 done'''
@@ -51,7 +50,7 @@ done'''
                       'authenticated_four_bucket_roundtrip': True, 'restart_persistence': True},
                       version=docker('exec', name, 'minio', '--version').splitlines()[0])
     finally:
-        # Only stop our unique container. Retain the isolated volume for inspection.
+
         subprocess.run(['docker', 'stop', name], capture_output=True, check=False)
         result['generated_at'] = datetime.now(timezone.utc).isoformat()
         write_json_atomic(ROOT / 'docs/validation/fresh_runtime_check.json', result)

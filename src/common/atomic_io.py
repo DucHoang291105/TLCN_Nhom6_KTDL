@@ -1,16 +1,22 @@
-"""Atomic local JSON publication; a failed write never truncates prior evidence."""
+import hashlib
 import json
 import os
 import tempfile
 from pathlib import Path
 
 
-def write_json_atomic(path, payload, mode=0o644):
-    """Publish non-secret validation artifacts readable across container UIDs.
+def file_sha256(path, normalize=False):
+    digest = hashlib.sha256()
+    with Path(path).open('rb') as handle:
+        if normalize:
+            digest.update(handle.read().replace(b'\r\n', b'\n'))
+        else:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b''):
+                digest.update(chunk)
+    return digest.hexdigest()
 
-    Never use the default public mode for credentials. A secret caller must
-    explicitly request mode=0o600 and a private parent directory.
-    """
+
+def write_json_atomic(path, payload, mode=0o644):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = None

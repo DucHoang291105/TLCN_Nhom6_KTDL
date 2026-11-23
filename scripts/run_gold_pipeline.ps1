@@ -1,7 +1,6 @@
 $ErrorActionPreference = "Stop"
 . "$PSScriptRoot\pipeline_utils.ps1"
 
-# Requires a PASS Silver build (run_silver_pipeline.ps1).
 $jobs = @(
     "src\gold\build_dimensions.py",
     "src\gold\build_fact_listing.py",

@@ -1,7 +1,6 @@
 import copy
 import json
 import subprocess
-from types import SimpleNamespace
 
 import pytest
 

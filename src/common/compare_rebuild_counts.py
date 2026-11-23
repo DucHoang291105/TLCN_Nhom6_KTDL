@@ -1,11 +1,3 @@
-"""Compare the table fingerprints of two full rebuilds.
-
-Usage: python -m src.common.compare_rebuild_counts <run1.json> <run2.json>
-Each file is produced by ``src/common/table_fingerprints.py`` after one
-rebuild. Per table the row count, the number of distinct grain keys and the
-order-independent content hash (build-time columns excluded) must be equal.
-"""
-
 from __future__ import annotations
 
 import json

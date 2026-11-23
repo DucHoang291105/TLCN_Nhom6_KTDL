@@ -1,4 +1,3 @@
-"""Print the current technical acceptance, refusing to label old evidence current."""
 import json
 
 from src.quality.defense_evidence import ROOT, read

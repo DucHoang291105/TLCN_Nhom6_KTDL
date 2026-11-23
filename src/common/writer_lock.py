@@ -1,4 +1,3 @@
-"""Nonblocking advisory lock, released by the OS if the writer crashes."""
 import errno
 import hashlib
 import os

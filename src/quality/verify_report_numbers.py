@@ -1,4 +1,3 @@
-"""Check README headline counts against saved JSON; no live-data certification."""
 import json
 import re
 from datetime import datetime, timezone

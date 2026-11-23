@@ -1,6 +1,5 @@
 name: tlcn_bds_lakehouse
 
-# Production local stack: MinIO, Spark/Iceberg, Airflow, Trino and Superset.
 
 x-common-restart: &common-restart
   restart: unless-stopped
@@ -10,7 +9,6 @@ services:
     <<: *common-restart
     image: cgr.dev/chainguard/minio@sha256:e9cf6b99c226e9539ed0f14b6f00e37b07da153c7ba1f4f8709c807574b471ec
     container_name: tlcn_minio
-    # Preserve ownership compatibility with the existing local MinIO volume.
     user: "0:0"
     command: server /data --console-address ":9001"
     environment:
@@ -73,9 +71,6 @@ services:
     <<: *common-restart
     image: apache/iceberg-rest-fixture@sha256:df2e9dd421928b7aab01557678ce8e2bb73064d0e253baebd72adad3439ffc2e
     container_name: tlcn_iceberg_rest
-    # The fixture image normally runs as an unprivileged user, while a newly
-    # created named volume is owned by root.  Running this local-only catalog
-    # as root lets SQLite create its durable catalog file in that volume.
     user: "0:0"
     depends_on:
       minio:
@@ -132,8 +127,6 @@ services:
     volumes:
       - ./:/opt/project
       - spark_ivy:/home/spark/.ivy2
-    # Spark-submit's 1 GiB driver heap shares this container with the master
-    # daemon, Python and JVM native memory. 1 GiB total caused cgroup swapping.
     mem_limit: 1536m
     networks: [tlcn_network]
 
@@ -237,8 +230,6 @@ services:
       - "8082:8080"
     volumes:
       - airflow_home:/opt/airflow
-      # Publication hashes must see exactly the same source/input tree as Spark.
-      # Nested writable mounts below remain the only writable project paths.
       - ./:/opt/project:ro
       - ./dags:/opt/airflow/dags
       - ./src:/opt/project/src:ro

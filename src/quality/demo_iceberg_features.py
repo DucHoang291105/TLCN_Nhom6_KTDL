@@ -1,4 +1,3 @@
-"""Execute auditable time travel, schema evolution and partition demos in sandbox."""
 from __future__ import annotations
 import json
 import sys
