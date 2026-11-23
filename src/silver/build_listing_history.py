@@ -1,4 +1,3 @@
-"""Build or incrementally reconcile SCD2 listing history in Iceberg."""
 from __future__ import annotations
 import argparse
 import json
@@ -15,7 +14,7 @@ from src.common.atomic_io import write_json_atomic
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description='Build or incrementally reconcile SCD2 listing history in Iceberg.')
     parser.add_argument("--mode", choices=("incremental", "rebuild"), default="incremental")
     parser.add_argument("--force-verify", action="store_true", help="Bypass metadata no-op cache and revalidate full input")
     args = parser.parse_args()

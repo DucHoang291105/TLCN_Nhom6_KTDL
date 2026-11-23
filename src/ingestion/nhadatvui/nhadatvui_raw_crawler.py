@@ -1,39 +1,3 @@
-"""
-NhaDatVui.vn RAW crawler
-=========================
-
-Nguồn:
-    https://www.nhadatvui.vn/mua-ban-nha-dat
-
-Mục đích:
-- Crawl dữ liệu RAW từ trang danh sách NhaDatVui.
-- KHÔNG chuẩn hóa về schema 27 cột ở bước này.
-- Lưu nguyên response từng page để làm bằng chứng nguồn.
-- Lưu JSONL full RAW.
-- Lưu CSV rút gọn để mở Excel kiểm tra nhanh.
-
-NhaDatVui đang dùng Next.js / React Server Components.
-Response chứa block dạng:
-
-    "result": {
-        "data": [...],
-        "skip": 18,
-        "limit": 18,
-        "total": 16724,
-        "count": 18
-    }
-
-Tool sẽ tự tìm và parse block "result".
-
-Chỉ cần chỉnh:
-    START_PAGE
-    PAGES_TO_CRAWL
-    DELAY_SECONDS
-    RUN_NAME        -> đặt tên cố định cho thư mục/file output
-    RESUME_RUN_ID   -> để crawl lại từ chỗ dừng nếu bị ngắt giữa chừng
-                       (set = giá trị RUN_NAME của lần chạy trước)
-"""
-
 from __future__ import annotations
 
 import csv
@@ -56,6 +20,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from src.common.atomic_io import write_json_atomic
 from src.ingestion.crawl_runtime import (
     CrawlBlocked,
+    append_raw_jsonl,
     batch_id,
     integer_setting,
     float_setting,
@@ -67,97 +32,51 @@ from src.ingestion.crawl_runtime import (
 )
 
 
-# ============================================================
-# CONFIG - CHỈNH Ở ĐÂY
-# ============================================================
-
 BASE_URL = "https://www.nhadatvui.vn/mua-ban-nha-dat"
 
-# Trang bắt đầu
+
 START_PAGE = integer_setting("CRAWL_START_PAGE", 1, maximum=10000)
 
-# Số trang muốn crawl (site có ~16724 tin, limit=18/trang -> cần ~930 trang).
-# Giữ cố định giữa các lần crawl; đổi qua biến môi trường CRAWL_PAGES.
+
 PAGES_TO_CRAWL = integer_setting("CRAWL_PAGES", 200, maximum=5000)
 
-# Delay cơ bản giữa 2 trang
-# Tăng lên so với bản gốc (2.0) vì crawl liên tục ~900+ trang trong 1 lần
-# chạy có rủi ro bị rate-limit/block cao hơn crawl vài chục trang.
+
 DELAY_SECONDS = float_setting("CRAWL_DELAY_SECONDS", 3.5)
 
-# Thêm jitter ngẫu nhiên để request không quá đều
+
 DELAY_JITTER_SECONDS = 1.2
 
-# Timeout
+
 REQUEST_TIMEOUT = integer_setting("CRAWL_REQUEST_TIMEOUT", 30, maximum=60)
 
-# Retry nếu lỗi mạng / 5xx / 429
+
 MAX_RETRIES = integer_setting("CRAWL_MAX_RETRIES", 3, maximum=5)
-MAX_CONSECUTIVE_FAILURES = integer_setting(
-    "CRAWL_MAX_CONSECUTIVE_FAILURES", 2, maximum=5
-)
+MAX_CONSECUTIVE_FAILURES = integer_setting("CRAWL_MAX_CONSECUTIVE_FAILURES", 2, maximum=5)
 RUN_TIMEOUT_SECONDS = integer_setting("CRAWL_RUN_TIMEOUT_SECONDS", 2100)
 
-# ------------------------------------------------------------
-# RESUME
-# ------------------------------------------------------------
-# Nếu script bị ngắt giữa chừng (mất mạng, máy sleep, bị kill...),
-# chạy lại với RESUME_RUN_ID = "<run_id của lần chạy trước>"
-# (chính là tên thư mục trong data/incoming/snapshots/nhadatvui/)
-# để tiếp tục từ trang chưa crawl, KHÔNG crawl lại từ đầu.
-#
-# Để trống (None) nếu đây là lần chạy mới.
+
 RESUME_RUN_ID: str | None = None
 
-# ------------------------------------------------------------
-# TÊN CHẠY (RUN NAME)
-# ------------------------------------------------------------
-# Đặt tên cố định cho lần crawl này thay vì để script tự sinh
-# theo timestamp. Tên này sẽ dùng làm:
-#   - tên thư mục output: data/incoming/snapshots/nhadatvui/<RUN_NAME>/
-#   - tên file: <RUN_NAME>.jsonl, <RUN_NAME>.csv
-#
-# Muốn crawl tiếp (resume) đúng lần chạy này vào lúc khác:
-# set RESUME_RUN_ID = giá trị RUN_NAME này.
-#
-# Để None nếu muốn quay lại kiểu tên tự sinh theo timestamp.
+
 RUN_NAME: str | None = None
 
 
-# ============================================================
-# OUTPUT
-# ============================================================
-
-# Thứ tự: RESUME_RUN_ID (crawl tiếp) -> RUN_NAME -> CRAWL_BATCH_ID -> ngày hôm nay
-# (giờ Việt Nam). Tên batch phải là YYYYMMDD để job ingest Bronze nhận được.
 RUN_ID = RESUME_RUN_ID or RUN_NAME or batch_id()
 if not re.fullmatch(r"\d{8}", RUN_ID):
-    raise ValueError(
-        "Batch id (RESUME_RUN_ID / RUN_NAME / CRAWL_BATCH_ID) must be YYYYMMDD"
-    )
+    raise ValueError("Batch id (RESUME_RUN_ID / RUN_NAME / CRAWL_BATCH_ID) must be YYYYMMDD")
 IS_RESUME = RESUME_RUN_ID is not None
 
-# File này được đặt tại:
-#   TLCN_BDS_Lakehouse/src/ingestion/nhadatvui/nhadatvui_raw_crawler.py
-#
-# Tự tìm thư mục gốc project, KHÔNG hard-code ổ D:/C: hay tên user.
-# Vì vậy gửi project cho máy khác vẫn chạy được nếu giữ đúng cấu trúc thư mục.
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 OUTPUT_DIR = output_directory("nhadatvui", RUN_ID)
 
 PAGES_DIR = OUTPUT_DIR / "pages"
 
-# Fixed names: the Bronze snapshot ingest reads <source>_raw.csv.
+
 JSONL_PATH = OUTPUT_DIR / "nhadatvui_raw.jsonl"
 CSV_PATH = OUTPUT_DIR / "nhadatvui_raw.csv"
 SUMMARY_PATH = OUTPUT_DIR / "crawl_summary.json"
 LOG_PATH = OUTPUT_DIR / "crawl.log"
 
-
-# ============================================================
-# SESSION
-# ============================================================
 
 session = requests.Session()
 
@@ -169,9 +88,7 @@ session.headers.update(
             "Chrome/152.0.0.0 Safari/537.36"
         ),
         "Accept": (
-            "text/html,application/xhtml+xml,"
-            "application/xml;q=0.9,image/avif,"
-            "image/webp,*/*;q=0.8"
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
         ),
         "Accept-Language": ("vi-VN,vi;q=0.9,en-US;q=0.7,en;q=0.6"),
         "Cache-Control": "no-cache",
@@ -182,13 +99,6 @@ session.headers.update(
 )
 
 
-# ============================================================
-# LOGGING
-# ============================================================
-# Ghi log ra cả console lẫn file trong OUTPUT_DIR, để nếu chạy
-# qua đêm (đóng terminal / mất SSH) vẫn xem lại được đã crawl
-# tới đâu, lỗi ở trang nào.
-
 logger = logging.getLogger("nhadatvui")
 logger.setLevel(logging.INFO)
 
@@ -197,30 +107,20 @@ def setup_logging() -> None:
     logger.handlers.clear()
 
     formatter = logging.Formatter(
-        "%(asctime)s [%(levelname)s] %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
+        "%(asctime)s [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )
 
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
 
-    file_handler = logging.FileHandler(
-        LOG_PATH,
-        encoding="utf-8",
-        mode="a" if IS_RESUME else "w",
-    )
+    file_handler = logging.FileHandler(LOG_PATH, encoding="utf-8", mode="a" if IS_RESUME else "w")
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
 
 def log(msg: str) -> None:
     logger.info(msg)
-
-
-# ============================================================
-# UTILS
-# ============================================================
 
 
 def now_iso() -> str:
@@ -239,40 +139,18 @@ def safe_list(value: Any) -> list:
     return value if isinstance(value, list) else []
 
 
-# ============================================================
-# NEXT.JS / RSC PARSER
-# ============================================================
-
-
-def extract_result_object_from_text(
-    text: str,
-) -> dict | None:
-    """
-    Tìm marker:
-        "result":
-    rồi dùng JSONDecoder.raw_decode() để parse đúng object
-    ngay sau marker.
-
-    Cách này không phụ thuộc độ dài danh sách data.
-    """
-
+def extract_result_object_from_text(text: str) -> dict | None:
     marker = '"result":'
     search_from = 0
     decoder = json.JSONDecoder()
 
     while True:
-        marker_index = text.find(
-            marker,
-            search_from,
-        )
+        marker_index = text.find(marker, search_from)
 
         if marker_index == -1:
             return None
 
-        object_start = text.find(
-            "{",
-            marker_index + len(marker),
-        )
+        object_start = text.find("{", marker_index + len(marker))
 
         if object_start == -1:
             return None
@@ -282,10 +160,7 @@ def extract_result_object_from_text(
 
             if (
                 isinstance(result, dict)
-                and isinstance(
-                    result.get("data"),
-                    list,
-                )
+                and isinstance(result.get("data"), list)
                 and "total" in result
                 and "count" in result
             ):
@@ -297,24 +172,10 @@ def extract_result_object_from_text(
         search_from = marker_index + len(marker)
 
 
-def extract_next_f_stream(
-    html: str,
-) -> str:
-    """
-    Với response HTML đầy đủ của Next.js, RSC payload thường
-    nằm trong:
-
-        self.__next_f.push([...])
-
-    Ta decode các array JSON đó rồi nối phần string lại.
-    """
-
+def extract_next_f_stream(html: str) -> str:
     chunks: list[str] = []
 
-    pattern = re.compile(
-        r"self\.__next_f\.push\((.*?)\)</script>",
-        flags=re.DOTALL,
-    )
+    pattern = re.compile(r"self\.__next_f\.push\((.*?)\)</script>", flags=re.DOTALL)
 
     for match in pattern.finditer(html):
         payload = match.group(1).strip()
@@ -324,32 +185,18 @@ def extract_next_f_stream(
         except json.JSONDecodeError:
             continue
 
-        if (
-            isinstance(decoded, list)
-            and len(decoded) >= 2
-            and isinstance(decoded[1], str)
-        ):
+        if isinstance(decoded, list) and len(decoded) >= 2 and isinstance(decoded[1], str):
             chunks.append(decoded[1])
 
     return "\n".join(chunks)
 
 
-def parse_nhadatvui_result(
-    response_text: str,
-) -> dict:
-    """
-    Hỗ trợ cả:
-    1. RSC response trực tiếp
-    2. HTML Next.js có embedded self.__next_f.push(...)
-    """
-
-    # Cách 1: response bản thân đã là RSC stream
+def parse_nhadatvui_result(response_text: str) -> dict:
     result = extract_result_object_from_text(response_text)
 
     if result is not None:
         return result
 
-    # Cách 2: response là full HTML
     rsc_stream = extract_next_f_stream(response_text)
 
     if rsc_stream:
@@ -361,11 +208,6 @@ def parse_nhadatvui_result(
     raise ValueError('Không tìm thấy block "result.data" trong response của NhaDatVui.')
 
 
-# ============================================================
-# REQUEST
-# ============================================================
-
-
 def request_page(page: int) -> tuple[str, str, int]:
     url = build_page_url(page)
     response = request_response(
@@ -375,16 +217,7 @@ def request_page(page: int) -> tuple[str, str, int]:
     return response.text, url, response.status_code
 
 
-def enrich_raw_record(
-    record: dict,
-    page: int,
-    source_url: str,
-) -> dict:
-    """
-    Chỉ gắn metadata ingestion.
-    KHÔNG chuẩn hóa sang schema 27 cột.
-    """
-
+def enrich_raw_record(record: dict, page: int, source_url: str) -> dict:
     output = dict(record)
 
     output["_source"] = "nhadatvui"
@@ -395,15 +228,7 @@ def enrich_raw_record(
     return output
 
 
-# ============================================================
-# CSV INSPECTION VIEW
-# ============================================================
-
-
-def first_image_url(
-    record: dict,
-) -> str | None:
-
+def first_image_url(record: dict) -> str | None:
     for item in safe_list(record.get("attachments")):
         if not isinstance(item, dict):
             continue
@@ -414,37 +239,20 @@ def first_image_url(
     return None
 
 
-def get_detail(
-    record: dict,
-    *keys: str,
-) -> Any:
-
+def get_detail(record: dict, *keys: str) -> Any:
     details = safe_dict(record.get("details"))
 
     for key in keys:
         if key in details:
             value = details.get(key)
 
-            if value not in (
-                None,
-                "",
-            ):
+            if value not in (None, ""):
                 return value
 
     return None
 
 
-def to_csv_record(
-    record: dict,
-) -> dict:
-    """
-    CSV chỉ để nhìn nhanh bằng Excel.
-    Full record vẫn nằm trong JSONL.
-
-    Không đưa nguyên content/attachments/createdBy vào CSV
-    để file nhẹ và dễ xem.
-    """
-
+def to_csv_record(record: dict) -> dict:
     product = safe_dict(record.get("productId"))
 
     province = safe_dict(record.get("provinceCode"))
@@ -482,56 +290,19 @@ def to_csv_record(
         "created_at_ms": record.get("createdAt"),
         "public_date_ms": record.get("publicDate"),
         "expired_date_ms": record.get("expiredDate"),
-        "rooms": get_detail(
-            record,
-            "So_phong_ngu",
-        ),
-        "toilets": get_detail(
-            record,
-            "So_phong_tam,_vi_sinh",
-        ),
-        "floors": get_detail(
-            record,
-            "So_tang",
-        ),
-        "frontage_m": get_detail(
-            record,
-            "Mat_tien_(m)",
-        ),
-        "length_m": get_detail(
-            record,
-            "Chieu_dai_(m)",
-        ),
-        "road_width_m": get_detail(
-            record,
-            "Đuong_vao_(m)",
-            "Duong_vao_(m)",
-            "Äuong_vao_(m)",
-        ),
-        "direction": get_detail(
-            record,
-            "Huong",
-        ),
-        "legal_document": get_detail(
-            record,
-            "Giay_to_phap_ly",
-        ),
-        "property_subtype": get_detail(
-            record,
-            "Loai_dat",
-            "Loai_can_ho",
-        ),
+        "rooms": get_detail(record, "So_phong_ngu"),
+        "toilets": get_detail(record, "So_phong_tam,_vi_sinh"),
+        "floors": get_detail(record, "So_tang"),
+        "frontage_m": get_detail(record, "Mat_tien_(m)"),
+        "length_m": get_detail(record, "Chieu_dai_(m)"),
+        "road_width_m": get_detail(record, "Đuong_vao_(m)", "Duong_vao_(m)", "Äuong_vao_(m)"),
+        "direction": get_detail(record, "Huong"),
+        "legal_document": get_detail(record, "Giay_to_phap_ly"),
+        "property_subtype": get_detail(record, "Loai_dat", "Loai_can_ho"),
         "image_count": len(attachments),
         "first_image_url": first_image_url(record),
-        # Chỉ số để biết RAW có mô tả,
-        # không nhét cả content dài vào CSV.
         "has_content": bool(record.get("content")),
     }
-
-
-# ============================================================
-# SAVE
-# ============================================================
 
 
 def page_raw_path(page: int) -> Path:
@@ -539,7 +310,6 @@ def page_raw_path(page: int) -> Path:
 
 
 def page_already_done(page: int) -> bool:
-    """Raw response alone is not proof CSV/JSONL publication completed."""
     path = page_raw_path(page)
     if not path.exists() or not path.stat().st_size or not SUMMARY_PATH.exists():
         return False
@@ -550,42 +320,17 @@ def page_already_done(page: int) -> bool:
     return page in summary.get("completed_pages", [])
 
 
-def save_page_raw(
-    page: int,
-    response_text: str,
-) -> None:
-
+def save_page_raw(page: int, response_text: str) -> None:
     path = page_raw_path(page)
 
-    path.write_text(
-        response_text,
-        encoding="utf-8",
-    )
+    path.write_text(response_text, encoding="utf-8")
 
 
-def append_jsonl(
-    records: list[dict],
-) -> None:
-
-    with JSONL_PATH.open(
-        "a",
-        encoding="utf-8",
-    ) as file:
-        for record in records:
-            file.write(
-                json.dumps(
-                    record,
-                    ensure_ascii=False,
-                )
-                + "\n"
-            )
+def append_jsonl(records: list[dict]) -> None:
+    append_raw_jsonl(JSONL_PATH, records)
 
 
-def append_csv(
-    records: list[dict],
-    header_written: bool,
-) -> bool:
-
+def append_csv(records: list[dict], header_written: bool) -> bool:
     if not records:
         return header_written
 
@@ -595,15 +340,8 @@ def append_csv(
 
     mode = "a" if header_written else "w"
 
-    with CSV_PATH.open(
-        mode,
-        encoding="utf-8-sig",
-        newline="",
-    ) as file:
-        writer = csv.DictWriter(
-            file,
-            fieldnames=fieldnames,
-        )
+    with CSV_PATH.open(mode, encoding="utf-8-sig", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
 
         if not header_written:
             writer.writeheader()
@@ -614,21 +352,12 @@ def append_csv(
 
 
 def load_existing_listing_ids() -> set[str]:
-    """
-    Dùng cho resume: đọc lại JSONL cũ (nếu có) để nạp lại
-    seen_listing_ids, giúp summary cuối cùng vẫn đúng dù
-    chạy nhiều lần nối tiếp nhau.
-    """
-
     ids: set[str] = set()
 
     if not JSONL_PATH.exists():
         return ids
 
-    with JSONL_PATH.open(
-        "r",
-        encoding="utf-8",
-    ) as file:
+    with JSONL_PATH.open("r", encoding="utf-8") as file:
         for line in file:
             line = line.strip()
 
@@ -648,22 +377,12 @@ def load_existing_listing_ids() -> set[str]:
     return ids
 
 
-# ============================================================
-# MAIN
-# ============================================================
-
-
 def fetch_listing_page(page):
-    """Fetch, retain and validate one source page before publishing its rows."""
     response_text, source_url, status = request_page(page)
 
     log(f"[HTTP] {status}")
 
-    # Giữ response gốc từng page
-    save_page_raw(
-        page,
-        response_text,
-    )
+    save_page_raw(page, response_text)
 
     result = parse_nhadatvui_result(response_text)
 
@@ -671,11 +390,7 @@ def fetch_listing_page(page):
     raw_records = safe_list(result.get("data"))
 
     records = [
-        enrich_raw_record(
-            record=record,
-            page=page,
-            source_url=source_url,
-        )
+        enrich_raw_record(record=record, page=page, source_url=source_url)
         for record in raw_records
         if isinstance(record, dict)
     ]
@@ -683,7 +398,6 @@ def fetch_listing_page(page):
 
 
 def publish_raw_page(records, header_written, seen_listing_ids):
-    """Append raw JSONL/CSV and retain duplicate counts without deduping input."""
     duplicate_count = 0
 
     for record in records:
@@ -699,18 +413,13 @@ def publish_raw_page(records, header_written, seen_listing_ids):
 
         seen_listing_ids.add(listing_id)
 
-    # RAW không dedup khỏi output.
     append_jsonl(records)
 
-    header_written = append_csv(
-        records,
-        header_written,
-    )
+    header_written = append_csv(records, header_written)
     return header_written, duplicate_count
 
 
 def main() -> int:
-    # A new run never overwrites a finished batch; a resume continues it.
     if CSV_PATH.exists() and not IS_RESUME:
         raise FileExistsError(f"Existing batch is preserved: {CSV_PATH}")
 
@@ -723,15 +432,9 @@ def main() -> int:
     if DELAY_SECONDS < 0:
         raise ValueError("DELAY_SECONDS không được âm.")
 
-    OUTPUT_DIR.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    PAGES_DIR.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
+    PAGES_DIR.mkdir(parents=True, exist_ok=True)
 
     setup_logging()
 
@@ -776,21 +479,13 @@ def main() -> int:
         )
     write_progress(SUMMARY_PATH, "nhadatvui", RUN_ID, previous_completed, existing_rows)
 
-    # Toàn bộ vòng crawl bọc trong try/finally để summary luôn
-    # được ghi ra, kể cả khi có lỗi bất ngờ (vd: hết dung lượng
-    # đĩa, Ctrl+C, lỗi không lường trước) khiến vòng lặp dừng
-    # giữa chừng.
     try:
-        for page in range(
-            START_PAGE,
-            last_page + 1,
-        ):
+        for page in range(START_PAGE, last_page + 1):
             if time.monotonic() - started >= RUN_TIMEOUT_SECONDS:
                 stop_reason = "run time budget exceeded"
                 break
             log("")
 
-            # ----- RESUME: bỏ qua page đã crawl xong -----
             if IS_RESUME and page_already_done(page):
                 skipped_pages.append(page)
                 completed_pages.append(page)
@@ -835,7 +530,6 @@ def main() -> int:
                     f"| duplicate_seen={duplicate_count}"
                 )
 
-                # Hết data
                 write_progress(
                     SUMMARY_PATH,
                     "nhadatvui",
@@ -849,9 +543,6 @@ def main() -> int:
                     log("[STOP] Trang không còn listing.")
                     break
 
-                # Theo response hiện tại:
-                # page 2 -> skip 18, limit 18.
-                # Nếu skip + count >= total thì đã tới cuối.
                 if (
                     isinstance(skip, int)
                     and isinstance(count, int)
@@ -864,17 +555,10 @@ def main() -> int:
                     break
 
             except Exception as exc:
-                failed_pages.append(
-                    {
-                        "page": page,
-                        "url": build_page_url(page),
-                        "error": str(exc),
-                    }
-                )
+                failed_pages.append({"page": page, "url": build_page_url(page), "error": str(exc)})
 
                 log(f"[ERROR] Page {page}: {exc}")
 
-                # 403 thì dừng, không cố bypass.
                 consecutive += 1
                 if isinstance(exc, CrawlBlocked):
                     stop_reason = "blocked or rate limited by site"
@@ -885,10 +569,7 @@ def main() -> int:
                     break
 
             if page < last_page and DELAY_SECONDS > 0:
-                delay = DELAY_SECONDS + random.uniform(
-                    0,
-                    DELAY_JITTER_SECONDS,
-                )
+                delay = DELAY_SECONDS + random.uniform(0, DELAY_JITTER_SECONDS)
 
                 log(f"[WAIT] {delay:.2f}s...")
 
@@ -903,10 +584,6 @@ def main() -> int:
         log(f"[FATAL] Lỗi không lường trước: {exc}")
 
     finally:
-        # ====================================================
-        # SUMMARY - luôn ghi, kể cả khi crawl bị ngắt/lỗi giữa chừng
-        # ====================================================
-
         summary = {
             "crawl_contract_version": 1,
             "records_written": existing_rows + total_records,
@@ -943,8 +620,7 @@ def main() -> int:
             "output_csv": str(CSV_PATH),
             "pages_dir": str(PAGES_DIR),
             "resume_instructions": (
-                f'Nếu cần crawl tiếp: set RESUME_RUN_ID = "{RUN_ID}" '
-                "rồi chạy lại script."
+                f'Nếu cần crawl tiếp: set RESUME_RUN_ID = "{RUN_ID}" rồi chạy lại script.'
             ),
         }
 

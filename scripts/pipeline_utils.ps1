@@ -1,8 +1,3 @@
-# Shared helpers for the Silver/Gold pipeline scripts.
-# Windows PowerShell 5.1 turns native stderr (Docker/Spark progress logs) into
-# error records; with $ErrorActionPreference = "Stop" that aborts a healthy run
-# whenever output is redirected. Native commands are therefore run with
-# "Continue" and judged only by their exit code.
 
 function Invoke-Native {
     param([Parameter(Mandatory = $true)][scriptblock]$Command, [string]$FailMessage)

@@ -1,4 +1,3 @@
-"""Exercise the Windows runner without starting Spark or changing containers."""
 import shutil
 import subprocess
 import sys

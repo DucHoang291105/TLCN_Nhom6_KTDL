@@ -1,4 +1,3 @@
-"""Measure full-byte identity hashing with one/four workers on the same inputs."""
 from __future__ import annotations
 import argparse
 import json
@@ -34,7 +33,7 @@ def benchmark():
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description='Measure full-byte identity hashing with one/four workers on the same inputs.')
     parser.add_argument('--inside', action='store_true')
     if parser.parse_args().inside:
         benchmark()

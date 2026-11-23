@@ -18,11 +18,7 @@ EXPECTED = {
 
 ROOT = "s3a://lakehouse-bronze/real_estate/historical"
 
-spark = (
-    SparkSession.builder
-    .appName("VerifyBronze")
-    .getOrCreate()
-)
+spark = SparkSession.builder.appName("VerifyBronze").getOrCreate()
 
 spark.sparkContext.setLogLevel("WARN")
 
@@ -33,22 +29,10 @@ conf.set("fs.s3a.access.key", MINIO_USER)
 conf.set("fs.s3a.secret.key", MINIO_PASSWORD)
 conf.set("fs.s3a.path.style.access", "true")
 conf.set("fs.s3a.connection.ssl.enabled", "false")
-conf.set(
-    "fs.s3a.impl",
-    "org.apache.hadoop.fs.s3a.S3AFileSystem"
-)
-conf.set(
-    "fs.s3a.aws.credentials.provider",
-    "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider"
-)
+conf.set("fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+conf.set("fs.s3a.aws.credentials.provider", "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider")
 
-metadata_cols = [
-    "_source_name",
-    "_source_file",
-    "_batch_id",
-    "_ingestion_mode",
-    "_ingested_at",
-]
+metadata_cols = ["_source_name", "_source_file", "_batch_id", "_ingestion_mode", "_ingested_at"]
 
 errors = []
 total = 0
@@ -58,12 +42,7 @@ print("VERIFY BRONZE")
 print("=" * 70)
 
 for source, expected_rows in EXPECTED.items():
-
-    path = (
-        f"{ROOT}/"
-        f"{source}/"
-        f"batch_id={BATCH_ID}"
-    )
+    path = f"{ROOT}/{source}/batch_id={BATCH_ID}"
 
     print()
     print("SOURCE:", source)
@@ -78,28 +57,17 @@ for source, expected_rows in EXPECTED.items():
     print("COLUMNS:", len(df.columns))
 
     if rows != expected_rows:
-        errors.append(
-            f"{source}: expected {expected_rows}, got {rows}"
-        )
+        errors.append(f"{source}: expected {expected_rows}, got {rows}")
 
     for col in metadata_cols:
-
         if col not in df.columns:
-            errors.append(
-                f"{source}: missing {col}"
-            )
+            errors.append(f"{source}: missing {col}")
             continue
 
-        nulls = (
-            df
-            .filter(F.col(col).isNull())
-            .count()
-        )
+        nulls = df.filter(F.col(col).isNull()).count()
 
         if nulls > 0:
-            errors.append(
-                f"{source}: {col} has {nulls} null(s)"
-            )
+            errors.append(f"{source}: {col} has {nulls} null(s)")
 
     print("[OK]", source)
 
@@ -109,9 +77,7 @@ print("TOTAL:", total)
 print("=" * 70)
 
 if total != 30317:
-    errors.append(
-        f"Expected total 30317, got {total}"
-    )
+    errors.append(f"Expected total 30317, got {total}")
 
 if errors:
     print("VERIFY FAILED")
@@ -119,9 +85,7 @@ if errors:
     for err in errors:
         print("-", err)
 
-    raise RuntimeError(
-        f"{len(errors)} validation error(s)"
-    )
+    raise RuntimeError(f"{len(errors)} validation error(s)")
 
 print()
 print("BRONZE VERIFY SUCCESS")

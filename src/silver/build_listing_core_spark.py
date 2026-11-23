@@ -1,4 +1,3 @@
-"""Deterministic Bronze -> Iceberg Silver Data Foundation for all 9 sources."""
 from __future__ import annotations
 import json, sys
 from collections.abc import Iterator
@@ -62,8 +61,8 @@ VALUE_FIX_SCHEMA=T.StructType([T.StructField("price",T.DoubleType()),T.StructFie
 
 def _value_plausibility(row) -> tuple:
     record=row.asDict()
-    # Historical exports ship a pre-computed price made by an older parser
-    # (muaban: "52m2 giá 2tỷ360triệu" -> 52 tỷ); see reconcile_shipped_price.
+
+
     record["price"]=reconcile_shipped_price(record.get("price"),record.get("price_str"),record.get("area"))
     fixed,reasons=apply_value_plausibility(record)
     return (fixed["price"],fixed["area"],fixed["price_m"],fixed["price_per_m2"],reasons)
@@ -90,7 +89,7 @@ def read_historical_source(spark, source: str) -> tuple[DataFrame,int]:
     expected_id=F.concat_ws("_",F.col("source"),F.col("ad_id"))
     base=base.withColumn("source_id",F.when(F.col("ad_id").isNotNull(),expected_id).otherwise(F.lit(None).cast("string")))
     base=base.withColumn("snapshot_date",F.to_date(F.col("scraped_at")))
-    # Same price/area plausibility rules as the crawl sources (DQ14-DQ16).
+
     base=base.withColumn("_value_fix",_value_plausibility_udf(F.struct("price","price_str","area","title","is_rent")))
     for column in ("price","area","price_m","price_per_m2"): base=base.withColumn(column,F.col(f"_value_fix.{column}"))
     base=base.withColumn("record_hash",F.sha2(F.to_json(F.struct(*[F.col(c) for c in RECORD_HASH_FIELDS])),256))
@@ -100,7 +99,7 @@ def read_historical_source(spark, source: str) -> tuple[DataFrame,int]:
     base=base.withColumn("dq_status",F.when(F.array_contains(F.col("dq_reasons"),"DQ01"),"REJECT").when(F.size("dq_reasons")>0,"WARN").otherwise("PASS"))
     score_fields=["title","price","area","rooms","address","ward","district_name","category_name","lat","lon","image","ad_url","posted_at"]
     score=sum(F.when(F.col(c).isNotNull(),F.lit(1.0)).otherwise(F.lit(0.0)) for c in score_fields)/F.lit(float(len(score_fields)))
-    # Historical exports carry the source's own category label.
+
     base=base.withColumn("category_evidence",F.when(F.col("category_name").isNotNull(),F.lit("SOURCE_LABEL")).otherwise(F.lit("NONE")))
     return base.withColumn("completeness_score",F.round(score,6)).select(*(CANONICAL_COLUMNS+OBSERVATION_METADATA_COLUMNS)),count
 

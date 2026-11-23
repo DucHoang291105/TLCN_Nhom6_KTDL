@@ -68,7 +68,7 @@ def test_partial_gold_failure_blocks_publication_and_requires_rebuild(build):
     assert 'error' not in state
     gate.finish_job(state, app, True, root)
     with pytest.raises(RuntimeError, match='incomplete'):
-        gate.publish(root)  # A successful retry alone cannot certify downstream tables.
+        gate.publish(root)
 
 
 def test_read_window_and_other_pipeline_reject_manual_writer(build):
@@ -131,7 +131,7 @@ def test_identity_uses_portable_path_sorting_not_native_windows_order(tmp_path):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(body)
     digest = hashlib.sha256()
-    for path in (upper, lower):  # Canonical ASCII order: D comes before a.
+    for path in (upper, lower):
         digest.update((path.relative_to(tmp_path).as_posix() + '\0' + gate.checksum(path, True) + '\n').encode())
     assert gate.identity(tmp_path) == digest.hexdigest()
 

@@ -20,7 +20,6 @@ try {
     if (-not (Test-Path .venv/Scripts/python.exe)) { throw 'Run Prepare first.' }
     Invoke-Native { & .venv/Scripts/python.exe -m src.quality.check_environment } 'Host preflight failed'
     if ($Phase -eq 'Dashboard') {
-        # The operator must already have completed the DAG successfully.
         Invoke-Native { & .venv/Scripts/python.exe -m src.orchestration.environment read } 'Read window failed'
         Invoke-Native { & .venv/Scripts/python.exe -m src.dashboard.provision_superset } 'Dashboard provisioning failed'
         Invoke-Native { & .venv/Scripts/python.exe -m src.quality.verify_pipeline_dashboard --output outputs/reproduction/dashboard_check.json } 'Dashboard verification failed'

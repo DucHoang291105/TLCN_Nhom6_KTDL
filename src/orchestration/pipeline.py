@@ -1,8 +1,6 @@
-"""Run Spark in the existing Docker cluster and propagate failures to Airflow."""
 from __future__ import annotations
 import json
 import csv
-import hashlib
 import os
 import subprocess
 import sys
@@ -10,13 +8,13 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
+from src.common.atomic_io import file_sha256
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SOURCES = ("batdongsan", "guland", "nhadatvui")
 PACKAGES = "org.apache.hadoop:hadoop-aws:3.3.4,org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.11.0,org.apache.iceberg:iceberg-aws-bundle:1.11.0"
 
-# Spark stages of lakehouse_pipeline, in order (the DAG builds its tasks from
-# this). The DAG also has ACQUISITION_TASKS before them and publish_evidence
-# after them; acceptance checks derive the expected task count from here.
+
 STAGES = {
     "bronze": [("ingest_snapshots", "src/bronze/ingest_snapshots_bronze.py"), ("audit_bronze", "src/bronze/audit_bronze_state.py")],
     "silver": [("iceberg_smoke", "src/silver/iceberg_smoke_check.py"), ("listing_core", "src/silver/build_listing_core_spark.py"),
@@ -37,7 +35,6 @@ DAG_TASK_COUNT = len(ACQUISITION_TASKS) + sum(len(jobs) for jobs in STAGES.value
 
 
 def failure_gate_tasks_valid(tasks):
-    """A failed Guland probe blocks processing; the other crawler may finish."""
     expected = {f'acquisition.{t}' for t in ACQUISITION_TASKS} | {'publish_evidence'}
     expected.update(f'{group}.{name}' for group,jobs in STAGES.items() for name,_ in jobs)
     states = {t['task_id']:t['state'] for t in tasks}
@@ -61,7 +58,6 @@ def snapshot_path(source, batch):
 
 
 def prepare_web_source(source, batch):
-    """Reuse existing exports; crawl only a missing current-day web batch."""
     from zoneinfo import ZoneInfo
     path = snapshot_path(source, batch)
     if path.is_file():
@@ -85,8 +81,8 @@ def prepare_web_source(source, batch):
     from src.ingestion.crawl_runtime import integer_setting
     pages = integer_setting(f'{source.upper()}_CRAWL_PAGES', 20 if source == 'guland' else 200, maximum=5000)
     budget = integer_setting('CRAWL_RUN_TIMEOUT_SECONDS', 2100)
-    # A sibling directory stays on the same bind mount in Docker. Its name
-    # cannot be mistaken for a YYYYMMDD batch by Bronze/manifest discovery.
+
+
     staging = path.parent.parent / f'.{batch}.crawl-{uuid.uuid4().hex}'
     staging.mkdir(parents=True)
     env = {**os.environ, 'CRAWL_BATCH_ID':batch, 'CRAWL_PAGES':str(pages),
@@ -121,11 +117,7 @@ def prepare_web_source(source, batch):
 
 
 def csv_checksum(path):
-    digest = hashlib.sha256()
-    with Path(path).open('rb') as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b''):
-            digest.update(chunk)
-    return digest.hexdigest()
+    return file_sha256(path)
 
 
 def validate_crawl_output(folder, source, batch, requested_pages):
@@ -178,7 +170,6 @@ def spark_command(app, args=()):
 
 
 def require_catalog_write_window(client):
-    """The local SQLite catalog requires a separate Spark write window."""
     for service in client.containers.list(all=True, filters={"name": "^/tlcn_trino$"}):
         if service.status not in {"created", "exited", "dead"}:
             raise RuntimeError("Trino is active: stop tlcn_trino before the Spark pipeline writes to the local SQLite Iceberg catalog; restart the query profile after the DAG finishes")

@@ -1,4 +1,3 @@
-"""Local-only Airflow API client; credentials stay in the container's persisted volume."""
 import argparse
 import json
 from datetime import datetime, timezone
@@ -10,11 +9,6 @@ import time
 
 
 class ReadRetrySession(requests.Session):
-    """Bounded retry for a read rejected during local JWT iat clock jitter.
-
-    The server still verifies the same token; no permission is bypassed.
-    Mutations are never retried, so a DAG cannot be submitted twice.
-    """
     def request(self, method, url, **kwargs):
         response = super().request(method, url, **kwargs)
         if method.upper() in {"GET", "HEAD"} and response.status_code == 403:
@@ -48,7 +42,7 @@ def main():
     client = session()
     root = "http://localhost:8080/api/v2/dags/lakehouse_pipeline"
     if args.action == "trigger":
-        # Register the manual run before enabling the scheduler; one active run at a time.
+
         now = datetime.now(timezone.utc).isoformat()
         response = client.post(root + "/dagRuns", json={"dag_run_id": args.run_id, "logical_date": now,
             "conf": {"batch_id": args.batch_id, "history_mode": args.history_mode}}, timeout=30)

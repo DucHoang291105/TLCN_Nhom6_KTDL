@@ -1,4 +1,3 @@
-"""Create a local .env once, with independent randomly generated credentials."""
 from __future__ import annotations
 
 import base64
@@ -23,7 +22,7 @@ def initialize(root=ROOT):
         raise ValueError('Environment template is missing required credential settings')
     output = '\n'.join(f'{key}={values[key]}' if (key := line.split('=', 1)[0]) in values else line
                        for line in lines) + '\n'
-    # Exclusive creation also protects an .env created by another process.
+
     with target.open('x', encoding='utf-8', newline='\n') as handle:
         handle.write(output)
     return True

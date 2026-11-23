@@ -1,5 +1,3 @@
-"""Compare actual Bronze snapshot batches; importing this module has no side effects."""
-
 import os
 import re
 import csv
@@ -23,20 +21,13 @@ def first_existing_column(df, candidates):
 
 
 def normalized_column(df, candidates):
-    """
-    Tim cot dau tien ton tai va normalize text.
-
-    Neu khong co cot nao thi tra ve <missing>.
-    """
     column_name = first_existing_column(df, candidates)
     if column_name is None:
         return F.lit("<missing>")
     return F.lower(
         F.trim(
             F.regexp_replace(
-                F.coalesce(F.col(column_name).cast("string"), F.lit("<null>")),
-                "\\s+",
-                " ",
+                F.coalesce(F.col(column_name).cast("string"), F.lit("<null>")), "\\s+", " "
             )
         )
     )
@@ -49,9 +40,6 @@ def pct(numerator, denominator):
 
 
 def prepare_dataframe(df, config):
-    """
-    Tao cac cot canonical dung chung cho 3 source.
-    """
     id_col = first_existing_column(df, config["id_candidates"])
     if id_col is None:
         raise RuntimeError(f"Khong tim thay listing ID. Columns={df.columns}")
@@ -62,18 +50,12 @@ def prepare_dataframe(df, config):
         .withColumn("_cmp_price", normalized_column(df, config["price_candidates"]))
         .withColumn("_cmp_area", normalized_column(df, config["area_candidates"]))
         .withColumn("_cmp_rooms", normalized_column(df, config["rooms_candidates"]))
-        .withColumn(
-            "_cmp_location", normalized_column(df, config["location_candidates"])
-        )
-        .withColumn(
-            "_cmp_category", normalized_column(df, config["category_candidates"])
-        )
+        .withColumn("_cmp_location", normalized_column(df, config["location_candidates"]))
+        .withColumn("_cmp_category", normalized_column(df, config["category_candidates"]))
         .withColumn("_cmp_lat", normalized_column(df, config["lat_candidates"]))
         .withColumn("_cmp_lon", normalized_column(df, config["lon_candidates"]))
     )
-    prepared = prepared.filter(
-        F.col("_listing_id").isNotNull() & (F.col("_listing_id") != "")
-    )
+    prepared = prepared.filter(F.col("_listing_id").isNotNull() & (F.col("_listing_id") != ""))
     prepared = prepared.withColumn(
         "_record_hash",
         F.sha2(
@@ -95,14 +77,6 @@ def prepare_dataframe(df, config):
 
 
 def deduplicate_batch(df, page_col):
-    """
-    Mot listing_id bi lap trong cung batch
-    chi giu mot observation.
-
-    Uu tien page nho hon.
-    Neu co scraped_at thi lay record moi hon
-    trong cung page.
-    """
     ordering = []
     if page_col is not None:
         ordering.append(F.col(page_col).cast("int").asc_nulls_last())
@@ -111,11 +85,7 @@ def deduplicate_batch(df, page_col):
     if not ordering:
         ordering = [F.lit(1)]
     window = Window.partitionBy("_listing_id").orderBy(*ordering)
-    return (
-        df.withColumn("_rn", F.row_number().over(window))
-        .filter(F.col("_rn") == 1)
-        .drop("_rn")
-    )
+    return df.withColumn("_rn", F.row_number().over(window)).filter(F.col("_rn") == 1).drop("_rn")
 
 
 def get_max_page(df, page_col):
@@ -134,12 +104,8 @@ def main(argv=None):
     parser = argparse.ArgumentParser(
         description="Compare two real-estate crawl snapshots stored in Bronze."
     )
-    parser.add_argument(
-        "--old-batch", required=True, help="Batch cu, dinh dang YYYYMMDD"
-    )
-    parser.add_argument(
-        "--new-batch", required=True, help="Batch moi, dinh dang YYYYMMDD"
-    )
+    parser.add_argument("--old-batch", required=True, help="Batch cu, dinh dang YYYYMMDD")
+    parser.add_argument("--new-batch", required=True, help="Batch moi, dinh dang YYYYMMDD")
     parser.add_argument(
         "--source", choices=("all", "batdongsan", "guland", "nhadatvui"), default="all"
     )
@@ -212,8 +178,7 @@ def main(argv=None):
     hadoop_conf.set("fs.s3a.connection.ssl.enabled", "false")
     hadoop_conf.set("fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
     hadoop_conf.set(
-        "fs.s3a.aws.credentials.provider",
-        "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider",
+        "fs.s3a.aws.credentials.provider", "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider"
     )
     print("=" * 82)
     print("SNAPSHOT BATCH COMPARISON")
@@ -283,18 +248,10 @@ def main(argv=None):
         changed_df = common.filter(F.col("old_hash") != F.col("new_hash"))
         unchanged_ids = unchanged_df.count()
         changed_ids = changed_df.count()
-        price_changed = common.filter(
-            ~F.col("old_price").eqNullSafe(F.col("new_price"))
-        ).count()
-        area_changed = common.filter(
-            ~F.col("old_area").eqNullSafe(F.col("new_area"))
-        ).count()
-        rooms_changed = common.filter(
-            ~F.col("old_rooms").eqNullSafe(F.col("new_rooms"))
-        ).count()
-        title_changed = common.filter(
-            ~F.col("old_title").eqNullSafe(F.col("new_title"))
-        ).count()
+        price_changed = common.filter(~F.col("old_price").eqNullSafe(F.col("new_price"))).count()
+        area_changed = common.filter(~F.col("old_area").eqNullSafe(F.col("new_area"))).count()
+        rooms_changed = common.filter(~F.col("old_rooms").eqNullSafe(F.col("new_rooms"))).count()
+        title_changed = common.filter(~F.col("old_title").eqNullSafe(F.col("new_title"))).count()
         location_changed = common.filter(
             ~F.col("old_location").eqNullSafe(F.col("new_location"))
         ).count()
@@ -305,11 +262,7 @@ def main(argv=None):
         scope_unique_new = None
         scope_common_ids = None
         scope_overlap_pct = None
-        if (
-            compare_max_page is not None
-            and old_page_col is not None
-            and (new_page_col is not None)
-        ):
+        if compare_max_page is not None and old_page_col is not None and (new_page_col is not None):
             old_scope_ids = (
                 old_clean.filter(F.col(old_page_col).cast("int") <= compare_max_page)
                 .select("_listing_id")

@@ -1,4 +1,3 @@
-"""Local release gates for pipeline operations; uploading a branch and merging main are distinct gates."""
 from __future__ import annotations
 import json
 import re
@@ -31,9 +30,8 @@ def secret_findings(path, text, local_secrets):
         if re.search(pattern, text):
             findings.append({"file": path, "rule": name})
     for name, value in local_secrets.items():
-        # A short/common local password may equal a service identifier. Do not
-        # call 'connector.name=<service>' a credential leak. Still detect its
-        # literal use as a password assignment or URI password.
+
+
         literal = re.search(r"(?i)(?:password|passwd|secret|token)[A-Za-z0-9_]*\s*[:=]\s*['\"]?" + re.escape(value) + r"(?:['\"\s]|$)", text) if value else None
         uri = (":"+value+"@") in text if value else False
         if (len(value) >= 12 and value in text) or literal or uri:
@@ -79,7 +77,6 @@ def read(name):
 
 
 def main():
-    """Evaluate the current proof; old optimization artifacts are historical only."""
     from src.quality.tag_defense import verified_candidate
     proof = read('defense_verification')
     error = None

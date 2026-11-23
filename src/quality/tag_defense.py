@@ -1,4 +1,3 @@
-"""Create an immutable annotated defense tag only for a verified, CI-green commit."""
 from __future__ import annotations
 
 import argparse
@@ -76,7 +75,7 @@ def create_tag(tag, push=False):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description='Create an immutable annotated defense tag only for a verified, CI-green commit.')
     parser.add_argument("--tag", required=True)
     parser.add_argument("--push", action="store_true")
     args = parser.parse_args()

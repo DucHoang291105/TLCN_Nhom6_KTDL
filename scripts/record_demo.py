@@ -1,8 +1,3 @@
-"""Record two UI rehearsals against stored results, without triggering a DAG.
-
-Optional dependency: playwright (and Chrome installed). No credentials or
-storage-state files are written. Videos contain browser output, without voice.
-"""
 from __future__ import annotations
 
 import argparse
@@ -22,7 +17,7 @@ GROUP BY source, lifecycle_status ORDER BY source, lifecycle_status;'''
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description='Record two UI rehearsals against stored results, without triggering a DAG.\n\nOptional dependency: playwright (and Chrome installed). No credentials or\nstorage-state files are written. Videos contain browser output, without voice.\n')
     parser.add_argument('--output', type=Path, default=ROOT / 'outputs/demo')
     parser.add_argument('--hold-seconds', type=float, default=8)
     parser.add_argument('--chrome', default='C:/Program Files/Google/Chrome/Application/chrome.exe')
@@ -95,7 +90,7 @@ def main():
                 page.set_default_timeout(60000)
                 checks = []
                 try:
-                    # Caption is part of the recorded browser page, clearly marks historical evidence.
+
                     page.set_content('<html lang="vi"><meta charset="utf-8"><body style="font:28px Arial;padding:70px;background:#101827;color:white">'
                         '<h1>Pipeline và vận hành — Võ Đức Hoàng</h1><p>CSV → Bronze / MinIO → Silver / Iceberg → Gold → Trino → Superset</p>'
                         f'<p>Airflow điều phối và kiểm định chất lượng.</p><p>Diễn tập thao tác tự động; batch {batch}, run {run}.</p>'
@@ -132,16 +127,15 @@ def main():
                         page.get_by_text(row_count, exact=True).wait_for()
                         checks.append('query_' + row_count.replace(' ', '_'))
                         time.sleep(args.hold_seconds)
-                    # Leave the editor on lifecycle for the next rehearsal/user.
+
                     page.locator('.ace_editor').first.click()
                     page.keyboard.press('Control+A')
                     page.keyboard.insert_text(LIFECYCLE)
                     page.goto('http://localhost:8088/superset/dashboard/tlcn-tong-quan/')
                     print(f'Rehearsal {number}: dashboard and filter', flush=True)
                     page.get_by_text(f'{total:,}'.replace(',', '.'), exact=True).wait_for()
-                    # Titles are generated from data. The overview's first
-                    # canvas visualization is its main map; skip the markdown
-                    # header and KPI cards without matching their titles.
+
+
                     chart = page.locator('.dashboard-component-chart-holder').filter(has=page.locator('canvas')).first
                     chart.scroll_into_view_if_needed()
                     time.sleep(args.hold_seconds)
@@ -165,7 +159,7 @@ def main():
                                     'video': str(page.video.path())})
                     print(f'Rehearsal {number} PASS', flush=True)
                 finally:
-                    context.close()  # Finalize the actual browser recording.
+                    context.close()
                     (args.output / 'rehearsals.json').write_text(json.dumps({
                         'generated_at': datetime.now(timezone.utc).isoformat(),
                         'scope': 'Automated UI walkthrough, no voice; not an A3 pipeline execution or human presentation rehearsal',

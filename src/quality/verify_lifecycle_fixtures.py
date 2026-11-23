@@ -1,4 +1,3 @@
-"""Spark integration cases: disappearance, reappearance, NULL price gaps, per-source calendars."""
 import sys
 from datetime import date, datetime
 from pathlib import Path
@@ -28,7 +27,7 @@ def main():
     add("nhadatvui", "different_calendar", 6, 100.0)
     add("mogi", "historical", 2, 100.0)
     obs = spark.createDataFrame(rows, "source string, source_id string, snapshot_date date, scraped_at timestamp, batch_id string, record_hash string, price double")
-    # Nhadatvui latest batch has zero accepted rows: must still count as missed.
+
     calendar_rows = [("batdongsan", f"202610{d:02d}") for d in (2, 6, 13, 16)] + [("guland", "20261002"), ("nhadatvui", "20261002"), ("nhadatvui", "20261006"), ("nhadatvui", "20261009")]
     calendar = spark.createDataFrame(calendar_rows, "source string, batch_id string")
     sources = spark.createDataFrame([(s, i) for i, s in enumerate(("batdongsan", "guland", "nhadatvui", "mogi"))], "source string, source_key int")

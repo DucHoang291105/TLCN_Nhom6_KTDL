@@ -1,4 +1,3 @@
-"""Verify identical source/input fingerprints on Windows, Spark and Airflow."""
 from __future__ import annotations
 import json
 import subprocess

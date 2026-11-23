@@ -1,4 +1,3 @@
-"""Bind defense verification to the exact code, source bytes and current run."""
 from __future__ import annotations
 
 import hashlib
@@ -39,16 +38,10 @@ def all_pass(checks):
 
 
 def evidence_checksum(path):
-    """Bind JSON content while tolerating Git's LF/CRLF checkout conversion.
-
-    Input CSV checksums remain byte-for-byte; only versioned JSON evidence
-    uses this explicitly recorded newline normalization.
-    """
     return hashlib.sha256(Path(path).read_bytes().replace(b'\r\n', b'\n')).hexdigest()
 
 
 def code_state(root):
-    """Hash tracked and not-ignored code/config; omit secrets and runtime outputs."""
     raw = subprocess.check_output(["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"], cwd=root)
     paths = {p.decode("utf-8") for p in raw.split(b"\0") if p}
     selected = {p for p in paths if p.startswith(("src/", "scripts/", "tests/", "dags/", "config/", "docker/", ".github/"))
@@ -62,9 +55,8 @@ def code_state(root):
         path = Path(root) / name
         if path.is_file() and path.suffix not in {".pyc", ".pyo"}:
             files[name] = hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
-        # Missing files are absent from the executable tree. Omitting them
-        # keeps the fingerprint stable when a deletion/rename is git-added or
-        # committed; deleting a file after capture still changes the file map.
+
+
     digest = hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest()
     return {"sha256": digest, "files": files}
 
@@ -100,7 +92,6 @@ def capture(root, batch, run_id):
 
 
 def latest_scheduled_batch(at=None):
-    """Only require a Tue/Fri batch after its 22:00 Vietnam collection time."""
     at = (at or datetime.now(timezone.utc)).astimezone(ZoneInfo('Asia/Ho_Chi_Minh'))
     if at.hour < 22:
         at -= timedelta(days=1)

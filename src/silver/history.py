@@ -1,10 +1,3 @@
-"""SCD2 history and recoverable, per-listing Iceberg MERGE.
-
-Only affected source_ids are recomputed, including their older observations.
-This handles late batches, corrections, deletions and A->B->A transitions.
-The state table is committed AFTER history; a snapshot mismatch triggers a
-full reconciliation on retry rather than trusting a partially advanced cursor.
-"""
 from __future__ import annotations
 
 import re
@@ -60,8 +53,8 @@ def history_from(observations):
 
 def observation_state(observations):
     from pyspark.sql import functions as F
-    # Include ALL history inputs, not only record_hash: metadata-only corrections
-    # may change the row selected at a version boundary without a business change.
+
+
     row_hash = F.sha2(F.to_json(F.struct(*[F.col(c) for c in BASE_COLUMNS]), {"ignoreNullFields": "false"}), 256)
     invalid_key = F.col("source_id").isNull() | (F.trim("source_id") == "") | F.col("record_hash").isNull() | (F.trim("record_hash") == "") | F.col("batch_id").isNull() | (F.trim("batch_id") == "")
     invalid_time = F.coalesce(F.col("snapshot_date").cast("timestamp"), F.col("scraped_at"), F.col("bronze_ingested_at")).isNull()
@@ -128,7 +121,7 @@ def _sync_history(spark, observations, target, state, mode="incremental"):
     if target == state:
         raise ValueError("History and state tables must differ")
     started = time.perf_counter()
-    # One fused scan/grouping validates grain and computes all signatures.
+
     summary = observation_state(observations).persist(StorageLevel.MEMORY_AND_DISK)
     affected = desired = stage = None
     try:
@@ -189,8 +182,8 @@ def _sync_history(spark, observations, target, state, mode="incremental"):
                 staged_rows = stage.count()
                 if staged_rows:
                     execute_merge(spark, target, stage, HISTORY_COLUMNS, KEYS)
-                # A crash before either of these steps leaves an old marker; retry
-                # reconciles safely. Never advance state before the history commit.
+
+
                 wanted_state = signatures.join(affected, "source_id").select(*STATE_COLUMNS)
                 prior_state = old_state.join(affected, "source_id").select(*STATE_COLUMNS)
                 execute_merge(spark, state, staged_changes(wanted_state, prior_state, ["source_id"]), STATE_COLUMNS, ["source_id"])
@@ -199,8 +192,8 @@ def _sync_history(spark, observations, target, state, mode="incremental"):
                 operation = "NO_CHANGE"
                 if not trusted:
                     mark_state(spark, target, state)
-        # Copy-on-write snapshots expose an exact row count without another scan.
-        # Merge-on-read deletes or incomplete metadata require the full count.
+
+
         written = iceberg_table(spark, target)
         history_rows = metadata_count(written)
         if history_rows is None:
@@ -239,8 +232,8 @@ def metadata_count(table):
         return 0
     props = current.summary()
     try:
-        # total-records counts physical data rows, before applying delete files.
-        # Missing metrics do not certify that the snapshot is free of deletes.
+
+
         if props.get("total-delete-files") is None:
             return None
         if any(int(props.get(k) or "0") for k in
@@ -264,17 +257,18 @@ def cache_hit(cached, expected, counts):
     return {k: result[k] for k in names}
 
 
+def _cache_guard(input_table, input_token, history, ledger, timezone):
+    return {"input_table": input_table, "input_metadata": input_token,
+            "history_metadata": metadata_token(history), "state_snapshot": table_snapshot(ledger),
+            "state_schema": str(ledger.schema()), "logic": LOGIC_DIGEST, "timezone": timezone}
+
+
 def sync_history(spark, observations, target, state, mode="incremental"):
     with history_writer_lock(target):
         return _sync_history(spark, observations, target, state, mode)
 
 
 def sync_history_table(spark, input_table, target, state, mode="incremental", force_verify=False):
-    """Fast no-op only for identical input/history metadata AND state data snapshot.
-
-    No wall-clock/mtime watermark is trusted. If any guard differs, fall back to
-    full input validation/signatures, including late corrections and deletions.
-    """
     from src.common.spark_session import table_location
     for table in (input_table, target, state):
         identifier(table)
@@ -291,9 +285,7 @@ def sync_history_table(spark, input_table, target, state, mode="incremental", fo
             history, ledger = iceberg_table(spark, target), iceberg_table(spark, state)
             if history.location().rstrip("/") != table_location(target) or ledger.location().rstrip("/") != table_location(state):
                 raise ValueError("Unexpected history/state location; no automatic purge allowed")
-            expected = {"input_table": input_table, "input_metadata": input_token, "history_metadata": metadata_token(history),
-                        "state_snapshot": table_snapshot(ledger), "state_schema": str(ledger.schema()),
-                        "logic": LOGIC_DIGEST, "timezone": timezone}
+            expected = _cache_guard(input_table, input_token, history, ledger, timezone)
             try:
                 encoded = ledger.properties().get(CACHE_PROPERTY)
                 cached = json.loads(base64.urlsafe_b64decode(encoded).decode()) if encoded else None
@@ -312,9 +304,7 @@ def sync_history_table(spark, input_table, target, state, mode="incremental", fo
                         if current is not None else spark.table(input_table))
         result = _sync_history(spark, observations, target, state, mode)
         history, ledger = iceberg_table(spark, target), iceberg_table(spark, state)
-        guard = {"input_table": input_table, "input_metadata": input_token, "history_metadata": metadata_token(history),
-                 "state_snapshot": table_snapshot(ledger), "state_schema": str(ledger.schema()),
-                 "logic": LOGIC_DIGEST, "timezone": timezone}
+        guard = _cache_guard(input_table, input_token, history, ledger, timezone)
         cache = json.dumps({"guard": guard, "result": {k: result[k] for k in ("observation_rows", "input_source_ids", "history_rows")}}, separators=(",", ":"))
         encoded = base64.urlsafe_b64encode(cache.encode()).decode()
         spark.sql(f"ALTER TABLE {identifier(state)} SET TBLPROPERTIES ('{CACHE_PROPERTY}'='{encoded}')")

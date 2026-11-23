@@ -1,4 +1,3 @@
-"""SHA256 on every run; reuse CSV profiling only for exactly unchanged bytes."""
 from __future__ import annotations
 import csv
 import hashlib
@@ -43,7 +42,7 @@ def _profile_stream(handle, path):
     n, max_page = 0, None
     for row in reader:
         if None in row or any(value is None for value in row.values()):
-            raise ValueError(f"Malformed CSV record in {path} near row {n+2}")
+            raise ValueError(f"Malformed CSV record in {path} near row {n + 2}")
         n += 1
         value = row.get("_source_page") or row.get("source_page") or row.get("page_number_attr")
         try:
@@ -61,8 +60,6 @@ def profile_csv(path):
 
 
 class _HashingReader(io.RawIOBase):
-    """Hash the exact bytes consumed by the buffered UTF-8 CSV reader."""
-
     def __init__(self, raw, digest):
         super().__init__()
         self.raw, self.digest = raw, digest
@@ -79,18 +76,18 @@ class _HashingReader(io.RawIOBase):
 
 class _CSVBuffer(io.BufferedReader):
     def read1(self, size=-1):
-        # TextIOWrapper requests small read1 chunks; fill the larger buffer so
-        # SHA256 and the underlying file are handled in blocks rather than lines.
         return self.read(size)
 
 
 def profile_csv_with_checksum(path):
-    """Profile new/invalidated CSVs and SHA256 them in one bounded-memory pass."""
     before = path.stat()
     digest = hashlib.sha256()
     with path.open("rb", buffering=0) as raw:
-        with io.TextIOWrapper(_CSVBuffer(_HashingReader(raw, digest), buffer_size=1024 * 1024),
-                              encoding="utf-8-sig", newline="") as handle:
+        with io.TextIOWrapper(
+            _CSVBuffer(_HashingReader(raw, digest), buffer_size=1024 * 1024),
+            encoding="utf-8-sig",
+            newline="",
+        ) as handle:
             profile = _profile_stream(handle, path)
     after = path.stat()
     if _file_version(before) != _file_version(after):
@@ -99,15 +96,19 @@ def profile_csv_with_checksum(path):
 
 
 def reusable_profile(entry):
-    return (entry.get("parser_version") == PARSER_VERSION and
-            type(entry.get("rows")) is int and entry["rows"] > 0 and
-            type(entry.get("columns")) is int and entry["columns"] > 0 and
-            "max_source_page" in entry)
+    return (
+        entry.get("parser_version") == PARSER_VERSION
+        and type(entry.get("rows")) is int
+        and entry["rows"] > 0
+        and type(entry.get("columns")) is int
+        and entry["columns"] > 0
+        and "max_source_page" in entry
+    )
 
 
 def confirm_inventory(root, sources, manifest):
-    """Check the complete pinned input set before any Bronze writes and at end."""
     from src.orchestration.pipeline import validate_batch
+
     if manifest.get("status") != "PASS":
         raise RuntimeError("Snapshot manifest is not PASS")
     rows = manifest.get("snapshots", [])
@@ -122,11 +123,17 @@ def confirm_inventory(root, sources, manifest):
                 validate_batch(folder.name)
                 paths[(source, folder.name)] = folder / f"{source}_raw.csv"
     if set(paths) != set(expected):
-        raise RuntimeError("Snapshot inventory changed after preflight; freeze inputs and rebuild the manifest before Bronze writes")
+        raise RuntimeError(
+            "Snapshot inventory changed after preflight; freeze inputs and rebuild the manifest before Bronze writes"
+        )
+
     def check(item):
         key, path = item
         if file_checksum(path)[0] != expected[key]:
-            raise RuntimeError(f"Snapshot bytes changed after preflight: {key}; inspect before reloading Bronze")
+            raise RuntimeError(
+                f"Snapshot bytes changed after preflight: {key}; inspect before reloading Bronze"
+            )
+
     with ThreadPoolExecutor(max_workers=4) as pool:
         list(pool.map(check, paths.items()))
     return len(paths)
@@ -134,6 +141,7 @@ def confirm_inventory(root, sources, manifest):
 
 def build_manifest(root, sources, batch, force_rescan=False, workers=4, output=None):
     from src.orchestration.pipeline import validate_batch
+
     validate_batch(batch)
     if not 1 <= workers <= 8:
         raise ValueError("Manifest workers must be between 1 and 8")
@@ -163,26 +171,50 @@ def build_manifest(root, sources, batch, force_rescan=False, workers=4, output=N
         if cached:
             digest, size = file_checksum(path)
             if old["sha256"] != digest:
-                raise ValueError(f"Previously recorded snapshot changed: {source}/{folder}; inspect and explicitly reload Bronze")
+                raise ValueError(
+                    f"Previously recorded snapshot changed: {source}/{folder}; inspect and explicitly reload Bronze"
+                )
             cached = old.get("size_bytes") == size
         if cached:
             profile = {k: old[k] for k in ("rows", "columns", "max_source_page")}
         else:
             profile, digest, size = profile_csv_with_checksum(path)
         if old.get("sha256", digest) != digest:
-            raise ValueError(f"Previously recorded snapshot changed: {source}/{folder}; inspect and explicitly reload Bronze")
-        return ({"source": source, "batch_id": folder, **profile, "sha256": digest,
-                 "size_bytes": size, "parser_version": PARSER_VERSION}, cached)
+            raise ValueError(
+                f"Previously recorded snapshot changed: {source}/{folder}; inspect and explicitly reload Bronze"
+            )
+        return (
+            {
+                "source": source,
+                "batch_id": folder,
+                **profile,
+                "sha256": digest,
+                "size_bytes": size,
+                "parser_version": PARSER_VERSION,
+            },
+            cached,
+        )
 
-    # map preserves source/batch order. Any failure leaves the previous manifest intact.
     with ThreadPoolExecutor(max_workers=workers) as pool:
         inspected = list(pool.map(inspect, paths))
     entries = [entry for entry, cached in inspected]
-    payload = {"generated_at": datetime.now(timezone.utc).isoformat(), "expected_batch_id": batch,
-               "snapshots": entries, "snapshot_rows": sum(r["rows"] for r in entries), "status": "PASS",
-               "verification": {"sha256_files_checked": len(entries), "csv_profiles_reused": sum(c for _, c in inspected),
-                                "csv_profiles_parsed": sum(not c for _, c in inspected), "force_rescan": force_rescan,
-                                "workers": workers, "elapsed_seconds": round(time.perf_counter()-started, 4)}}
+    payload = {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "expected_batch_id": batch,
+        "snapshots": entries,
+        "snapshot_rows": sum(r["rows"] for r in entries),
+        "status": "PASS",
+        "verification": {
+            "sha256_files_checked": len(entries),
+            "csv_profiles_reused": sum(c for _, c in inspected),
+            "csv_profiles_parsed": sum(not c for _, c in inspected),
+            "force_rescan": force_rescan,
+            "workers": workers,
+            "elapsed_seconds": round(time.perf_counter() - started, 4),
+        },
+    }
     write_json_atomic(out, payload)
-    print(f"Snapshot manifest PASS: {len(entries)} files, {payload['snapshot_rows']:,} rows; {payload['verification']}")
+    print(
+        f"Snapshot manifest PASS: {len(entries)} files, {payload['snapshot_rows']:,} rows; {payload['verification']}"
+    )
     return payload

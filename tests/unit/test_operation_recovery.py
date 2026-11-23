@@ -15,7 +15,7 @@ def test_auth_retry_is_bounded_and_never_resubmits_mutations(monkeypatch, method
     monkeypatch.setattr(airflow_run.time, 'sleep', Mock())
     result = airflow_run.ReadRetrySession().request(method, 'http://localhost/read')
     assert request.call_count == 1 + retries
-    assert result.status_code == 403  # Real permission errors remain denied.
+    assert result.status_code == 403
 
 
 def test_write_window_drains_readers_before_reopening_catalog(monkeypatch, tmp_path):

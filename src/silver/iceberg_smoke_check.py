@@ -1,4 +1,3 @@
-"""End-to-end smoke test for Spark -> Iceberg REST -> MinIO."""
 from __future__ import annotations
 import json, sys
 from datetime import datetime, timezone
@@ -22,8 +21,8 @@ def main() -> None:
     for out in (PROJECT_ROOT/"outputs/validation",PROJECT_ROOT/"docs/validation"):
         out.mkdir(parents=True,exist_ok=True); (out/"iceberg_smoke_test.json").write_text(json.dumps(summary,indent=2)+"\n",encoding="utf-8")
     print(json.dumps(summary,indent=2))
-    # The namespace is shared with retained feature demos and benchmarks.
-    # Only this smoke test's own disposable table belongs to its cleanup.
+
+
     spark.sql(f"DROP TABLE IF EXISTS {table} PURGE")
     spark.stop()
 

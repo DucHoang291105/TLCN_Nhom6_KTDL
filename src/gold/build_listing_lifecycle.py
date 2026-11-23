@@ -1,4 +1,3 @@
-"""Observed listing lifecycle; absence from a crawl never means a completed sale."""
 from __future__ import annotations
 
 import json
@@ -13,7 +12,6 @@ CRAWL_SOURCES = ("batdongsan", "guland", "nhadatvui")
 
 
 def calendar_from_audit(audit: dict) -> list[tuple[str, str]]:
-    """Use audited batches, including batches with no accepted Silver rows."""
     if audit.get("status") != "PASS":
         raise ValueError("Lifecycle requires a PASS Bronze audit")
     rows = sorted({(r["source"], r["batch_id"]) for r in audit["batches"]
@@ -34,15 +32,15 @@ def build_lifecycle_frame(observations, calendar, sources):
     observed = observations.withColumn("_previous_price", F.lag("price").over(ordered))
     price_changed = ((F.col("price") > 0) & (F.col("_previous_price") > 0) &
                      (F.col("price") != F.col("_previous_price")))
-    # One observation scan and aggregate replace the separate event branch/join.
-    # NULL/invalid prices still break a sequence; never bridge missing prices.
+
+
     stats = observed.groupBy("source", "source_id").agg(
         F.min("snapshot_date").alias("first_seen_date"), F.max("snapshot_date").alias("last_seen_date"),
         F.min("batch_id").alias("first_seen_batch_id"), F.max("batch_id").alias("last_seen_batch_id"),
         F.collect_set("batch_id").alias("_observed_batches"),
         F.sum(F.when(price_changed, 1).otherwise(0)).alias("price_change_count"))
-    # The set already contains exactly the distinct non-null batch IDs. Reuse
-    # it instead of a second distinct aggregate/extra shuffle; retain BIGINT.
+
+
     stats = stats.withColumn("observation_count", F.size("_observed_batches").cast("long"))
     batches = calendar.groupBy("source").agg(F.sort_array(F.collect_set("batch_id"), asc=False).alias("_source_batches"))
     batches = batches.withColumn("_latest_two", F.slice("_source_batches", 1, 2))

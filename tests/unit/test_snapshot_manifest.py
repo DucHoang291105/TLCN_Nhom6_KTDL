@@ -18,7 +18,7 @@ def test_cached_profiles_still_hash_every_file(tmp_path):
     second = build_manifest(tmp_path, ["guland"], "20261023")
     assert first["snapshots"] == second["snapshots"]
     assert second["verification"]["csv_profiles_reused"] == second["verification"]["sha256_files_checked"] == 1
-    # Same size, even restored mtime, must not defeat the checksum.
+
     import os
     before = path.stat()
     path.write_text(path.read_text().replace("example", "changed"), encoding="utf-8")
