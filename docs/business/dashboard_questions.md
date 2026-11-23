@@ -5,7 +5,7 @@ Dashboard cần trả lời được các câu hỏi sau (xem BQ trong `problem_
 1. Mặt bằng giá chào bán của một loại bất động sản tại một tỉnh/quận là bao nhiêu? (`agg_market_overview`)
 2. BQ1 – Với một mức ngân sách, mỗi quận cho diện tích, số phòng, đặc điểm thế nào; tin nào không bị trội trong quận đã chọn? (`agg_budget_tradeoff`, `fact_budget_pareto`)
 3. BQ2 – Một listing nằm dưới P25, trong P25–P75 hay trên P75 của nhóm tin tương đồng? (`fact_listing_price_assessment`)
-4. BQ3 – Quận nào cùng tỉnh có chi phí thấp hơn cho cùng diện tích và hồ sơ đặc điểm tương tự? (`agg_area_substitution`)
-   - Theo nơi làm/học (dashboard BQ3): người mua đi làm/học ở X, đang nhắm quận Y; quận nào có quãng đường tới X không xa hơn quá 2 km mà chi phí thấp hơn cho cùng diện tích? (`agg_commute_district`, `agg_commute_substitution`)
+4. BQ3 (dashboard BQ3) – Người mua đi làm/học ở X, tìm loại hình, diện tích, ngân sách đã chọn: tin vừa ngân sách gần nhất cách X bao nhiêu km và phút theo đường bộ; trong 10 km có bao nhiêu tin; ra vành 10–15 km thì giá/m² thấp hơn bao nhiêu so với dưới 5 km; quận nào nằm trên đường biên đánh đổi (không quận nào vừa gần hơn vừa rẻ hơn cho cùng diện tích)? (`fact_listing_commute`, `agg_commute_district`)
+   - Bảng phụ, dashboard không dùng: quận cùng tỉnh rẻ hơn cho cùng diện tích và hồ sơ đặc điểm tương tự (`agg_area_substitution`); quận rẻ hơn mà không xa X hơn quá 2 km đường chim bay (`agg_commute_substitution`).
 5. Khu vực hoặc loại bất động sản nào có nhiều tin giảm giá trong thời gian quan sát; mức thay đổi giá thường gặp là bao nhiêu? (`fact_listing_price_change`)
 6. Dữ liệu hiện được cập nhật đến thời điểm nào và nguồn nào đang có vấn đề chất lượng dữ liệu? (`agg_dq_kpi`)

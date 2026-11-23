@@ -41,9 +41,9 @@ def architecture():
     box(ax, 0.1, 3.0, 2.2, 3.2, "Nguồn dữ liệu", ["Batdongsan (CSV xuất tay)", "Guland, Nhadatvui", "(crawler Python)", "6 nguồn historical", "54 CSV · Git LFS"], FILL["src"])
     box(ax, 2.8, 3.0, 2.2, 3.2, "Bronze", ["MinIO · Parquet", "lakehouse-bronze", "theo nguồn / batch", "manifest SHA256", "346.558 dòng"], FILL["bronze"])
     box(ax, 5.5, 3.0, 2.4, 3.2, "Silver", ["Spark 3.5 + Iceberg", "observation 334.820", "current 150.017", "history (SCD2) 167.794", "location · feature"], FILL["silver"])
-    box(ax, 8.4, 3.0, 2.2, 3.2, "Gold", ["Iceberg · 29 bảng", "9 dim + fact_listing", "bảng BQ1–BQ3", "mô hình giá", "bảng bằng chứng ev_*"], FILL["gold"])
+    box(ax, 8.4, 3.0, 2.2, 3.2, "Gold", ["Iceberg · 30 bảng", "9 dim + fact_listing", "bảng BQ1–BQ3", "mô hình giá", "bảng bằng chứng ev_*"], FILL["gold"])
     box(ax, 11.0, 4.7, 1.9, 1.5, "Trino 483", ["SQL trên Iceberg"], FILL["serve"])
-    box(ax, 11.0, 3.0, 1.9, 1.5, "Superset 6", ["5 dashboard", "49 biểu đồ"], FILL["serve"])
+    box(ax, 11.0, 3.0, 1.9, 1.5, "Superset 6", ["5 dashboard", "50 biểu đồ"], FILL["serve"])
     for x1, x2 in ((2.3, 2.8), (5.0, 5.5), (7.9, 8.4), (10.6, 11.0)):
         arrow(ax, x1, 4.6, x2, 4.6)
     arrow(ax, 11.95, 4.7, 11.95, 4.5)
@@ -178,7 +178,7 @@ def lineage():
 
 def crops():
     plan = {"01_tlcn-tong-quan": [(0, 1150), (1150, 2160)], "02_tlcn-bq1": [(0, 1400), (1400, 2150)],
-            "03_tlcn-bq2": [(0, 1250), (1250, 2300)], "04_tlcn-bq3": [(0, 1500), (1500, 2900)], "05_tlcn-chat-luong": [(0, 1650)],
+            "03_tlcn-bq2": [(0, 1250), (1250, 2300)], "04_tlcn-bq3": [(0, 1575), (1575, 3090)], "05_tlcn-chat-luong": [(0, 1650)],
             "08_loc_bq2_ha-noi": [(0, 700)]}
     for name, parts in plan.items():
         im = Image.open(REPO / "docs/evidence/personC_20261118" / f"{name}.png").convert("RGB")

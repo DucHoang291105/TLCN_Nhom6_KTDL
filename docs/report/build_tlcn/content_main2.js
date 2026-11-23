@@ -12,7 +12,7 @@ function chapter2() {
       ["Mã", "Câu hỏi", "Người dùng / quyết định", "Bảng Gold chính"],
       [["BQ1", "Trong cùng ngân sách, người mua đánh đổi gì về vị trí, diện tích, số phòng và đặc điểm? Tin nào không bị tin khác trội hơn?", "Người mua có ngân sách cố định: chọn quận nào, nên xem tin nào trước", "agg_budget_tradeoff, fact_budget_pareto"],
        ["BQ2", "Tin đang xem đắt hay rẻ so với nhóm tương đồng (dưới P25, P25–P75, trên P75)? Đặc điểm nào giải thích phần chênh?", "Người mua có nên thương lượng; môi giới định giá chào bán", "agg_peer_group_benchmark, fact_listing_price_assessment, fact_listing_price_model"],
-       ["BQ3", "Nếu không đủ tiền ở khu vực mong muốn, khu vực nào cùng tỉnh rẻ hơn cho cùng diện tích mà quãng đường tới nơi làm/học không xa hơn?", "Người mua cân nhắc quận thay thế; môi giới gợi ý phương án", "agg_area_substitution, agg_commute_district, agg_commute_substitution"]],
+       ["BQ3", "Đi làm/học ở một nơi cố định: ở cách bao xa (theo đường bộ) thì có nhà vừa ngân sách, và ra xa thêm thì giá/m² rẻ hơn bao nhiêu? Quận nào đáng cân nhắc vì không quận nào vừa gần hơn vừa rẻ hơn?", "Người mua chọn khu vực tìm nhà quanh nơi làm/học; môi giới tư vấn đánh đổi quãng đường – chi phí", "fact_listing_commute, agg_commute_district"]],
       [1.2, 5.6, 4.6, 4.6]),
     H3("2.1.3. Giới hạn diễn giải"),
     bullets([
@@ -104,8 +104,9 @@ function chapter2() {
       [["BQ1", "agg_budget_tradeoff, fact_budget_pareto", "Trung vị diện tích, số phòng, giá/m² theo ngân sách × quận × loại hình; cờ tin thuộc tập Pareto"],
        ["BQ2", "agg_peer_group_benchmark, fact_listing_price_assessment", "P25/P50/P75 giá/m² theo nhóm tương đồng; vị trí giá của từng tin"],
        ["BQ2", "fact_listing_price_model, agg_price_model_coefficient", "Giá ước tính, phần dư, tập train/test của từng tin; hệ số và khoảng tin cậy của mô hình"],
-       ["BQ3", "agg_area_substitution", "Cặp quận gốc – quận thay thế cùng tỉnh, rẻ hơn cho cùng diện tích, không xa trung tâm hơn quá 10 km"],
-       ["BQ3", "agg_commute_district, agg_commute_substitution", "Khoảng cách từ tâm quận tới 50 nơi làm/học; quận rẻ hơn mà quãng đường không xa hơn quá 2 km"],
+       ["BQ3", "fact_listing_commute", "Mỗi tin × nơi làm/học cùng tỉnh: km và phút đường bộ, km đường chim bay, vành đai quãng đường"],
+       ["BQ3", "agg_commute_district", "Mỗi quận × nơi làm/học: trung vị km đường bộ, chi phí cho cùng diện tích, cờ quận trên đường biên đánh đổi"],
+       ["BQ3 (phụ)", "agg_area_substitution, agg_commute_substitution", "Cặp quận gốc – quận thay thế rẻ hơn cùng tỉnh (giữ từ phiên bản trước, dashboard không dùng)"],
        ["Hỗ trợ", "fact_listing_lifecycle, fact_listing_price_change", "Vòng đời quan sát của tin; các sự kiện tăng/giảm giá"],
        ["Hỗ trợ", "agg_market_overview, agg_dq_kpi", "Tổng quan thị trường theo tỉnh × loại hình; chỉ số chất lượng theo nguồn"],
        ["Bằng chứng", "ev_budget_curve, ev_budget_pairs, ev_reprice, ev_reprice_examples, ev_flag_check, ev_calibration", "Dữ liệu cho các biểu đồ kiểm chứng kết luận BQ1–BQ2 trên dashboard"]],
@@ -119,17 +120,20 @@ function chapter2() {
     P("Hình 2.6 mô tả một lượt chạy dưới dạng sơ đồ hoạt động UML. Điểm quan trọng của thiết kế là ba nút quyết định: nếu manifest đầu vào không hợp lệ, hoặc kiểm định Silver, hoặc kiểm định Gold không đạt, thì mọi task phía sau đều bị chặn và không có kết quả mới nào được công bố lên dashboard. Nhờ vậy dashboard chỉ hiển thị dữ liệu của lượt chạy đã qua kiểm định. Sau lượt chạy, người vận hành chuyển sang cửa sổ đọc và chạy lại bước dựng dashboard để cập nhật tiêu đề nhận xét theo dữ liệu mới."),
     ...F("Sơ đồ hoạt động của một lượt chạy pipeline", "hinh_hoat_dong.png", 12.5),
     H2("2.7. Thiết kế kiểm định và nghiệm thu"),
-    P("Kiểm định được thiết kế ở ba mức. **Mức job:** mỗi job ghi một tệp JSON tóm tắt (số dòng vào/ra, phân bố trạng thái) vào `docs/validation/`. **Mức tầng:** `verify_silver.py` (30 phép kiểm) và `verify_gold.py` (138 phép kiểm) kiểm tra grain không trùng, khóa ngoại hợp lệ, số dòng khớp giữa các bảng, ràng buộc nghiệp vụ (ví dụ cặp tin BQ1 phải rẻ hơn ít nhất 10% và rộng hơn ít nhất 20%) và tính lại một phần kết quả để so sánh. **Mức phát hành:** bộ nghiệm thu chính thức chạy DAG đầy đủ, dựng lại hai lần để so hash 38 bảng, thử lỗi đầu vào, đối chiếu Spark với Trino và dashboard, rồi mới gắn tag Git bất biến cho đúng commit đã kiểm."),
+    P("Kiểm định được thiết kế ở ba mức. **Mức job:** mỗi job ghi một tệp JSON tóm tắt (số dòng vào/ra, phân bố trạng thái) vào `docs/validation/`. **Mức tầng:** `verify_silver.py` (30 phép kiểm) và `verify_gold.py` (144 phép kiểm) kiểm tra grain không trùng, khóa ngoại hợp lệ, số dòng khớp giữa các bảng, ràng buộc nghiệp vụ (ví dụ cặp tin BQ1 phải rẻ hơn ít nhất 10% và rộng hơn ít nhất 20%) và tính lại một phần kết quả để so sánh. **Mức phát hành:** bộ nghiệm thu chính thức chạy DAG đầy đủ, dựng lại hai lần để so hash toàn bộ bảng Silver và Gold, thử lỗi đầu vào, đối chiếu Spark với Trino và dashboard, rồi mới gắn tag Git bất biến cho đúng commit đã kiểm."),
     P("Ngoài ra, nhóm viết tài liệu tiêu chí chấp nhận cho từng câu hỏi nghiệp vụ (`docs/business/bq_acceptance_criteria.md`): mỗi tiêu chí có ngưỡng đo được, minh chứng cụ thể và trạng thái Đạt / Đạt có điều kiện / Chưa đạt / Chưa đo."),
     H2("2.8. Tiểu kết chương 2"),
-    P("Chương 2 đã xác định người dùng, ba câu hỏi nghiệp vụ và yêu cầu của hệ thống, từ đó thiết kế kiến trúc Lakehouse ba tầng, mô hình dữ liệu (schema 27 cột, 9 bảng Silver, lược đồ hình sao và 29 bảng Gold), DAG điều phối 26 task và cơ chế kiểm định ba mức. Chương 3 trình bày cách hiện thực các thiết kế này."),
+    P("Chương 2 đã xác định người dùng, ba câu hỏi nghiệp vụ và yêu cầu của hệ thống, từ đó thiết kế kiến trúc Lakehouse ba tầng, mô hình dữ liệu (schema 27 cột, 9 bảng Silver, lược đồ hình sao và 30 bảng Gold), DAG điều phối 26 task và cơ chế kiểm định ba mức. Chương 3 trình bày cách hiện thực các thiết kế này."),
   ];
 }
 
 const step = (input, process, output) => T("", ["Đầu vào", "Xử lý chính", "Đầu ra"], [[input, process, output]], [4.5, 7, 4.5]);
 
+// Zero-width space after "/" and "_" lets Word wrap long file names at a natural point.
+const soft = (s) => s.replace(/([/_])/g, "$1​");
+
 function io(caption, file, input, process, output) {
-  return T(caption, ["Tệp mã nguồn", "Đầu vào", "Xử lý chính", "Đầu ra"], [[file, input, process, output]], [3.4, 3.6, 5.6, 3.4]);
+  return T(caption, ["Tệp mã nguồn", "Đầu vào", "Xử lý chính", "Đầu ra"], [[soft(file), soft(input), process, soft(output)]], [3.4, 3.6, 5.6, 3.4]);
 }
 
 function chapter3() {
@@ -140,7 +144,7 @@ function chapter3() {
     P("Mã nguồn được tổ chức theo tầng dữ liệu để mỗi bước dễ tìm và dễ kiểm thử (Bảng 3.1). Mỗi job Spark là một tệp Python độc lập có hàm `main()`, được Airflow gọi qua `spark-submit` hoặc chạy tay bằng `scripts/run_spark.ps1`."),
     ...T("Cấu trúc thư mục mã nguồn",
       ["Thư mục", "Nội dung"],
-      [["config/", "Cấu hình nguồn, các nhóm giá/diện tích/phòng, danh sách nơi làm/học, ngày thiếu dữ liệu, tham số mô hình giá"],
+      [["config/", "Cấu hình nguồn, các nhóm giá/diện tích/phòng, danh sách nơi làm/học và quãng đường đường bộ đã lấy sẵn, ngày thiếu dữ liệu, tham số mô hình giá"],
        ["data/incoming/", "Tệp CSV đầu vào (snapshot theo nguồn/ngày và historical), quản lý bằng Git LFS"],
        ["src/ingestion/", "Crawler Guland, Nhadatvui và cơ chế giới hạn lỗi khi crawl"],
        ["src/bronze/", "Nạp CSV vào Bronze, kiểm tra trạng thái Bronze, so sánh hai batch"],
@@ -225,11 +229,13 @@ function chapter3() {
       "fact_listing_price_model (126.394 tin), agg_price_model_coefficient (967 hệ số), price_model_summary.json"),
     P("Biến giải thích gồm: vị trí (quận nếu quận có ít nhất 20 tin train, nếu không thì gộp cấp tỉnh), nhóm diện tích, nhóm số phòng, 5 cờ đặc điểm, khoảng cách tới trung tâm tỉnh, tương tác quận × nhóm diện tích (dưới 50, 50–120, từ 120 m²) và phường trong quận (thay cho dự án/tòa nhà vốn không quan sát được). Baseline là trung vị giá/m² của nhóm tương đồng tính **chỉ từ tập train**, lùi dần từ vị trí × loại hình × diện tích × phòng tới trung vị loại hình."),
     P("Trọng số trộn w và mức phạt ridge được chọn bằng kiểm định chéo 5 phần **chỉ trên tập train**: với mỗi phần giữ lại, mô hình và baseline đều được tính lại từ bốn phần còn lại để không rò rỉ thông tin. Cấu hình được chọn là w = 0,7 (nhà phố), 0,8 (căn hộ), 0,4 (biệt thự) và 0,4 (đất), λ = 1; giá trị được chép nguyên vào `config/price_model_blend.json` và có kiểm tra tự động bảo đảm khớp với kết quả chọn. Tập test chỉ được dùng một lần để báo cáo."),
-    H3("3.5.6. BQ3: khu vực thay thế và lựa chọn theo nơi làm/học"),
-    ...io("Bước xây bảng BQ3", "src/gold/build_area_substitution.py, build_commute_choice.py; config/commute_destinations.csv",
-      "fact_listing, listing_location, danh sách 16 nơi làm/học và trung tâm 34 tỉnh", "So chi phí ước tính cho cùng diện tích (diện tích trung vị của quận gốc) giữa các quận cùng tỉnh có nhóm tương đồng ≥ 5 tin và độ tương đồng đặc điểm ≥ 0,8; tính khoảng cách haversine từ tâm quận tới từng nơi làm/học; chọn quận rẻ hơn mà quãng đường không xa hơn quá 2 km",
-      "agg_area_substitution (2.740 cặp), agg_commute_district (5.145 dòng), agg_commute_substitution (12.005 cặp)"),
-    P("Phiên bản đầu của BQ3 chỉ dùng khoảng cách tới trung tâm tỉnh. Khi trình bày, nhóm nhận thấy người mua quan tâm quãng đường tới nơi làm hoặc nơi học hơn là tới trung tâm, nên bổ sung 16 điểm đến tiêu biểu (khu công nghệ cao, sân bay, các trường đại học, khu trung tâm…) kèm quận thực tế chứa điểm đến để kiểm chứng tọa độ tâm quận. Khoảng cách là đường chim bay, không phải thời gian di chuyển."),
+    H3("3.5.6. BQ3: quãng đường đường bộ tới nơi làm/học"),
+    ...io("Bước xây bảng BQ3", "src/gold/commute_road.py, build_commute_choice.py, build_area_substitution.py; config/commute_destinations.csv, commute_road_distance.csv",
+      "fact_listing, listing_location; 16 nơi làm/học có tên và trung tâm 34 tỉnh; bảng quãng đường đường bộ theo ô lưới", "Làm tròn tọa độ tin về ô lưới 0,01°; ghép mỗi tin đại diện có tọa độ với từng nơi làm/học cùng tỉnh theo (nơi đến, ô lưới) để lấy km và phút đường bộ; tính thêm km đường chim bay để đối chiếu; xếp vành đai; theo quận tính trung vị km đường bộ, chi phí cho cùng diện tích và đánh dấu quận trên đường biên đánh đổi",
+      "fact_listing_commute (376.298 cặp tin × nơi đến), agg_commute_district (5.145 dòng, 4.502 dòng có đường bộ)"),
+    P("BQ3 đã qua ba phiên bản. Phiên bản đầu chỉ dùng khoảng cách tới trung tâm tỉnh. Phiên bản thứ hai thêm 16 nơi làm/học tiêu biểu (khu công nghệ cao, sân bay, các trường đại học, khu trung tâm…), đo khoảng cách đường chim bay từ tâm quận và gợi ý quận rẻ hơn mà không xa hơn quá 2 km. Khi trình bày, cách này gần như luôn gợi ý đúng quận chứa hoặc giáp nơi đến, còn đường chim bay không phản ánh quãng đường người mua thật sự đi (phải vòng qua sông, cầu, trục đường lớn). Phiên bản hiện tại đo quãng đường đường bộ của **từng tin** và đặt câu hỏi theo cách người mua suy nghĩ: tìm nhà cách nơi làm bao xa thì vừa ngân sách, và ra xa thêm thì rẻ hơn bao nhiêu."),
+    P("Quãng đường đường bộ lấy từ OSRM [13], bộ định tuyến mã nguồn mở chạy trên dữ liệu OpenStreetMap [15], qua dịch vụ `table`: mỗi lần gọi trả về ma trận quãng đường và thời gian từ nhiều điểm xuất phát tới một nơi đến. Để giảm số lần gọi và không gửi tọa độ của từng tin ra ngoài, tọa độ được làm tròn về tâm ô lưới 0,01° (khoảng 1,1 km): 1.651 ô có tin (TP.HCM 1.156, Hà Nội 328, Đà Nẵng 167) ghép với các nơi đến cùng tỉnh cho 12.378 cặp, lấy trong 19 lần gọi, không cặp nào không tới được. Kết quả lưu ở `config/commute_road_distance.csv` và được đưa vào Git; pipeline chỉ đọc tệp này nên lượt chạy không cần Internet và tái lập được. Khi thêm nơi đến hoặc có vùng tin mới, chạy lại `python -m src.gold.commute_road fetch` trong cửa sổ đọc. Thời gian đi là thời gian khi đường thông thoáng theo hồ sơ ô tô của OSRM, không tính kẹt xe."),
+    P("Ở mức quận, quãng đường là trung vị km đường bộ của các tin trong quận (cần ít nhất 10 tin có tọa độ), còn chi phí cho cùng diện tích bằng trung vị giá/m² của quận nhân với diện tích mục tiêu (trung vị diện tích của các quận cùng loại hình và nhóm diện tích), để không nhầm quận có giá/m² thấp nhưng diện tích điển hình lớn là quận rẻ. Một quận nằm trên **đường biên đánh đổi** nếu không quận nào cùng tỉnh vừa gần hơn vừa rẻ hơn cho cùng diện tích; đây là khái niệm Pareto ở Mục 1.4.5 áp dụng cho hai tiêu chí quãng đường và chi phí. Hai bảng thay thế của các phiên bản trước (`agg_area_substitution`, `agg_commute_substitution`) vẫn được dựng và kiểm định nhưng dashboard không dùng."),
     H3("3.5.7. Vòng đời, đổi giá, tổng quan và chất lượng dữ liệu"),
     bullets([
       "`build_listing_lifecycle.py` → `fact_listing_lifecycle`: ngày thấy đầu/cuối, số lần quan sát, số ngày quan sát, số lần đổi giá, cờ vắng hai batch gần nhất của nguồn (150.017 dòng).",
@@ -240,17 +246,17 @@ function chapter3() {
     H3("3.5.8. Bảng bằng chứng cho dashboard"),
     P("`build_bq_evidence.py` tính sẵn sáu bảng `ev_*` để dashboard không phải chạy truy vấn nặng trên Trino: đường cong diện tích theo ngân sách và vùng khoảng cách; mỗi quận một cặp tin thật (tin B rẻ hơn ít nhất 10%, rộng hơn ít nhất 20%, đủ phòng); vị trí giá lúc mới đăng và việc hạ giá 1–30% sau đó; các ví dụ tin thật đã hạ giá; chênh giá thô theo từng cờ trong cùng quận–diện tích để đối chiếu với hệ số mô hình; giá ước tính so với giá thật theo 10 nhóm trên tập test. Định nghĩa \"hạ giá thật\" là giảm từ 1% đến 30% so với giá trước đó; mức giảm trên 30% thường là sửa lỗi nhập liệu nên không được tính. Bảng `ev_reprice` dùng cùng tập tin (3 nguồn crawl, quan sát ít nhất hai batch) và cùng cách lấy giá đầu (giá của phiên bản lịch sử đầu tiên) với script backtest, nên số trên dashboard và trong báo cáo trùng nhau; ngày hạ giá của các ví dụ là ngày của lần giảm thật gần nhất."),
     H3("3.5.9. Kiểm định Gold"),
-    P("`src/gold/verify_gold.py` chạy 138 phép kiểm, ví dụ: mọi khóa ngoại tồn tại trong dimension; tin nghi trùng chỉ được đếm một lần; vị trí giá tính lại khớp bảng; tập train/test tính lại khớp; trọng số trộn trong bảng khớp tệp cấu hình; cặp thay thế BQ3 đúng cùng tỉnh và đúng giới hạn khoảng cách; tổng tin trong bảng tổng quan bằng số tin đại diện. Kết quả trên dữ liệu tới 17/11: 138/138 PASS."),
+    P("`src/gold/verify_gold.py` chạy 144 phép kiểm, ví dụ: mọi khóa ngoại tồn tại trong dimension; tin nghi trùng chỉ được đếm một lần; vị trí giá tính lại khớp bảng; tập train/test tính lại khớp; trọng số trộn trong bảng khớp tệp cấu hình; cặp thay thế BQ3 đúng cùng tỉnh và đúng giới hạn khoảng cách; tổng tin trong bảng tổng quan bằng số tin đại diện. Riêng BQ3 theo đường bộ có ba phép kiểm: không quá 1% cặp có đường bộ ngắn hơn đường chim bay quá 1,5 km (sai số do làm tròn về ô lưới; thực tế 0,019%), vành đai tính lại từ km khớp bảng, và quận trên đường biên tính lại khớp bảng. Ở bản phát hành v1.1.1 (dữ liệu tới 17/11), Gold có 138 phép kiểm và đạt 138/138; sau khi thêm bảng bằng chứng và BQ3 đường bộ, kết quả trên dữ liệu tới 20/11 là 144/144 PASS."),
     H2("3.6. Điều phối bằng Airflow"),
     P("Tệp `dags/lakehouse_pipeline.py` dựng DAG từ cấu trúc `STAGES` trong `src/orchestration/pipeline.py`, nên danh sách job chỉ khai báo ở một nơi và unit test kiểm tra số task. Task Spark gọi hàm `run_spark` để chạy `spark-submit` trong container Spark master; task `listing_history` nhận thêm tham số chế độ lịch sử. Task cuối `publish_evidence` xuất trạng thái và thời gian của mọi task thành `integration_airflow_run.json`. Khi một task lỗi, các task sau chuyển sang `upstream_failed`; bộ nghiệm thu đã thử lỗi đầu vào và xác nhận hai task chuẩn bị nguồn thất bại kéo theo 24 task phía sau bị chặn."),
     H2("3.7. Dashboard Superset"),
-    P("`src/dashboard/provision_superset.py` tạo toàn bộ tài nguyên Superset qua REST API: kết nối Trino, 26 dataset (bảng hoặc câu SQL ảo), 49 biểu đồ, bộ lọc chung và 5 dashboard. Sau khi tạo, script gọi lại API dữ liệu của từng biểu đồ và so với truy vấn Trino tương ứng; chỉ khi khớp mới báo PASS. `src/dashboard/insights.py` tính các tiêu đề nhận xét từ dữ liệu, nên tiêu đề tự cập nhật khi có batch mới."),
+    P("`src/dashboard/provision_superset.py` tạo toàn bộ tài nguyên Superset qua REST API: kết nối Trino, 23 dataset (bảng hoặc câu SQL ảo), 50 biểu đồ, bộ lọc chung và 5 dashboard. Sau khi tạo, script gọi lại API dữ liệu của từng biểu đồ và so với truy vấn Trino tương ứng; chỉ khi khớp mới báo PASS. `src/dashboard/insights.py` tính các tiêu đề nhận xét từ dữ liệu, nên tiêu đề tự cập nhật khi có batch mới."),
     ...T("Năm dashboard và câu hỏi mỗi dashboard trả lời",
       ["Dashboard", "Câu hỏi", "Biểu đồ"],
       [["Tổng quan thị trường", "Giá ở đâu cao, ở đâu thấp; Hà Nội, TP.HCM, Đà Nẵng khác nhau thế nào ở cùng khoảng cách tới trung tâm?", "8"],
        ["BQ1 – Ngân sách", "Với số tiền này, mỗi quận cho bao nhiêu m²? Có cặp tin nào rẻ hơn mà rộng hơn trong cùng quận?", "10"],
        ["BQ2 – Vị trí giá", "Tin này đắt hay rẻ so với nhóm? Mô hình đúng tới đâu? Tin rao cao có hay phải hạ giá?", "12"],
-       ["BQ3 – Nơi làm/học", "Làm ở đây thì quận nào rẻ hơn mà đường đi không xa hơn?", "11"],
+       ["BQ3 – Nơi làm/học", "Làm/học ở đây: ở cách bao xa (đường bộ) thì vừa ngân sách, xa thêm thì rẻ hơn bao nhiêu? Quận nào trên đường biên đánh đổi?", "12"],
        ["Chất lượng dữ liệu", "Số liệu trên dashboard đáng tin đến đâu?", "8"]],
       [3.6, 10.6, 1.8], { right: [2] }),
     P("Mỗi dashboard có một **thẻ kết luận** viết bằng Handlebars: nội dung, số liệu và kết quả kiểm định được tính bằng SQL theo đúng tỉnh, loại hình, ngân sách hoặc nơi làm/học đang chọn, nên khi đổi bộ lọc sang Hà Nội hay Đà Nẵng, câu kết luận đổi theo. Biểu đồ có ghi \"(Cố định)\" hoặc \"(Tất cả…)\" là các so sánh cố định, không đổi theo bộ lọc."),
@@ -259,7 +265,7 @@ function chapter3() {
       "**Khởi tạo môi trường:** `python -m src.orchestration.init_environment` tạo `.env` với mật khẩu và khóa bí mật ngẫu nhiên; tệp `.env` không được đưa lên Git.",
       "**Khóa ghi:** lịch sử có khóa writer cục bộ, kiểm tra vị trí và schema bảng trước khi ghi, checkpoint để phục hồi.",
       "**Ghi nguyên tử:** manifest, tóm tắt và tệp kiểm chứng được ghi nguyên tử để không có tệp ghi dở.",
-      "**Tái lập:** hai lần dựng lại Silver/Gold từ cùng Bronze cho kết quả giống hệt trên 38 bảng về schema, số dòng, khóa grain và SHA256 toàn bộ nội dung.",
+      "**Tái lập:** hai lần dựng lại Silver/Gold từ cùng Bronze cho kết quả giống hệt trên 38 bảng của bản phát hành v1.1.1 về schema, số dòng, khóa grain và SHA256 toàn bộ nội dung.",
       "**Kiểm thử liên tục:** GitHub Actions chạy unit test trên Ubuntu Python 3.10, 3.12 và Windows Python 3.12 cho mọi lần push; tag phát hành chỉ được tạo khi CI của đúng commit đó đạt.",
     ]).flat(),
     H2("3.9. Theo dấu một tin rao qua toàn hệ thống"),
@@ -276,8 +282,9 @@ function chapter3() {
        ["Gold – vòng đời", "fact_listing_lifecycle", "Thấy đầu 22/09, thấy cuối 16/10, 4 lần quan sát; vắng 2 batch gần nhất của nguồn"],
        ["Gold – BQ2 benchmark", "fact_listing_price_assessment", "Nhóm chi tiết nhất (quận × loại hình × diện tích × phòng), 525 tin; P25 = 80,0, P50 = 92,6, P75 = 102,9 tr/m²; giá hiện tại 130,4 tr/m² → trên P75"],
        ["Gold – BQ2 mô hình", "fact_listing_price_model", "Thuộc tập test, vị trí cấp quận, w = 0,7; mô hình 108,7, baseline 92,9, dự đoán kết hợp 103,7 tr/m²; giá thật cao hơn ước tính 25,8%"],
-       ["Gold – bằng chứng", "ev_reprice_examples", "Lúc đăng cao hơn P75 nhóm 40,6%; hạ giá 9,9% ngày 13/10; hiển thị trong bảng ví dụ trên dashboard BQ2"]],
-      [3.2, 4.2, 8.6], { note: "Nguồn: truy vấn Trino trên các bảng Silver/Gold, dữ liệu tới batch 17/11/2026." }),
+       ["Gold – bằng chứng", "ev_reprice_examples", "Lúc đăng cao hơn P75 nhóm 40,6%; hạ giá 9,9% ngày 13/10; hiển thị trong bảng ví dụ trên dashboard BQ2"],
+       ["Gold – BQ3", "fact_listing_commute", "9 dòng (9 nơi làm/học ở TP.HCM); gần nhất ĐH Bách khoa TP.HCM 6,5 km đường bộ, khoảng 8 phút (chim bay 5,6 km, vành 5–10 km); chợ Bến Thành 10,4 km; Khu công nghệ cao 25,5 km"]],
+      [3.2, 4.2, 8.6], { note: "Nguồn: truy vấn Trino trên các bảng Silver/Gold, dữ liệu tới batch 17/11/2026; riêng dòng BQ3 dữ liệu tới batch 20/11/2026." }),
     P("Ví dụ này cho thấy vai trò của từng tầng. Bronze giữ nguyên chuỗi giá \"8.1 tỷ\" để có thể truy vết; Silver đọc chuỗi đó thành số, gắn trạng thái chất lượng và nhận ra rằng chỉ phiên bản 13/10 thay đổi nội dung nên mới tạo phiên bản lịch sử mới; Gold dùng giá **lúc mới đăng** (8,1 tỷ) để xếp tin vào nhóm trên P75 khi kiểm chứng giả thuyết H1, đồng thời dùng giá hiện tại để so với nhóm và với mô hình. Dù đã hạ giá, tin vẫn cao hơn ước tính 25,8%, dưới ngưỡng 30% nên dashboard không gắn nhãn \"rao cao bất thường\". Tin vắng mặt ở hai batch gần nhất, nhưng hệ thống không kết luận là đã bán vì phạm vi crawl Guland chỉ gồm một số trang đầu."),
     H2("3.10. Tiểu kết chương 3"),
     P("Chương 3 đã mô tả cách hiện thực từng bước của pipeline với đầu vào, xử lý và đầu ra cụ thể: thu thập có kiểm soát lỗi, manifest bảo vệ đầu vào, Bronze giữ dữ liệu gốc, Silver chuẩn hóa với 16 quy tắc chất lượng và lịch sử SCD2, Gold theo lược đồ hình sao với các bảng BQ1–BQ3 và mô hình giá, DAG 26 task và dashboard dựng bằng mã. Chương 4 trình bày kết quả chạy thực tế và đánh giá."),

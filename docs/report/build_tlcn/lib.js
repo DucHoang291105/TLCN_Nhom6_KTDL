@@ -7,7 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const d = require("docx");
 const { Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle,
-  ShadingType, ImageRun, PageBreak, VerticalAlign } = d;
+  ShadingType, ImageRun, PageBreak, VerticalAlign, TableLayoutType } = d;
 
 const FONT = "Times New Roman";
 const CM = 567; // twips per cm
@@ -85,6 +85,8 @@ function T(caption, header, rows, widthsCm, opts = {}) {
   const out = [new Paragraph({ style: "TenBang", keepNext: true, children: [new TextRun({ text: `Bảng ${no}. ${caption}`, font: FONT })] })];
   out.push(new Table({
     width: { size: TEXT_WIDTH, type: WidthType.DXA }, columnWidths: widths, alignment: AlignmentType.CENTER,
+    // Fixed layout: Word keeps the given column widths instead of widening a column for a long file name.
+    layout: TableLayoutType.FIXED,
     rows: [
       new TableRow({ tableHeader: true, children: header.map((h, i) => cell(h, widths[i], true)) }),
       ...rows.map((r) => new TableRow({ cantSplit: true, children: r.map((v, i) => cell(v, widths[i], false, right.has(i) ? AlignmentType.RIGHT : undefined)) })),

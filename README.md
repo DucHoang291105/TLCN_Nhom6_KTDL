@@ -43,7 +43,7 @@ Airflow điều phối các bước và kiểm định chất lượng.
 
 Thành phần xử lý chính: Apache Spark 3.5.9, MinIO, Apache Iceberg REST Catalog, PostgreSQL 16, Apache Airflow 3.3.1, Trino và Docker Compose. Snapshot CSV được quản lý bằng Git LFS.
 
-Superset có 5 dashboard: tổng quan thị trường, lựa chọn theo ngân sách (BQ1), vị trí giá trong nhóm tương đồng (BQ2), khu vực thay thế theo nơi làm/học (BQ3) và chất lượng dữ liệu. Dữ liệu đọc từ Gold qua Trino; script kiểm tra lại 49 biểu đồ và đối chiếu KPI. Các bản đồ dùng nền OpenStreetMap.
+Superset có 5 dashboard: tổng quan thị trường, lựa chọn theo ngân sách (BQ1), vị trí giá trong nhóm tương đồng (BQ2), quãng đường đường bộ tới nơi làm/học và giá theo vành đai (BQ3) và chất lượng dữ liệu. Dữ liệu đọc từ Gold qua Trino; script kiểm tra lại 49 biểu đồ và đối chiếu KPI. Các bản đồ dùng nền OpenStreetMap.
 
 Các bucket:
 
@@ -188,7 +188,7 @@ Chi tiết lệnh và giới hạn vận hành: [Iceberg history](docs/operation
 | `agg_budget_tradeoff`, `fact_budget_pareto` | BQ1: lựa chọn theo ngân sách, diện tích và đặc điểm |
 | `agg_peer_group_benchmark`, `fact_listing_price_assessment` | BQ2: so sánh giá/m² với nhóm listing tương đồng |
 | `fact_listing_price_model`, `agg_price_model_coefficient` | BQ2: mô hình hedonic giải thích giá/m² theo quận, diện tích, số phòng, 5 cờ đặc điểm, khoảng cách tới trung tâm và phường, kết hợp với baseline trung vị nhóm |
-| `agg_area_substitution` | BQ3: khu vực thay thế trong cùng tỉnh với chi phí thấp hơn cho cùng diện tích, không xa trung tâm tỉnh hơn quá 10 km |
+| `agg_area_substitution` | BQ3 (bảng phụ, dashboard không dùng): khu vực thay thế trong cùng tỉnh với chi phí thấp hơn cho cùng diện tích, không xa trung tâm tỉnh hơn quá 10 km |
 | `fact_listing_commute` | BQ3 theo nơi làm/học (dashboard dùng bảng này): mỗi tin bán đại diện × nơi đến có tên trong cùng tỉnh, quãng đường và thời gian đi đường bộ (OSRM, ô lưới 0,01°, `config/commute_road_distance.csv`, lấy lại bằng `python -m src.gold.commute_road fetch`), khoảng cách chim bay để so sánh, vành đai đường bộ (<5, 5–10, 10–15, 15–20, 20–30, ≥30 km) |
 | `agg_commute_district` | BQ3 theo nơi làm/học: mỗi quận × nơi đến (`config/commute_destinations.csv` và trung tâm 34 tỉnh), quãng đường chim bay từ tâm quận và trung vị quãng đường đường bộ của tin trong quận, chi phí cho cùng diện tích, cờ không bị quận khác vừa gần hơn vừa rẻ hơn (theo chim bay và theo đường bộ) |
 | `agg_commute_substitution` | BQ3 theo nơi làm/học (bảng phụ, dashboard không dùng): quận rẻ hơn với quãng đường chim bay tới nơi đến không xa hơn quá 2 km so với quận đang nhắm |

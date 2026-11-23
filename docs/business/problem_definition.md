@@ -8,7 +8,7 @@ Hệ thống hỗ trợ **người mua** phân tích dữ liệu tin đăng bấ
 |---|---|---|
 | BQ1 | Trong cùng một mức ngân sách, người mua đánh đổi những gì về vị trí, diện tích, số phòng và đặc điểm? Tin nào không bị tin khác trội hơn? | `agg_budget_tradeoff`, `fact_budget_pareto` |
 | BQ2 | Tin đăng nào có giá/m² lệch so với nhóm bất động sản tương đồng (dưới P25, trong P25–P75, trên P75), và đặc điểm nào giải thích phần lệch đó? | `agg_peer_group_benchmark`, `fact_listing_price_assessment`, `fact_listing_price_model` |
-| BQ3 | Nếu không mua được ở khu vực mong muốn, khu vực nào trong cùng tỉnh có nhóm bất động sản tương tự với chi phí thấp hơn cho cùng diện tích? | `agg_area_substitution` |
+| BQ3 | Người mua đi làm/học ở một nơi cố định: ở cách bao xa (theo đường bộ) thì có nhà vừa ngân sách, và ra xa thêm thì giá/m² rẻ hơn bao nhiêu? Quận nào đáng cân nhắc vì không quận nào cùng tỉnh vừa gần hơn vừa rẻ hơn cho cùng diện tích? | `fact_listing_commute`, `agg_commute_district` (bảng phụ: `agg_area_substitution`, `agg_commute_substitution`) |
 
 Bảng hỗ trợ: tổng quan thị trường (`agg_market_overview`), chất lượng dữ liệu (`agg_dq_kpi`), lịch sử đổi giá (`fact_listing_price_change`).
 

@@ -2,7 +2,7 @@
 
 Tài liệu này định nghĩa khi nào kết quả của mỗi Business Question được coi là **chấp nhận được** để đưa lên dashboard và báo cáo. Mỗi tiêu chí có ngưỡng đo được và chỉ ra minh chứng: một check trong `verify_gold.py` hoặc một số liệu trong `docs/validation/`.
 
-Số liệu hiện trạng lấy từ lần chạy dữ liệu tới batch **20261117** (Gold 138/138 check đạt). Một số bảng đếm ở các mục BQ1 và BQ3 có thể còn ghi số của lần chạy tới batch 20261027; khi trích vào báo cáo cần đối chiếu lại với file JSON tương ứng. Ngưỡng ở đây là đề xuất của vai B; nhóm thống nhất trong buổi họp, sửa trực tiếp file này nếu đổi ngưỡng.
+Số liệu hiện trạng lấy từ lần chạy dữ liệu tới batch **20261117** (Gold 138/138 check đạt). Một số bảng đếm ở các mục BQ1 và BQ3 có thể còn ghi số của lần chạy tới batch 20261027; khi trích vào báo cáo cần đối chiếu lại với file JSON tương ứng. Riêng mục 4 (BQ3) lấy từ lần chạy tới batch **20261120** (Gold 144/144 check đạt), vì BQ3 được đổi sang quãng đường đường bộ sau bản phát hành `v1.1.1-bao-ve`. Ngưỡng ở đây là đề xuất của vai B; nhóm thống nhất trong buổi họp, sửa trực tiếp file này nếu đổi ngưỡng.
 
 Trạng thái:
 
@@ -19,7 +19,7 @@ Người dùng lấy từ `problem_definition.md` (người mua) và `target_use
 |---|---|---|---|---|
 | BQ1 | Người mua có ngân sách cố định; môi giới tư vấn cho người mua | Với ngân sách này, chọn quận nào và chấp nhận đánh đổi gì (diện tích, số phòng, đặc điểm); tin nào nên xem trước (không bị tin khác trội hơn) | Trung vị diện tích, số phòng, giá/m², khoảng cách theo quận; tỷ lệ tin có từng đặc điểm; nhãn Pareto | `agg_budget_tradeoff`, `fact_budget_pareto` |
 | BQ2 | Người mua đang xem một tin cụ thể; môi giới định giá chào bán; nhân viên phân tích | Tin này đắt, rẻ hay ngang nhóm tương đồng; có nên thương lượng hoặc kiểm tra kỹ hơn không; chênh lệch giá đến từ đặc điểm nào | Vị trí so với P25–P75 nhóm; `price_ratio`; phần dư mô hình hedonic; % chênh giá theo từng cờ đặc điểm | `fact_listing_price_assessment`, `fact_listing_price_model`, `agg_price_model_coefficient` |
-| BQ3 | Người mua không đủ tiền ở khu vực mong muốn; môi giới gợi ý phương án thay thế | Nên cân nhắc quận nào khác cùng tỉnh để mua cùng diện tích với chi phí thấp hơn mà không quá xa | Chi phí ước tính ở cùng diện tích; % rẻ hơn; độ tương đồng đặc điểm; chênh lệch khoảng cách tới trung tâm | `agg_area_substitution` |
+| BQ3 | Người mua đi làm/học ở một nơi cố định; môi giới tư vấn khu vực tìm nhà | Tìm nhà cách nơi làm/học bao xa (đường bộ) thì vừa ngân sách; có nên ra xa thêm để rẻ hơn không; quận nào đáng cân nhắc (trên đường biên đánh đổi quãng đường – chi phí) | Km và phút đường bộ tới tin vừa ngân sách gần nhất; số tin vừa ngân sách trong 10 km; giá/m² trung vị theo vành đai đường bộ; chi phí cho cùng diện tích theo quận | `fact_listing_commute`, `agg_commute_district` |
 
 ## 1. Tiêu chí chung cho cả ba BQ
 
@@ -31,7 +31,7 @@ Người dùng lấy từ `problem_definition.md` (người mua) và `target_use
 | G4 | Độ chính xác của 5 cờ đặc điểm và phân loại BĐS được đo | Có precision/recall cho từng cờ trên mẫu gán nhãn ≥ 150 tin; precision mỗi cờ ≥ 0,80 | `label_accuracy.json`, `label_accuracy_rules_compare.json` | Đạt sơ bộ (`status = PARTIAL`): mẫu 198 tin (22 tin × 9 nguồn). Trên dự đoán trước bộ quy tắc v5, precision cả 5 cờ từ 0,95 đến 1,00; recall từ 0,67 (pháp lý) đến 1,00; phân loại BĐS đúng 84,9%. Sau khi sửa quy tắc (v5) trên phần dev (122 tin), phần test giữ riêng 76 tin: precision 1,00 cả 5 cờ, recall pháp lý 1,00, mặt tiền 1,00, ô tô 1,00, nội thất 0,86, phân loại đúng 89,5%. Chưa chốt: nhãn gán sơ bộ bằng AI, chỉ có **một lượt rà soát** (hai thành viên chia nhau 198 tin, mỗi tin một người), sửa 6/1.188 ô (0,5%), còn 4 tin tranh cãi. Lượt rà soát thứ hai và đo độ nhất quán (kappa) không thực hiện do hết thời gian. Số ca dương tính trên test ít (thang máy 2, nội thất 7, ô tô 11, pháp lý 15, mặt tiền 21), nên các giá trị 1,00 chỉ có nghĩa trên số ca này |
 | G5 | Số liệu trên dashboard khớp Gold | Mọi biểu đồ đối chiếu khớp truy vấn Trino | `superset_dashboard_check.json` | Đạt |
 
-G4 ảnh hưởng tới cả ba BQ, vì BQ1 (Pareto), BQ2 (mô hình, `feature_count_vs_peer`) và BQ3 (độ tương đồng) đều dựa trên cờ đọc từ tiêu đề. Cách đọc kết quả đo:
+G4 ảnh hưởng tới cả ba BQ, vì BQ1 (Pareto), BQ2 (mô hình, `feature_count_vs_peer`) và các bảng thay thế phụ của BQ3 (độ tương đồng) đều dựa trên cờ đọc từ tiêu đề; phần BQ3 chính theo quãng đường đường bộ không dùng cờ. Cách đọc kết quả đo:
 
 - **Khi cờ bật thì gần như luôn đúng** (precision 0,95 đến 1,00 ở cả 5 cờ). Cờ bỏ sót nhiều hơn: trước v5, pháp lý bỏ sót 12/36 tin thật (recall 0,67), mặt tiền 6/47, ô tô 4/26. Điều này khớp với cách diễn giải "FALSE = tiêu đề không nêu", không phải "không có".
 - **Số đo sau v5 chỉ tin được ở phần test giữ riêng (76 tin).** Quy tắc v5 được sửa sau khi xem lỗi trên phần dev, nên số trên cả 198 tin sau v5 (ví dụ recall pháp lý, mặt tiền, ô tô đều 1,00) là lạc quan và không dùng làm kết luận. 76 tin cũng là mẫu nhỏ: một lỗi đổi recall khoảng 1 đến 3 điểm phần trăm.
@@ -164,18 +164,35 @@ Nguồn: `docs/validation/bq2_backtest.json`, script `src/quality/bq2_backtest.p
 
 Giới hạn: độ sâu crawl thay đổi theo thời gian (xem mục kiểm tra theo độ sâu crawl), khoảng 8 tuần dữ liệu (22/09 đến 17/11), 1.997 tin từng giảm giá theo định nghĩa 1–30% (606 trong nhóm trên P75, 1.391 ở nhóm còn lại); kết quả là tương quan, không phải quan hệ nhân quả.
 
-## 4. BQ3 – Khu vực thay thế cùng tỉnh
+## 4. BQ3 – Đi làm/học ở một nơi: ở cách bao xa thì vừa ngân sách, xa thêm thì rẻ hơn bao nhiêu?
 
-Câu hỏi: khu vực nào cùng tỉnh có nhóm bất động sản tương tự với chi phí thấp hơn cho cùng diện tích?
+Câu hỏi: người mua đi làm hoặc đi học ở một nơi cố định, với loại hình, diện tích và ngân sách đã chọn, thì tin vừa ngân sách gần nhất cách bao xa theo đường bộ; ra xa thêm thì giá/m² giảm bao nhiêu; và quận nào nằm trên đường biên đánh đổi (không quận nào vừa gần hơn vừa rẻ hơn cho cùng diện tích)?
+
+Phiên bản trước của BQ3 so quận với quận theo khoảng cách đường chim bay từ tâm quận, nên gần như luôn gợi ý cùng một quận và khó giải thích. Từ 22/11, BQ3 dùng quãng đường đường bộ của từng tin: `src/gold/commute_road.py` lấy quãng đường và thời gian đi (khi đường thông thoáng) từ máy chủ OSRM công khai (dữ liệu OpenStreetMap) cho mỗi ô lưới 0,01° (khoảng 1,1 km) có tin, tới 16 nơi làm/học có tên trong cùng tỉnh, và lưu sẵn vào `config/commute_road_distance.csv` để pipeline không gọi Internet. Số liệu mục này lấy từ lần chạy tới batch **20261120** (Gold 144/144 check đạt).
 
 | Mã | Tiêu chí | Ngưỡng | Minh chứng | Trạng thái |
 |---|---|---|---|---|
-| B3.1 | Rẻ hơn ở cùng diện tích mục tiêu | Check `substitution_cheaper_at_target_area`, `substitution_target_area_is_origin_median` | `gold_verification.json` | Đạt |
-| B3.2 | Cùng tỉnh | Check `substitution_same_province` | `gold_verification.json` | Đạt |
-| B3.3 | Hồ sơ đặc điểm tương tự | Độ tương đồng ≥ 0,8 và mỗi cờ lệch ≤ 0,3 (check `substitution_similarity_and_flag_cap`) | `gold_verification.json` | Đạt có điều kiện: tương đồng về *tần suất tiêu đề nêu đặc điểm*, phụ thuộc G4 |
-| B3.4 | Hai phía đủ dữ liệu | Cả nhóm gốc và nhóm thay thế có ≥ 5 tin | Dựng từ nhóm công bố của `agg_peer_group_benchmark` | Đạt. Đề xuất hiển thị n hai phía trên dashboard |
-| B3.5 | Gợi ý thay thế phải gần | Gợi ý xếp hạng 1 có `distance_diff_km` ≤ 10 km, hoặc xếp hạng có tính khoảng cách | `agg_area_substitution`, check `substitution_distance_cap` | Đạt: từ 26/10 phương án thay thế phải không xa trung tâm tỉnh hơn quá 10 km; gợi ý hạng 1 xa hơn tối đa 9,996 km. Đổi lại còn 2.740/3.296 cặp (loại 386 cặp quá xa, 170 cặp không biết khoảng cách); 498 nhóm gốc có phương án (dữ liệu tới 17/11, `gold_area_substitution_summary.json`) |
-| B3.6 | Chênh lệch tổng giá được giải thích | Ghi rõ số cặp mà tổng giá trung vị phía thay thế không thấp hơn | `gold_area_substitution_summary.json`: 175/2.740 cặp (6,4%) | Đạt có điều kiện: so sánh dựa trên chi phí ở cùng diện tích, không dựa trên tổng giá trung vị |
+| B3.1 | Mọi cặp tin × nơi đến có quãng đường đường bộ | 100% cặp tin có tọa độ × nơi đến cùng tỉnh có `road_km`; 0 ô lưới không tới được | `gold_commute_choice_summary.json` (`road_distance`), `commute_road_fetch.json` | Đạt: 376.298/376.298 cặp; 12.378 cặp ô lưới × nơi đến (1.651 ô) lấy trong 19 lần gọi, 0 cặp không tới được |
+| B3.2 | Quãng đường đường bộ hợp lý | Không quá 1% cặp có đường bộ ngắn hơn đường chim bay quá 1,5 km (sai số do làm tròn tọa độ về tâm ô lưới); check `commute_road_not_shorter_than_straight` | `gold_verification.json` | Đạt: 0,019% số cặp. Trung vị đường bộ/chim bay theo nơi đến 1,21 đến 1,45 lần (tin cách nơi đến ít nhất 2 km chim bay) |
+| B3.3 | Vành đai khớp quãng đường | Vành đai (<5, 5–10, 10–15, 15–20, 20–30, ≥30 km) tính lại từ `road_km` khớp bảng; check `commute_road_rings_match_distance` | `gold_verification.json` | Đạt |
+| B3.4 | Đường biên đánh đổi tính lại khớp | Quận trên đường biên (theo trung vị km đường bộ của tin trong quận và chi phí cho cùng diện tích) tính lại khớp `is_road_frontier`; trung vị đường bộ của quận cần ≥ 10 tin có tọa độ; check `commute_road_frontier_recomputed` | `gold_verification.json`, `agg_commute_district` | Đạt: 4.502 dòng quận × nơi đến có quãng đường đường bộ, 1.578 dòng trên đường biên |
+| B3.5 | Không kết luận từ nhóm nhỏ | So sánh giá/m² vành 10–15 km với vành dưới 5 km chỉ hiển thị khi mỗi vành có ≥ 30 tin (`RINGS_ENOUGH` trong `provision_superset.py`) | Biểu đồ "Mọi nơi làm/học" trên dashboard BQ3 | Đạt: ở kịch bản nhà phố 50–80 m², 12/16 nơi đến đủ dữ liệu; 4 nơi còn lại (Làng Đại học Thủ Đức, sân bay Nội Bài, hai điểm ở Đà Nẵng) không được vẽ thay vì vẽ từ nhóm nhỏ |
+| B3.6 | Kết luận nêu cả chiều ngược | Thẻ kết luận tính bằng SQL theo nơi đến, loại hình, diện tích, ngân sách; khi xa thêm mà giá/m² lại cao hơn thì phải ghi rõ, không lặp kết luận chung | `bq3_card` trong `provision_superset.py`; ảnh trong `docs/evidence/personC_20261118/` | Đạt: Khu công nghệ cao (nhà phố 50–80 m²): vành 10–15 km rẻ hơn 19,8% so với dưới 5 km; Hồ Hoàn Kiếm: vành 10–15 km **đắt hơn** 7,4%, thẻ ghi "xa thêm lại đắt hơn". Toàn bộ 12 nơi đủ dữ liệu: từ rẻ hơn 40,3% (ĐH Bách khoa TP.HCM) tới đắt hơn 26,0% (Phú Mỹ Hưng) |
+
+Giới hạn riêng của BQ3: chỉ tin có tọa độ (khoảng 35% số tin) mới có quãng đường; thời gian đi là khi đường thông thoáng, không tính kẹt xe; tọa độ tin được làm tròn về tâm ô lưới khoảng 1 km; chỉ có 16 nơi làm/học có tên (9 ở TP.HCM, 5 ở Hà Nội, 2 ở Đà Nẵng); "chi phí cho cùng diện tích" của quận là ước tính từ trung vị giá/m², không phải giá của một căn cụ thể.
+
+### Bảng thay thế phụ (dựng và kiểm định, dashboard không dùng)
+
+`agg_area_substitution` (quận thay thế cùng tỉnh, không xa trung tâm tỉnh hơn quá 10 km) và `agg_commute_substitution` (quận thay thế không xa nơi đến hơn quá 2 km đường chim bay) được giữ lại từ phiên bản trước. Số liệu dưới đây là lần chạy tới batch 20261120.
+
+| Mã | Tiêu chí | Ngưỡng | Minh chứng | Trạng thái |
+|---|---|---|---|---|
+| B3.S1 | Rẻ hơn ở cùng diện tích mục tiêu | Check `substitution_cheaper_at_target_area`, `substitution_target_area_is_origin_median`, `commute_substitution_cheaper_and_similar`, `commute_substitution_target_area_is_origin_median` | `gold_verification.json` | Đạt |
+| B3.S2 | Cùng tỉnh | Check `substitution_same_province` | `gold_verification.json` | Đạt |
+| B3.S3 | Hồ sơ đặc điểm tương tự | Độ tương đồng ≥ 0,8 và mỗi cờ lệch ≤ 0,3 (check `substitution_similarity_and_flag_cap`) | `gold_verification.json` | Đạt có điều kiện: tương đồng về *tần suất tiêu đề nêu đặc điểm*, phụ thuộc G4 |
+| B3.S4 | Hai phía đủ dữ liệu | Cả nhóm gốc và nhóm thay thế có ≥ 5 tin | Dựng từ nhóm công bố của `agg_peer_group_benchmark` | Đạt |
+| B3.S5 | Gợi ý thay thế phải gần | Gợi ý xếp hạng 1 có `distance_diff_km` ≤ 10 km (`agg_area_substitution`, check `substitution_distance_cap`); quận thay thế theo nơi đến không xa hơn quá 2 km (check `commute_substitution_within_tolerance`) | `gold_area_substitution_summary.json`, `gold_commute_choice_summary.json` | Đạt: gợi ý hạng 1 xa hơn tối đa 9,996 km; còn 2.735/3.291 cặp (loại 387 cặp quá xa, 169 cặp không biết khoảng cách), 497 nhóm gốc có phương án. Bảng theo nơi đến: 11.996 cặp, 3.564 nhóm gốc |
+| B3.S6 | Chênh lệch tổng giá được giải thích | Ghi rõ số cặp mà tổng giá trung vị phía thay thế không thấp hơn | `gold_area_substitution_summary.json`: 167/2.735 cặp (6,1%) | Đạt có điều kiện: so sánh dựa trên chi phí ở cùng diện tích, không dựa trên tổng giá trung vị |
 
 ## 5. Giới hạn diễn giải áp dụng cho mọi BQ
 
