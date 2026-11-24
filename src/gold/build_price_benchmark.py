@@ -84,7 +84,7 @@ def main() -> None:
     write_iceberg_table(benchmark, f"{gold}.agg_peer_group_benchmark")
     benchmark = spark.table(f"{gold}.agg_peer_group_benchmark")
 
-    # Most specific published peer group for every representative listing.
+
     peer_columns = ["peer_group_id", "benchmark_level", "n_listings", "p25_price_per_m2", "median_price_per_m2", "p75_price_per_m2",
                     *[c.replace("title_has_", "share_") for c in FLAG_COLUMNS]]
     assessed = listings
@@ -96,7 +96,7 @@ def main() -> None:
         assessed = assessed.join(level_groups, keys, "left")
     for column in peer_columns:
         assessed = assessed.withColumn(column, F.coalesce(*[F.col(f"_{i}_{column}") for i in range(len(BENCHMARK_LEVELS))]))
-    # Coalesce: NULL price_per_m2 (negotiable price) must not fall through to "p25_p75".
+
     has_peer = F.col("peer_group_id").isNotNull() & F.coalesce(F.col("price_per_m2") > 0, F.lit(False))
 
     flag_count = sum(F.col(c).cast("int") for c in FLAG_COLUMNS)
@@ -136,12 +136,12 @@ def main() -> None:
         "assessment_by_level": {str(r["benchmark_level"]): int(r["count"]) for r in written.groupBy("benchmark_level").count().collect()},
         "price_position_counts": {str(r["price_position"]): int(r["count"]) for r in written.groupBy("price_position").count().collect()},
         "low_price_missing_legal": written.filter("is_low_price_missing_legal").count(),
-        # The flag above only exists below P25, so compare the underlying legal_known by position.
+
         "legal_not_stated_by_position": legal_not_stated_by_position(
             (r["price_position"], r["legal_known"], r["count"])
             for r in written.groupBy("price_position", "legal_known").count().collect()
         ),
-        # Same comparison inside each property category, to see whether the category mix explains the difference.
+
         "legal_not_stated_by_category": legal_not_stated_by_category(
             (r["category_label"], r["price_position"], r["legal_known"], r["count"])
             for r in written.join(spark.table(f"{gold}.dim_property_category").select("property_category_key", "category_label"),

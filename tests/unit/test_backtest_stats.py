@@ -15,7 +15,7 @@ def close(a, b, tol=1e-4):
 def test_normal_and_chi2_p_values():
     assert close(normal_two_sided_p(1.96), 0.05, 1e-3)
     assert close(normal_two_sided_p(0.0), 1.0)
-    # chi2 with 1 df is z squared.
+
     assert close(chi2_1df_p(1.96 ** 2), normal_two_sided_p(1.96))
 
 
@@ -143,8 +143,8 @@ def test_multiple_testing_uses_exact_bonferroni_threshold():
         return {"price_drop": {"p_value": p, "difference": difference}, "price_drop_by_source_cmh": {"p_value": cmh_p}}
 
     assert backtest.BONFERRONI_ALPHA == 0.05 / 3
-    assert not backtest.supported_after_multiple_testing(comparison(1e-9, 0.047))  # H1 of v1.1.1
-    assert not backtest.supported_after_multiple_testing(comparison(1e-9, 0.0168))  # above 0.05/3, below the rounded 0.017
+    assert not backtest.supported_after_multiple_testing(comparison(1e-9, 0.047))
+    assert not backtest.supported_after_multiple_testing(comparison(1e-9, 0.0168))
     assert backtest.supported_after_multiple_testing(comparison(1e-9, 0.0166))
     assert not backtest.supported_after_multiple_testing(comparison(1e-9, 0.001, difference=-0.01))
     assert not backtest.supported_after_multiple_testing(comparison(None, 0.001))
@@ -161,12 +161,12 @@ def test_split_by_crawl_depth_uses_each_sources_stable_date():
         return tuple(values)
 
     rows = [
-        row("guland", date(2026, 10, 22)),      # day before Guland's 30-page batches: early
-        row("guland", date(2026, 10, 23)),      # first stable day
-        row("batdongsan", date(2026, 9, 25)),   # deep 14.000-row batch: early
+        row("guland", date(2026, 10, 22)),
+        row("guland", date(2026, 10, 23)),
+        row("batdongsan", date(2026, 9, 25)),
         row("batdongsan", date(2026, 9, 29)),
         row("nhadatvui", date(2026, 11, 17)),
-        row("nhadatvui", None),                 # unknown first-seen date is never counted as stable
+        row("nhadatvui", None),
         row("unknown_source", date(2026, 11, 1)),
     ]
     stable, early = backtest.split_by_crawl_depth(rows)

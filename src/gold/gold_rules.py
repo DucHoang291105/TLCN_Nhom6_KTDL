@@ -30,19 +30,19 @@ MODEL_CATEGORY_LABELS: dict[str, tuple[int, str]] = {
 }
 DQ_STATUS_KEYS = {"PASS": 1, "WARN": 2}
 
-# Cross-source duplicate rule: same location and category, area within 2%,
-# price within 3%, different source and similar title tokens.
+
+
 DUP_AREA_TOLERANCE = 0.02
 DUP_PRICE_TOLERANCE = 0.03
 DUP_MIN_TITLE_JACCARD = 0.35
-# (area tolerance, price tolerance, min title Jaccard) used for the
-# sensitivity check of the heuristic; "default" is what fact_listing applies.
+
+
 DUP_SENSITIVITY = {
     "strict": (0.01, 0.02, 0.50),
     "default": (DUP_AREA_TOLERANCE, DUP_PRICE_TOLERANCE, DUP_MIN_TITLE_JACCARD),
     "loose": (0.03, 0.05, 0.25),
 }
-# Words present in most titles carry no identity signal.
+
 TITLE_STOPWORDS = {
     "ban", "can", "nha", "gap", "gia", "tot", "re", "chinh", "chu", "ty", "trieu",
     "m2", "m", "dt", "o", "tai", "va", "co", "cho", "voi", "duong", "quan", "q",
@@ -217,31 +217,31 @@ def pick_representative(members: Iterable[Mapping[str, Any]]) -> str:
     return min(members, key=sort_key)["source_id"]
 
 
-# ---------------------------------------------------------------------------
-# Business Question rules (Gold step 3)
-# ---------------------------------------------------------------------------
 
-# A peer group is published only with at least this many representative
-# listings; smaller groups fall back to a coarser benchmark level.
+
+
+
+
+
 MIN_PEER_GROUP_SIZE = 5
 BENCHMARK_LEVELS = ("LOC_CAT_AREA_ROOM", "LOC_CAT_AREA", "LOC_CAT")
-# Position against the peer group's P25-P75 range. A descriptive position, not
-# a judgement that a price is fair.
+
+
 PRICE_POSITIONS = ("duoi_p25", "p25_p75", "tren_p75", "khong_du_du_lieu")
-# Area substitution: the title-flag profile of the two groups must be at least
-# this similar (1 - mean absolute difference of the five flag shares) and no
-# single flag share may differ by more than MAX_FLAG_SHARE_GAP, so a group
-# without street frontage never substitutes for one where all have it.
-# Similarity compares how often titles *mention* features; it does not show
-# that two groups of properties are equivalent.
+
+
+
+
+
+
 MIN_SUBSTITUTION_SIMILARITY = 0.8
 MAX_FLAG_SHARE_GAP = 0.3
 FEATURE_FLAGS = ("legal", "furnished", "frontage", "elevator", "car_access")
-# Area substitution: the alternative's typical listing may be at most this many
-# km farther from the province centre than the origin's (median distance of
-# each group). Distance to the centre is a remoteness proxy: there are no
-# district centroids, so two districts on opposite sides of the centre can
-# pass even though they are far apart. Pairs with unknown distance are dropped.
+
+
+
+
+
 MAX_DISTANCE_DIFF_KM = 10.0
 
 
@@ -414,13 +414,13 @@ def cost_at_target_area(median_price_per_m2: float, target_area: float) -> float
     return median_price_per_m2 * target_area
 
 
-# Commute choice (BQ3 by place of work or study). A district's position is the
-# median coordinate of its representative listings that have coordinates, and
-# needs at least MIN_CENTROID_LISTINGS of them. Commute distance is the
-# straight-line (haversine) distance from that centroid to the destination: a
-# proxy for travel distance that ignores roads, rivers and traffic.
-# An alternative has an "equivalent" commute when it is no more than
-# COMMUTE_TOLERANCE_KM farther from the destination than the origin district.
+
+
+
+
+
+
+
 DESTINATIONS_PATH = PROJECT_ROOT / "config/commute_destinations.csv"
 PROVINCE_CENTERS_PATH = PROJECT_ROOT / "config/vietnam_province_centers.csv"
 MIN_CENTROID_LISTINGS = 10

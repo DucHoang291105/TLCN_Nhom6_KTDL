@@ -17,7 +17,7 @@ def verify_price_model(spark, gold):
     reps = spark.table(f"{gold}.fact_listing").filter("is_dup_representative")
     checks, metrics = {}, {}
 
-    # Scope recomputed from fact_listing: same filters as build_price_model.
+
     expected = (
         reps.join(locations, "location_key", "left")
         .filter(F.col("property_category_key").isin(*MODEL_CATEGORY_KEYS) & F.col("location_level").isin("DISTRICT", "PROVINCE") & F.col("province_name").isNotNull()
@@ -45,9 +45,9 @@ def verify_price_model(spark, gold):
     checks["price_model_residual_consistent"] = model.filter(
         F.abs(F.col("residual_log") - (F.log("price_per_m2") - F.log("predicted_price_per_m2"))) > 1e-4
     ).count() == 0
-    # Blend: weights come from config/price_model_blend.json; the final price lies
-    # between the pure model and the baseline (log-space mix, w in [0, 1]), or
-    # equals the baseline for pooled-location rows under the pooled rule.
+
+
+
     rules = load_blend_config()
     weight_mismatch = sum(
         model.filter((F.col("property_category_key") == key) & (F.abs(F.col("blend_weight") - rule.weight) > 1e-9)).count()
@@ -82,8 +82,8 @@ def verify_price_model(spark, gold):
     checks["price_model_coefficients_cover_categories"] = sorted(r["property_category_key"] for r in per_category) == sorted(categories)
     checks["price_model_one_intercept_per_category"] = all(r["intercepts"] == 1 for r in per_category)
     checks["price_model_references_are_zero"] = all(r["bad_references"] == 0 and 1 <= r["references"] <= 4 for r in per_category)
-    # Both values are rounded to 6 decimals, so compare with a relative tolerance.
-    # The intercept has no % premium (it is the reference log price itself).
+
+
     terms = coefficients.filter(F.col("factor") != INTERCEPT)
     checks["price_model_premium_consistent"] = (
         terms.filter(F.col("premium_pct").isNull()

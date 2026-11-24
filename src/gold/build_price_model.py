@@ -133,7 +133,7 @@ def main() -> None:
     gold, silver = ensure_gold_namespace(spark), ensure_silver_namespace(spark)
     started_at = datetime.now(timezone.utc)
 
-    # ---- Scope -------------------------------------------------------------
+
     locations = spark.table(f"{gold}.dim_location").select("location_key", "province_name", "district_name", "location_level")
     wards = spark.table(f"{silver}.listing_location").select("source_id", "ward")
     reps = representatives(spark, gold).join(locations, "location_key", "left").join(wards, "source_id", "left")
@@ -150,7 +150,7 @@ def main() -> None:
     scope["listings_in_scope_district"] = n_priced_district
     scope["listings_in_scope_province_only"] = n_priced - n_priced_district
     scope["coverage_share_of_representative"] = round(n_priced / scope["representative_listings"], 6) if scope["representative_listings"] else None
-    # Share of representative listings with a known district (before province-only listings were added).
+
     scope["coverage_share_district_only"] = round(n_priced_district / scope["representative_listings"], 6) if scope["representative_listings"] else None
 
     base = (
@@ -169,7 +169,7 @@ def main() -> None:
     ).drop("_bounds")
     fit_filter = (F.col("split") == "train") & ~F.col("is_outlier_trimmed")
 
-    # Location level: own district, pooled province, or "other" (train counts only).
+
     district_rows = base.filter(fit_filter).groupBy("property_category_key", "location_key").agg(F.count("*").alias("district_train_rows"))
     base = base.join(district_rows, ["property_category_key", "location_key"], "left").fillna(0, subset=["district_train_rows"])
     pooled_rows = (
@@ -180,7 +180,7 @@ def main() -> None:
     base = base.persist(StorageLevel.MEMORY_AND_DISK)
     fit = base.filter(fit_filter)
 
-    # ---- Fit: vocabulary, normal equations, Cholesky -----------------------
+
     fit_rdd = fit.select(*TERM_COLUMNS, "log_price_per_m2").rdd
     term_counts: dict[int, dict[str, int]] = defaultdict(dict)
     for (category, term), count in fit_rdd.flatMap(
@@ -201,7 +201,7 @@ def main() -> None:
     models = {category: fit_ridge(entries[category], vocab.size) for category, vocab in vocabularies.items()}
     beta_broadcast = spark.sparkContext.broadcast({category: beta for category, (beta, _) in models.items()})
 
-    # ---- Predict every listing in scope ------------------------------------
+
     def predict(row: Any) -> tuple[str, str, float, int]:
         category = row["property_category_key"]
         terms = row_terms(row)
@@ -217,7 +217,7 @@ def main() -> None:
     modelled = base.filter(F.col("property_category_key").isin(*vocabularies.keys()))
     predictions = spark.createDataFrame(modelled.select("source_id", *TERM_COLUMNS).rdd.map(predict), prediction_schema)
 
-    # ---- Baseline: peer-group median from train rows only -----------------
+
     assessed = modelled.join(predictions, "source_id")
     for index, (level, keys) in enumerate(BASELINE_LEVELS):
         source = fit
@@ -230,9 +230,9 @@ def main() -> None:
     medians = [F.col(f"_median_{index}") for index in range(len(BASELINE_LEVELS))]
     baseline_level = F.coalesce(*[F.when(median.isNotNull(), F.lit(level)) for median, (level, _) in zip(medians, BASELINE_LEVELS)])
 
-    # Final prediction: log-space blend of the model and the peer-group baseline
-    # (weights from config/price_model_blend.json, chosen by cross-validation on
-    # train). Pooled-province / "other" rows may use the baseline alone.
+
+
+
     blend_rules = load_blend_config()
     category_col = F.col("property_category_key")
 
@@ -269,7 +269,7 @@ def main() -> None:
     write_iceberg_table(fact, f"{gold}.fact_listing_price_model")
     written = spark.table(f"{gold}.fact_listing_price_model")
 
-    # ---- Evaluation (computed from the published table) --------------------
+
     rows = written.select(
         "property_category_key", "split", "is_outlier_trimmed", "price_per_m2", "predicted_price_per_m2", "baseline_price_per_m2",
         "location_level", "model_price_per_m2",
@@ -292,7 +292,7 @@ def main() -> None:
         beta, lower = models[category]
         fit_rows = [row for row in clean if row[0] == category and row[1] == "train"]
         test_rows = [row for row in clean if row[0] == category and row[1] == "test"]
-        # row[3] actual price, row[7] pure model price (row[4] is the blend).
+
         sse = log_residual_sse((row[3], row[7]) for row in fit_rows)
         dof = max(len(fit_rows) - vocab.size, 1)
         sigma2 = sse / dof
@@ -305,8 +305,8 @@ def main() -> None:
         for term, index in terms:
             coefficient = beta[index] if index is not None else 0.0
             std_error = math.sqrt(sigma2 * variances[index]) if index in variances else None
-            # A % premium is meaningful for 0/1 terms only; the intercept is the
-            # reference log price, so its premium and interval stay empty.
+
+
             is_intercept = term == INTERCEPT
             premium = None if is_intercept else premium_pct(coefficient)
             low_pct = premium_pct(coefficient - 1.96 * std_error) if std_error is not None and not is_intercept else None
@@ -367,7 +367,7 @@ def main() -> None:
     all_test = [row for row in clean if row[1] == "test"]
     overall_model, overall_baseline = metrics(all_test, 4), metrics(all_test, 5)
     overall_model_only = metrics(all_test, 7)
-    # Test rows outside the train trim range are reported separately above; this adds them back.
+
     every_test = [row for row in rows if row[1] == "test"]
     overall_incl_outside_trim = {
         "n": len(every_test),

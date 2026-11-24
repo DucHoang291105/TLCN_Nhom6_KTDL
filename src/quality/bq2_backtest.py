@@ -49,21 +49,21 @@ from src.quality.backtest_stats import (
 )
 
 ALPHA = 0.05
-MAIN_HYPOTHESES = 3  # H1, H2 and H3 are the pre-declared tests; everything else is exploratory
+MAIN_HYPOTHESES = 3
 BONFERRONI_ALPHA = ALPHA / MAIN_HYPOTHESES
 RESIDUAL_GROUPS = 5
 POSITIONS = ("duoi_p25", "p25_p75", "tren_p75", "khong_du_du_lieu")
 PROVINCE_GROUPS = ("Hồ Chí Minh", "Hà Nội", "Đà Nẵng")
 OTHER_PROVINCES = "Tỉnh khác"
 
-# Columns of the collected rows. HAS_DROP is a genuine cut; ANY_DROP counts every drop.
+
 (SOURCE, INITIAL_POSITION, CURRENT_POSITION, HAS_DROP, LISTED_DAYS, DISAPPEARED, RESIDUAL, SPLIT, PROVINCE, ANY_DROP,
  FIRST_SEEN) = range(11)
 
-# First batch from which each source was crawled to a constant depth (rows per batch in
-# docs/validation/crawl_coverage.json: Batdongsan 4.000 and Nhadatvui 3.600 from 29/09, Guland 1.350, i.e.
-# 30 pages, from 23/10). Before that date a batch was much deeper than the ones after it, so a listing seen in a
-# deep batch but missing from a shallow one is "not re-crawled", not "gone".
+
+
+
+
 STABLE_CRAWL_DEPTH_FROM = {
     "batdongsan": date(2026, 9, 29),
     "guland": date(2026, 10, 23),

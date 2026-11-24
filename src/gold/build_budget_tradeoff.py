@@ -41,7 +41,7 @@ def pareto_group(entry: tuple[tuple[int, int, int], Iterable[Any]]) -> list[tupl
             "source_id": row["source_id"],
             "price": row["price"],
             "area": row["area"],
-            "rooms": row["rooms"],  # None = unknown, incomparable with known rooms
+            "rooms": row["rooms"],
             "flags": tuple(int(bool(row[c])) for c in FLAG_COLUMNS),
         }
         for row in rows
@@ -91,10 +91,10 @@ def main() -> None:
     written = spark.table(f"{gold}.fact_budget_pareto")
 
     groups = spark.table(f"{gold}.agg_budget_tradeoff")
-    # B1.5: unknown rooms are incomparable on rooms, so such listings are harder
-    # to dominate. Report the frontier share separately for known / unknown
-    # rooms, over all groups and over groups with >= 5 listings (a group of
-    # one is always its own frontier).
+
+
+
+
     flagged = written.join(candidates.select("source_id", "rooms"), "source_id").withColumn(
         "rooms_known", F.col("rooms").isNotNull()
     )

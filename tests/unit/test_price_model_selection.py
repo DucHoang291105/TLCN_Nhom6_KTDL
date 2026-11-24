@@ -77,7 +77,7 @@ def test_term_comparison_recovers_signal_and_distance_helps():
     assert set(results) == set(selection.TERM_GROUPS)
     base, with_distance = results["base_terms"]["overall"]["model"], results["distance"]["overall"]["model"]
     assert base["n"] == 300 == with_distance["n"] and base["r2_log"] > 0.5
-    assert with_distance["mae"] < base["mae"]  # the planted distance effect is found
+    assert with_distance["mae"] < base["mae"]
     assert results["base_terms"]["overall"]["model_beats_baseline_mae"] is True
 
 
@@ -91,16 +91,16 @@ def test_baseline_tables_use_peer_groups_with_fallback():
     tables = selection.baseline_tables(rows)
     assert selection.baseline_price(tables, make_row()) == 102.5
     unseen = make_row(location_key=99, area_band_key=1, room_band_key=1)
-    assert selection.baseline_price(tables, unseen) == 102.5  # falls back to the category median
+    assert selection.baseline_price(tables, unseen) == 102.5
     assert selection.baseline_price(tables, make_row(location_key=-1)) == 102.5
 
 
 def test_choose_configuration_keeps_plain_model_unless_clearly_beaten():
     rows = [make_row(source_id=f"r{i}", price_per_m2=100.0) for i in range(50)]
-    perfect_model = [(row, 100.0, 300.0) for row in rows]  # model exact, baseline far off
+    perfect_model = [(row, 100.0, 300.0) for row in rows]
     choice = selection.choose_configuration({selection.RIDGE_LAMBDA: perfect_model})
     assert choice["chosen"]["weight"] == 1.0 and not choice["chosen"]["pooled_to_baseline"]
-    perfect_baseline = [(row, 300.0, 100.0) for row in rows]  # model far off, baseline exact
+    perfect_baseline = [(row, 300.0, 100.0) for row in rows]
     choice = selection.choose_configuration({selection.RIDGE_LAMBDA: perfect_baseline})
     assert choice["chosen"]["weight"] == 0.0
     assert choice["chosen"]["oof_mae"] < choice["plain_model"]["oof_mae"]
@@ -116,13 +116,13 @@ def test_paired_bootstrap_detects_real_and_null_differences():
 
 
 def test_abs_error_differences_sign():
-    assert selection.abs_error_differences([100.0], [150.0], [110.0]) == [40.0]  # blend closer -> positive
+    assert selection.abs_error_differences([100.0], [150.0], [110.0]) == [40.0]
 
 
 def test_prediction_agreement_detects_rows_that_differ_even_with_equal_totals():
     same = selection.prediction_agreement([(100.0, 100.0), (200.0, 200.5)])
     assert same["n"] == 2 and same["share_within_tolerance"] == 1.0
-    # Swapping two predictions keeps the totals (and R2-like summaries) but not the rows.
+
     swapped = selection.prediction_agreement([(100.0, 200.0), (200.0, 100.0), (50.0, 50.0)])
     assert swapped["share_within_tolerance"] < 0.5 and swapped["max_abs_log_difference"] > 0.6
     assert selection.prediction_agreement([(None, 100.0)])["n"] == 0
@@ -131,7 +131,7 @@ def test_prediction_agreement_detects_rows_that_differ_even_with_equal_totals():
 def test_error_ratio_summary_reports_quantiles_and_share_within_band():
     pairs = [(100.0, 100.0), (120.0, 100.0), (80.0, 100.0), (150.0, 100.0), (50.0, 100.0), (10.0, None), (0.0, 100.0)]
     result = selection.error_ratio_summary(pairs)
-    # Ratios sorted: 0.5, 0.8, 1.0, 1.2, 1.5; rows without a usable prediction or price are ignored.
+
     assert result["n"] == 5
     assert result["actual_over_predicted_quantiles"]["0.5"] == 1.0
     assert result["actual_over_predicted_quantiles"]["0.1"] == 0.62

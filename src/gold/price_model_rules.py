@@ -28,27 +28,27 @@ from functools import cached_property
 from pathlib import Path
 
 MODEL_VERSION = "hedonic_ols_blend"
-# Deterministic train/test split: hash(SPLIT_SEED, source_id) mod 100 < TRAIN_PERCENT.
+
 SPLIT_SEED = 42
 TRAIN_PERCENT = 80
-# Property categories modelled (keys of dim_property_category): nha_pho, can_ho,
-# biet_thu, dat. "phong_tro_khac" mixes rooms, offices and warehouses.
+
+
 MODEL_CATEGORY_KEYS = (1, 2, 3, 4)
-# A district needs this many training listings for its own coefficient; rarer
-# districts are pooled per province, then into one "other" level.
+
+
 MIN_LEVEL_TRAIN_ROWS = 20
-# Ridge penalty on every term except the intercept. Small next to the
-# thousands of rows per category; it only stabilises sparse levels.
+
+
 RIDGE_LAMBDA = 1.0
-# Training rows outside these quantiles of log(price_per_m2), per category,
-# are not used to fit (mis-typed prices). They still get a prediction.
+
+
 TRIM_QUANTILES = (0.01, 0.99)
-# Factors with a dropped reference level (the most frequent one).
+
 FACTORS = ("location", "area_band", "room_band", "dist_band")
-# Extended terms. Distance to the province centre is NULL for ~60% of listings (no
-# coordinates), so "na" is its own level. The district x size and ward terms
-# are 0/1 columns kept only with enough training rows; they are the only
-# stand-in for project/building, which is not observed.
+
+
+
+
 DISTANCE_EDGES_KM = (3.0, 7.0, 15.0)
 SIZE_GROUP_OF_AREA_BAND = {1: "S", 2: "S", 3: "M", 4: "M", 5: "L", 6: "L"}
 MIN_EXTRA_TERM_TRAIN_ROWS = 30

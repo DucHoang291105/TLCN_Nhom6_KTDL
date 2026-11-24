@@ -64,8 +64,8 @@ TERM_GROUPS = {
 ALL_TERMS = TERM_GROUPS["all_terms"]
 FOLDS = 5
 RIDGE_GRID = (1.0, 5.0, 20.0)
-WEIGHT_GRID = tuple(round(step / 10, 1) for step in range(10, -1, -1))  # 1.0 ... 0.0 (ties prefer the model)
-MIN_GAIN = 1e-3  # a non-default choice must beat the plain model by 0.1% out-of-fold MAE
+WEIGHT_GRID = tuple(round(step / 10, 1) for step in range(10, -1, -1))
+MIN_GAIN = 1e-3
 BASELINE_LEVELS = (
     ("LOC_CAT_AREA_ROOM", ("location_key", "area_band_key", "room_band_key")),
     ("LOC_CAT_AREA", ("location_key", "area_band_key")),
@@ -75,10 +75,10 @@ BASELINE_LEVELS = (
 BOOTSTRAP_SEED = 20261117
 RESAMPLES = 2000
 OVERALL_RESAMPLES = 500
-MIN_AGREEMENT_SHARE = 0.999  # refit vs published prediction within 1% for at least this share of test listings
+MIN_AGREEMENT_SHARE = 0.999
 
 
-# ---- model terms and fitting -------------------------------------------------
+
 
 def model_price_column(table: Any) -> str:
     """Column with the pure model prediction: ``model_price_per_m2`` once Gold
@@ -131,7 +131,7 @@ def predict_price(models: dict[int, Any], row: dict[str, Any], groups: tuple[str
     return math.exp(predict_log(columns, beta))
 
 
-# ---- step 1: term comparison -------------------------------------------------
+
 
 def compare_against_baseline(test: list[dict[str, Any]], predictions: list[float | None]) -> dict[str, Any]:
     """Model vs baseline metrics overall, per category and per location level."""
@@ -197,7 +197,7 @@ def term_comparison(train: list[dict[str, Any]], test: list[dict[str, Any]]) -> 
     return results
 
 
-# ---- step 2: blend selection by cross-validation on train ---------------------
+
 
 def prediction_agreement(pairs: Iterable[tuple[float | None, float]], tolerance: float = 0.01) -> dict[str, Any]:
     """How closely the refit predictions match the published ones, listing by listing.
@@ -286,7 +286,7 @@ def choose_configuration(oof_by_ridge: dict[float, list[tuple[dict[str, Any], fl
     return {"chosen": chosen, "plain_model": plain, "baseline_only_oof_mae": baseline_only, "n_candidates": len(scores)}
 
 
-# ---- step 3: significance -----------------------------------------------------
+
 
 def abs_error_differences(actuals: list[float], baselines: list[float], blends: list[float]) -> list[float]:
     """|actual - baseline| - |actual - blend|; positive when the blend is closer."""
@@ -311,7 +311,7 @@ def paired_bootstrap(diffs: list[float], resamples: int = RESAMPLES, seed: int =
     }
 
 
-# ---- job -----------------------------------------------------------------------
+
 
 def main() -> None:
     from pyspark.sql import functions as F

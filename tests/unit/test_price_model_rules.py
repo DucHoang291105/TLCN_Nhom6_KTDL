@@ -39,7 +39,7 @@ def test_vocabulary_drops_most_frequent_level_per_factor():
     }
     vocab = build_vocabulary(counts)
     assert vocab.terms[0] == INTERCEPT
-    # Ties are broken by name, so the reference is deterministic.
+
     assert set(vocab.references) == {"location=d:1", "area_band=3", "room_band=-1"}
     assert "location=d:1" not in vocab.terms and "location=d:2" in vocab.terms
     assert "flag=title_has_legal" in vocab.terms
@@ -49,9 +49,9 @@ def test_vocabulary_drops_most_frequent_level_per_factor():
 def test_design_indices_reference_and_unseen_levels():
     vocab = build_vocabulary({"location=d:1": 9, "location=d:2": 5, "area_band=3": 9, "room_band=2": 9, "flag=title_has_legal": 3})
     columns, unseen = design_indices(["location=d:1", "area_band=3", "room_band=2"], vocab)
-    assert columns == [0] and unseen == 0  # every level is a reference
+    assert columns == [0] and unseen == 0
     columns, unseen = design_indices(["location=d:2", "area_band=3", "room_band=9", "flag=title_has_legal"], vocab)
-    assert unseen == 1  # room band 9 never seen in training
+    assert unseen == 1
     assert columns == sorted({0, vocab.index["location=d:2"], vocab.index["flag=title_has_legal"]})
 
 
@@ -113,7 +113,7 @@ def test_ridge_shrinks_terms_but_not_intercept():
     term = vocab.index["location=d:2"]
     assert close(beta_ols[term], 2.0)
     assert 0 < beta_ridge[term] < beta_ols[term]
-    # The intercept is not penalised, so it stays near the level of y, not near 0.
+
     assert 9.9 < beta_ridge[0] < 10.5
 
 
@@ -133,7 +133,7 @@ def test_predict_and_premium():
 
 def test_regression_metrics():
     metrics = regression_metrics([(100.0, 110.0), (200.0, 180.0), (50.0, 50.0), (0.0, 10.0)])
-    assert metrics["n"] == 3  # the non-positive actual is ignored
+    assert metrics["n"] == 3
     assert close(metrics["mae"], 10.0)
     assert close(metrics["mape"], (0.1 + 0.1 + 0.0) / 3)
     assert close(metrics["median_ape"], 0.1)
@@ -189,7 +189,7 @@ def test_blend_config_is_valid_and_matches_selection_result():
     assert all(0.0 <= rule.weight <= 1.0 for rule in rules.values())
     raw = json.loads(BLEND_CONFIG_PATH.read_text(encoding="utf-8"))["categories"]
     assert all(item["ridge"] == RIDGE_LAMBDA for item in raw.values())
-    # The config must equal what the cross-validation chose (no hand edits).
+
     result_path = BLEND_CONFIG_PATH.parents[1] / "docs" / "validation" / "price_model_selection.json"
     if result_path.is_file():
         chosen = json.loads(result_path.read_text(encoding="utf-8"))["blend_selection"]["by_category"]
@@ -238,7 +238,7 @@ def test_coefficient_sse_uses_pure_model_prediction_not_blend():
     model = [110.0, 180.0, 330.0]
     expected = sum(math.log(a / m) ** 2 for a, m in zip(actual, model))
     assert close(log_residual_sse(zip(actual, model)), expected)
-    # Changing the blend weight changes the blended price but not the pure model.
+
     for weight in (0.0, 0.4, 1.0):
         baseline = [120.0, 190.0, 280.0]
         blended = [math.exp(weight * math.log(m) + (1 - weight) * math.log(b)) for m, b in zip(model, baseline)]

@@ -76,13 +76,13 @@ def test_feature_similarity():
     assert feature_similarity({"legal":0.0},{"legal":1.0})==0.8
 
 
-# --- Regression: review 2026-10-09 ------------------------------------------
+
 from src.gold.gold_rules import (
     cost_at_target_area, max_flag_share_gap, mutual_best_pairs, resolve_dup_groups, MAX_FLAG_SHARE_GAP,
 )
 
 def test_unknown_rooms_not_beaten_by_known_rooms():
-    # b states 3 rooms, a does not: a cannot be dominated on rooms it omits.
+
     assert pareto_efficient_ids([_item("a",3.5e9,55,None),_item("b",3e9,60,3)])=={"a","b"}
 
 def test_both_unknown_rooms_still_comparable():
@@ -91,12 +91,12 @@ def test_both_unknown_rooms_still_comparable():
 def _pair(l,r,ls,rs,j,p=0.0,a=0.0): return {"left":l,"right":r,"left_source":ls,"right_source":rs,"jaccard":j,"price_gap":p,"area_gap":a}
 
 def test_mutual_best_breaks_chain():
-    # x (guland) resembles both y1 and y2 (nhadatvui); only the best pair stays.
+
     pairs=[_pair("x","y1","guland","nhadatvui",0.6),_pair("x","y2","guland","nhadatvui",0.4)]
     assert mutual_best_pairs(pairs)==[("x","y1")]
 
 def test_mutual_best_requires_both_directions():
-    # y1's best guland match is z, so x-y1 is dropped although y1 is x's best.
+
     pairs=[_pair("x","y1","guland","nhadatvui",0.5),_pair("z","y1","guland","nhadatvui",0.9)]
     assert mutual_best_pairs(pairs)==[("z","y1")]
 
@@ -107,17 +107,17 @@ def test_same_source_group_is_ambiguous():
     assert resolve_dup_groups(cluster_pairs([("a","b")]),{"a":"guland","b":"mogi"})=={"a":"RESOLVED"}
 
 def test_lower_price_per_m2_is_not_lower_budget():
-    # Review counter-example: same 50-80 m2 band, alternative 10% cheaper per m2
-    # but its typical listing is larger, so its median total price is higher.
+
+
     origin_total, alt_total = 51*100e6, 79*90e6
     assert alt_total - origin_total == pytest.approx(2.01e9)
-    # Compared at the origin's target area the alternative is cheaper.
+
     assert cost_at_target_area(90e6,51) < cost_at_target_area(100e6,51)
 
 def test_similarity_threshold_alone_admits_opposite_frontage():
     left,right={"frontage":1.0},{"frontage":0.0}
-    assert feature_similarity(left,right)==0.8   # passes the 0.8 similarity bar
-    assert max_flag_share_gap(left,right)>MAX_FLAG_SHARE_GAP  # rejected by the per-flag cap
+    assert feature_similarity(left,right)==0.8
+    assert max_flag_share_gap(left,right)>MAX_FLAG_SHARE_GAP
 
 
 def test_distance_allowed_cap_and_unknown():
@@ -137,7 +137,7 @@ def test_legal_not_stated_share_compares_below_p25_with_other_priced_positions()
     result = legal_not_stated_by_position(rows)
     assert result["by_position"]["duoi_p25"] == {"listings": 100, "title_states_no_legal": 80, "share": 0.8}
     assert result["below_p25_share"] == 0.8
-    assert result["other_priced_share"] == 0.65  # (60 + 70) / 200, unpriced listings excluded
+    assert result["other_priced_share"] == 0.65
     assert result["difference_share"] == 0.15
 
 
@@ -150,16 +150,16 @@ def test_legal_not_stated_share_handles_missing_groups():
 
 def test_legal_not_stated_by_category_standardizes_the_category_mix():
     rows = [
-        # Land: below P25 states legal more often (30% unstated vs 50% elsewhere).
+
         ("dat", "duoi_p25", False, 30), ("dat", "duoi_p25", True, 70),
         ("dat", "p25_p75", False, 50), ("dat", "p25_p75", True, 50),
-        # Houses: no difference (90% unstated in both groups).
+
         ("nha", "duoi_p25", False, 90), ("nha", "duoi_p25", True, 10),
         ("nha", "tren_p75", False, 180), ("nha", "tren_p75", True, 20),
     ]
     result = legal_not_stated_by_category(rows)
     assert result["by_category"]["dat"]["difference_share"] == -0.2
     assert result["by_category"]["nha"]["difference_share"] == 0.0
-    # Weighted by below-P25 listings: (100 * -0.2 + 100 * 0.0) / 200
+
     assert result["standardized_difference_share"] == -0.1
     assert legal_not_stated_by_category([])["standardized_difference_share"] is None

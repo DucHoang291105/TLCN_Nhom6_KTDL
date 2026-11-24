@@ -31,7 +31,7 @@ def main() -> None:
         & (F.col("price_per_m2") > 0)
     )
 
-    # Group statistics per level, computed once; the size filter is applied per threshold.
+
     stats_by_level = {}
     for level in BENCHMARK_LEVELS:
         keys = LEVEL_KEYS[level]
@@ -104,7 +104,7 @@ def main() -> None:
         "listings_with_peer_in_both": both_with_peer.count(),
     }
 
-    # The result for the published threshold must equal the Gold assessment.
+
     gold_assessment = spark.table(f"{gold}.fact_listing_price_assessment").select(
         "source_id", F.col("price_position").alias("g_position"), F.col("benchmark_level").alias("g_level")
     )
