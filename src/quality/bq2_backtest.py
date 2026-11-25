@@ -61,9 +61,6 @@ OTHER_PROVINCES = "Tỉnh khác"
  FIRST_SEEN) = range(11)
 
 
-
-
-
 STABLE_CRAWL_DEPTH_FROM = {
     "batdongsan": date(2026, 9, 29),
     "guland": date(2026, 10, 23),

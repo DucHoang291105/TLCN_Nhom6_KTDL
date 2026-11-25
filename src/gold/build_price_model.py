@@ -133,7 +133,6 @@ def main() -> None:
     gold, silver = ensure_gold_namespace(spark), ensure_silver_namespace(spark)
     started_at = datetime.now(timezone.utc)
 
-
     locations = spark.table(f"{gold}.dim_location").select("location_key", "province_name", "district_name", "location_level")
     wards = spark.table(f"{silver}.listing_location").select("source_id", "ward")
     reps = representatives(spark, gold).join(locations, "location_key", "left").join(wards, "source_id", "left")
@@ -169,7 +168,6 @@ def main() -> None:
     ).drop("_bounds")
     fit_filter = (F.col("split") == "train") & ~F.col("is_outlier_trimmed")
 
-
     district_rows = base.filter(fit_filter).groupBy("property_category_key", "location_key").agg(F.count("*").alias("district_train_rows"))
     base = base.join(district_rows, ["property_category_key", "location_key"], "left").fillna(0, subset=["district_train_rows"])
     pooled_rows = (
@@ -179,7 +177,6 @@ def main() -> None:
     base = base.join(pooled_rows, ["property_category_key", "province_name"], "left").fillna(0, subset=["pooled_train_rows"])
     base = base.persist(StorageLevel.MEMORY_AND_DISK)
     fit = base.filter(fit_filter)
-
 
     fit_rdd = fit.select(*TERM_COLUMNS, "log_price_per_m2").rdd
     term_counts: dict[int, dict[str, int]] = defaultdict(dict)
@@ -201,7 +198,6 @@ def main() -> None:
     models = {category: fit_ridge(entries[category], vocab.size) for category, vocab in vocabularies.items()}
     beta_broadcast = spark.sparkContext.broadcast({category: beta for category, (beta, _) in models.items()})
 
-
     def predict(row: Any) -> tuple[str, str, float, int]:
         category = row["property_category_key"]
         terms = row_terms(row)
@@ -217,7 +213,6 @@ def main() -> None:
     modelled = base.filter(F.col("property_category_key").isin(*vocabularies.keys()))
     predictions = spark.createDataFrame(modelled.select("source_id", *TERM_COLUMNS).rdd.map(predict), prediction_schema)
 
-
     assessed = modelled.join(predictions, "source_id")
     for index, (level, keys) in enumerate(BASELINE_LEVELS):
         source = fit
@@ -229,9 +224,6 @@ def main() -> None:
         assessed = assessed.join(groups.drop("_n"), keys, "left")
     medians = [F.col(f"_median_{index}") for index in range(len(BASELINE_LEVELS))]
     baseline_level = F.coalesce(*[F.when(median.isNotNull(), F.lit(level)) for median, (level, _) in zip(medians, BASELINE_LEVELS)])
-
-
-
 
     blend_rules = load_blend_config()
     category_col = F.col("property_category_key")
@@ -269,7 +261,6 @@ def main() -> None:
     write_iceberg_table(fact, f"{gold}.fact_listing_price_model")
     written = spark.table(f"{gold}.fact_listing_price_model")
 
-
     rows = written.select(
         "property_category_key", "split", "is_outlier_trimmed", "price_per_m2", "predicted_price_per_m2", "baseline_price_per_m2",
         "location_level", "model_price_per_m2",
@@ -305,7 +296,6 @@ def main() -> None:
         for term, index in terms:
             coefficient = beta[index] if index is not None else 0.0
             std_error = math.sqrt(sigma2 * variances[index]) if index in variances else None
-
 
             is_intercept = term == INTERCEPT
             premium = None if is_intercept else premium_pct(coefficient)

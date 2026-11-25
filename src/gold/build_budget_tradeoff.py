@@ -92,9 +92,6 @@ def main() -> None:
 
     groups = spark.table(f"{gold}.agg_budget_tradeoff")
 
-
-
-
     flagged = written.join(candidates.select("source_id", "rooms"), "source_id").withColumn(
         "rooms_known", F.col("rooms").isNotNull()
     )

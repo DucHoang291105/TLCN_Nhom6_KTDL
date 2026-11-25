@@ -211,7 +211,6 @@ def accented_text(value: Any) -> str:
 
 ADMIN_PREFIX = r"(?:tinh|thanh pho|tp)"
 ADMIN_PREFIX_ACCENTED = ("tỉnh ", "thành phố ", "tp ")
-# Words after which a province-like name is a street, ward, project or person.
 NOT_PROVINCE_BEFORE = {
     "duong", "d", "pho", "lo", "ql", "phuong", "p", "xa", "tt", "tran", "ngo", "hem",
     "kiet", "so", "khu", "kdc", "an", "cu", "cau", "cho", "truong", "van", "thi",
@@ -240,10 +239,6 @@ def _segments(*values: Any) -> list[str]:
 def _province_of_segment(segment: str) -> dict[str, Any] | None:
     """Province named by a whole address component, e.g. "Thành phố Hà Nội"."""
 
-    # "Bình Dương (Hồ Chí Minh mới)": the old province outside the brackets maps
-    # to its 2025 province through the alias table, which gives the same answer.
-    # The "(... mới)" note itself is not trusted: real addresses such as
-    # "Bắc Ninh (Quảng Ninh mới)" contradict the 2025 merger.
     candidates = [match_text(re.sub(r"\s*\(.*\)\s*$", "", segment))]
     for candidate in candidates:
         candidate = re.sub(rf"^{ADMIN_PREFIX} ", "", candidate.strip())
@@ -290,9 +285,6 @@ def resolve_province(
 ) -> tuple[str | None, dict[str, Any] | None, str]:
     """Return (raw text, province reference row, method) by ranked evidence."""
 
-    # 1. An address component that is exactly a province: the last component,
-    # or one carrying an administrative prefix. Leading components are house
-    # numbers and streets ("Hòa Bình, Phường Hiệp Tân, ...").
     for value in (address, district_name):
         segments = _segments(value)
         for index, segment in reversed(list(enumerate(segments))):
@@ -303,11 +295,9 @@ def resolve_province(
             row = _province_of_segment(segment)
             if row:
                 return segment, row, "ADDRESS_COMPONENT"
-    # 2. A Ho Chi Minh City district named in the address or district field.
     for value in (district_name, address):
         if clean_optional_text(value) and canonical_hcmc_district_from_text(str(value)):
             return clean_optional_text(value), PROVINCE_ROW_BY_NAME["Hồ Chí Minh"], "HCMC_DISTRICT"
-    # 3. A province with an administrative prefix anywhere in the text.
     for value in (address, title, source_url):
         folded = match_text(value)
         if not folded:
@@ -319,7 +309,6 @@ def resolve_province(
         row = PROVINCE_ROW_BY_NAME["Hồ Chí Minh"]
         if _consistent(row, lat, lon):
             return clean_optional_text(title), row, "HCMC_DISTRICT"
-    # 4. A bare name in free text; with coordinates it must be consistent.
     for value in (address, title, source_url):
         for row in _bare_alias_candidates(value):
             if _consistent(row, lat, lon):
@@ -358,11 +347,8 @@ def canonical_hcmc_district_from_text(text: str) -> str | None:
     return None
 
 
-# Source values that name no district.
 DISTRICT_PLACEHOLDERS = {"unknown", "khac", "khong xac dinh", "khong ro", "n a", "na", "null", "none", "chua xac dinh"}
 ADMIN_PREFIX_WORDS = r"(?:quan|huyen|thi xa|thanh pho|tp|phuong|xa|thi tran|q|p)"
-# A district field longer than this, or holding digits outside "Quận N", is a
-# fragment of description text cut by the source, not a district name.
 MAX_DISTRICT_FIELD_LENGTH = 40
 
 
@@ -495,8 +481,6 @@ def build_location_record(record: Mapping[str, Any]) -> dict[str, Any]:
         reasons.append("LQ04_PROVINCE_INFERRED_BY_NEAREST_CENTER")
     if distance is not None and distance > MAX_NEAREST_CENTER_KM:
         reasons.append("LQ05_PROVINCE_COORDINATE_CONFLICT")
-        # A distance to the centre of a province the coordinates contradict
-        # is not a measurement; keep the conflict visible instead.
         distance = None
 
     dq_status = (
@@ -595,8 +579,6 @@ def main() -> None:
     missing = sorted(required - set(core.columns))
     if missing:
         raise RuntimeError(f"Silver Core is missing location columns: {missing}")
-    # Select only location fields before crossing the JVM/Python boundary. This
-    # also keeps unrelated timestamp columns out of the location transformer.
     core = core.select(*sorted(required))
     input_rows = core.count()
     distinct_source_ids = core.select("source_id").distinct().count()

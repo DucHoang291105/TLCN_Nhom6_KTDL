@@ -47,8 +47,6 @@ TRIM_QUANTILES = (0.01, 0.99)
 FACTORS = ("location", "area_band", "room_band", "dist_band")
 
 
-
-
 DISTANCE_EDGES_KM = (3.0, 7.0, 15.0)
 SIZE_GROUP_OF_AREA_BAND = {1: "S", 2: "S", 3: "M", 4: "M", 5: "L", 6: "L"}
 MIN_EXTRA_TERM_TRAIN_ROWS = 30
