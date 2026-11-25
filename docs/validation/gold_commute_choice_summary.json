@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-11-22T00:29:28.398105+00:00",
-  "finished_at": "2026-11-22T00:29:38.742246+00:00",
+  "started_at": "2026-11-25T14:50:37.059828+00:00",
+  "finished_at": "2026-11-25T14:50:53.589195+00:00",
   "distance": "straight-line (haversine) km from the district centroid to the destination",
   "min_centroid_listings": 10,
   "commute_tolerance_km": 2.0,
@@ -13,6 +13,30 @@
   "district_groups": 643,
   "district_rows": 5145,
   "efficient_district_rows": 1850,
+  "road_distance": {
+    "source": "OSRM public server router.project-osrm.org, profile driving; map data © OpenStreetMap contributors (ODbL)",
+    "grid_degrees": 0.01,
+    "listing_place_pairs_in_province": 376298,
+    "listing_place_pairs_with_road": 376298,
+    "rings": {
+      "1. Dưới 5 km": 37814,
+      "3. 10–15 km": 88139,
+      "2. 5–10 km": 96072,
+      "5. 20–30 km": 60517,
+      "6. Từ 30 km": 32777,
+      "4. 15–20 km": 60979
+    },
+    "ring_labels": [
+      "1. Dưới 5 km",
+      "2. 5–10 km",
+      "3. 10–15 km",
+      "4. 15–20 km",
+      "5. 20–30 km",
+      "6. Từ 30 km"
+    ],
+    "district_rows_with_road": 4502,
+    "road_frontier_rows": 1578
+  },
   "substitution_pairs": 11996,
   "origins_with_alternative": 3564,
   "median_price_gap_pct": 0.267169,

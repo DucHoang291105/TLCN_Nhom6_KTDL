@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-22T00:37:58.544384+00:00",
+  "generated_at": "2026-11-25T14:58:30.509265+00:00",
   "baseline_batch": "20261016",
   "observation_rows": 343465,
   "seed": {
@@ -12,9 +12,9 @@
     "history_rows": 148219,
     "history_table": "lakehouse.smoke_test.history_merge_benchmark",
     "state_table": "lakehouse.smoke_test.history_merge_benchmark_state",
-    "snapshot_before": "912330449109245686",
-    "snapshot_after": "8116248469051409384",
-    "elapsed_seconds": 15.4623,
+    "snapshot_before": "8780856755227669611",
+    "snapshot_after": "8765893365787761587",
+    "elapsed_seconds": 15.6978,
     "partition_by": [
       "snapshot_date"
     ],
@@ -30,9 +30,9 @@
     "history_rows": 169991,
     "history_table": "lakehouse.smoke_test.history_merge_benchmark",
     "state_table": "lakehouse.smoke_test.history_merge_benchmark_state",
-    "snapshot_before": "8116248469051409384",
-    "snapshot_after": "5914581487712187732",
-    "elapsed_seconds": 16.3483,
+    "snapshot_before": "8765893365787761587",
+    "snapshot_after": "3943268301791226610",
+    "elapsed_seconds": 17.2162,
     "partition_by": [
       "snapshot_date"
     ],
@@ -48,9 +48,9 @@
     "history_rows": 169991,
     "history_table": "lakehouse.smoke_test.history_rebuild_benchmark",
     "state_table": "lakehouse.smoke_test.history_rebuild_benchmark_state",
-    "snapshot_before": "3053236652090656364",
-    "snapshot_after": "2414433595794280637",
-    "elapsed_seconds": 9.9201,
+    "snapshot_before": "2462139517769713112",
+    "snapshot_after": "8387720904726873998",
+    "elapsed_seconds": 10.3936,
     "partition_by": [
       "snapshot_date"
     ],
@@ -59,11 +59,11 @@
   "comparison": {
     "merge": {
       "rows": 169991,
-      "sha256_sorted_row_hashes": "76ef09b670a38f92e2a81e1b661e21e08bf4e9f3ab6b65589baac1a4fac70eef"
+      "sha256_sorted_row_hashes": "9da5c474c499e3d211c604c8a389cbc90300a060352c67574d49b67ce85a86dc"
     },
     "rebuild": {
       "rows": 169991,
-      "sha256_sorted_row_hashes": "76ef09b670a38f92e2a81e1b661e21e08bf4e9f3ab6b65589baac1a4fac70eef"
+      "sha256_sorted_row_hashes": "9da5c474c499e3d211c604c8a389cbc90300a060352c67574d49b67ce85a86dc"
     },
     "merge_only_rows": 0,
     "rebuild_only_rows": 0,
@@ -79,9 +79,9 @@
     "history_rows": 169991,
     "history_table": "lakehouse.smoke_test.history_merge_benchmark",
     "state_table": "lakehouse.smoke_test.history_merge_benchmark_state",
-    "snapshot_before": "5914581487712187732",
-    "snapshot_after": "5914581487712187732",
-    "elapsed_seconds": 3.798,
+    "snapshot_before": "3943268301791226610",
+    "snapshot_after": "3943268301791226610",
+    "elapsed_seconds": 3.9532,
     "partition_by": [
       "snapshot_date"
     ],
@@ -97,9 +97,9 @@
     "history_rows": 169991,
     "history_table": "lakehouse.silver.listing_history",
     "state_table": "lakehouse.silver.listing_history_state",
-    "snapshot_before": "1732658906084803319",
-    "snapshot_after": "1732658906084803319",
-    "elapsed_seconds": 4.0254,
+    "snapshot_before": "4681190432266272689",
+    "snapshot_after": "4681190432266272689",
+    "elapsed_seconds": 3.5385,
     "partition_by": [
       "snapshot_date"
     ],

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-22T00:44:08.445404+00:00",
-  "run_id": "official_integrated_clean_20261122",
+  "generated_at": "2026-11-25T15:07:08.391402+00:00",
+  "run_id": "official_integrated_20261125_r4",
   "checks": {
     "airflow_all_tasks": true,
     "silver_30": true,
@@ -140,6 +140,10 @@
     "gold.agg_commute_district": {
       "expected": 5145,
       "actual": 5145
+    },
+    "gold.fact_listing_commute": {
+      "expected": 376298,
+      "actual": 376298
     },
     "gold.agg_commute_substitution": {
       "expected": 11996,

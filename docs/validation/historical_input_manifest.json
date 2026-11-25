@@ -1,6 +1,6 @@
 {
   "status": "PASS",
-  "generated_at": "2026-11-22T00:17:33.002168+00:00",
+  "generated_at": "2026-11-25T14:39:52.448710+00:00",
   "batch_id": "historical_backfill_v1",
   "bootstrap_policy": "Full two-way exceptAll comparison before pinning any existing Bronze input",
   "sources": {

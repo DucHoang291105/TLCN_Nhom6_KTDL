@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-22T00:38:51.828707+00:00",
-  "table": "lakehouse.smoke_test.publication_308453617389",
+  "generated_at": "2026-11-25T14:59:22.665909+00:00",
+  "table": "lakehouse.smoke_test.publication_e745a7660003",
   "scope": "Real isolated Iceberg commit + injected subsequent failure; retry stage transitions are a fixture",
   "checks": {
     "initial_verified_publication": true,
