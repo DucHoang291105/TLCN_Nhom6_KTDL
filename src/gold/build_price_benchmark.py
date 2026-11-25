@@ -84,7 +84,6 @@ def main() -> None:
     write_iceberg_table(benchmark, f"{gold}.agg_peer_group_benchmark")
     benchmark = spark.table(f"{gold}.agg_peer_group_benchmark")
 
-
     peer_columns = ["peer_group_id", "benchmark_level", "n_listings", "p25_price_per_m2", "median_price_per_m2", "p75_price_per_m2",
                     *[c.replace("title_has_", "share_") for c in FLAG_COLUMNS]]
     assessed = listings

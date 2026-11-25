@@ -31,7 +31,6 @@ def main() -> None:
         & (F.col("price_per_m2") > 0)
     )
 
-
     stats_by_level = {}
     for level in BENCHMARK_LEVELS:
         keys = LEVEL_KEYS[level]
@@ -103,7 +102,6 @@ def main() -> None:
         "position_changed_among_listings_with_peer_in_both": both_with_peer.filter("a.pos <> b.pos").count(),
         "listings_with_peer_in_both": both_with_peer.count(),
     }
-
 
     gold_assessment = spark.table(f"{gold}.fact_listing_price_assessment").select(
         "source_id", F.col("price_position").alias("g_position"), F.col("benchmark_level").alias("g_level")

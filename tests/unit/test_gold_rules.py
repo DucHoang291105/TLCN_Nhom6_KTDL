@@ -76,13 +76,11 @@ def test_feature_similarity():
     assert feature_similarity({"legal":0.0},{"legal":1.0})==0.8
 
 
-
 from src.gold.gold_rules import (
     cost_at_target_area, max_flag_share_gap, mutual_best_pairs, resolve_dup_groups, MAX_FLAG_SHARE_GAP,
 )
 
 def test_unknown_rooms_not_beaten_by_known_rooms():
-
     assert pareto_efficient_ids([_item("a",3.5e9,55,None),_item("b",3e9,60,3)])=={"a","b"}
 
 def test_both_unknown_rooms_still_comparable():
@@ -91,12 +89,10 @@ def test_both_unknown_rooms_still_comparable():
 def _pair(l,r,ls,rs,j,p=0.0,a=0.0): return {"left":l,"right":r,"left_source":ls,"right_source":rs,"jaccard":j,"price_gap":p,"area_gap":a}
 
 def test_mutual_best_breaks_chain():
-
     pairs=[_pair("x","y1","guland","nhadatvui",0.6),_pair("x","y2","guland","nhadatvui",0.4)]
     assert mutual_best_pairs(pairs)==[("x","y1")]
 
 def test_mutual_best_requires_both_directions():
-
     pairs=[_pair("x","y1","guland","nhadatvui",0.5),_pair("z","y1","guland","nhadatvui",0.9)]
     assert mutual_best_pairs(pairs)==[("z","y1")]
 
@@ -107,8 +103,6 @@ def test_same_source_group_is_ambiguous():
     assert resolve_dup_groups(cluster_pairs([("a","b")]),{"a":"guland","b":"mogi"})=={"a":"RESOLVED"}
 
 def test_lower_price_per_m2_is_not_lower_budget():
-
-
     origin_total, alt_total = 51*100e6, 79*90e6
     assert alt_total - origin_total == pytest.approx(2.01e9)
 
@@ -150,7 +144,6 @@ def test_legal_not_stated_share_handles_missing_groups():
 
 def test_legal_not_stated_by_category_standardizes_the_category_mix():
     rows = [
-
         ("dat", "duoi_p25", False, 30), ("dat", "duoi_p25", True, 70),
         ("dat", "p25_p75", False, 50), ("dat", "p25_p75", True, 50),
 

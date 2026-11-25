@@ -31,7 +31,6 @@ MODEL_CATEGORY_LABELS: dict[str, tuple[int, str]] = {
 DQ_STATUS_KEYS = {"PASS": 1, "WARN": 2}
 
 
-
 DUP_AREA_TOLERANCE = 0.02
 DUP_PRICE_TOLERANCE = 0.03
 DUP_MIN_TITLE_JACCARD = 0.35
@@ -217,12 +216,6 @@ def pick_representative(members: Iterable[Mapping[str, Any]]) -> str:
     return min(members, key=sort_key)["source_id"]
 
 
-
-
-
-
-
-
 MIN_PEER_GROUP_SIZE = 5
 BENCHMARK_LEVELS = ("LOC_CAT_AREA_ROOM", "LOC_CAT_AREA", "LOC_CAT")
 
@@ -230,16 +223,9 @@ BENCHMARK_LEVELS = ("LOC_CAT_AREA_ROOM", "LOC_CAT_AREA", "LOC_CAT")
 PRICE_POSITIONS = ("duoi_p25", "p25_p75", "tren_p75", "khong_du_du_lieu")
 
 
-
-
-
-
 MIN_SUBSTITUTION_SIMILARITY = 0.8
 MAX_FLAG_SHARE_GAP = 0.3
 FEATURE_FLAGS = ("legal", "furnished", "frontage", "elevator", "car_access")
-
-
-
 
 
 MAX_DISTANCE_DIFF_KM = 10.0
@@ -412,13 +398,6 @@ def cost_at_target_area(median_price_per_m2: float, target_area: float) -> float
     """
 
     return median_price_per_m2 * target_area
-
-
-
-
-
-
-
 
 
 DESTINATIONS_PATH = PROJECT_ROOT / "config/commute_destinations.csv"

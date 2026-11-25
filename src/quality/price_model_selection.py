@@ -78,8 +78,6 @@ OVERALL_RESAMPLES = 500
 MIN_AGREEMENT_SHARE = 0.999
 
 
-
-
 def model_price_column(table: Any) -> str:
     """Column with the pure model prediction: ``model_price_per_m2`` once Gold
     publishes a blend, else ``predicted_price_per_m2`` (then it is the pure model)."""
@@ -129,8 +127,6 @@ def predict_price(models: dict[int, Any], row: dict[str, Any], groups: tuple[str
     vocabulary, beta = model
     columns, _ = design_indices(row_terms(row, groups), vocabulary)
     return math.exp(predict_log(columns, beta))
-
-
 
 
 def compare_against_baseline(test: list[dict[str, Any]], predictions: list[float | None]) -> dict[str, Any]:
@@ -195,8 +191,6 @@ def term_comparison(train: list[dict[str, Any]], test: list[dict[str, Any]]) -> 
             **compare_against_baseline(test, predictions),
         }
     return results
-
-
 
 
 def prediction_agreement(pairs: Iterable[tuple[float | None, float]], tolerance: float = 0.01) -> dict[str, Any]:
@@ -286,8 +280,6 @@ def choose_configuration(oof_by_ridge: dict[float, list[tuple[dict[str, Any], fl
     return {"chosen": chosen, "plain_model": plain, "baseline_only_oof_mae": baseline_only, "n_candidates": len(scores)}
 
 
-
-
 def abs_error_differences(actuals: list[float], baselines: list[float], blends: list[float]) -> list[float]:
     """|actual - baseline| - |actual - blend|; positive when the blend is closer."""
 
@@ -309,8 +301,6 @@ def paired_bootstrap(diffs: list[float], resamples: int = RESAMPLES, seed: int =
         "share_listings_blend_closer": round(sum(1 for d in diffs if d > 0) / n, 4),
         "significant_at_5pct": low > 0 or high < 0,
     }
-
-
 
 
 def main() -> None:

@@ -46,14 +46,12 @@ def main() -> None:
         metrics[f"{column}_unknown"]=fact.filter(F.col(column)==UNKNOWN_KEY).count(); metrics[f"{column}_orphans"]=orphans
         checks[f"fact_fk_{column}"]=nulls==0 and orphans==0
     current=spark.table(f"{silver}.silver_listings_current_27"); feature=spark.table(f"{silver}.listing_feature")
-    expected=current.select("source_id","is_rent").join(feature.select("source_id","dq_status"),"source_id").filter((F.col("is_rent")==False)&(F.col("dq_status")!="REJECT")).count()  # noqa: E712
+    expected=current.select("source_id","is_rent").join(feature.select("source_id","dq_status"),"source_id").filter((F.col("is_rent")==False)&(F.col("dq_status")!="REJECT")).count()
     metrics["fact_expected_rows"]=expected; checks["fact_row_count_matches_silver"]=counts["fact_listing"]==expected
-    # Equal counts do not prove equal key sets.
-    expected_ids=current.select("source_id","is_rent").join(feature.select("source_id","dq_status"),"source_id").filter((F.col("is_rent")==False)&(F.col("dq_status")!="REJECT")).select("source_id")  # noqa: E712
+    expected_ids=current.select("source_id","is_rent").join(feature.select("source_id","dq_status"),"source_id").filter((F.col("is_rent")==False)&(F.col("dq_status")!="REJECT")).select("source_id")
     metrics["fact_ids_missing"]=expected_ids.join(fact.select("source_id"),"source_id","left_anti").count()
     metrics["fact_ids_unexpected"]=fact.select("source_id").join(expected_ids,"source_id","left_anti").count()
     checks["fact_source_id_set_matches_silver"]=metrics["fact_ids_missing"]==0 and metrics["fact_ids_unexpected"]==0
-    # Every fact row sits in the band its value falls into ([lower, upper)).
     for key,(value,table) in BAND_VALUES.items():
         bands=dims[table].select(F.col("band_key").alias(key),"lower_bound","upper_bound")
         joined=fact.select("source_id",key,F.col(value).cast("double").alias("v")).join(bands,key,"left")
@@ -63,7 +61,6 @@ def main() -> None:
             |((F.col(key)==UNKNOWN_KEY)&known)
         ).count()
         metrics[f"fact_{key}_misassigned"]=wrong; checks[f"fact_{key}_matches_value"]=wrong==0
-    # A province contradicted by coordinates is never a confirmed location.
     metrics["location_conflict_rows"]=fact.filter("is_location_conflict").count()
     checks["location_conflict_has_unknown_location"]=fact.filter("is_location_conflict AND (location_key<>-1 OR distance_to_center_km IS NOT NULL)").count()==0
     groups=fact.filter("is_cross_source_dup_suspect").groupBy("dup_group_id","dup_group_status").agg(F.sum(F.col("is_dup_representative").cast("int")).alias("reps"),F.count("*").alias("n"),F.countDistinct("source_key").alias("sources"))
@@ -75,7 +72,6 @@ def main() -> None:
     checks["dup_groups_have_two_members"]=groups.filter("n<2").count()==0
     checks["non_suspect_is_representative"]=fact.filter("NOT is_cross_source_dup_suspect AND NOT is_dup_representative").count()==0
     metrics["dup_suspect_rows"]=fact.filter("is_cross_source_dup_suspect").count(); metrics["representative_rows"]=fact.filter("is_dup_representative").count()
-    # Step 3: Business Question tables
     bq={name:spark.table(f"{gold}.{name}") for name in BQ_GRAINS}
     for name,df in bq.items():
         counts[name]=df.count(); checks[f"{name}_grain_unique"]=counts[name]==df.select(*BQ_GRAINS[name]).distinct().count()
@@ -93,7 +89,6 @@ def main() -> None:
     checks["assessment_covers_representatives"]=counts["fact_listing_price_assessment"]==metrics["representative_rows"]
     checks["price_ratio_positive"]=assess.filter(F.col("price_ratio").isNotNull()&(F.col("price_ratio")<=0)).count()==0
     checks["assessment_position_consistent"]=assess.filter((F.col("price_position")=="khong_du_du_lieu")!=F.col("peer_group_id").isNull()).count()==0
-    # Recompute the position label from the published peer quartiles.
     expected_position=(F.when(F.col("peer_group_id").isNull(),"khong_du_du_lieu")
         .when(F.col("price_per_m2")<F.col("peer_p25_price_per_m2"),"duoi_p25")
         .when(F.col("price_per_m2")>F.col("peer_p75_price_per_m2"),"tren_p75").otherwise("p25_p75"))
@@ -105,7 +100,6 @@ def main() -> None:
     checks["budget_tradeoff_sum_matches"]=bq["agg_budget_tradeoff"].agg(F.sum("n_listings")).first()[0]==priced.count()
     pareto=bq["fact_budget_pareto"]
     checks["pareto_covers_priced_listings"]=counts["fact_budget_pareto"]==priced.filter((F.col("price")>0)&(F.col("area")>0)).count()
-    # Brute force: no efficient listing is dominated, every dominated one has a dominator.
     keys=["price_band_key","location_key","property_category_key"]
     pts=pareto.join(fact.select("source_id","price","area","rooms",*FLAGS),"source_id")
     a=pts.select(*keys,*[F.col(c).alias(f"a_{c}") for c in ["source_id","price","area","rooms",*FLAGS]])
@@ -124,12 +118,10 @@ def main() -> None:
     checks["substitution_cheaper_at_target_area"]=sub.filter(F.col("estimated_cost_alternative_at_target_area")>=F.col("estimated_cost_origin_at_target_area")).count()==0
     checks["substitution_distance_cap"]=sub.filter(F.col("distance_diff_km").isNull()|(F.col("distance_diff_km")>MAX_DISTANCE_DIFF_KM+1e-3)).count()==0
     checks["substitution_similarity_and_flag_cap"]=sub.filter((F.col("feature_similarity")<MIN_SUBSTITUTION_SIMILARITY)|(F.col("max_flag_share_gap")>MAX_FLAG_SHARE_GAP)).count()==0
-    # Target area = origin group's median area, recomputed from the benchmark.
     origin_groups=peer.filter("benchmark_level='LOC_CAT_AREA'").select(F.col("location_key").alias("origin_location_key"),"property_category_key","area_band_key",F.col("median_area").alias("m_area"))
     checks["substitution_target_area_is_origin_median"]=sub.join(origin_groups,["origin_location_key","property_category_key","area_band_key"],"left").filter("m_area IS NULL OR m_area<>target_area").count()==0
     same_province=sub.join(districts.withColumnRenamed("location_key","origin_location_key").withColumnRenamed("province_name","p1"),"origin_location_key").join(districts.withColumnRenamed("location_key","alternative_location_key").withColumnRenamed("province_name","p2"),"alternative_location_key")
     checks["substitution_same_province"]=same_province.filter("p1<>p2").count()==0
-    # Commute choice: equivalent commute, cheaper at the origin's area, same rules as BQ3, frontier labels recomputed.
     csub=bq["agg_commute_substitution"]; cdist=bq["agg_commute_district"]
     checks["commute_substitution_within_tolerance"]=csub.filter(F.col("alternative_commute_km")>F.col("origin_commute_km")+COMMUTE_TOLERANCE_KM+1e-6).count()==0
     checks["commute_substitution_cheaper_and_similar"]=csub.filter((F.col("estimated_cost_alternative_at_target_area")>=F.col("estimated_cost_origin_at_target_area"))|(F.col("feature_similarity")<MIN_SUBSTITUTION_SIMILARITY)|(F.col("max_flag_share_gap")>MAX_FLAG_SHARE_GAP)).count()==0
@@ -139,8 +131,6 @@ def main() -> None:
     metrics["commute_efficient_label_mismatch"]=cdist.filter("is_commute_efficient").select(*seg,"location_key").intersect(beaten).count()+cdist.filter("NOT is_commute_efficient").select(*seg,"location_key").exceptAll(beaten).count()
     checks["commute_efficient_labels_recomputed"]=metrics["commute_efficient_label_mismatch"]==0
     checks["commute_every_segment_has_efficient_district"]=cdist.groupBy(*seg).agg(F.max(F.col("is_commute_efficient").cast("int")).alias("m")).filter("m<>1").count()==0
-    # Road network (BQ3): road distance is at least the straight line (minus the grid-cell offset), rings follow road_km,
-    # and the road frontier is recomputed from road_km and the cost at the same target area.
     croad=bq["fact_listing_commute"]
     metrics["commute_road_pairs"]=croad.count()
     metrics["commute_road_shorter_than_straight"]=croad.filter(F.col("road_km")<F.col("straight_km")-ROAD_CELL_TOLERANCE_KM).count()
@@ -150,14 +140,12 @@ def main() -> None:
     road_beaten=rdist.alias("a").join(rdist.alias("b"),[F.col(f"a.{c}")==F.col(f"b.{c}") for c in seg]).filter("b.location_key<>a.location_key AND b.road_km<=a.road_km AND b.estimated_cost_at_target_area<=a.estimated_cost_at_target_area AND (b.road_km<a.road_km OR b.estimated_cost_at_target_area<a.estimated_cost_at_target_area)").select(*[F.col(f"a.{c}") for c in seg],F.col("a.location_key")).distinct()
     metrics["commute_road_frontier_mismatch"]=rdist.filter("is_road_frontier").select(*seg,"location_key").intersect(road_beaten).count()+rdist.filter("NOT is_road_frontier").select(*seg,"location_key").exceptAll(road_beaten).count()
     checks["commute_road_frontier_recomputed"]=metrics["commute_road_frontier_mismatch"]==0 and cdist.filter("road_km IS NULL AND is_road_frontier IS NOT NULL").count()==0
-    # BQ evidence tables (build_bq_evidence): the constraints the dashboards state.
     ev={name:spark.table(f"{gold}.{name}") for name in ("ev_budget_pairs","ev_reprice","ev_calibration","ev_flag_check")}
     pairs=ev["ev_budget_pairs"]
     checks["evidence_pairs_constraints"]=pairs.count()>0 and pairs.filter("NOT (gia_b_ty <= 0.9*gia_a_ty + 1e-9 AND dt_b BETWEEN 1.2*dt_a AND 2*dt_a AND phong_b >= phong_a)").count()==0
     checks["evidence_reprice_one_row_per_listing"]=ev["ev_reprice"].count()==ev["ev_reprice"].select("source_id").distinct().count()>0
     checks["evidence_calibration_test_deciles"]=ev["ev_calibration"].filter("nhom_gia_uoc_tinh NOT RLIKE '^D(0[1-9]|10)$'").count()==0
     checks["evidence_flag_groups_min_size"]=ev["ev_flag_check"].filter("n_co < 5 OR n_khong < 5").count()==0
-    # Every example's "ngày hạ giá" is the date of a genuine cut of that listing (not of a later price rise).
     cut_dates=bq["fact_listing_price_change"].alias("c").filter(F.expr(GENUINE_CUT)).select("source_id",F.date_format("changed_at","yyyy-MM-dd").alias("ngay_ha_gia"))
     examples=spark.table(f"{gold}.ev_reprice_examples")
     metrics["evidence_examples_without_cut_date"]=examples.select("source_id","ngay_ha_gia").exceptAll(cut_dates.distinct()).count()
