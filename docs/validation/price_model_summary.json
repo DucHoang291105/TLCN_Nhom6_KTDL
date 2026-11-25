@@ -1,6 +1,6 @@
 {
-  "started_at": "2026-11-22T00:27:16.990077+00:00",
-  "finished_at": "2026-11-22T00:27:58.095053+00:00",
+  "started_at": "2026-11-25T14:48:37.653962+00:00",
+  "finished_at": "2026-11-25T14:49:18.823153+00:00",
   "output_tables": [
     "lakehouse.gold.fact_listing_price_model",
     "lakehouse.gold.agg_price_model_coefficient"

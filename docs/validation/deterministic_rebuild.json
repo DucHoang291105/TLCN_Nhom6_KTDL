@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-11-22T00:35:19.673431+00:00",
+  "generated_at": "2026-11-25T14:56:09.620110+00:00",
   "method": "Compare two materialized Silver/Gold states: row count, distinct grain keys and full multiset SHA256; build-time columns excluded. Both files must use the same fingerprint version.",
   "fingerprint_version": "sha256_multiset_v2",
-  "tables_compared": 38,
+  "tables_compared": 39,
   "tables": [
     {
       "table": "gold.agg_area_substitution",
@@ -296,6 +296,18 @@
       "table": "gold.fact_listing",
       "rows_run1": 136383,
       "rows_run2": 136383,
+      "rows_equal": true,
+      "keys_equal": true,
+      "grain_unique": true,
+      "grain_uniqueness_required": true,
+      "schema_equal": true,
+      "content_equal": true,
+      "excluded_columns": []
+    },
+    {
+      "table": "gold.fact_listing_commute",
+      "rows_run1": 376298,
+      "rows_run2": 376298,
       "rows_equal": true,
       "keys_equal": true,
       "grain_unique": true,

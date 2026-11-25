@@ -7,28 +7,28 @@
   "records": [
     {
       "workers": 1,
-      "elapsed_seconds": 16.875,
-      "sha256": "e380ea65a9bb015bee656867bf3fd233f332890e4e092368357709e5a3351cf4"
+      "elapsed_seconds": 6.8063,
+      "sha256": "e7c6dc8a505c03dfcba035f7e42ff16d9656b0a6f093dbe0ba6f52bd9771153b"
     },
     {
       "workers": 4,
-      "elapsed_seconds": 4.4768,
-      "sha256": "e380ea65a9bb015bee656867bf3fd233f332890e4e092368357709e5a3351cf4"
+      "elapsed_seconds": 3.41,
+      "sha256": "e7c6dc8a505c03dfcba035f7e42ff16d9656b0a6f093dbe0ba6f52bd9771153b"
     },
     {
       "workers": 1,
-      "elapsed_seconds": 15.0893,
-      "sha256": "e380ea65a9bb015bee656867bf3fd233f332890e4e092368357709e5a3351cf4"
+      "elapsed_seconds": 7.3247,
+      "sha256": "e7c6dc8a505c03dfcba035f7e42ff16d9656b0a6f093dbe0ba6f52bd9771153b"
     },
     {
       "workers": 4,
-      "elapsed_seconds": 5.1278,
-      "sha256": "e380ea65a9bb015bee656867bf3fd233f332890e4e092368357709e5a3351cf4"
+      "elapsed_seconds": 3.5109,
+      "sha256": "e7c6dc8a505c03dfcba035f7e42ff16d9656b0a6f093dbe0ba6f52bd9771153b"
     }
   ],
-  "generated_at": "2026-11-21T23:36:52.765595+00:00",
-  "serial_median_seconds": 15.98215,
-  "parallel_median_seconds": 4.8023,
-  "speedup": 3.328019907127835,
+  "generated_at": "2026-11-25T14:03:26.335816+00:00",
+  "serial_median_seconds": 7.0655,
+  "parallel_median_seconds": 3.46045,
+  "speedup": 2.0417864728575763,
   "scope": "Identity checksum primitive on the same source/input; not a whole-pipeline speed claim. No metadata-only cache."
 }
