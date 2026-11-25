@@ -55,7 +55,7 @@ def wait_run(work, run_id, output, expect_failure=False):
     raise TimeoutError(f"Airflow run {run_id} exceeded the verification timeout")
 
 
-def suite(batch, run_id, attach=False):
+def suite(batch, run_id, attach=False, freeze_batch=None):
     if not re.fullmatch(r"[A-Za-z0-9_-]+", run_id):
         raise ValueError("Run ID must contain only letters, digits, _ or -")
     work = ROOT / "outputs/defense" / run_id
@@ -64,7 +64,7 @@ def suite(batch, run_id, attach=False):
         raise ValueError("Use a new run ID; previous release evidence must not be overwritten")
     shutil.copytree(ROOT / "docs/validation", work / "before", dirs_exist_ok=True)
     validate_snapshots(batch)
-    baseline = capture(ROOT, batch, run_id)
+    baseline = capture(ROOT, batch, run_id, freeze_batch)
     if attach:
         existing = subprocess.run(airflow("status", run_id), capture_output=True, text=True, check=True, cwd=ROOT)
         run = json.loads(existing.stdout)
@@ -123,8 +123,9 @@ def main():
     parser.add_argument("--batch-id", required=True)
     parser.add_argument("--run-id", default="defense_" + datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%Y%m%d_%H%M%S"))
     parser.add_argument("--attach-run", action="store_true", help="Continue testing a known DAG run; export its actual start time")
+    parser.add_argument("--as-of", default=None, help="Declared data freeze: a past Tuesday/Friday collection batch (YYYYMMDD) used as the due batch instead of today's")
     args = parser.parse_args()
-    suite(args.batch_id, args.run_id, args.attach_run)
+    suite(args.batch_id, args.run_id, args.attach_run, args.as_of)
 
 
 if __name__ == "__main__":

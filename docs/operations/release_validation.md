@@ -76,6 +76,13 @@ nằm tại `outputs/determinism/run1.json` và `run2.json`; kết quả đối 
 ./scripts/validate_defense.ps1 -BatchId 20261120
 ```
 
+Mặc định, mốc "đợt thu đến hạn" tính theo ngày hiện tại. Khi nhóm đã chốt dừng
+dữ liệu ở một đợt thu đã qua (ví dụ 20/11) và các đợt đến hạn sau đó không được
+nạp, thêm `-AsOf 20261120`. Mốc phải là đợt thu thứ Ba hoặc thứ Sáu đã đến hạn;
+nó được ghi vào `baseline.json` và `defense_verification.json`
+(`data_freeze_batch`, `due_batch_basis`) và được dùng lại khi gắn tag. Đây là
+quyết định đóng băng dữ liệu của nhóm, không thay cho việc thu đợt mới.
+
 Lệnh này dùng đúng batch thật đã có đủ ba nguồn. Suite kiểm tra manifest, chạy
 pytest và compileall, thử chặn downstream khi lỗi rồi chạy DAG bình thường đến
 SUCCESS để trạng thái run mới nhất xanh; sau đó chạy hai rebuild,

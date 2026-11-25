@@ -19,8 +19,8 @@ def verified_candidate(root, evidence):
     if inputs(root) != evidence["inputs"]:
         raise ValueError("Source data changed after verification; rerun the acceptance suite")
     if evidence.get('acceptance_version') == 2:
-        from src.quality.defense_evidence import latest_scheduled_batch
-        if evidence['inputs']['latest_complete_batch'] < latest_scheduled_batch():
+        from src.quality.defense_evidence import scheduled_due
+        if evidence['inputs']['latest_complete_batch'] < scheduled_due(evidence):
             raise ValueError('A newer scheduled collection is due; refresh inputs and verification before tagging')
     for name, reference in evidence["evidence"].items():
         path = Path(root) / "docs/validation" / f"{name}.json"

@@ -82,13 +82,18 @@ def inputs(root):
             "latest_observed_batch": max(max(batches) for batches in by_source.values())}
 
 
-def capture(root, batch, run_id):
+def capture(root, batch, run_id, freeze_batch=None):
     validate_batch(batch)
+    if freeze_batch:
+        validate_freeze(freeze_batch)
     data = inputs(root)
     if batch != data["latest_complete_batch"]:
         raise ValueError(f"Use latest complete batch {data['latest_complete_batch']}; newer partial batches remain listed separately")
-    return {"started_at": datetime.now(timezone.utc).isoformat(), "run_id": run_id,
-            "batch_id": batch, "code": code_state(root), "inputs": data}
+    record = {"started_at": datetime.now(timezone.utc).isoformat(), "run_id": run_id,
+              "batch_id": batch, "code": code_state(root), "inputs": data}
+    if freeze_batch:
+        record["data_freeze_batch"] = freeze_batch
+    return record
 
 
 def latest_scheduled_batch(at=None):
@@ -98,6 +103,19 @@ def latest_scheduled_batch(at=None):
     while at.weekday() not in (1, 4):
         at -= timedelta(days=1)
     return at.strftime('%Y%m%d')
+
+
+def validate_freeze(batch):
+    validate_batch(batch)
+    if datetime.strptime(batch, '%Y%m%d').weekday() not in (1, 4):
+        raise ValueError('Data freeze must be a scheduled collection date (Tuesday or Friday)')
+    if batch > latest_scheduled_batch():
+        raise ValueError('Data freeze cannot be later than the latest due collection')
+    return batch
+
+
+def scheduled_due(record):
+    return record.get('data_freeze_batch') or latest_scheduled_batch()
 
 
 def crawl_inventory(root, data, as_of=None):
@@ -156,7 +174,7 @@ def verify(root, work):
     baseline = read(work / "baseline.json")
     docs = {name: read(root / "docs/validation" / f"{name}.json") for name in ARTIFACTS}
     current_inputs = inputs(root)
-    due_batch = latest_scheduled_batch()
+    due_batch = scheduled_due(baseline)
     inventory = crawl_inventory(root, current_inputs, due_batch)
     run = docs["integration_airflow_run"]
     silver, gold = docs["silver_final_verification"], docs["gold_verification"]
@@ -234,7 +252,10 @@ def verify(root, work):
                "business_limits": dashboard["manual_labeling"],
                "business_context": business_context,
                "acceptance_version": 2,
-               "last_due_collection_batch": due_batch, "publication_identity": publication['identity'],
+               "last_due_collection_batch": due_batch,
+               "data_freeze_batch": baseline.get("data_freeze_batch"),
+               "due_batch_basis": "declared_data_freeze" if baseline.get("data_freeze_batch") else "current_date",
+               "publication_identity": publication['identity'],
                "silver_counts": silver["table_counts"], "gold_counts": gold["table_counts"]}
     write_json_atomic(root / "docs/validation/defense_verification.json", payload)
     write_json_atomic(root / "docs/validation/crawl_inventory.json", inventory)
