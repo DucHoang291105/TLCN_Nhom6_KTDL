@@ -116,7 +116,7 @@ Dữ liệu historical đặt trong `data/incoming/historical/<nguồn>/`, theo 
 
 ## Kết quả kiểm định hiện hành
 
-Bản tích hợp đã nghiệm thu với run `official_integrated_clean_20261122`, batch `20261120`: **94/94 điều kiện PASS**, **597/597 unit test PASS**, DAG **26/26 SUCCESS**. Kiểm chứng được chạy lại sau khi ghép cập nhật và dọn mã nguồn.
+Bản tích hợp đã nghiệm thu với run `official_integrated_20261125_r4`, batch `20261120`: **95/95 điều kiện PASS**, **627/627 unit test PASS**, DAG **26/26 SUCCESS**. Kiểm chứng được chạy lại sau khi ghép cập nhật và dọn mã nguồn, với dữ liệu chốt ở đợt 20/11 (khai báo bằng `-AsOf 20261120`) và gắn tag `v1.1.2-bao-ve`.
 
 Nguồn số liệu chính thức là [defense_verification.json](docs/validation/defense_verification.json):
 run, batch, số điều kiện PASS, hash code/input và số dòng Silver/Gold. Kiểm tra
@@ -163,7 +163,7 @@ Bảng này được xuất từ JSON của batch 20/11 sau hai rebuild trên b�
 | Gold `fact_listing_price_model` | 127,961 |
 | Gold `agg_price_model_coefficient` | 972 |
 
-Silver **30/30 PASS**; Gold **139/139 PASS**. Hai rebuild **38/38 bảng** giống schema, grain và SHA256 nội dung.
+Silver **30/30 PASS**; Gold **144/144 PASS**. Hai rebuild **38/38 bảng** giống schema, grain và SHA256 nội dung.
 
 Kết quả chỉ áp dụng cho code và input đã kiểm chứng. Sau thay đổi phải chạy lại nghiệm thu; dữ liệu thô không phải số dòng sau DQ/dedup.
 
@@ -201,9 +201,9 @@ Chi tiết lệnh và giới hạn vận hành: [Iceberg history](docs/operation
 
 Silver Current là bản ghi **mới nhất đã quan sát**, không xác nhận listing vẫn còn hiển thị. Cờ vắng hai batch không đồng nghĩa đã bán; `listed_days` là khoảng thời gian quan sát, không phải thời gian tới khi bán. Nguồn historical có trạng thái lifecycle `NOT_APPLICABLE`.
 
-Các nhóm nghi trùng cross-source được gắn cờ theo luật; chưa bảo đảm mỗi nhóm tương ứng đúng một bất động sản thực. BQ2 gồm benchmark mô tả (P25–P75) và mô hình hedonic kết hợp baseline (`hedonic_ols_blend`, tham số tại `config/price_model_blend.json`). Mô hình phủ 94,69% tin đại diện. Trên phần test trong khoảng trim, dữ liệu tới 17/11, R² log 0,720 so với 0,656 của baseline, MAE giá/m² thấp hơn 7,41% (41,8 so với 45,1 triệu đồng). So sánh sai số ghép cặp hiện cho cải thiện ở cả 4 loại, nhưng ở biệt thự chỉ khoảng 1,3%. Kết quả ở [price_model_summary.json](docs/validation/price_model_summary.json), giới hạn ở [BQ acceptance](docs/business/bq_acceptance_criteria.md). Độ bất định của hệ số hedonic còn cần tính lại từ sai số mô hình thuần trước khi dùng khoảng tin cậy để kết luận; hệ số thể hiện tương quan trên giá chào bán, không phải tác động nhân quả.
+Các nhóm nghi trùng cross-source được gắn cờ theo luật; chưa bảo đảm mỗi nhóm tương ứng đúng một bất động sản thực. BQ2 gồm benchmark mô tả (P25–P75) và mô hình hedonic kết hợp baseline (`hedonic_ols_blend`, tham số tại `config/price_model_blend.json`). Mô hình phủ 94,68% tin đại diện. Trên phần test trong khoảng trim, dữ liệu tới 20/11, R² log 0,719 so với 0,654 của baseline, MAE giá/m² thấp hơn 7,38% (41,8 so với 45,1 triệu đồng). So sánh sai số ghép cặp hiện cho cải thiện ở cả 4 loại, nhưng ở biệt thự chỉ khoảng 1,3%. Kết quả ở [price_model_summary.json](docs/validation/price_model_summary.json), giới hạn ở [BQ acceptance](docs/business/bq_acceptance_criteria.md). Độ bất định của hệ số hedonic còn cần tính lại từ sai số mô hình thuần trước khi dùng khoảng tin cậy để kết luận; hệ số thể hiện tương quan trên giá chào bán, không phải tác động nhân quả.
 
-Backtest ([kết quả](docs/validation/bq2_backtest.json), dữ liệu 22/09–17/11) dùng định nghĩa giảm giá 1–30%: nhóm trên P75 lúc đầu có tỷ lệ giảm giá khoảng 4,09% so với 2,92% ở nhóm còn lại. Sau kiểm soát nguồn, p ≈ 0,047, chưa đạt ngưỡng Bonferroni 0,05/3; kết quả còn khác nhau theo tỉnh. H2 về phần dư mô hình chưa được khẳng định sau kiểm soát nguồn hoặc trên test riêng. Đây là phân tích hồi cứu dùng peer benchmark hiện tại; không trình bày như dự báo hoặc quan hệ nhân quả. Silver Core và Gold vẫn rebuild từ Bronze; riêng `listing_history` cập nhật incremental qua MERGE và bảng state phục hồi được. Bronze tái sử dụng các batch đã hoàn tất.
+Backtest ([kết quả](docs/validation/bq2_backtest.json), dữ liệu 22/09–20/11) dùng định nghĩa giảm giá 1–30%: nhóm trên P75 lúc đầu có tỷ lệ giảm giá khoảng 4,25% so với 3,04% ở nhóm còn lại. Sau kiểm soát nguồn, p ≈ 0,036, chưa đạt ngưỡng Bonferroni 0,05/3; kết quả còn khác nhau theo tỉnh. H2 về phần dư mô hình chưa được khẳng định sau kiểm soát nguồn hoặc trên test riêng. Đây là phân tích hồi cứu dùng peer benchmark hiện tại; không trình bày như dự báo hoặc quan hệ nhân quả. Silver Core và Gold vẫn rebuild từ Bronze; riêng `listing_history` cập nhật incremental qua MERGE và bảng state phục hồi được. Bronze tái sử dụng các batch đã hoàn tất.
 
 ## Iceberg history và kiểm thử tự động
 
